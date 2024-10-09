@@ -3,8 +3,10 @@ package com.sommerengineering.baraudio.login
 import android.content.res.Configuration.UI_MODE_NIGHT_NO
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.R
+import com.sommerengineering.baraudio.ui.theme.AppTheme
 
 sealed class LoginState {
     object Loading : LoginState()
@@ -37,32 +40,55 @@ fun LoginScreen (
     Surface {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = modifier
-                .fillMaxSize()
-                .padding(60.dp)
+            modifier = modifier.fillMaxSize()
         ) {
-            Image(
-                painterResource(id = R.drawable.logo_full),
-                contentDescription = null,
-            )
-            Spacer(modifier = Modifier.height(60.dp))
-            Button(
-                onClick = { },
-                modifier = Modifier.fillMaxWidth()
+            Row(
+                Modifier.padding(top = 120.dp, bottom = 60.dp)
             ) {
-                Text(
-                    text = "Sign in with Google ..."
+                Spacer(modifier = Modifier.weight(1f))
+                Image(
+                    painterResource(id = R.drawable.logo_full),
+                    contentDescription = null,
+                    Modifier.weight(3f)
                 )
+                Spacer(modifier = Modifier.weight(1f))
             }
-            Spacer(modifier = Modifier.height(12.dp))
-            Button(
-                onClick = { },
-                modifier = Modifier.fillMaxWidth()
+            Column(
+                Modifier.padding(60.dp)
             ) {
-                Text(
-                    text = "Sign in with Github ..."
-                )
+                Button(
+                    onClick = { },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "Sign in with Google ..."
+                    )
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+                Button(
+                    onClick = { },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "Sign in with Github ..."
+                    )
+                }
             }
         }
+    }
+}
+
+@Preview(
+    uiMode = UI_MODE_NIGHT_YES,
+    name = "dark"
+)
+@Preview(
+    uiMode = UI_MODE_NIGHT_NO,
+    name = "light"
+)
+@Composable
+fun PreviewDarkLight() {
+    AppTheme {
+        LoginScreen()
     }
 }

@@ -27,18 +27,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-@Preview(
-    uiMode = UI_MODE_NIGHT_YES,
-    name = "dark"
-)
-@Preview(
-    uiMode = UI_MODE_NIGHT_NO,
-    name = "light"
-)
-@Composable
-fun PreviewDarkLight() {
-    AppTheme {
-        LoginScreen()
-    }
-}
