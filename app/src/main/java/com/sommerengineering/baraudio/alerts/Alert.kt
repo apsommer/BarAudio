@@ -1,5 +1,13 @@
 package com.sommerengineering.baraudio.alerts
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+
 class Alert(
     var name: String,
     var sound: Int,
@@ -23,4 +31,23 @@ fun getAlerts() : List<Alert> {
         Alert("RTY", 3, "Swedish", 1.2f, QueueBehavior.AddToQueue, "https://webhook.345"),
         Alert("FESX", 4, "Catalan", 1.3f, QueueBehavior.ReplaceQueue, "https://webhook.456")
     )
+}
+
+@Composable
+fun AlertItem(
+    alert: Alert,
+    modifier: Modifier = Modifier) {
+
+    Surface {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = modifier.fillMaxSize()
+        ) {
+            Text(text = alert.name)
+            Text(text = alert.sound.toString())
+            Text(text = alert.voice)
+            Text(text = alert.queueBehavior.toString())
+            Text(text = alert.webhook)
+        }
+    }
 }
