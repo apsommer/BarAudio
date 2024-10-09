@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.ui.theme
+package com.sommerengineering.baraudio.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme

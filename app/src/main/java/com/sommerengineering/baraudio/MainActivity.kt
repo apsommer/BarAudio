@@ -21,7 +21,7 @@ import com.sommerengineering.baraudio.alerts.AlertsScreen
 import com.sommerengineering.baraudio.alerts.AlertsState
 import com.sommerengineering.baraudio.login.LoginScreen
 import com.sommerengineering.baraudio.login.LoginState
-import com.sommerengineering.baraudio.ui.theme.AppTheme
+import com.sommerengineering.baraudio.theme.AppTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.ui.theme
+package com.sommerengineering.baraudio.theme
 import androidx.compose.ui.graphics.Color
 
 // material theme seeded with source #183BE9
