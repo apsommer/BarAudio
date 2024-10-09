@@ -1,5 +1,7 @@
 package com.sommerengineering.baraudio
 
+import android.content.res.Configuration.UI_MODE_NIGHT_NO
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -20,10 +22,23 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             AppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    LoginScreen(innerPadding)
-                }
+                LoginScreen()
             }
         }
+    }
+}
+
+@Preview(
+    uiMode = UI_MODE_NIGHT_YES,
+    name = "dark"
+)
+@Preview(
+    uiMode = UI_MODE_NIGHT_NO,
+    name = "light"
+)
+@Composable
+fun PreviewDarkLight() {
+    AppTheme {
+        LoginScreen()
     }
 }
