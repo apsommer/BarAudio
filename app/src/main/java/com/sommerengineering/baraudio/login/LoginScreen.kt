@@ -26,6 +26,7 @@ import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.ui.theme.AppTheme
 
 sealed class LoginState {
+    companion object { val route = "LoginScreen" }
     object Loading : LoginState()
     data class Success(val account: String) : LoginState()
     data class Error(val message: String) : LoginState()
@@ -33,6 +34,7 @@ sealed class LoginState {
 
 @Composable
 fun LoginScreen (
+    onClickLoginWithGoogle: () -> Unit,
     modifier: Modifier = Modifier) {
 
     // todo get state
@@ -57,7 +59,7 @@ fun LoginScreen (
                 Modifier.padding(60.dp)
             ) {
                 Button(
-                    onClick = { },
+                    onClick = onClickLoginWithGoogle,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
@@ -89,6 +91,8 @@ fun LoginScreen (
 @Composable
 fun PreviewDarkLight() {
     AppTheme {
-        LoginScreen()
+        LoginScreen(
+            onClickLoginWithGoogle = {}
+        )
     }
 }
