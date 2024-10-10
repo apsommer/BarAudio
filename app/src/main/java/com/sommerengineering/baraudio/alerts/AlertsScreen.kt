@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -34,29 +35,15 @@ fun AlertsScreen(
     Scaffold(
         topBar = {
             // todo profile image top right
+        },
+        floatingActionButton = {
+            // todo plus button
         }
     ) { padding ->
 
         LazyColumn(Modifier.padding(padding)) {
-            // todo add alerts
-        }
-
-        Surface {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = modifier.fillMaxSize()
-            ) {
-                Row(
-                    Modifier.padding(top = 120.dp, bottom = 60.dp)
-                ) {
-                    Spacer(modifier = Modifier.weight(1f))
-                    Image(
-                        painterResource(id = R.drawable.empty_state),
-                        contentDescription = null,
-                        Modifier.weight(3f)
-                    )
-                    Spacer(modifier = Modifier.weight(1f))
-                }
+            items(items = getAlerts()) { alert ->
+                AlertItem(alert)
             }
         }
     }
