@@ -28,11 +28,11 @@ fun Navigation(
         modifier = modifier
     ) {
         composable(
-            route = LoginState.route) {
+            route = LoginScreenRoute) {
             LoginScreen(
                 onClickLoginWithGoogle = {
                     controller.navigate(AlertScreenRoute) {
-                        popUpTo(LoginState.route) {
+                        popUpTo(LoginScreenRoute) {
                             inclusive = true
                         }
                     }
