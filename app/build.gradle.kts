@@ -21,6 +21,10 @@ android {
     }
 
     buildTypes {
+
+        // debug keystore location
+        // ~/.android/debug.keystore
+
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -51,9 +55,6 @@ android {
 
 dependencies {
 
-    // version
-    val nav_version = "2.8.2"
-
     // default october 2024
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -73,5 +74,10 @@ dependencies {
     implementation(kotlin("script-runtime"))
 
     // navigation
-    implementation("androidx.navigation:navigation-compose:$nav_version")
+    implementation(libs.androidx.navigation.compose)
+    
+    // google sign-in
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
 }
