@@ -22,7 +22,6 @@ import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.theme.AppTheme
 
 sealed class AlertsState {
-    companion object { val route = "AlertsScreen" }
     object Loading : AlertsState()
     data class Success(val alerts: List<String>) : AlertsState()
     data class Error(val message: String) : AlertsState()

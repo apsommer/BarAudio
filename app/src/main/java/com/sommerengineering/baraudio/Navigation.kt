@@ -11,6 +11,10 @@ import com.sommerengineering.baraudio.alerts.AlertsState
 import com.sommerengineering.baraudio.login.LoginScreen
 import com.sommerengineering.baraudio.login.LoginState
 
+// routes
+val LoginScreenRoute = "LoginScreen"
+val AlertScreenRoute = "AlertScreen"
+
 @Composable
 fun Navigation(
     controller: NavHostController,
@@ -20,14 +24,14 @@ fun Navigation(
     // host is container for current destination
     NavHost(
         navController = controller,
-        startDestination = LoginState.route,
+        startDestination = LoginScreenRoute,
         modifier = modifier
     ) {
         composable(
             route = LoginState.route) {
             LoginScreen(
                 onClickLoginWithGoogle = {
-                    controller.navigate(AlertsState.route) {
+                    controller.navigate(AlertScreenRoute) {
                         popUpTo(LoginState.route) {
                             inclusive = true
                         }
@@ -36,7 +40,7 @@ fun Navigation(
             )
         }
         composable(
-            route = AlertsState.route) {
+            route = AlertScreenRoute) {
             AlertsScreen()
         }
     }

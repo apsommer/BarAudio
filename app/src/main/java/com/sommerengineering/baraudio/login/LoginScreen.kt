@@ -26,7 +26,6 @@ import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.theme.AppTheme
 
 sealed class LoginState {
-    companion object { val route = "LoginScreen" }
     object Loading : LoginState()
     data class Success(val account: String) : LoginState()
     data class Error(val message: String) : LoginState()
