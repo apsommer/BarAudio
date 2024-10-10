@@ -79,6 +79,8 @@ fun LoginScreen (
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 @Preview(
     uiMode = UI_MODE_NIGHT_YES,
     name = "dark"
@@ -88,7 +90,7 @@ fun LoginScreen (
     name = "light"
 )
 @Composable
-fun PreviewDarkLight() {
+fun PreviewLoginScreen() {
     AppTheme {
         LoginScreen(
             onClickLoginWithGoogle = {}

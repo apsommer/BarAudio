@@ -1,5 +1,7 @@
 package com.sommerengineering.baraudio.alerts
 
+import android.content.res.Configuration.UI_MODE_NIGHT_NO
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
@@ -7,6 +9,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import com.sommerengineering.baraudio.login.LoginScreen
+import com.sommerengineering.baraudio.theme.AppTheme
 
 class Alert(
     var name: String,
@@ -40,14 +45,31 @@ fun AlertItem(
 
     Surface {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
+            horizontalAlignment = Alignment.Start,
             modifier = modifier.fillMaxSize()
         ) {
             Text(text = alert.name)
             Text(text = alert.sound.toString())
             Text(text = alert.voice)
-            Text(text = alert.queueBehavior.toString())
+            Text(text = "queue behavior ...")
             Text(text = alert.webhook)
         }
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+@Preview(
+    uiMode = UI_MODE_NIGHT_YES,
+    name = "dark"
+)
+@Preview(
+    uiMode = UI_MODE_NIGHT_NO,
+    name = "light"
+)
+@Composable
+fun PreviewAlertItem() {
+    AppTheme {
+        AlertItem(getAlerts()[0])
     }
 }

@@ -5,11 +5,8 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.navOptions
 import com.sommerengineering.baraudio.alerts.AlertsScreen
-import com.sommerengineering.baraudio.alerts.AlertsState
 import com.sommerengineering.baraudio.login.LoginScreen
-import com.sommerengineering.baraudio.login.LoginState
 
 // routes
 val LoginScreenRoute = "LoginScreen"

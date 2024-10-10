@@ -48,6 +48,8 @@ fun AlertsScreen(
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 @Preview(
     uiMode = UI_MODE_NIGHT_YES,
     name = "dark"
@@ -57,7 +59,7 @@ fun AlertsScreen(
     name = "light"
 )
 @Composable
-fun PreviewDarkLight() {
+fun PreviewAlertsScreen() {
     AppTheme {
         AlertsScreen()
     }
