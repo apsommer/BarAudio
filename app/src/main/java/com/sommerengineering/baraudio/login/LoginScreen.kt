@@ -2,10 +2,9 @@ package com.sommerengineering.baraudio.login
 
 import android.content.res.Configuration.UI_MODE_NIGHT_NO
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import android.util.Log
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,27 +15,34 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.theme.AppTheme
 
 sealed class LoginState {
-    object Loading : LoginState()
+    data object Loading : LoginState()
     data class Success(val account: String) : LoginState()
     data class Error(val message: String) : LoginState()
 }
 
 @Composable
 fun LoginScreen (
-    onClickLoginWithGoogle: () -> Unit,
+    onSuccessSignIn: () -> Unit,
     modifier: Modifier = Modifier) {
 
-    // todo get state
+    // initialize
+    val context = LocalContext.current
+    var isSignedIn by remember { mutableStateOf(false) }
+    if (isSignedIn) { onSuccessSignIn() }
 
     Surface {
         Column(
@@ -58,7 +64,12 @@ fun LoginScreen (
                 Modifier.padding(60.dp)
             ) {
                 Button(
-                    onClick = onClickLoginWithGoogle,
+                    onClick = {
+                        googleSignIn(
+                            activityContext = context,
+                            onSuccess = { onSuccessSignIn() }
+                        )
+                    },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
@@ -77,6 +88,8 @@ fun LoginScreen (
             }
         }
     }
+
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -93,7 +106,7 @@ fun LoginScreen (
 fun PreviewLoginScreen() {
     AppTheme {
         LoginScreen(
-            onClickLoginWithGoogle = {}
+            onSuccessSignIn = {}
         )
     }
 }
