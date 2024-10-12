@@ -1,11 +1,11 @@
 package com.sommerengineering.baraudio.login
 
 import android.content.Context
-import android.credentials.GetCredentialException
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
-import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
+import com.sommerengineering.baraudio.BuildConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -19,16 +19,15 @@ fun googleSignIn (
     val coroutineScope = CoroutineScope(Dispatchers.IO)
 
     // consider google accounts on device
-    val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
-        .setFilterByAuthorizedAccounts(true) // filter by accounts already used to sign-in
-        .setAutoSelectEnabled(true) // automatic sign-in for users who register with their single account
+    val googleSignInOption: GetSignInWithGoogleOption = GetSignInWithGoogleOption
+        .Builder(BuildConfig.googleSignInClientId)
         .build()
 
     // todo sign-up with setFilterByAuthorizedAccounts(false)
 
     // create request
     val request: GetCredentialRequest = GetCredentialRequest.Builder()
-        .addCredentialOption(googleIdOption)
+        .addCredentialOption(googleSignInOption)
         .build()
 
     coroutineScope.launch {
