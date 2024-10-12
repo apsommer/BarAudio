@@ -1,11 +1,13 @@
 package com.sommerengineering.baraudio.login
 
 import android.content.Context
+import android.util.Log
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.sommerengineering.baraudio.BuildConfig
+import com.sommerengineering.baraudio.TAG
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -50,5 +52,5 @@ fun handleSuccess(result: GetCredentialResponse) {
 }
 
 fun handleFailure(exception: Exception) {
-
+    Log.e(TAG, "handleFailure: ", exception)
 }
