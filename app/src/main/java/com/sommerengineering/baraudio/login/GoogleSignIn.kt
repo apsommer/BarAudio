@@ -74,7 +74,11 @@ fun handleSuccess(result: GetCredentialResponse) {
             if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
                 try {
 
+
                     val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+
+                    // todo viewmodel.setUser()
+
                     Log.d(TAG, "handleSuccess: " + googleIdTokenCredential.id)
                     Log.d(TAG, "handleSuccess: " + googleIdTokenCredential.idToken)
                     Log.d(TAG, "handleSuccess: " + googleIdTokenCredential.givenName)
