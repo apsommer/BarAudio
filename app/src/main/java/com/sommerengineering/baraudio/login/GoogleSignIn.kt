@@ -6,6 +6,7 @@ import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
@@ -26,16 +27,24 @@ fun googleSignIn (
     val credentialManager = CredentialManager.create(activityContext)
     val coroutineScope = CoroutineScope(Dispatchers.Main)
 
-    // consider google accounts on device
+    // modal dialog
     val googleSignInOption: GetSignInWithGoogleOption = GetSignInWithGoogleOption
         .Builder(BuildConfig.googleSignInClientId)
+        .build()
+
+    // bottom sheet with progress bar
+    val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
+        .setFilterByAuthorizedAccounts(true)
+        .setServerClientId(BuildConfig.googleSignInClientId)
+        .setAutoSelectEnabled(true)
         .build()
 
     // todo sign-up with setFilterByAuthorizedAccounts(false)
 
     // create request
     val request: GetCredentialRequest = GetCredentialRequest.Builder()
-        .addCredentialOption(googleSignInOption)
+//        .addCredentialOption(googleSignInOption) // modal dialog
+        .addCredentialOption(googleIdOption) // bottom sheet with progress bar
         .build()
 
     // todo refactor to LaunchedEffect
