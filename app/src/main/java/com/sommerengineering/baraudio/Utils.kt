@@ -2,6 +2,8 @@ package com.sommerengineering.baraudio
 
 import android.util.Log
 
+const val TAG = "~"
+
 fun handleException(e: Exception) {
     Log.e(TAG, "handleException: ", e)
 }
