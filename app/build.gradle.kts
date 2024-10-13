@@ -3,13 +3,16 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    id("com.google.devtools.ksp") version "2.0.20-1.0.24"
 }
 
 android {
+
     namespace = "com.sommerengineering.baraudio"
     compileSdk = 34
 
     defaultConfig {
+
         applicationId = "com.sommerengineering.baraudio"
         minSdk = 28
         targetSdk = 34
@@ -33,6 +36,26 @@ android {
             name = "googleSignInClientId",
             value = googleSignInClientId
         )
+
+        // configure ksp for koin
+        sourceSets {
+            getByName("main"){
+                java.srcDir("src/main/java")
+                java.srcDir("src/main/kotlin")
+            }
+            getByName("test") {
+                java.srcDir("src/test/java")
+                java.srcDir("src/test/kotlin")
+            }
+        }
+
+        applicationVariants.configureEach {
+            kotlin.sourceSets {
+                getByName(name) {
+                    kotlin.srcDir("build/generated/ksp/${name}/kotlin")
+                }
+            }
+        }
     }
 
     buildTypes {
@@ -48,20 +71,25 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+
     kotlinOptions {
         jvmTarget = "1.8"
     }
+
     buildFeatures {
         compose = true
         buildConfig = true
     }
+
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
     }
+
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -98,5 +126,5 @@ dependencies {
     implementation(libs.googleid)
 
     // koin
-    implementation("io.insert-koin:koin-android:4.0.0")
+    implementation(libs.koin.android)
 }
