@@ -11,18 +11,20 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.sommerengineering.baraudio.BuildConfig
 import com.sommerengineering.baraudio.TAG
+import com.sommerengineering.baraudio.handleException
+import com.sommerengineering.baraudio.logMessage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 fun googleSignIn (
     activityContext: Context,
-    onSuccess: () -> Unit,
+    onAuthentication: () -> Unit,
 ) {
 
     // create credential manager and coroutine
     val credentialManager = CredentialManager.create(activityContext)
-    val coroutineScope = CoroutineScope(Dispatchers.IO)
+    val coroutineScope = CoroutineScope(Dispatchers.Main)
 
     // consider google accounts on device
     val googleSignInOption: GetSignInWithGoogleOption = GetSignInWithGoogleOption
@@ -44,7 +46,7 @@ fun googleSignIn (
                 context = activityContext
             )
             handleSuccess(result)
-            onSuccess()
+            onAuthentication()
         } catch (e: Exception) {
             handleException(e)
         }
@@ -72,20 +74,11 @@ fun handleSuccess(result: GetCredentialResponse) {
                     Log.d(TAG, "handleSuccess: " + googleIdTokenCredential.phoneNumber)
                     Log.d(TAG, "handleSuccess: " + googleIdTokenCredential.profilePictureUri)
 
-                } catch (e: GoogleIdTokenParsingException) {
-                    handleException(e)
-                }
+                } catch (e: GoogleIdTokenParsingException) { handleException(e) }
             }
-            else {
-                Log.e(TAG, "Unexpected type of credential")
-            }
+            else { logMessage("Unexpected type of credential") }
         }
-        else -> {
-            Log.e(TAG, "Unexpected type of credential")
-        }
+        else -> { logMessage("Unexpected type of credential") }
     }
 }
 
-fun handleException(e: Exception) {
-    Log.e(TAG, "handleException: ", e)
-}
