@@ -98,5 +98,9 @@ dependencies {
     implementation(libs.googleid)
 
     // koin
-    implementation("io.insert-koin:koin-android:$4.0.0")
+    implementation("io.insert-koin:koin-android:4.0.0")
+    // implementation("io.insert-koin:koin-androidx-navigation:4.0.0") // todo can remove? duplicate of compose-navigation below?
+    // implementation("io.insert-koin:koin-androidx-startup:$koin_android_version") // todo implement androidx startup library
+    implementation("io.insert-koin:koin-androidx-compose:4.0.0")
+    implementation("io.insert-koin:koin-androidx-compose-navigation:4.0.0")
 }
