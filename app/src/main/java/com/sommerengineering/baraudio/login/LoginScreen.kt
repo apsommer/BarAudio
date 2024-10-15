@@ -23,12 +23,6 @@ import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.theme.AppTheme
 
-sealed class LoginState {
-    data object Loading : LoginState()
-    data class Success(val account: String) : LoginState()
-    data class Error(val message: String) : LoginState()
-}
-
 @Composable
 fun LoginScreen (
     onAuthentication: () -> Unit,
