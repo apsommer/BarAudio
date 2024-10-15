@@ -2,7 +2,9 @@ package com.sommerengineering.baraudio
 
 import androidx.lifecycle.ViewModel
 
-class MainViewModel : ViewModel() {
+class MainViewModel(
+    private val repository: Repository
+) : ViewModel() {
 
     // todo auth state
 

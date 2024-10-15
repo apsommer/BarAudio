@@ -11,9 +11,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
-import com.sommerengineering.baraudio.login.LoginScreen
 import com.sommerengineering.baraudio.theme.AppTheme
+import org.koin.androidx.compose.koinViewModel
+import org.koin.java.KoinJavaComponent.inject
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,8 +31,9 @@ class MainActivity : ComponentActivity() {
 fun App() {
     AppTheme {
 
-        // create navigation controller
+        // initialize
         val navController = rememberNavController()
+        val viewModel: MainViewModel = koinViewModel()
         
         Scaffold { padding ->
             Navigation(navController)
