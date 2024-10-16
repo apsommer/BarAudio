@@ -106,6 +106,7 @@ dependencies {
     implementation(libs.koin.androidx.compose.navigation)
 
     // firebase
-    implementation(platform("com.google.firebase:firebase-bom:33.4.0"))
-    implementation("com.google.firebase:firebase-analytics")
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.auth)
 }
