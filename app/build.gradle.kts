@@ -30,11 +30,11 @@ android {
         properties.load(localProperties.inputStream())
 
         // parse api keys
-        val googleSignInClientId = properties.getProperty("googleSignInClientId")
+        val googleSignInWebClientId = properties.getProperty("googleSignInWebClientId")
         buildConfigField(
             type = "String",
-            name = "googleSignInClientId",
-            value = googleSignInClientId
+            name = "googleSignInWebClientId",
+            value = googleSignInWebClientId
         )
     }
 

@@ -29,13 +29,13 @@ fun googleSignIn (
 
     // modal dialog
     val googleSignInOption: GetSignInWithGoogleOption = GetSignInWithGoogleOption
-        .Builder(BuildConfig.googleSignInClientId)
+        .Builder(BuildConfig.googleSignInWebClientId)
         .build()
 
     // bottom sheet with progress bar
     val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
         .setFilterByAuthorizedAccounts(true)
-        .setServerClientId(BuildConfig.googleSignInClientId)
+        .setServerClientId(BuildConfig.googleSignInWebClientId)
         .setAutoSelectEnabled(true)
         .build()
 
@@ -43,8 +43,8 @@ fun googleSignIn (
 
     // create request
     val request: GetCredentialRequest = GetCredentialRequest.Builder()
-//        .addCredentialOption(googleSignInOption) // modal dialog
-        .addCredentialOption(googleIdOption) // bottom sheet with progress bar
+        .addCredentialOption(googleSignInOption) // modal dialog
+//        .addCredentialOption(googleIdOption) // bottom sheet with progress bar
         .build()
 
     // todo refactor to LaunchedEffect
