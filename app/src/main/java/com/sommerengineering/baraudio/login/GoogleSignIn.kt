@@ -1,5 +1,6 @@
 package com.sommerengineering.baraudio.login
 
+import android.app.Activity
 import android.content.Context
 import android.util.Log
 import androidx.credentials.CredentialManager
@@ -7,12 +8,12 @@ import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.auth.api.signin.internal.GoogleSignInOptionsExtensionParcelable
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
 import com.sommerengineering.baraudio.BuildConfig
 import com.sommerengineering.baraudio.TAG
 import com.sommerengineering.baraudio.handleException
@@ -23,6 +24,7 @@ import kotlinx.coroutines.launch
 
 fun googleSignIn (
     activityContext: Context,
+    auth: FirebaseAuth,
     onAuthentication: () -> Unit,
 ) {
 
@@ -67,7 +69,10 @@ fun googleSignIn (
                 request = request,
                 context = activityContext
             )
-            handleSuccess(result)
+            handleSuccess(
+                activityContext = activityContext,
+                auth = auth,
+                result = result)
             onAuthentication()
         } catch (e: Exception) {
             handleException(e)
@@ -77,7 +82,10 @@ fun googleSignIn (
     // todo sign-out with clearCredentialState()
 }
 
-fun handleSuccess(result: GetCredentialResponse) {
+fun handleSuccess(
+    activityContext: Context,
+    auth: FirebaseAuth,
+    result: GetCredentialResponse) {
 
     // extract credential
     val credential = result.credential
@@ -88,15 +96,28 @@ fun handleSuccess(result: GetCredentialResponse) {
                 try {
 
                     val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+                    val idToken = googleIdTokenCredential.idToken
 
                     // temp
+                    Log.d(TAG, "handleSuccess: $idToken")
                     Log.d(TAG, "handleSuccess: " + googleIdTokenCredential.id)
-                    Log.d(TAG, "handleSuccess: " + googleIdTokenCredential.idToken)
                     Log.d(TAG, "handleSuccess: " + googleIdTokenCredential.givenName)
                     Log.d(TAG, "handleSuccess: " + googleIdTokenCredential.displayName)
                     Log.d(TAG, "handleSuccess: " + googleIdTokenCredential.familyName)
                     Log.d(TAG, "handleSuccess: " + googleIdTokenCredential.phoneNumber)
                     Log.d(TAG, "handleSuccess: " + googleIdTokenCredential.profilePictureUri)
+
+                    val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
+                    auth.signInWithCredential(firebaseCredential)
+                        .addOnCompleteListener(activityContext as Activity) { task ->
+                            if (task.isSuccessful) {
+                                val user = auth.currentUser
+                                Log.d(TAG, "handleSuccess: " + user?.displayName)
+                            } else {
+                                handleException(task.exception)
+                            }
+
+                        }
 
                 } catch (e: GoogleIdTokenParsingException) { handleException(e) }
             }

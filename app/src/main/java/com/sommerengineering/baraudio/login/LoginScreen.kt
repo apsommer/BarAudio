@@ -20,11 +20,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.google.firebase.auth.FirebaseAuth
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.theme.AppTheme
 
 @Composable
 fun LoginScreen (
+    auth: FirebaseAuth,
     onAuthentication: () -> Unit,
     modifier: Modifier = Modifier) {
 
@@ -54,6 +56,7 @@ fun LoginScreen (
                     onClick = {
                         googleSignIn(
                             activityContext = context,
+                            auth = auth,
                             onAuthentication = onAuthentication
                         )
                     },
@@ -91,6 +94,7 @@ fun LoginScreen (
 fun PreviewLoginScreen() {
     AppTheme {
         LoginScreen(
+            auth = FirebaseAuth.getInstance(),
             onAuthentication = {}
         )
     }
