@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">BarAudio</string>
+    <string name="default_notification_channel_id">BarAudio</string>
 </resources>
