@@ -17,9 +17,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.theme.AppTheme
 
@@ -32,6 +34,9 @@ sealed class AlertsState {
 @Composable
 fun AlertsScreen(
     modifier: Modifier = Modifier) {
+
+    // todo debug test
+    (LocalContext.current as MainActivity).requestRealtimeNotificationPermission()
 
     Scaffold(
         topBar = {
