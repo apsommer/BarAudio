@@ -20,14 +20,14 @@ fun Navigation(
 
     // skip login screen if user already signed-in
     val firebaseAuth: FirebaseAuth = koinInject()
-    val startDestination =
+    val startDestination = LoginScreenRoute
         if (firebaseAuth.currentUser != null) { AlertScreenRoute }
         else { LoginScreenRoute }
 
     // host is container for current destination
     NavHost(
         navController = controller,
-        startDestination = startDestination,
+        startDestination = LoginScreenRoute // startDestination, todo disable for testing
     ) {
         composable(
             route = LoginScreenRoute) {
