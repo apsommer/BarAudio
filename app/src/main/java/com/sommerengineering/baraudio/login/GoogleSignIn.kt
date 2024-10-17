@@ -6,6 +6,7 @@ import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
+import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.internal.GoogleSignInOptionsExtensionParcelable
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
@@ -29,11 +30,6 @@ fun googleSignIn (
     val credentialManager = CredentialManager.create(activityContext)
     val coroutineScope = CoroutineScope(Dispatchers.Main)
 
-    // modal dialog
-    val googleSignInOption: GetSignInWithGoogleOption = GetSignInWithGoogleOption
-        .Builder(BuildConfig.googleSignInWebClientId)
-        .build()
-
     // bottom sheet with progress bar
     val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
         .setFilterByAuthorizedAccounts(true)
@@ -41,12 +37,27 @@ fun googleSignIn (
         .setAutoSelectEnabled(true)
         .build()
 
+    // modal dialog
+    val googleSignInOption: GetSignInWithGoogleOption = GetSignInWithGoogleOption
+        .Builder(BuildConfig.googleSignInWebClientId)
+        .build()
+
     // todo sign-up with setFilterByAuthorizedAccounts(false)
 
     // create request
     val request: GetCredentialRequest = GetCredentialRequest.Builder()
-        .addCredentialOption(googleSignInOption) // modal dialog
-//        .addCredentialOption(googleIdOption) // bottom sheet with progress bar
+        .addCredentialOption(googleIdOption) // bottom sheet with progress bar
+    //        .addCredentialOption(googleSignInOption) // modal dialog
+        .build()
+
+    // firebase request
+    val signInRequest = BeginSignInRequest.builder()
+        .setGoogleIdTokenRequestOptions(
+            BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
+                .setSupported(true)
+                .setServerClientId(BuildConfig.googleSignInWebClientId)
+                .setFilterByAuthorizedAccounts(true)
+                .build())
         .build()
 
     // todo refactor to LaunchedEffect
@@ -77,6 +88,8 @@ fun handleSuccess(result: GetCredentialResponse) {
                 try {
 
                     val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+
+                    // temp
                     Log.d(TAG, "handleSuccess: " + googleIdTokenCredential.id)
                     Log.d(TAG, "handleSuccess: " + googleIdTokenCredential.idToken)
                     Log.d(TAG, "handleSuccess: " + googleIdTokenCredential.givenName)
