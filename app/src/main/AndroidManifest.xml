@@ -3,6 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" >
 
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
     <application
         android:name=".MainApplication"
         android:allowBackup="true"
@@ -35,6 +37,7 @@
             </intent-filter>
         </service>
 
+        <!-- todo remove these defaults? icon/color/channel will always be defined ... -->
         <!-- default fcm notification icon -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
