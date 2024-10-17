@@ -32,7 +32,7 @@ fun LoginScreen (
 
     // initialize
     val context = LocalContext.current
-    val auth: FirebaseAuth = koinInject()
+    val firebaseAuth: FirebaseAuth = koinInject()
 
     Surface {
         Column(
@@ -57,7 +57,7 @@ fun LoginScreen (
                     onClick = {
                         googleSignIn(
                             activityContext = context,
-                            auth = auth,
+                            firebaseAuth = firebaseAuth,
                             onAuthentication = onAuthentication
                         )
                     },

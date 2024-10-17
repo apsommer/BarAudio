@@ -15,14 +15,13 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.sommerengineering.baraudio.BuildConfig
 import com.sommerengineering.baraudio.TAG
 import com.sommerengineering.baraudio.handleException
-import com.sommerengineering.baraudio.logMessage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 fun googleSignIn (
     activityContext: Context,
-    auth: FirebaseAuth,
+    firebaseAuth: FirebaseAuth,
     onAuthentication: () -> Unit,
 ) {
 
@@ -53,7 +52,7 @@ fun googleSignIn (
             )
             handleSuccess(
                 activityContext = activityContext,
-                auth = auth,
+                auth = firebaseAuth,
                 result = result)
             onAuthentication()
         } catch (e: Exception) {
@@ -101,11 +100,17 @@ fun handleSuccess(
 
                         }
 
-                } catch (e: GoogleIdTokenParsingException) { handleException(e) }
+                } catch (e: GoogleIdTokenParsingException) {
+                    handleException(e)
+                }
             }
-            else { logMessage("Unexpected type of credential") }
+            else {
+                handleException("Unexpected type of credential")
+            }
         }
-        else -> { logMessage("Unexpected type of credential") }
+        else -> {
+            handleException("Unexpected type of credential")
+        }
     }
 }
 

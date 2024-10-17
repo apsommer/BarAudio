@@ -21,14 +21,6 @@ class MainActivity : ComponentActivity() {
             App()
         }
     }
-
-    override fun onStart() {
-        super.onStart()
-
-        // todo handle user already signed-in
-//        val currentUser = auth.currentUser
-//        Log.d(TAG, "onStart: uid: " + currentUser?.uid)
-    }
 }
 
 @Composable

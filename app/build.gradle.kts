@@ -95,13 +95,13 @@ dependencies {
     // navigation
     implementation(libs.androidx.navigation.compose)
     
-    // google sign-in todo remove after firebase auth setup?
+    // google sign-in
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.googleid)
 
     // koin
-//    implementation(libs.koin.android)
+//    implementation(libs.koin.android) // todo not needed?
     implementation(libs.koin.androidx.compose)
     implementation(libs.koin.androidx.compose.navigation)
 
