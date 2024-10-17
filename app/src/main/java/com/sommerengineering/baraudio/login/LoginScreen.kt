@@ -23,15 +23,16 @@ import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.FirebaseAuth
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.theme.AppTheme
+import org.koin.compose.koinInject
 
 @Composable
 fun LoginScreen (
-    auth: FirebaseAuth,
     onAuthentication: () -> Unit,
     modifier: Modifier = Modifier) {
 
     // initialize
     val context = LocalContext.current
+    val auth: FirebaseAuth = koinInject()
 
     Surface {
         Column(
@@ -94,8 +95,7 @@ fun LoginScreen (
 fun PreviewLoginScreen() {
     AppTheme {
         LoginScreen(
-            auth = FirebaseAuth.getInstance(),
-            onAuthentication = {}
+            onAuthentication = { }
         )
     }
 }

@@ -14,7 +14,7 @@ val AlertScreenRoute = "AlertScreen"
 
 @Composable
 fun Navigation(
-    auth: FirebaseAuth,
+//    auth: FirebaseAuth,
     controller: NavHostController
 ) {
 
@@ -26,7 +26,7 @@ fun Navigation(
         composable(
             route = LoginScreenRoute) {
             LoginScreen(
-                auth = auth,
+//                auth = auth,
                 onAuthentication = {
                     controller.navigate(AlertScreenRoute) {
                         popUpTo(LoginScreenRoute) {

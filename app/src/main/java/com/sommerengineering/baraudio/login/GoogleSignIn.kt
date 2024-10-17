@@ -7,9 +7,7 @@ import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
-import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
-import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.google.firebase.auth.FirebaseAuth
@@ -39,27 +37,11 @@ fun googleSignIn (
         .setAutoSelectEnabled(true)
         .build()
 
-    // modal dialog
-    val googleSignInOption: GetSignInWithGoogleOption = GetSignInWithGoogleOption
-        .Builder(BuildConfig.googleSignInWebClientId)
-        .build()
-
     // todo sign-up with setFilterByAuthorizedAccounts(false)
 
     // create request
     val request: GetCredentialRequest = GetCredentialRequest.Builder()
-        .addCredentialOption(googleIdOption) // bottom sheet with progress bar
-    //        .addCredentialOption(googleSignInOption) // modal dialog
-        .build()
-
-    // firebase request
-    val signInRequest = BeginSignInRequest.builder()
-        .setGoogleIdTokenRequestOptions(
-            BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
-                .setSupported(true)
-                .setServerClientId(BuildConfig.googleSignInWebClientId)
-                .setFilterByAuthorizedAccounts(true)
-                .build())
+        .addCredentialOption(googleIdOption)
         .build()
 
     // todo refactor to LaunchedEffect

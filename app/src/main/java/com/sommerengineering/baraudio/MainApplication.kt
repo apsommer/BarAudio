@@ -1,6 +1,8 @@
 package com.sommerengineering.baraudio
 
 import android.app.Application
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -13,6 +15,8 @@ import org.koin.dsl.module
 class MainApplication : Application() {
     override fun onCreate() {
         super.onCreate()
+
+        // initialize koin
         startKoin {
             androidLogger()
             androidContext(this@MainApplication)
