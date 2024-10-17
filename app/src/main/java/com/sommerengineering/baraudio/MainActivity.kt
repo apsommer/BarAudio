@@ -20,26 +20,37 @@ class MainActivity : ComponentActivity() {
 
     val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
+
     ) { isGranted ->
+
         if (isGranted) {
-            // todo fcm enabled
+
+            // todo fcm enabled, all good
+            logMessage("fcm enabled, all good")
+
         } else {
+
             // todo ui that explains this permission is required to run baraudio
+            logMessage("ui that explains this permission is required to run baraudio")
         }
     }
 
-    private fun requestRealtimeNotificationPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
-                // todo fcm already enabled
+    fun requestRealtimeNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= 33) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                == PackageManager.PERMISSION_GRANTED) {
+
+                // todo fcm enabled, all good
+                logMessage("fcm enabled, all good")
+
             } else if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
-                // todo ui that explains this permission is required to run baraudio
+
+                // todo ui that explains this rational for permission request
+                logMessage("ui that explains this rational for permission request")
+
             } else {
                 requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
-
-
-
         }
     }
 
