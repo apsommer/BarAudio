@@ -8,7 +8,7 @@ class FirebaseService : FirebaseMessagingService() {
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
-        logMessage("Firebase token refreshed: $token")
+        logMessage("Firebase service, token refreshed: $token")
     }
 }
 
@@ -18,13 +18,13 @@ fun getFirebaseToken() {
         OnCompleteListener { task ->
 
             if (!task.isSuccessful) {
-                logException("Firebase token retrieval failed")
+                logMessage("Firebase token retrieval failed")
                 return@OnCompleteListener
             }
 
             // extract registration token
             val token = task.result
-            logMessage("Firebase token: $token")
+            logMessage("Main activity started, firebase token: $token")
         }
     )
 }

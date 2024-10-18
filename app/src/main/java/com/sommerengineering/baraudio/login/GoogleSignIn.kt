@@ -2,7 +2,6 @@ package com.sommerengineering.baraudio.login
 
 import android.app.Activity
 import android.content.Context
-import android.util.Log
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
@@ -13,8 +12,8 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingExcept
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.sommerengineering.baraudio.BuildConfig
-import com.sommerengineering.baraudio.TAG
 import com.sommerengineering.baraudio.logException
+import com.sommerengineering.baraudio.logMessage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -46,15 +45,19 @@ fun googleSignIn (
     // todo refactor to LaunchedEffect
     coroutineScope.launch {
         try {
+
             val result = credentialManager.getCredential(
                 request = request,
-                context = activityContext
-            )
+                context = activityContext)
+
             handleSuccess(
                 activityContext = activityContext,
                 auth = firebaseAuth,
                 result = result)
+
+            // todo move downstream
             onAuthentication()
+
         } catch (e: Exception) {
             logException(e)
         }
@@ -76,24 +79,19 @@ fun handleSuccess(
             if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
                 try {
 
+                    // extract google id
                     val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
-                    val idToken = googleIdTokenCredential.idToken
+                    val googleToken = googleIdTokenCredential.idToken
+                    logMessage("Google sign-in success, token: $googleToken")
 
-                    // temp
-                    Log.d(TAG, "handleSuccess: $idToken")
-                    Log.d(TAG, "handleSuccess: " + googleIdTokenCredential.id)
-                    Log.d(TAG, "handleSuccess: " + googleIdTokenCredential.givenName)
-                    Log.d(TAG, "handleSuccess: " + googleIdTokenCredential.displayName)
-                    Log.d(TAG, "handleSuccess: " + googleIdTokenCredential.familyName)
-                    Log.d(TAG, "handleSuccess: " + googleIdTokenCredential.phoneNumber)
-                    Log.d(TAG, "handleSuccess: " + googleIdTokenCredential.profilePictureUri)
-
-                    val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
+                    // sign-in to firebase with google id
+                    val firebaseCredential = GoogleAuthProvider.getCredential(googleToken, null)
                     auth.signInWithCredential(firebaseCredential)
                         .addOnCompleteListener(activityContext as Activity) { task ->
+
                             if (task.isSuccessful) {
-                                val user = auth.currentUser
-                                Log.d(TAG, "handleSuccess: " + user?.displayName)
+                                logMessage("Firebase sign-in success, uid: ${auth.currentUser?.uid}")
+
                             } else {
                                 logException(task.exception)
                             }
@@ -105,11 +103,11 @@ fun handleSuccess(
                 }
             }
             else {
-                logException("Unexpected type of credential")
+                logMessage("Unexpected type of credential")
             }
         }
         else -> {
-            logException("Unexpected type of credential")
+            logMessage("Unexpected type of credential")
         }
     }
 }
