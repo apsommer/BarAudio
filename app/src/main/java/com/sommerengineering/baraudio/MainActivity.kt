@@ -45,6 +45,11 @@ class MainActivity : ComponentActivity() {
             App()
         }
     }
+
+    override fun onStart() {
+        super.onStart()
+        // getFirebaseToken()
+    }
 }
 
 @Composable
