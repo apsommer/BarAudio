@@ -5,9 +5,9 @@ import android.util.Log
 // debug logcat
 const val TAG = "~"
 
-fun handleException(e: Exception?) =
+fun logException(e: Exception?) =
     Log.e(TAG, "handleException: ", e)
-fun handleException(msg: String?) =
+fun logException(msg: String?) =
     Log.e(TAG, "handleException: $msg")
 
 fun logMessage(msg: String?) =
