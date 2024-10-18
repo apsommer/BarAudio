@@ -18,6 +18,16 @@ import android.Manifest
 
 class MainActivity : ComponentActivity() {
 
+    // initialize system permission request ui
+    private val requestPermissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestPermission()) { isGranted ->
+
+            if (!isGranted) {
+                // todo ui that explains this permission is required to run baraudio
+            }
+        }
+
     fun requestRealtimeNotificationPermission() {
 
         // realtime permission only required if sdk >= 32
@@ -29,13 +39,7 @@ class MainActivity : ComponentActivity() {
                     == PackageManager.PERMISSION_GRANTED) return
 
         // launch system permission request ui
-        registerForActivityResult(
-            ActivityResultContracts.RequestPermission()) { isGranted ->
-
-            if (!isGranted) {
-                // todo ui that explains this permission is required to run baraudio
-            }
-        }.launch(Manifest.permission.POST_NOTIFICATIONS)
+        requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
