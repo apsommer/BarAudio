@@ -18,40 +18,24 @@ import android.Manifest
 
 class MainActivity : ComponentActivity() {
 
-    val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-
-    ) { isGranted ->
-
-        if (isGranted) {
-
-            // todo fcm enabled, all good
-            logMessage("fcm enabled, all good")
-
-        } else {
-
-            // todo ui that explains this permission is required to run baraudio
-            logMessage("ui that explains this permission is required to run baraudio")
-        }
-    }
-
     fun requestRealtimeNotificationPermission() {
-        if (Build.VERSION.SDK_INT >= 33) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
-                == PackageManager.PERMISSION_GRANTED) {
 
-                // todo fcm enabled, all good
-                logMessage("fcm enabled, all good")
+        // realtime permission only required if sdk >= 32
+        if (Build.VERSION.SDK_INT < 33) return
 
-            } else if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
+        // permission already granted
+        if (ContextCompat.checkSelfPermission
+                (this, Manifest.permission.POST_NOTIFICATIONS)
+                    == PackageManager.PERMISSION_GRANTED) return
 
-                // todo ui that explains this rational for permission request
-                logMessage("ui that explains this rational for permission request")
+        // launch system permission request ui
+        registerForActivityResult(
+            ActivityResultContracts.RequestPermission()) { isGranted ->
 
-            } else {
-                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            if (!isGranted) {
+                // todo ui that explains this permission is required to run baraudio
             }
-        }
+        }.launch(Manifest.permission.POST_NOTIFICATIONS)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
