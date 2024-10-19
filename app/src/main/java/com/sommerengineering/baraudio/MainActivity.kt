@@ -1,5 +1,9 @@
 package com.sommerengineering.baraudio
 
+import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.Service
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -14,12 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
 import com.sommerengineering.baraudio.theme.AppTheme
-import android.Manifest
-import android.app.Activity
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.Service
-import android.content.Context
 
 class MainActivity : ComponentActivity() {
 
@@ -49,9 +47,9 @@ class MainActivity : ComponentActivity() {
     private fun initNotificationChannel() {
 
         // build channel
-        val id = "id"
-        val name = "Webhooks"
-        val description = "Notify incoming webhooks"
+        val id = getString(R.string.notification_channel_id)
+        val name = getString(R.string.notification_channel_name)
+        val description = getString(R.string.notification_channel_description)
         val importance = NotificationManager.IMPORTANCE_DEFAULT // >= DEFAULT to show in status bar
         val channel = NotificationChannel(id, name, importance)
         channel.description = description
@@ -60,6 +58,8 @@ class MainActivity : ComponentActivity() {
         // register channel with system
         val notificationManager = getSystemService(Service.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)
+
+        logMessage("Notification channel registered")
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

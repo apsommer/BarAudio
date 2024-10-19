@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">BarAudio</string>
-    <string name="default_notification_channel_id">id</string>
+    <string name="notification_channel_id">42</string>
+    <string name="notification_channel_name">Webhooks</string>
+    <string name="notification_channel_description">Notify for incoming webhooks</string>
 </resources>
