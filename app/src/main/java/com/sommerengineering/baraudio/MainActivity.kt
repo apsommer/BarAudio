@@ -15,6 +15,11 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
 import com.sommerengineering.baraudio.theme.AppTheme
 import android.Manifest
+import android.app.Activity
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.Service
+import android.content.Context
 
 class MainActivity : ComponentActivity() {
 
@@ -23,9 +28,8 @@ class MainActivity : ComponentActivity() {
         registerForActivityResult(
             ActivityResultContracts.RequestPermission()) { isGranted ->
 
-            if (!isGranted) {
-                // todo ui that explains this permission is required to run baraudio
-            }
+            if (isGranted) { initNotificationChannel() }
+            else { /** todo ui that explains this permission is required to run baraudio */ }
         }
 
     fun requestRealtimeNotificationPermission() {
@@ -42,6 +46,22 @@ class MainActivity : ComponentActivity() {
         requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
     }
 
+    private fun initNotificationChannel() {
+
+        // build channel
+        val id = "id"
+        val name = "Webhooks"
+        val description = "Notify incoming webhooks"
+        val importance = NotificationManager.IMPORTANCE_DEFAULT // >= DEFAULT to show in status bar
+        val channel = NotificationChannel(id, name, importance)
+        channel.description = description
+        // todo set system-wide category for do not disturb visibility
+
+        // register channel with system
+        val notificationManager = getSystemService(Service.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -55,9 +75,12 @@ class MainActivity : ComponentActivity() {
 
         // todo remove on production release, not necessary
         getFirebaseToken()
+    }
 
-        // todo setup notification channel manually for first time permission allowance flow
-        //  accept permission -> fcm will not show until app restarted once
+    override fun onResume() {
+        super.onResume()
+
+        // todo remove all notifications
     }
 }
 

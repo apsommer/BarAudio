@@ -50,22 +50,3 @@ fun getFirebaseToken() {
         }
     )
 }
-
-fun initNotificationChannel(activityContext: Context) {
-
-    // build channel
-    val id = "id"
-    val name = "name"
-    val description = "description"
-    val importance = NotificationManager.IMPORTANCE_DEFAULT
-    val channel = NotificationChannel(
-        id,
-        name,
-        importance)
-    channel.description = description
-
-    // register channel with system
-    val notificationManager = (activityContext as Activity)
-        .getSystemService(Service.NOTIFICATION_SERVICE) as NotificationManager
-    notificationManager.createNotificationChannel(channel)
-}
