@@ -111,5 +111,5 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.play.services.auth)
     implementation(libs.firebase.messaging)
-    // implementation(libs.firebase.firestore) todo firestore
+    implementation(libs.firebase.database)
 }
