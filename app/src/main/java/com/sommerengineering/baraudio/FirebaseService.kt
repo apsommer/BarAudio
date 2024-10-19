@@ -1,14 +1,13 @@
 package com.sommerengineering.baraudio
 
-import android.app.Activity
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.Service
-import android.content.Context
 import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.database.database
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import java.util.Calendar
 
 class FirebaseService : FirebaseMessagingService() {
 
@@ -49,4 +48,13 @@ fun getFirebaseToken() {
             logMessage("Main activity started, firebase token: $token")
         }
     )
+}
+
+fun writeFirebaseDatabase() {
+
+    // test read/write
+    val database = Firebase.database
+    val timestamp = Calendar.getInstance().timeInMillis
+    val key = database.getReference("$timestamp")
+    key.setValue("Hello, Greece!")
 }
