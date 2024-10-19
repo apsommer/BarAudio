@@ -53,6 +53,9 @@ class MainActivity : ComponentActivity() {
     override fun onStart() {
         super.onStart()
         getFirebaseToken()
+
+        // todo setup notification channel manually for first time permission allowance flow
+        //  accept permission -> fcm will not show until app restarted once
     }
 }
 
