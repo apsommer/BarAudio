@@ -1,5 +1,10 @@
 package com.sommerengineering.baraudio
 
+import android.app.Activity
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.Service
+import android.content.Context
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
@@ -44,4 +49,23 @@ fun getFirebaseToken() {
             logMessage("Main activity started, firebase token: $token")
         }
     )
+}
+
+fun initNotificationChannel(activityContext: Context) {
+
+    // build channel
+    val id = "id"
+    val name = "name"
+    val description = "description"
+    val importance = NotificationManager.IMPORTANCE_DEFAULT
+    val channel = NotificationChannel(
+        id,
+        name,
+        importance)
+    channel.description = description
+
+    // register channel with system
+    val notificationManager = (activityContext as Activity)
+        .getSystemService(Service.NOTIFICATION_SERVICE) as NotificationManager
+    notificationManager.createNotificationChannel(channel)
 }

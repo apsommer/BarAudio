@@ -52,6 +52,8 @@ class MainActivity : ComponentActivity() {
 
     override fun onStart() {
         super.onStart()
+
+        // todo remove on production release, not necessary
         getFirebaseToken()
 
         // todo setup notification channel manually for first time permission allowance flow
