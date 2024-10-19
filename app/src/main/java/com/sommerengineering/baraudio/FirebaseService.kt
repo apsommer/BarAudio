@@ -1,7 +1,9 @@
 package com.sommerengineering.baraudio
 
 import com.google.android.gms.tasks.OnCompleteListener
-import com.google.firebase.database.database
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessaging
@@ -52,9 +54,25 @@ fun getFirebaseToken() {
 
 fun writeFirebaseDatabase() {
 
-    // test read/write
+    // get reference to database
     val database = Firebase.database
+
+    // write to database
+    val key = database.getReference("timestamp")
     val timestamp = Calendar.getInstance().timeInMillis
-    val key = database.getReference("$timestamp")
-    key.setValue("Hello, Greece!")
+    key.setValue("$timestamp")
+
+    // read from database
+    key.addValueEventListener(object : ValueEventListener {
+
+        override fun onDataChange(snapshot: DataSnapshot) {
+            val value = snapshot.getValue()
+            logMessage("Firebase realtime database, $key: $value")
+        }
+
+        override fun onCancelled(error: DatabaseError) {
+            logException(error.toException())
+        }
+    })
+
 }
