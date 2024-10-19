@@ -75,7 +75,7 @@ class MainActivity : ComponentActivity() {
 
         // todo remove on production release, not necessary
         getFirebaseToken()
-        writeFirebaseDatabase()
+        testFirebaseDatabase()
     }
 
     override fun onResume() {
