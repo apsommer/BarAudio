@@ -1,6 +1,7 @@
 package com.sommerengineering.baraudio
 
 import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -70,7 +71,7 @@ fun testFirebaseDatabase(token: String) {
     val key = database.getReference(uid)
     val timestamp = Calendar.getInstance().timeInMillis
     key.setValue("$timestamp")
-
+    
     // read from database
     key.addValueEventListener(object : ValueEventListener {
 
@@ -93,3 +94,8 @@ fun testFirebaseDatabase(token: String) {
     // todo implement App Check via Google Play Integrity API, setup flow through console
     //  https://firebase.google.com/docs/app-check/android/play-integrity-provider?hl=en&authuser=0&_gl=1*4ksu49*_ga*NTE3MjAzMTkwLjE3Mjg1NTI5MDE.*_ga_CW55HF8NVT*MTcyOTM2MTg3NS4xOC4xLjE3MjkzNjQzODIuMC4wLjA.
 }
+
+data class WebhookMessage(
+    var timestamp: Timestamp,
+    var message: String
+)
