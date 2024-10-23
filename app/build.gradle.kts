@@ -3,6 +3,9 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+
+    // firebase
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -27,11 +30,11 @@ android {
         properties.load(localProperties.inputStream())
 
         // parse api keys
-        val googleSignInClientId = properties.getProperty("googleSignInClientId")
+        val googleSignInWebClientId = properties.getProperty("googleSignInWebClientId")
         buildConfigField(
             type = "String",
-            name = "googleSignInClientId",
-            value = googleSignInClientId
+            name = "googleSignInWebClientId",
+            value = googleSignInWebClientId
         )
     }
 
@@ -98,7 +101,15 @@ dependencies {
     implementation(libs.googleid)
 
     // koin
-    implementation(libs.koin.android)
+//    implementation(libs.koin.android) // todo not needed?
     implementation(libs.koin.androidx.compose)
     implementation(libs.koin.androidx.compose.navigation)
+
+    // firebase
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.auth)
+    implementation(libs.play.services.auth)
+    implementation(libs.firebase.messaging)
+    implementation(libs.firebase.database)
 }
