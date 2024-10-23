@@ -74,8 +74,8 @@ class MainActivity : ComponentActivity() {
         super.onStart()
 
         // todo remove on production release, not necessary
-        getFirebaseToken()
-        testFirebaseDatabase()
+        logMessage("MainActivity started")
+        initFirebase()
     }
 
     override fun onResume() {

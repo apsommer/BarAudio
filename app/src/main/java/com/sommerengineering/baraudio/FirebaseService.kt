@@ -1,6 +1,7 @@
 package com.sommerengineering.baraudio
 
 import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -9,6 +10,7 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import org.koin.java.KoinJavaComponent.inject
 import java.util.Calendar
 
 class FirebaseService : FirebaseMessagingService() {
@@ -35,7 +37,7 @@ class FirebaseService : FirebaseMessagingService() {
     }
 }
 
-fun getFirebaseToken() {
+fun initFirebase() {
 
     FirebaseMessaging.getInstance().token.addOnCompleteListener(
         OnCompleteListener { task ->
@@ -47,18 +49,25 @@ fun getFirebaseToken() {
 
             // extract registration token
             val token = task.result
-            logMessage("Main activity started, firebase token: $token")
+            logMessage("Firebase token, $token")
+            testFirebaseDatabase(token)
         }
     )
 }
 
-fun testFirebaseDatabase() {
+fun testFirebaseDatabase(token: String) {
+
+    // get user id
+    val firebaseAuth: FirebaseAuth by inject(FirebaseAuth::class.java)
+    val uid = firebaseAuth.currentUser?.uid ?: return
+    logMessage("Firebase user id, $uid")
 
     // get reference to database
-    val database = Firebase.database
+    val urlString = "https://com-sommerengineering-baraudio.firebaseio.com/"
+    val database = Firebase.database(urlString)
 
     // write to database
-    val key = database.getReference("timestamp")
+    val key = database.getReference(uid)
     val timestamp = Calendar.getInstance().timeInMillis
     key.setValue("$timestamp")
 
