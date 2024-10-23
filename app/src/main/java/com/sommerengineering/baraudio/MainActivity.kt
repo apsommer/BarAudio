@@ -74,7 +74,6 @@ class MainActivity : ComponentActivity() {
         super.onStart()
 
         // todo remove on production release, not necessary
-        logMessage("MainActivity started")
         initFirebase()
     }
 

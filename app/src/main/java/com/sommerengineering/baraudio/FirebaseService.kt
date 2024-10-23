@@ -13,6 +13,7 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import org.koin.java.KoinJavaComponent.inject
 import java.util.Calendar
+import java.util.HashMap
 
 class FirebaseService : FirebaseMessagingService() {
 
@@ -48,7 +49,7 @@ fun initFirebase() {
                 return@OnCompleteListener
             }
 
-            // extract registration token
+            // extract firebase token (represents unique user and device)
             val token = task.result
             logMessage("Firebase token, $token")
             testFirebaseDatabase(token)
@@ -68,10 +69,13 @@ fun testFirebaseDatabase(token: String) {
     val database = Firebase.database(urlString)
 
     // write to database
-    val key = database.getReference(uid)
+    val key = database.getReference("messages")
     val timestamp = Calendar.getInstance().timeInMillis
-    key.setValue("$timestamp")
-    
+
+    key.child(uid)
+        .child(timestamp.toString())
+        .setValue("MNQ doing something at $timestamp")
+
     // read from database
     key.addValueEventListener(object : ValueEventListener {
 
@@ -94,8 +98,3 @@ fun testFirebaseDatabase(token: String) {
     // todo implement App Check via Google Play Integrity API, setup flow through console
     //  https://firebase.google.com/docs/app-check/android/play-integrity-provider?hl=en&authuser=0&_gl=1*4ksu49*_ga*NTE3MjAzMTkwLjE3Mjg1NTI5MDE.*_ga_CW55HF8NVT*MTcyOTM2MTg3NS4xOC4xLjE3MjkzNjQzODIuMC4wLjA.
 }
-
-data class WebhookMessage(
-    var timestamp: Timestamp,
-    var message: String
-)
