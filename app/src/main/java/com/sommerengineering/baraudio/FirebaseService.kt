@@ -1,7 +1,6 @@
 package com.sommerengineering.baraudio
 
 import com.google.android.gms.tasks.OnCompleteListener
-import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -13,7 +12,6 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import org.koin.java.KoinJavaComponent.inject
 import java.util.Calendar
-import java.util.HashMap
 
 class FirebaseService : FirebaseMessagingService() {
 
@@ -68,20 +66,24 @@ fun testFirebaseDatabase(token: String) {
     val urlString = "https://com-sommerengineering-baraudio.firebaseio.com/"
     val database = Firebase.database(urlString)
 
-    // write to database
-    val key = database.getReference("messages")
+    // write new user to database
+    val usersKey = database.getReference("users")
+    usersKey.child(uid).setValue(token)
+
+    // write new message to database
+    val messagesKey = database.getReference("messages")
     val timestamp = Calendar.getInstance().timeInMillis
 
-    key.child(uid)
+    messagesKey.child(uid)
         .child(timestamp.toString())
         .setValue("MNQ doing something at $timestamp")
 
     // read from database
-    key.addValueEventListener(object : ValueEventListener {
+    messagesKey.addValueEventListener(object : ValueEventListener {
 
         override fun onDataChange(snapshot: DataSnapshot) {
             val value = snapshot.getValue()
-            logMessage("Firebase realtime database, $key: $value")
+            logMessage("Firebase realtime database, $messagesKey: $value")
         }
 
         override fun onCancelled(error: DatabaseError) {
