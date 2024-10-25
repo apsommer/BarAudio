@@ -1,5 +1,6 @@
 from flask import Flask, json, request, make_response, Response
 from werkzeug.routing import Rule
+from firebase_admin import d
 
 # required firebase functions?
 # from firebase_functions import https_fn
