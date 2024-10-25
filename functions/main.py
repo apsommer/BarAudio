@@ -1,8 +1,8 @@
-from firebase_functions import https_fn
-from flask import Flask, json, request, make_response
+from flask import Flask, json, request, make_response, Response
 from werkzeug.routing import Rule
 
 # required firebase functions?
+# from firebase_functions import https_fn
 # from firebase_admin import initialize_app
 # initialize_app()
 # @https_fn.on_request()
@@ -13,7 +13,7 @@ app.url_map.add(Rule('/', endpoint='/'))
 
 # define function endpoint
 @app.endpoint("/")
-def baraudio() -> https_fn.Response:
+def baraudio() -> Response:
 
     if request.method == "POST" and request.is_json:
         bodyJson = request.get_json()
