@@ -18,6 +18,7 @@ def baraudio(req: https_fn.Request) -> https_fn.Response:
     # write message to database when request is properly formed
     if req.method == 'POST' and uid is not None and len(message) > 0:
         write_to_database(uid, message)
+        send_fcm(uid, message)
 
     # respond with simple message
     return https_fn.Response('Thank you for using BarAudio! :)')
@@ -27,3 +28,9 @@ def write_to_database(uid: str, message: str):
     groupKey = db.reference('messages')
     timestamp = str(round(time.time() * 1000))
     groupKey.child(uid).child(timestamp).set(message)
+
+def send_fcm(uid: str, message: str):
+
+    groupKey = db.reference('users')
+    device_token = groupKey.get(uid)
+    # todo push fcm
