@@ -1,0 +1,42 @@
+[debug] [2024-10-26T11:19:28.441Z] ----------------------------------------------------------------------
+[debug] [2024-10-26T11:19:28.443Z] Command:       /usr/bin/node /usr/local/bin/firebase emulators:start
+[debug] [2024-10-26T11:19:28.444Z] CLI Version:   13.23.0
+[debug] [2024-10-26T11:19:28.444Z] Platform:      linux
+[debug] [2024-10-26T11:19:28.444Z] Node Version:  v18.19.1
+[debug] [2024-10-26T11:19:28.445Z] Time:          Sat Oct 26 2024 14:19:28 GMT+0300 (Eastern European Summer Time)
+[debug] [2024-10-26T11:19:28.445Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2024-10-26T11:19:28.448Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[debug] [2024-10-26T11:19:28.549Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2024-10-26T11:19:28.549Z] > authorizing via signed-in user (andrew.p.sommer@gmail.com)
+[info] i  emulators: Starting emulators: functions, extensions {"metadata":{"emulator":{"name":"hub"},"message":"Starting emulators: functions, extensions"}}
+[debug] [2024-10-26T11:19:28.553Z] Checked if tokens are valid: false, expires at: 1729793469067
+[debug] [2024-10-26T11:19:28.553Z] Checked if tokens are valid: false, expires at: 1729793469067
+[debug] [2024-10-26T11:19:28.553Z] > refreshing access token with scopes: []
+[debug] [2024-10-26T11:19:28.555Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2024-10-26T11:19:28.555Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2024-10-26T11:19:28.722Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2024-10-26T11:19:28.722Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2024-10-26T11:19:28.738Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/com-sommerengineering-baraudio [none]
+[debug] [2024-10-26T11:19:28.888Z] <<< [apiv2][status] GET https://firebase-public.firebaseio.com/cli.json 200
+[debug] [2024-10-26T11:19:28.888Z] <<< [apiv2][body] GET https://firebase-public.firebaseio.com/cli.json {"cloudBuildErrorAfter":1594252800000,"cloudBuildWarnAfter":1590019200000,"defaultNode10After":1594252800000,"minVersion":"3.0.5","node8DeploysDisabledAfter":1613390400000,"node8RuntimeDisabledAfter":1615809600000,"node8WarnAfter":1600128000000}
+[debug] [2024-10-26T11:19:29.213Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/com-sommerengineering-baraudio 200
+[debug] [2024-10-26T11:19:29.213Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/com-sommerengineering-baraudio {"projectId":"com-sommerengineering-baraudio","projectNumber":"555667494303","displayName":"BarAudio","name":"projects/com-sommerengineering-baraudio","resources":{"hostingSite":"com-sommerengineering-baraudio","realtimeDatabaseInstance":"com-sommerengineering-baraudio-default-rtdb"},"state":"ACTIVE","etag":"1_2f8d8fa8-130f-42b1-b24a-a869e79cb53b"}
+[debug] [2024-10-26T11:19:29.240Z] [logging] Logging Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2024-10-26T11:19:29.240Z] assigned listening specs for emulators {"user":{"hub":[{"address":"127.0.0.1","family":"IPv4","port":4400},{"address":"::1","family":"IPv6","port":4400}],"ui":[{"address":"127.0.0.1","family":"IPv4","port":4000},{"address":"::1","family":"IPv6","port":4000}],"logging":[{"address":"127.0.0.1","family":"IPv4","port":4500}]},"metadata":{"message":"assigned listening specs for emulators"}}
+[debug] [2024-10-26T11:19:29.250Z] [hub] writing locator at /tmp/hub-com-sommerengineering-baraudio.json
+[debug] [2024-10-26T11:19:29.257Z] [Extensions] Started Extensions emulator, this is a noop.
+[debug] [2024-10-26T11:19:29.258Z] [functions] Functions Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2024-10-26T11:19:29.258Z] [eventarc] Eventarc Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2024-10-26T11:19:29.258Z] [tasks] Cloud Tasks Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2024-10-26T11:19:29.258Z] late-assigned ports for functions and eventarc emulators {"user":{"hub":[{"address":"127.0.0.1","family":"IPv4","port":4400},{"address":"::1","family":"IPv6","port":4400}],"ui":[{"address":"127.0.0.1","family":"IPv4","port":4000},{"address":"::1","family":"IPv6","port":4000}],"logging":[{"address":"127.0.0.1","family":"IPv4","port":4500}],"functions":[{"address":"127.0.0.1","family":"IPv4","port":5001}],"eventarc":[{"address":"127.0.0.1","family":"IPv4","port":9299}],"tasks":[{"address":"127.0.0.1","family":"IPv4","port":9499}]},"metadata":{"message":"late-assigned ports for functions and eventarc emulators"}}
+[warn] ⚠  functions: The following emulators are not running, calls to these services from the Functions emulator will affect production: auth, firestore, database, hosting, pubsub, storage, dataconnect {"metadata":{"emulator":{"name":"functions"},"message":"The following emulators are not running, calls to these services from the Functions emulator will affect production: \u001b[1mauth, firestore, database, hosting, pubsub, storage, dataconnect\u001b[22m"}}
+[debug] [2024-10-26T11:19:29.262Z] defaultcredentials: writing to file /home/apsommer/.config/firebase/andrew_p.sommer_gmail.com_application_default_credentials.json
+[debug] [2024-10-26T11:19:29.263Z] Setting GAC to /home/apsommer/.config/firebase/andrew_p.sommer_gmail.com_application_default_credentials.json {"metadata":{"emulator":{"name":"functions"},"message":"Setting GAC to /home/apsommer/.config/firebase/andrew_p.sommer_gmail.com_application_default_credentials.json"}}
+[debug] [2024-10-26T11:19:29.264Z] Checked if tokens are valid: true, expires at: 1729945167722
+[debug] [2024-10-26T11:19:29.264Z] Checked if tokens are valid: true, expires at: 1729945167722
+[debug] [2024-10-26T11:19:29.264Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/com-sommerengineering-baraudio/adminSdkConfig [none]
+[debug] [2024-10-26T11:19:29.590Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/com-sommerengineering-baraudio/adminSdkConfig 200
+[debug] [2024-10-26T11:19:29.590Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/com-sommerengineering-baraudio/adminSdkConfig {"projectId":"com-sommerengineering-baraudio","databaseURL":"https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com","storageBucket":"com-sommerengineering-baraudio.appspot.com"}
+[info] i  ui: downloading ui-v1.14.0.zip... {"metadata":{"emulator":{"name":"ui"},"message":"downloading ui-v1.14.0.zip..."}}
+[debug] [2024-10-26T11:19:29.627Z] >>> [apiv2][query] GET https://storage.googleapis.com/firebase-preview-drop/emulator/ui-v1.14.0.zip 

@@ -1,36 +1,33 @@
-from flask import Flask, json, request, make_response, Response
-from werkzeug.routing import Rule
 from firebase_admin import initialize_app, credentials, db
+from firebase_functions import https_fn
+import time
 
-# required firebase functions?
-# from firebase_functions import https_fn
-# from firebase_admin import initialize_app
-# initialize_app()
-# @https_fn.on_request()
+# initialize admin sdk
+app = initialize_app(
+    credential = credentials.Certificate('admin.json'),
+    options = { 'databaseURL': 'https://com-sommerengineering-baraudio.firebaseio.com/' }
+)
 
-# firebase admin sdk
-cred = credentials.Certificate('admin.json')
-options = {
-    'databaseURL': 'https://com-sommerengineering-baraudio.firebaseio.com/'
-}
-default_app = initialize_app(cred, options)
-ref = db.reference('/')
-print(ref.get())
+@https_fn.on_request()
+def baraudio(req: https_fn.Request) -> https_fn.Response:
 
-# initialize
-app = Flask(__name__)
-app.url_map.add(Rule('/', endpoint='/'))
+    # extract plain/text from body
+    text = req.get_data(as_text = True)
 
-# define function endpoint
-@app.endpoint("/")
-def baraudio() -> Response:
+    # catch malformed request, respond with simple message
+    if req.method != 'POST' or text == "":
+        return https_fn.Response("Thank you for using BarAudio! :)")
 
-    if request.method == "POST" and request.is_json:
-        bodyJson = request.get_json()
-        json_string = json.dumps(bodyJson)
-        message = "POST request received with json: " + json_string
+    ####################################################################################################################
 
-    else:
-        message = "Thank you for using BarAudio! :)"
+    # todo database
+    ref = db.reference('/test')
 
-    return make_response(message)
+    key = round(time.time() * 1000)
+    ref.set({
+        key: text
+    })
+
+    # respond with simple message
+    message = "POST request received with plain/text body: \n\n" + text
+    return https_fn.Response(message)

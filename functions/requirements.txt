@@ -1,2 +1,2 @@
-Flask~=3.0.3
-Werkzeug~=3.0.4
+firebase-admin~=6.5.0
+firebase-functions~=0.1.2
