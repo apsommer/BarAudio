@@ -64,14 +64,14 @@ fun testFirebaseDatabase(token: String) {
 
     // get reference to database
     val urlString = "https://com-sommerengineering-baraudio.firebaseio.com/"
-    val database = Firebase.database(urlString)
+    val db = Firebase.database(urlString)
 
     // write new user to database
-    val usersKey = database.getReference("users")
+    val usersKey = db.getReference("users")
     usersKey.child(uid).setValue(token)
-
+    
     // write new message to database
-    val messagesKey = database.getReference("messages")
+    val messagesKey = db.getReference("messages")
     val timestamp = Calendar.getInstance().timeInMillis
 
     messagesKey.child(uid)

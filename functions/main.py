@@ -15,19 +15,20 @@ def baraudio(req: https_fn.Request) -> https_fn.Response:
     text = req.get_data(as_text = True)
 
     # catch malformed request, respond with simple message
-    if req.method != 'POST' or text == "":
-        return https_fn.Response("Thank you for using BarAudio! :)")
+    if req.method != 'POST' or text == '':
+        return https_fn.Response('Thank you for using BarAudio! :)')
 
-    ####################################################################################################################
-
-    # todo database
-    ref = db.reference('/test')
-
-    key = round(time.time() * 1000)
-    ref.set({
-        key: text
-    })
+    write_to_database(text)
 
     # respond with simple message
-    message = "POST request received with plain/text body: \n\n" + text
+    message = 'POST request received with plain/text body: \n\n' + text
     return https_fn.Response(message)
+
+def write_to_database(message: str):
+
+    # write new message to database
+    messagesKey = db.reference('messages')
+    timestamp = str(round(time.time() * 1000))
+
+    uid = 'YMYIKSbKNVb6AgZ3zbd6StNp6NL2' # todo temp hardcode
+    messagesKey.child(uid).child(timestamp).set(message)
