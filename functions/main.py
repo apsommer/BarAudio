@@ -11,24 +11,19 @@ app = initialize_app(
 @https_fn.on_request()
 def baraudio(req: https_fn.Request) -> https_fn.Response:
 
-    # extract plain/text from body
-    text = req.get_data(as_text = True)
+    # extract attributes from request
+    uid = req.args.get(key='uid', type=str) # uid as query param
+    message = req.get_data(as_text = True) # message as plain/text from body
 
-    # catch malformed request, respond with simple message
-    if req.method != 'POST' or text == '':
-        return https_fn.Response('Thank you for using BarAudio! :)')
-
-    write_to_database(text)
+    # write message to database when request is properly formed
+    if req.method == 'POST' and uid is not None and len(message) > 0:
+        write_to_database(uid, message)
 
     # respond with simple message
-    message = 'POST request received with plain/text body: \n\n' + text
-    return https_fn.Response(message)
+    return https_fn.Response('Thank you for using BarAudio! :)')
 
-def write_to_database(message: str):
+def write_to_database(uid: str, message: str):
 
-    # write new message to database
-    messagesKey = db.reference('messages')
+    groupKey = db.reference('messages')
     timestamp = str(round(time.time() * 1000))
-
-    uid = 'YMYIKSbKNVb6AgZ3zbd6StNp6NL2' # todo temp hardcode
-    messagesKey.child(uid).child(timestamp).set(message)
+    groupKey.child(uid).child(timestamp).set(message)
