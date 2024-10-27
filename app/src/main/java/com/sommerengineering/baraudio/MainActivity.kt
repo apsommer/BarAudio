@@ -59,7 +59,7 @@ class MainActivity : ComponentActivity() {
         val notificationManager = getSystemService(Service.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)
 
-        logMessage("Notification channel registered")
+        logMessage("Register notification channel")
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -74,7 +74,7 @@ class MainActivity : ComponentActivity() {
         super.onStart()
 
         // todo remove on production release, not necessary
-        initFirebase()
+        // listenToDatabaseWrites()
     }
 
     override fun onResume() {
