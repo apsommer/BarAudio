@@ -15,12 +15,6 @@ import java.util.Calendar
 
 class FirebaseService : FirebaseMessagingService() {
 
-    // todo init uid, db, ..
-
-    init {
-        listenToDatabaseWrites()
-    }
-
     override fun onNewToken(token: String) {
         logMessage("Firebase service, token refreshed: $token")
         writeNewUserToDatabase(token)

@@ -74,7 +74,7 @@ class MainActivity : ComponentActivity() {
         super.onStart()
 
         // todo remove on production release, not necessary
-        initFirebase()
+        listenToDatabaseWrites()
     }
 
     override fun onResume() {
