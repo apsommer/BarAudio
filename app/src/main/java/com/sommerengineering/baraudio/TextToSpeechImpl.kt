@@ -23,7 +23,7 @@ class TextToSpeechImpl(
     }
 
     fun announceMessage(message: String, ) {
-        
+
         val status = textToSpeech.speak(message, 1, null, "42")
         if (status == TextToSpeech.ERROR) { logMessage("Text-to-speech engine ERROR") }
     }

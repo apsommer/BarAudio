@@ -16,7 +16,7 @@ class FirebaseService : FirebaseMessagingService() {
     private val tts: TextToSpeechImpl = get()
 
     override fun onNewToken(token: String) { writeNewUserToDatabase(token) }
-    override fun onMessageReceived(message: RemoteMessage) { announceMessage(message) }
+    override fun onMessageReceived(remoteMessage: RemoteMessage) { handleMessage(remoteMessage) }
 
     private fun writeNewUserToDatabase(token: String) {
 
@@ -33,11 +33,18 @@ class FirebaseService : FirebaseMessagingService() {
         logMessage("New user/token written to database")
     }
 
-    private fun announceMessage(remoteMessage: RemoteMessage) {
+    private fun handleMessage(remoteMessage: RemoteMessage) {
 
+        val notification = remoteMessage.notification
         val message = remoteMessage.data["message"] ?: return
-        logMessage("FCM message received: $message")
+
+        // todo if app closed, show notification
+
         tts.announceMessage(message)
+        logMessage("FCM message received with,")
+        logMessage("notification title: ${notification?.title}, body: ${notification?.body}, and image: ${notification?.imageUrl}")
+        logMessage("data message: $message")
+
     }
 }
 

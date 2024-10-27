@@ -80,6 +80,8 @@ fun handleSuccess(
                     val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
                     val googleToken = googleIdTokenCredential.idToken
 
+                    logMessage(googleIdTokenCredential.profilePictureUri.toString())
+
                     // sign-in to firebase with google id
                     val firebaseCredential = GoogleAuthProvider.getCredential(googleToken, null)
                     firebaseAuth.signInWithCredential(firebaseCredential)

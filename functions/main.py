@@ -36,10 +36,18 @@ def send_fcm(uid: str, message: str):
     groupKey = db.reference('users')
     device_token = groupKey.get()[uid]
 
+    # visible notification in status bar
+    notification = messaging.Notification(
+        title = "Title of visible notification",
+        body = message,
+        image = "https://lh3.googleusercontent.com/a/ACg8ocLh9EGppTdyl_UJMT4bpA_RucEb6TET0JtG1YEM_tquXhCPmesnOQ=s96-c"
+    )
+
     # construct notification
-    notification = messaging.Message(
+    remote_message = messaging.Message(
+        # notification = notification, # todo omit for silent data payload only, handle notification display in app?
         data = { 'message': message },
         token = device_token)
 
     # send notification
-    messaging.send(notification)
+    messaging.send(remote_message)
