@@ -11,7 +11,7 @@ class TextToSpeechImpl(
 
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
-            logMessage("Initialize text-to-speech engine")
+            logMessage("Text-to-speech engine intialized")
         }
     }
 

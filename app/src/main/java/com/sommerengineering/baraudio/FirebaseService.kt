@@ -30,7 +30,7 @@ class FirebaseService : FirebaseMessagingService() {
             .child(uid)
             .setValue(token)
 
-        logMessage("Write new user/token to database")
+        logMessage("New user/token written to database")
     }
 
     private fun announceMessage(remoteMessage: RemoteMessage) {

@@ -84,7 +84,7 @@ fun handleSuccess(
                     val firebaseCredential = GoogleAuthProvider.getCredential(googleToken, null)
                     firebaseAuth.signInWithCredential(firebaseCredential)
                         .addOnCompleteListener(activityContext as Activity) { task ->
-                            if (task.isSuccessful) { logMessage("Sign-in with firebase") }
+                            if (task.isSuccessful) { logMessage("Firebase sign-in successful") }
                             else { logException(task.exception) }
                         }
 
