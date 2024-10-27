@@ -7,7 +7,6 @@ import android.app.Service
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.speech.tts.TextToSpeech
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -19,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
 import com.sommerengineering.baraudio.theme.AppTheme
+import org.koin.android.ext.android.get
 
 class MainActivity : ComponentActivity() {
 
@@ -71,28 +71,10 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    lateinit var textToSpeech: TextToSpeech
-
+    // initialize text-to-speech engine
     override fun onStart() {
         super.onStart()
-
-        textToSpeech = TextToSpeech(this) { status ->
-            if (status == TextToSpeech.SUCCESS){
-                logMessage("Initialize text-to-speech engine")
-                announceMessage("BarAudio is great!")
-            }
-        }
-    }
-
-    private fun announceMessage(
-        message: String,
-        queueMode: Int = TextToSpeech.QUEUE_ADD
-    ) {
-
-        val utteranceStatus = textToSpeech.speak(message, queueMode, null, "42")
-        if (utteranceStatus == TextToSpeech.ERROR) {
-            logMessage("Error from textToSpeech.speak()")
-        }
+        get<TextToSpeechImpl>()
     }
 }
 

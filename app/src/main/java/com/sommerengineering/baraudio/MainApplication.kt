@@ -30,4 +30,5 @@ val appModule = module {
     single<FirebaseAuth> { Firebase.auth }
     single<Repository> { Repository() }
     viewModel { MainViewModel(get()) }
+    single<TextToSpeechImpl> { TextToSpeechImpl(androidContext())}
 }
