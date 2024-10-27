@@ -1,40 +1,23 @@
 package com.sommerengineering.baraudio
 
-import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import org.koin.java.KoinJavaComponent.inject
-import java.util.Calendar
 
 class FirebaseService : FirebaseMessagingService() {
-
-    override fun onNewToken(token: String) {
-        logMessage("Firebase service, token refreshed: $token")
-        writeNewUserToDatabase(token)
-    }
-
-    override fun onMessageReceived(message: RemoteMessage) {
-        logMessage("Firebase service, onMessageReceived: ${message.messageId}")
-
-        message.notification?.let {
-            logMessage("    Notification body: ${it.body}")
-        }
-
-        if (message.data.isNotEmpty()) {
-            logMessage("    Data payload: ${message.data}")
-            // todo add new alert object to repo/firestore
-        }
-    }
+    override fun onNewToken(token: String) { writeNewUserToDatabase(token) }
+    override fun onMessageReceived(message: RemoteMessage) { announceMessage(message) }
 }
 
 fun writeNewUserToDatabase(token: String) {
+
+    logMessage("Writing new user/token to database ...")
 
     // get user id
     val firebaseAuth: FirebaseAuth by inject(FirebaseAuth::class.java)
@@ -47,6 +30,12 @@ fun writeNewUserToDatabase(token: String) {
     // write new user/token to database
     val usersKey = db.getReference("users")
     usersKey.child(uid).setValue(token)
+}
+
+fun announceMessage(message: RemoteMessage) {
+
+    logMessage("Firebase service, onMessageReceived: ${message.data["message"]}")
+    // todo initialize text to speech engine, announce string
 }
 
 fun listenToDatabaseWrites() {
