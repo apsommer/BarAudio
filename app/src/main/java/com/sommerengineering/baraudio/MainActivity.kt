@@ -27,7 +27,7 @@ class MainActivity : ComponentActivity() {
             ActivityResultContracts.RequestPermission()) { isGranted ->
 
             if (isGranted) { initNotificationChannel() }
-            else { /** todo ui that explains this permission is required to run baraudio */ }
+            else { /** todo ui that explains this permission is required to run app */ }
         }
 
     fun requestRealtimeNotificationPermission() {
