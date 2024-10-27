@@ -1,4 +1,4 @@
-from firebase_admin import initialize_app, credentials, db
+from firebase_admin import initialize_app, credentials, db, messaging
 from firebase_functions import https_fn
 import time
 
@@ -25,12 +25,21 @@ def baraudio(req: https_fn.Request) -> https_fn.Response:
 
 def write_to_database(uid: str, message: str):
 
+    # timestamp message to database
     groupKey = db.reference('messages')
     timestamp = str(round(time.time() * 1000))
     groupKey.child(uid).child(timestamp).set(message)
 
 def send_fcm(uid: str, message: str):
 
+    # get device token
     groupKey = db.reference('users')
-    device_token = groupKey.get(uid)
-    # todo push fcm
+    device_token = groupKey.get()[uid]
+
+    # construct notification
+    notification = messaging.Message(
+        data = { 'message': message },
+        token = device_token)
+
+    # send notification
+    messaging.send(notification)

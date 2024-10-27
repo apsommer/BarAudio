@@ -15,47 +15,47 @@ import java.util.Calendar
 
 class FirebaseService : FirebaseMessagingService() {
 
+    // todo init uid, db, ..
+
+    init {
+        listenToDatabaseWrites()
+    }
+
     override fun onNewToken(token: String) {
         logMessage("Firebase service, token refreshed: $token")
+        writeNewUserToDatabase(token)
     }
 
     override fun onMessageReceived(message: RemoteMessage) {
-        logMessage("Firebase service, message received: ${message.messageId}")
+        logMessage("Firebase service, onMessageReceived: ${message.messageId}")
 
         message.notification?.let {
-            logMessage("Firebase service, message notification body: ${it.body}")
+            logMessage("    Notification body: ${it.body}")
         }
 
         if (message.data.isNotEmpty()) {
-            logMessage("Firebase service, data payload: ${message.data}")
+            logMessage("    Data payload: ${message.data}")
             // todo add new alert object to repo/firestore
         }
     }
-
-    override fun onDeletedMessages() {
-        logMessage("Firebase service, previous messages deleted")
-    }
 }
 
-fun initFirebase() {
+fun writeNewUserToDatabase(token: String) {
 
-    FirebaseMessaging.getInstance().token.addOnCompleteListener(
-        OnCompleteListener { task ->
+    // get user id
+    val firebaseAuth: FirebaseAuth by inject(FirebaseAuth::class.java)
+    val uid = firebaseAuth.currentUser?.uid ?: return
 
-            if (!task.isSuccessful) {
-                logMessage("Firebase token retrieval failed")
-                return@OnCompleteListener
-            }
+    // get reference to database
+    val urlString = "https://com-sommerengineering-baraudio.firebaseio.com/"
+    val db = Firebase.database(urlString)
 
-            // extract firebase token (represents unique user and device)
-            val token = task.result
-            logMessage("Firebase token, $token")
-            testFirebaseDatabase(token)
-        }
-    )
+    // write new user/token to database
+    val usersKey = db.getReference("users")
+    usersKey.child(uid).setValue(token)
 }
 
-fun testFirebaseDatabase(token: String) {
+fun listenToDatabaseWrites() {
 
     // get user id
     val firebaseAuth: FirebaseAuth by inject(FirebaseAuth::class.java)
@@ -66,24 +66,15 @@ fun testFirebaseDatabase(token: String) {
     val urlString = "https://com-sommerengineering-baraudio.firebaseio.com/"
     val db = Firebase.database(urlString)
 
-    // write new user to database
-    val usersKey = db.getReference("users")
-    usersKey.child(uid).setValue(token)
-    
     // write new message to database
     val messagesKey = db.getReference("messages")
-    val timestamp = Calendar.getInstance().timeInMillis
 
-    messagesKey.child(uid)
-        .child(timestamp.toString())
-        .setValue("MNQ doing something at $timestamp")
-
-    // read from database
+    // listen to database writes
     messagesKey.addValueEventListener(object : ValueEventListener {
 
         override fun onDataChange(snapshot: DataSnapshot) {
             val value = snapshot.getValue()
-            logMessage("Firebase realtime database, $messagesKey: $value")
+            logMessage("Firebase realtime database, onDataChange: $messagesKey: $value")
         }
 
         override fun onCancelled(error: DatabaseError) {
@@ -97,6 +88,6 @@ fun testFirebaseDatabase(token: String) {
     // todo complete launch checklist prior to production
     //  https://firebase.google.com/support/guides/launch-checklist
 
-    // todo implement App Check via Google Play Integrity API, setup flow through console
+    // todo implement App Check via Google Play Integrity API, setup flow through firebase console
     //  https://firebase.google.com/docs/app-check/android/play-integrity-provider?hl=en&authuser=0&_gl=1*4ksu49*_ga*NTE3MjAzMTkwLjE3Mjg1NTI5MDE.*_ga_CW55HF8NVT*MTcyOTM2MTg3NS4xOC4xLjE3MjkzNjQzODIuMC4wLjA.
 }
