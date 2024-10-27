@@ -16,20 +16,18 @@ class FirebaseService : FirebaseMessagingService() {
 }
 
 fun writeNewUserToDatabase(token: String) {
-
-    logMessage("Write new user/token to database")
-
+    
     // get user id
     val firebaseAuth: FirebaseAuth by inject(FirebaseAuth::class.java)
     val uid = firebaseAuth.currentUser?.uid ?: return
 
-    // get reference to database
-    val urlString = "https://com-sommerengineering-baraudio.firebaseio.com/"
-    val db = Firebase.database(urlString)
-
     // write new user/token to database
-    val usersKey = db.getReference("users")
-    usersKey.child(uid).setValue(token)
+    Firebase.database(databaseUrl)
+        .getReference(users)
+        .child(uid)
+        .setValue(token)
+
+    logMessage("Write new user/token to database")
 }
 
 fun announceMessage(message: RemoteMessage) {

@@ -27,7 +27,7 @@ fun Navigation(
     // host is container for current destination
     NavHost(
         navController = controller,
-        startDestination = LoginScreenRoute // startDestination
+        startDestination = startDestination
     ) {
         composable(
             route = LoginScreenRoute) {
