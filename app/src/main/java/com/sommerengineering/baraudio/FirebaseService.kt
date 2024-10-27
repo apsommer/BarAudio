@@ -16,7 +16,7 @@ class FirebaseService : FirebaseMessagingService() {
 }
 
 fun writeNewUserToDatabase(token: String) {
-    
+
     // get user id
     val firebaseAuth: FirebaseAuth by inject(FirebaseAuth::class.java)
     val uid = firebaseAuth.currentUser?.uid ?: return

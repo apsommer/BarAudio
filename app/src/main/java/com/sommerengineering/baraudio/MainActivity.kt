@@ -7,6 +7,7 @@ import android.app.Service
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.speech.tts.TextToSpeech
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -70,17 +71,28 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    lateinit var textToSpeech: TextToSpeech
+
     override fun onStart() {
         super.onStart()
 
-        // todo remove on production release, not necessary
-        // listenToDatabaseWrites()
+        textToSpeech = TextToSpeech(this) { status ->
+            if (status == TextToSpeech.SUCCESS){
+                logMessage("Initialize text-to-speech engine")
+                announceMessage("BarAudio is great!")
+            }
+        }
     }
 
-    override fun onResume() {
-        super.onResume()
+    private fun announceMessage(
+        message: String,
+        queueMode: Int = TextToSpeech.QUEUE_ADD
+    ) {
 
-        // todo remove all notifications
+        val utteranceStatus = textToSpeech.speak(message, queueMode, null, "42")
+        if (utteranceStatus == TextToSpeech.ERROR) {
+            logMessage("Error from textToSpeech.speak()")
+        }
     }
 }
 
@@ -97,3 +109,4 @@ fun App() {
         }
     }
 }
+
