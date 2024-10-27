@@ -11,24 +11,20 @@ class TextToSpeechImpl(
 
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
-            logMessage("Text-to-speech engine intialized")
+
+            // todo use high quality english voice for testing
+            textToSpeech.voice = textToSpeech.voices
+                .filter { it.quality >= 400 }
+                .filter { it.locale.toString().contains("en")}
+                .get(0)
+
+            logMessage("Text-to-speech engine initialized")
         }
     }
 
     fun announceMessage(message: String, ) {
-
-        val voices = textToSpeech.voices
-            .filter { it.quality >= 400 }
-            .filter { it.locale.toString().contains("en")}
-
-        val count = voices.count()
-        val randomIndex = (0..count).random()
-        val voice = voices[randomIndex]
-
-        logMessage("Randomly choose $randomIndex of $count: $voice")
-        textToSpeech.voice = voice
-
+        
         val status = textToSpeech.speak(message, 1, null, "42")
-        if (status == TextToSpeech.ERROR) { logMessage("Error from text-to-speech") }
+        if (status == TextToSpeech.ERROR) { logMessage("Text-to-speech engine ERROR") }
     }
 }

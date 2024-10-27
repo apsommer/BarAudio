@@ -20,8 +20,11 @@ fun Navigation(
 
     // skip login screen if user already signed-in
     val firebaseAuth: FirebaseAuth = koinInject()
+    val isUserSignedIn = firebaseAuth.currentUser != null
+    if (isUserSignedIn) { logMessage("User already signed-in, firebase authenticated") }
+
     val startDestination =
-        if (firebaseAuth.currentUser != null) { AlertScreenRoute }
+        if (isUserSignedIn) { AlertScreenRoute }
         else { LoginScreenRoute }
 
     // host is container for current destination

@@ -36,7 +36,7 @@ class FirebaseService : FirebaseMessagingService() {
     private fun announceMessage(remoteMessage: RemoteMessage) {
 
         val message = remoteMessage.data["message"] ?: return
-        logMessage("onMessageReceived: $message")
+        logMessage("FCM message received: $message")
         tts.announceMessage(message)
     }
 }
