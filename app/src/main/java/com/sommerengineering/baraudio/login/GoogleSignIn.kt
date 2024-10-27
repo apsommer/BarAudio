@@ -6,6 +6,7 @@ import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
+import androidx.credentials.exceptions.NoCredentialException
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
@@ -30,12 +31,10 @@ fun googleSignIn (
 
     // bottom sheet with progress bar
     val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
-        .setFilterByAuthorizedAccounts(false)
+        .setFilterByAuthorizedAccounts(true)
         .setServerClientId(BuildConfig.googleSignInWebClientId)
         .setAutoSelectEnabled(true)
         .build()
-
-    // todo sign-up with setFilterByAuthorizedAccounts(false)
 
     // create request
     val request: GetCredentialRequest = GetCredentialRequest.Builder()
@@ -55,15 +54,19 @@ fun googleSignIn (
                 auth = firebaseAuth,
                 result = result)
 
-            // todo move downstream
+            // todo move downstream to handleSuccess
             onAuthentication()
-
-        } catch (e: Exception) {
-            logException(e)
         }
+        catch (e: NoCredentialException) { signUpWithGoogle() }
+        catch (e: Exception) { logException(e) }
     }
 
     // todo sign-out with clearCredentialState()
+}
+
+fun signUpWithGoogle() {
+
+    
 }
 
 fun handleSuccess(
@@ -82,7 +85,6 @@ fun handleSuccess(
                     // extract google id
                     val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
                     val googleToken = googleIdTokenCredential.idToken
-                    logMessage("Google sign-in success, token: $googleToken")
 
                     // sign-in to firebase with google id
                     val firebaseCredential = GoogleAuthProvider.getCredential(googleToken, null)
@@ -90,7 +92,7 @@ fun handleSuccess(
                         .addOnCompleteListener(activityContext as Activity) { task ->
 
                             if (task.isSuccessful) {
-                                logMessage("Firebase sign-in success, uid: ${auth.currentUser?.uid}")
+                                logMessage("Sign-in with firebase success")
 
                             } else {
                                 logException(task.exception)

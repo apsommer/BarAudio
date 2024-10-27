@@ -17,7 +17,7 @@ class FirebaseService : FirebaseMessagingService() {
 
 fun writeNewUserToDatabase(token: String) {
 
-    logMessage("Writing new user/token to database ...")
+    logMessage("Write new user/token to database")
 
     // get user id
     val firebaseAuth: FirebaseAuth by inject(FirebaseAuth::class.java)
@@ -43,16 +43,13 @@ fun listenToDatabaseWrites() {
     // get user id
     val firebaseAuth: FirebaseAuth by inject(FirebaseAuth::class.java)
     val uid = firebaseAuth.currentUser?.uid ?: return
-    logMessage("Firebase user id, $uid")
 
     // get reference to database
     val urlString = "https://com-sommerengineering-baraudio.firebaseio.com/"
     val db = Firebase.database(urlString)
+    val messagesKey = db.getReference("messages").child(uid)
 
-    // write new message to database
-    val messagesKey = db.getReference("messages")
-
-    // listen to database writes
+    // listen to new message database writes
     messagesKey.addValueEventListener(object : ValueEventListener {
 
         override fun onDataChange(snapshot: DataSnapshot) {
