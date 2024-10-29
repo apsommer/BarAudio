@@ -34,7 +34,7 @@ class FirebaseService : FirebaseMessagingService() {
 
         val notification = remoteMessage.notification
         val message = remoteMessage.data["message"] ?: return
-        
+
         logMessage("FCM message received,")
         logMessage("    notification: ${notification?.title}, ${notification?.body}")
         logMessage("    data: $message")
@@ -43,6 +43,6 @@ class FirebaseService : FirebaseMessagingService() {
         //  group all together, click opens existing app instance, or launches new one
 
         tts.message = message
-        tts.announceMessage()
+        tts.speakMessage()
     }
 }

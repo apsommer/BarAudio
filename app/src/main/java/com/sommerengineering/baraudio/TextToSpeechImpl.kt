@@ -15,6 +15,7 @@ class TextToSpeechImpl(
         if (status == TextToSpeech.SUCCESS) {
 
             isInitialized = true
+            logMessage("Text-to-speech initialized")
 
             // todo use high quality english voice for testing
             textToSpeech.voice = textToSpeech.voices
@@ -22,19 +23,19 @@ class TextToSpeechImpl(
                 .filter { it.locale.toString().contains("en")}
                 .get(0)
 
-            logMessage("Text-to-speech initialized")
-            announceMessage()
+            // speak any messages waiting in queue
+            speakMessage()
         }
     }
 
-    fun announceMessage() {
+    fun speakMessage() {
 
         if (message.isBlank() || !isInitialized) return
 
         val status = textToSpeech.speak(message, 1, null, "42")
         if (status == TextToSpeech.ERROR) { logMessage("Text-to-speech error [$status]") }
 
+        // clear unspoken message container
         message = ""
     }
-
 }

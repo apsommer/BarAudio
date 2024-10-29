@@ -36,6 +36,11 @@ fun AlertsScreen(
     // todo debug test
     (LocalContext.current as MainActivity).requestRealtimeNotificationPermission()
 
+    // todo check that notifications have appropriate settings:
+    //  importance, sound, etc at minimum levels, else show ui saying it's required
+    //  also put link to system settings somewhere appropriate
+    //  https://developer.android.com/develop/ui/views/notifications/channels#UpdateChannel
+
     Scaffold(
         topBar = {
             // todo profile image top right
