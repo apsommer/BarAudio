@@ -30,7 +30,7 @@ class FirebaseService : FirebaseMessagingService() {
             .child(uid)
             .setValue(token)
 
-        logMessage("New user/token written to database")
+        logMessage("New user:token written to database")
     }
 
     private fun handleMessage(remoteMessage: RemoteMessage) {
@@ -47,9 +47,6 @@ class FirebaseService : FirebaseMessagingService() {
 
     }
 }
-
-
-
 
 
 fun listenToDatabaseWrites() {

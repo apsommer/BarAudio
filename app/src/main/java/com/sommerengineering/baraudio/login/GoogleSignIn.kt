@@ -26,14 +26,15 @@ fun signInWithGoogle (
 
     // display ui with bottom sheet and progress bar
 //    val signInOptions = GetGoogleIdOption.Builder()
-//        .setFilterByAuthorizedAccounts(true)
+//        .setFilterByAuthorizedAccounts(true) // false to initiate sign-up flow
 //        .setServerClientId(BuildConfig.googleSignInWebClientId)
 //        .setAutoSelectEnabled(true)
 //        .build()
 
     // display ui with modal dialog
     val signInOptions = GetSignInWithGoogleOption
-        .Builder(BuildConfig.googleSignInWebClientId).build()
+        .Builder(BuildConfig.googleSignInWebClientId)
+        .build()
 
     // create credential manager and coroutine
     val credentialManager = CredentialManager.create(activityContext)
@@ -79,8 +80,6 @@ fun handleSuccess(
                     // extract google id
                     val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
                     val googleToken = googleIdTokenCredential.idToken
-
-                    logMessage(googleIdTokenCredential.profilePictureUri.toString())
 
                     // sign-in to firebase with google id
                     val firebaseCredential = GoogleAuthProvider.getCredential(googleToken, null)

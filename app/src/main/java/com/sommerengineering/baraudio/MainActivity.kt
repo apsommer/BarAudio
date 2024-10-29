@@ -60,7 +60,7 @@ class MainActivity : ComponentActivity() {
         val notificationManager = getSystemService(Service.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)
 
-        logMessage("Register notification channel")
+        logMessage("Notification channel registered")
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
