@@ -1,9 +1,7 @@
 package com.sommerengineering.baraudio
 
 import android.Manifest
-import android.app.NotificationManager
 import android.app.PendingIntent
-import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
@@ -13,7 +11,6 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import com.sommerengineering.baraudio.alerts.AlertsScreen
 import org.koin.android.ext.android.get
 import org.koin.java.KoinJavaComponent.inject
 
@@ -61,12 +58,15 @@ class FirebaseService : FirebaseMessagingService() {
         message: String
     ) {
 
-        // create pending intent to activity
-        val intent = Intent(this, MainActivity::class.java)
-            .apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK }
-        val pendingIntent: PendingIntent = PendingIntent
-            .getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+        // confirm permission granted
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+            != PackageManager.PERMISSION_GRANTED) { return }
 
+        // create pending intent to activity
+        val intent = packageManager.getLaunchIntentForPackage(getString(R.string.package_name))
+        val pendingIntent= PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+
+        // configure options
         val builder = NotificationCompat.Builder(this, getString(R.string.notification_channel_id))
             .setSmallIcon(R.drawable.logo_square)
             .setContentTitle(timestamp)
@@ -75,16 +75,7 @@ class FirebaseService : FirebaseMessagingService() {
                 .bigText(message))
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
-
-        // confirm permission granted
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
-            != PackageManager.PERMISSION_GRANTED) {
-
-            // todo is it even possible for user to reject manifest permission?
-            //  if so, show ui here explain it's a requirement
-            return
-        }
-
+        
         // show notification
         NotificationManagerCompat.from(this).notify(
             timestamp.toLong().toInt(),
