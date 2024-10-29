@@ -3,10 +3,7 @@ from firebase_functions import https_fn
 import time
 
 # initialize admin sdk
-app = initialize_app(
-    credential = credentials.Certificate('admin.json'),
-    # options = { 'databaseURL': 'https://com-sommerengineering-baraudio.firebaseio.com/' }
-)
+app = initialize_app(credential = credentials.Certificate('admin.json'))
 
 @https_fn.on_request()
 def baraudio(req: https_fn.Request) -> https_fn.Response:
@@ -35,13 +32,6 @@ def send_fcm(uid: str, timestamp: str, message: str):
     group_key = db.reference('users')
     device_token = group_key.get()[uid]
 
-    # visible notification in status bar
-    notification = messaging.Notification(
-        title = timestamp,
-        body = message,
-        # image = "https://lh3.googleusercontent.com/a/ACg8ocLh9EGppTdyl_UJMT4bpA_RucEb6TET0JtG1YEM_tquXhCPmesnOQ=s96-c"
-    )
-
     # set priority to high todo are these configs needed, default may be sufficient?
     config = messaging.AndroidConfig(
         priority = "high", # "normal" is default, "high" attempts to wake device in doze mode
@@ -50,8 +40,9 @@ def send_fcm(uid: str, timestamp: str, message: str):
 
     # construct notification
     remote_message = messaging.Message(
-        # notification = notification, # todo omit for silent data payload only, no visible notification, handle notification display in app?
-        data = { 'message': message },
+        data = {
+            'timestamp': timestamp,
+            'message': message },
         android = config,
         token = device_token)
 

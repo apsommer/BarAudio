@@ -35,6 +35,8 @@ class TextToSpeechImpl(
         val status = textToSpeech.speak(message, 1, null, "42")
         if (status == TextToSpeech.ERROR) { logMessage("Text-to-speech error [$status]") }
 
+        logMessage("Text-to-speech message spoken: $message")
+
         // clear unspoken message container
         message = ""
     }

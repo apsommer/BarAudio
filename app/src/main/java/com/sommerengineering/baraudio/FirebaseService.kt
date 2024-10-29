@@ -41,18 +41,17 @@ class FirebaseService : FirebaseMessagingService() {
 
     private fun handleMessage(remoteMessage: RemoteMessage) {
 
-//        val notification = remoteMessage.notification
+        // extract attributes
+        val timestamp = remoteMessage.data["timestamp"] ?: return
         val message = remoteMessage.data["message"] ?: return
 
         logMessage("FCM message received,")
-//        logMessage("    notification: ${notification?.title}, ${notification?.body}")
-        logMessage("    data: $message")
+        logMessage("    $timestamp: $message")
 
-        showNotification("42", message)
+        // show notification
+        showNotification(timestamp, message)
 
-        // todo display notification
-        //  group all together, click opens existing app instance, or launches new one
-
+        // speak message
         tts.message = message
         tts.speakMessage()
     }
@@ -62,35 +61,33 @@ class FirebaseService : FirebaseMessagingService() {
         message: String
     ) {
 
-        // todo pending intent with composable?
-//        val intent = Intent(this, AlertsScreen::class.java).apply {
-//            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-//        }
-//
-//        val pendingIntent: PendingIntent = PendingIntent
-//            .getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+        // create pending intent to activity
+        val intent = Intent(this, MainActivity::class.java)
+            .apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK }
+        val pendingIntent: PendingIntent = PendingIntent
+            .getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
-        var builder = NotificationCompat.Builder(this, getString(R.string.notification_channel_id))
+        val builder = NotificationCompat.Builder(this, getString(R.string.notification_channel_id))
             .setSmallIcon(R.drawable.logo_square)
             .setContentTitle(timestamp)
             .setContentText(message)
             .setStyle(NotificationCompat.BigTextStyle()
-                .bigText("Much longer text that cannot fit one line ..."))
-//            .setContentIntent(pendingIntent)
+                .bigText(message))
+            .setContentIntent(pendingIntent)
             .setAutoCancel(true)
 
         // confirm permission granted
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
             != PackageManager.PERMISSION_GRANTED) {
 
-            // todo is it possible for user to reject manifest permission?
+            // todo is it even possible for user to reject manifest permission?
             //  if so, show ui here explain it's a requirement
             return
         }
 
         // show notification
         NotificationManagerCompat.from(this).notify(
-            timestamp.toInt(),
+            timestamp.toLong().toInt(),
             builder.build())
     }
 }
