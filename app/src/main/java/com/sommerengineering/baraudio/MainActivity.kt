@@ -57,6 +57,7 @@ class MainActivity : ComponentActivity() {
         val channel = NotificationChannel(id, name, importance)
         channel.description = description
         // todo set system-wide category for do not disturb visibility
+        //  https://developer.android.com/develop/ui/views/notifications/build-notification#system-category
 
         // register channel with system
         val notificationManager = getSystemService(Service.NOTIFICATION_SERVICE) as NotificationManager
