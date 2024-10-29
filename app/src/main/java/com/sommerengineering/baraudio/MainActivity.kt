@@ -17,7 +17,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.auth.FirebaseAuth
 import com.sommerengineering.baraudio.theme.AppTheme
+import org.koin.android.ext.android.get
+import org.koin.java.KoinJavaComponent.inject
 
 class MainActivity : ComponentActivity() {
 
@@ -27,7 +30,7 @@ class MainActivity : ComponentActivity() {
             ActivityResultContracts.RequestPermission()) { isGranted ->
 
             if (isGranted) { initNotificationChannel() }
-            else { /** todo ui that explains this permission is required to run baraudio */ }
+            else { /** todo ui that explains this permission is required to run app */ }
         }
 
     fun requestRealtimeNotificationPermission() {
@@ -54,12 +57,13 @@ class MainActivity : ComponentActivity() {
         val channel = NotificationChannel(id, name, importance)
         channel.description = description
         // todo set system-wide category for do not disturb visibility
+        //  https://developer.android.com/develop/ui/views/notifications/build-notification#system-category
 
         // register channel with system
         val notificationManager = getSystemService(Service.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)
 
-        logMessage("Register notification channel")
+        logMessage("Notification channel registered")
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,17 +74,10 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    // initialize text-to-speech engine
     override fun onStart() {
         super.onStart()
-
-        // todo remove on production release, not necessary
-        // listenToDatabaseWrites()
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        // todo remove all notifications
+        get<TextToSpeechImpl>()
     }
 }
 
@@ -96,4 +93,19 @@ fun App() {
             Modifier.padding(padding)
         }
     }
+}
+
+fun getStartDestination(): String {
+
+    // skip login screen if user already signed-in
+    val firebaseAuth: FirebaseAuth by inject(FirebaseAuth::class.java)
+    val isUserSignedIn = firebaseAuth.currentUser != null
+
+    if (isUserSignedIn) { logMessage("Firebase authenticated, user already signed-in") }
+
+    val startDestination =
+        if (isUserSignedIn) { AlertScreenRoute }
+        else { LoginScreenRoute }
+
+    return startDestination
 }

@@ -20,10 +20,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.google.firebase.auth.FirebaseAuth
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.theme.AppTheme
-import org.koin.compose.koinInject
 
 @Composable
 fun LoginScreen (
@@ -32,7 +30,6 @@ fun LoginScreen (
 
     // initialize
     val context = LocalContext.current
-    val firebaseAuth: FirebaseAuth = koinInject()
 
     Surface {
         Column(
@@ -55,9 +52,8 @@ fun LoginScreen (
             ) {
                 Button(
                     onClick = {
-                        googleSignIn(
+                        signInWithGoogle(
                             activityContext = context,
-                            firebaseAuth = firebaseAuth,
                             onAuthentication = onAuthentication
                         )
                     },
