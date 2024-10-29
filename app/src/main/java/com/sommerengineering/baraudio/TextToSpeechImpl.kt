@@ -18,13 +18,13 @@ class TextToSpeechImpl(
                 .filter { it.locale.toString().contains("en")}
                 .get(0)
 
-            logMessage("Text-to-speech engine initialized")
+            logMessage("Text-to-speech initialized")
         }
     }
 
     fun announceMessage(message: String, ) {
 
         val status = textToSpeech.speak(message, 1, null, "42")
-        if (status == TextToSpeech.ERROR) { logMessage("Text-to-speech engine ERROR") }
+        if (status == TextToSpeech.ERROR) { logMessage("Text-to-speech error [$status]") }
     }
 }

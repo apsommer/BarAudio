@@ -17,8 +17,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.auth.FirebaseAuth
 import com.sommerengineering.baraudio.theme.AppTheme
 import org.koin.android.ext.android.get
+import org.koin.compose.koinInject
+import org.koin.java.KoinJavaComponent.inject
 
 class MainActivity : ComponentActivity() {
 
@@ -92,3 +95,17 @@ fun App() {
     }
 }
 
+fun getStartDestination(): String {
+
+    // skip login screen if user already signed-in
+    val firebaseAuth: FirebaseAuth by inject(FirebaseAuth::class.java)
+    val isUserSignedIn = firebaseAuth.currentUser != null
+
+    if (isUserSignedIn) { logMessage("User already signed-in, firebase authenticated") }
+
+    val startDestination =
+        if (isUserSignedIn) { AlertScreenRoute }
+        else { LoginScreenRoute }
+
+    return startDestination
+}
