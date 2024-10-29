@@ -3,10 +3,7 @@ from firebase_functions import https_fn
 import time
 
 # initialize admin sdk
-app = initialize_app(
-    credential = credentials.Certificate('admin.json'),
-    options = { 'databaseURL': 'https://com-sommerengineering-baraudio.firebaseio.com/' }
-)
+app = initialize_app(credential = credentials.Certificate('admin.json'))
 
 @https_fn.on_request()
 def baraudio(req: https_fn.Request) -> https_fn.Response:
