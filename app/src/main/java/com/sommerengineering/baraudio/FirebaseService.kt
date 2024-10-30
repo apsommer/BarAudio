@@ -48,6 +48,9 @@ class FirebaseService : FirebaseMessagingService() {
         // show notification
         showNotification(timestamp, message)
 
+        // only speak if app is open in background or foreground, not when closed
+        if (!isAppOpen) { return }
+
         // speak message
         tts.message = message
         tts.speakMessage()

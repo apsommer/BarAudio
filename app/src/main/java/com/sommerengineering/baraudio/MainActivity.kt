@@ -22,6 +22,7 @@ import com.sommerengineering.baraudio.theme.AppTheme
 import org.koin.android.ext.android.get
 import org.koin.java.KoinJavaComponent.inject
 
+var isAppOpen = false
 class MainActivity : ComponentActivity() {
 
     // initialize system permission request ui
@@ -69,9 +70,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContent {
-            App()
-        }
+        setContent { App() }
+        isAppOpen = true
     }
 
     // initialize text-to-speech engine
