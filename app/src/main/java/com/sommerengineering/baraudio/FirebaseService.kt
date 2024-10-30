@@ -3,6 +3,7 @@ package com.sommerengineering.baraudio
 import android.Manifest
 import android.app.PendingIntent
 import android.content.pm.PackageManager
+import android.icu.util.Calendar
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -13,6 +14,8 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import org.koin.android.ext.android.get
 import org.koin.java.KoinJavaComponent.inject
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class FirebaseService : FirebaseMessagingService() {
 
@@ -36,6 +39,17 @@ class FirebaseService : FirebaseMessagingService() {
         logMessage("New user:token written to database")
     }
 
+    private fun beautifyTimestamp(timestamp: String): String {
+
+        // todo handle local change in system systeming while app running
+        //  https://stackoverflow.com/a/23556454/9212084
+
+        val locale = Locale.getDefault()
+        val formatter = SimpleDateFormat("h:mm:ss, dd/MM/yy", locale) // "HH:mm:ss dd-MM-yyyy"
+
+        return formatter.format(Calendar.getInstance().getTime())
+    }
+
     private fun handleMessage(remoteMessage: RemoteMessage) {
 
         // extract attributes
@@ -46,7 +60,9 @@ class FirebaseService : FirebaseMessagingService() {
         logMessage("    $timestamp: $message")
 
         // show notification
-        showNotification(timestamp, message)
+        showNotification(
+            beautifyTimestamp(timestamp),
+            message)
 
         // only speak if app is open in background or foreground, not when closed
         if (!isAppOpen) { return }
@@ -72,16 +88,16 @@ class FirebaseService : FirebaseMessagingService() {
         // configure options
         val builder = NotificationCompat.Builder(this, getString(R.string.notification_channel_id))
             .setSmallIcon(R.drawable.logo_square)
-            .setContentTitle(timestamp)
-            .setContentText(message)
+            .setContentTitle(message)
+            .setContentText(timestamp)
             .setStyle(NotificationCompat.BigTextStyle()
-                .bigText(message))
+                .bigText(timestamp))
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
         
         // show notification
         NotificationManagerCompat.from(this).notify(
-            timestamp.toLong().toInt(),
+            42,
             builder.build())
     }
 }
