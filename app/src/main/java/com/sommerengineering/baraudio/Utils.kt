@@ -1,6 +1,7 @@
 package com.sommerengineering.baraudio
 
 import android.util.Log
+import androidx.datastore.preferences.core.stringPreferencesKey
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -14,7 +15,7 @@ const val users = "users"
 
 // preferences datastore
 const val localCache = "localCache"
-const val tokenKey = "token"
+val tokenKey = stringPreferencesKey("token")
 
 // todo display app-wide banner for 'no internet connection', for example sign-in currently fails silently
 fun logException(e: Exception?) =
@@ -35,3 +36,4 @@ fun beautifyTimestamp(timestamp: String): String {
         Locale.getDefault())
         .format(Date(timestamp.toLong()))
 }
+

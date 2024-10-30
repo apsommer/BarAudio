@@ -7,8 +7,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
@@ -16,44 +14,35 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.runBlocking
 import org.koin.android.ext.android.get
-import org.koin.android.scope.serviceScope
 import org.koin.java.KoinJavaComponent.inject
 
 class FirebaseService : FirebaseMessagingService() {
 
     private val tts: TextToSpeechImpl = get()
 
-    override fun onNewToken(token: String) { writeTokenToCache(token) }
-    override fun onMessageReceived(remoteMessage: RemoteMessage) { handleMessage(remoteMessage) }
+    override fun onNewToken(token: String) {
 
-    private fun writeTokenToCache(token: String) {
+        // write token to local cache
         CoroutineScope(Dispatchers.IO).launch {
-            val tokenKey = stringPreferencesKey(tokenKey)
-            applicationContext.dataStore.edit { it[tokenKey] = token }
+
+            applicationContext.dataStore.edit {
+                it[tokenKey] = token
+            }
+
+            logMessage("New token written to local cache: $token")
         }
     }
 
-    private fun writeNewUserToDatabase(token: String) {
-
-        logMessage("onNewToken")
-
-        // get user id
-        val firebaseAuth: FirebaseAuth by inject(FirebaseAuth::class.java)
-        val uid = firebaseAuth.currentUser?.uid ?: return
-
-        // write new user/token to database
-        Firebase.database(databaseUrl)
-            .getReference(users)
-            .child(uid)
-            .setValue(token)
-
-        logMessage("New user: token written to database")
+    override fun onMessageReceived(remoteMessage: RemoteMessage) {
+        handleMessage(remoteMessage)
     }
+
+
 
     private fun handleMessage(remoteMessage: RemoteMessage) {
 
@@ -108,4 +97,19 @@ class FirebaseService : FirebaseMessagingService() {
             timestamp.toLong().toInt(),
             builder.build())
     }
+}
+
+fun writeNewUserToDatabase(token: String) {
+
+    // get user id
+    val firebaseAuth: FirebaseAuth by inject(FirebaseAuth::class.java)
+    val uid = firebaseAuth.currentUser?.uid ?: return
+
+    // write new user/token to database
+    Firebase.database(databaseUrl)
+        .getReference(users)
+        .child(uid)
+        .setValue(token)
+
+    logMessage("New user: token written to database")
 }

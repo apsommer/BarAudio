@@ -12,11 +12,17 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingExcept
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.sommerengineering.baraudio.BuildConfig
+import com.sommerengineering.baraudio.dataStore
 import com.sommerengineering.baraudio.logException
 import com.sommerengineering.baraudio.logMessage
+import com.sommerengineering.baraudio.tokenKey
+import com.sommerengineering.baraudio.writeNewUserToDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.koin.java.KoinJavaComponent.inject
 
 fun signInWithGoogle (
@@ -52,7 +58,7 @@ fun signInWithGoogle (
                 request = request,
                 context = activityContext)
 
-            handleSuccess(
+            handleGoogleCredential(
                 activityContext = activityContext,
                 result = result)
 
@@ -62,12 +68,9 @@ fun signInWithGoogle (
     }
 }
 
-fun handleSuccess(
+fun handleGoogleCredential(
     activityContext: Context,
     result: GetCredentialResponse) {
-
-    // inject dependencies
-    val firebaseAuth: FirebaseAuth by inject(FirebaseAuth::class.java)
 
     // extract credential
     val credential = result.credential
@@ -75,23 +78,64 @@ fun handleSuccess(
     when (credential) {
         is CustomCredential -> {
             if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
-                try {
 
-                    // extract google id
-                    val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
-                    val googleToken = googleIdTokenCredential.idToken
+                // extract google id
+                val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+                val googleToken = googleIdTokenCredential.idToken
 
-                    // sign-in to firebase with google id
-                    val firebaseCredential = GoogleAuthProvider.getCredential(googleToken, null)
-                    firebaseAuth.signInWithCredential(firebaseCredential)
-                        .addOnCompleteListener(activityContext as Activity) { task ->
-                            if (task.isSuccessful) { logMessage("Firebase sign-in successful") }
-                            else { logException(task.exception) }
-                        }
+                // todo capture name, photoUrl, etc. and populate topBar
 
-                } catch (e: GoogleIdTokenParsingException) { logException(e) }
-            } else { logMessage("Unexpected type of credential") }
-        } else -> { logMessage("Unexpected type of credential") }
+                logMessage("Google sign-in successful")
+                signInWithFirebase(activityContext, googleToken)
+
+            } else { logMessage("Unexpected type of google credential") }
+        } else -> { logMessage("Unexpected type of google credential") }
+    }
+}
+
+fun signInWithFirebase(
+    activityContext: Context,
+    googleToken: String) {
+
+    // inject dependencies
+    val firebaseAuth: FirebaseAuth by inject(FirebaseAuth::class.java)
+
+    // wrap google token into firebase credential
+    val firebaseCredential = GoogleAuthProvider.getCredential(googleToken, null)
+
+    try {
+
+        firebaseAuth.signInWithCredential(firebaseCredential)
+            .addOnCompleteListener(activityContext as Activity) { task ->
+                if (task.isSuccessful) { handleSuccess(activityContext) }
+                else { logException(task.exception) }
+            }
+
+    } catch (e: GoogleIdTokenParsingException) { logException(e) }
+}
+
+fun handleSuccess(activityContext: Context) {
+
+    logMessage("Firebase sign-in successful")
+
+    // get user id
+    val firebaseAuth: FirebaseAuth by inject(FirebaseAuth::class.java)
+    val firebaseUser = firebaseAuth.currentUser ?: return
+
+    firebaseUser.getIdToken(false).addOnCompleteListener { task ->
+
+        if (task.isSuccessful) {
+
+            val token = task.result.token // todo somehow this token can persist past clear app data, uninstall/install, and onNewToken callback, wow!
+            val cachedToken =
+                runBlocking {
+                    activityContext.dataStore.data.map { it[tokenKey] }.first()
+                } ?: return@addOnCompleteListener
+
+            // compare cached token with user token
+            if (token != cachedToken) { writeNewUserToDatabase(cachedToken) }
+            else { logMessage("Token already in cache, skipping database write") }
+        }
     }
 }
 
