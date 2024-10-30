@@ -1,5 +1,7 @@
 package com.sommerengineering.baraudio
 
+import android.content.Context
+import androidx.datastore.preferences.preferencesDataStore
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -14,3 +16,5 @@ val appModule = module {
     viewModel { MainViewModel(get()) }
     single<TextToSpeechImpl> { TextToSpeechImpl(androidContext())}
 }
+
+val Context.dataStore by preferencesDataStore(localCache)

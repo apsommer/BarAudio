@@ -1,8 +1,6 @@
 package com.sommerengineering.baraudio
 
-import android.icu.util.Calendar
 import android.util.Log
-import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -13,6 +11,10 @@ const val TAG = "~"
 // firebase
 const val databaseUrl = "https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/"
 const val users = "users"
+
+// preferences datastore
+const val localCache = "localCache"
+const val tokenKey = "token"
 
 // todo display app-wide banner for 'no internet connection', for example sign-in currently fails silently
 fun logException(e: Exception?) =

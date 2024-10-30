@@ -6,23 +6,36 @@ import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.get
+import org.koin.android.scope.serviceScope
 import org.koin.java.KoinJavaComponent.inject
 
 class FirebaseService : FirebaseMessagingService() {
 
     private val tts: TextToSpeechImpl = get()
 
-    override fun onNewToken(token: String) { writeNewUserToDatabase(token) }
+    override fun onNewToken(token: String) { writeTokenToCache(token) }
     override fun onMessageReceived(remoteMessage: RemoteMessage) { handleMessage(remoteMessage) }
 
     private fun writeTokenToCache(token: String) {
-
+        CoroutineScope(Dispatchers.IO).launch {
+            val tokenKey = stringPreferencesKey(tokenKey)
+            applicationContext.dataStore.edit { it[tokenKey] = token }
+        }
     }
 
     private fun writeNewUserToDatabase(token: String) {
