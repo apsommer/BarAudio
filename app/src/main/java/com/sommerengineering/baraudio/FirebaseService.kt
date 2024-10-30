@@ -21,6 +21,10 @@ class FirebaseService : FirebaseMessagingService() {
     override fun onNewToken(token: String) { writeNewUserToDatabase(token) }
     override fun onMessageReceived(remoteMessage: RemoteMessage) { handleMessage(remoteMessage) }
 
+    private fun writeTokenToCache(token: String) {
+
+    }
+
     private fun writeNewUserToDatabase(token: String) {
 
         logMessage("onNewToken")

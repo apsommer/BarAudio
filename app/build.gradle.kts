@@ -101,7 +101,6 @@ dependencies {
     implementation(libs.googleid)
 
     // koin
-//    implementation(libs.koin.android) // todo not needed?
     implementation(libs.koin.androidx.compose)
     implementation(libs.koin.androidx.compose.navigation)
 
@@ -112,4 +111,7 @@ dependencies {
     implementation(libs.play.services.auth)
     implementation(libs.firebase.messaging)
     implementation(libs.firebase.database)
+
+    // preferences datastore
+    implementation(libs.androidx.datastore.preferences)
 }

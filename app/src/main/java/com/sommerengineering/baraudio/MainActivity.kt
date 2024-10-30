@@ -94,18 +94,3 @@ fun App() {
         }
     }
 }
-
-fun getStartDestination(): String {
-
-    // skip login screen if user already signed-in
-    val firebaseAuth: FirebaseAuth by inject(FirebaseAuth::class.java)
-    val isUserSignedIn = firebaseAuth.currentUser != null
-
-    if (isUserSignedIn) { logMessage("Firebase authenticated, user already signed-in") }
-
-    val startDestination =
-        if (isUserSignedIn) { AlertScreenRoute }
-        else { LoginScreenRoute }
-
-    return startDestination
-}
