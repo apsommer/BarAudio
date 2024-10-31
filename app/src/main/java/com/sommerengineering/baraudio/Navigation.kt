@@ -6,7 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import com.sommerengineering.baraudio.alerts.AlertsScreen
+import com.sommerengineering.baraudio.messages.AlertsScreen
 import com.sommerengineering.baraudio.login.LoginScreen
 
 // routes

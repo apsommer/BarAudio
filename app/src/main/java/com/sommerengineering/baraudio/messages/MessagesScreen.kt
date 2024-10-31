@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.alerts
+package com.sommerengineering.baraudio.messages
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -41,8 +41,8 @@ fun AlertsScreen(
     ) { padding ->
 
         LazyColumn(Modifier.padding(padding)) {
-            items(messages) { alert ->
-                MessageItem(alert)
+            items(messages) {
+                MessageItem(it)
                 HorizontalDivider()
             }
         }
@@ -78,7 +78,6 @@ fun listenToDatabaseWrites(
                 Message(
                     timestamp,
                     message))
-
         }
 
         // do nothing
