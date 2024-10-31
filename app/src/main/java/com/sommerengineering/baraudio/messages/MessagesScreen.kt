@@ -75,9 +75,7 @@ fun listenToDatabaseWrites(
             if (timestamp.isNullOrEmpty() || message.isEmpty()) return
 
             messages.add(
-                Message(
-                    timestamp,
-                    message))
+                Message(timestamp, message))
         }
 
         // do nothing
