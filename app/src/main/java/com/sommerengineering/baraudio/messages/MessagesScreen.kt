@@ -19,6 +19,8 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
@@ -61,13 +63,14 @@ fun TopAppBar(modifier: Modifier = Modifier) {
             Image(
                 painterResource(R.drawable.logo_banner),
                 contentDescription = null,
+                modifier = Modifier.padding(8.dp)
             )
         },
         actions = {
             IconButton(
                 onClick = { /* todo open settings ui */ }) {
-                Icon(
-                    painterResource(R.drawable.logo_full),
+                AsyncImage(
+                    model = Firebase.auth.currentUser?.photoUrl,
                     contentDescription = null
                 )
             }

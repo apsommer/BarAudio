@@ -84,8 +84,6 @@ fun handleGoogleCredential(
                 val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
                 val googleToken = googleIdTokenCredential.idToken
 
-                // todo capture name, photoUrl, etc. and populate topBar
-
                 logMessage("Google sign-in successful")
                 signInWithFirebase(activityContext, googleToken)
 
