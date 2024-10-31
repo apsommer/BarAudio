@@ -14,34 +14,22 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.theme.AppTheme
 
-class Alert(
-    var name: String,
-    var sound: Int,
-    var voice: String,
-    var speed: Float,
-    var queueBehavior: QueueBehavior,
-    var webhook: String
-) {
+data class Message(
+    var timestamp: String,
+    var message: String
+)
 
-}
-
-sealed class QueueBehavior {
-    object AddToQueue : QueueBehavior()
-    object ReplaceQueue : QueueBehavior()
-}
-
-fun getAlerts() : List<Alert> {
+fun getAlerts() : List<Message> {
     return listOf(
-        Alert("NQ", 1, "English", 1.0f, QueueBehavior.AddToQueue, "https://webhook.123"),
-        Alert("ES", 2, "Spanish", 1.1f, QueueBehavior.ReplaceQueue, "https://webhook.234"),
-        Alert("RTY", 3, "Swedish", 1.2f, QueueBehavior.AddToQueue, "https://webhook.345"),
-        Alert("FESX", 4, "Catalan", 1.3f, QueueBehavior.ReplaceQueue, "https://webhook.456")
+        Message("66558816355", "Apples and bananas"),
+        Message("5599756655", "Carrots and eggplant"),
+        Message("774455998888", "Tiramisu and donuts")
     )
 }
 
 @Composable
-fun AlertItem(
-    alert: Alert,
+fun MessageItem(
+    message: Message,
     modifier: Modifier = Modifier) {
 
     Surface {
@@ -51,11 +39,8 @@ fun AlertItem(
                 .fillMaxSize()
                 .padding(12.dp)
         ) {
-            Text(text = alert.name)
-            Text(text = alert.sound.toString())
-            Text(text = alert.voice)
-            Text(text = "queue behavior ...")
-            Text(text = alert.webhook)
+            Text(text = message.timestamp)
+            Text(text = message.message)
         }
     }
 }
@@ -73,6 +58,6 @@ fun AlertItem(
 @Composable
 fun PreviewAlertItem() {
     AppTheme {
-        AlertItem(getAlerts()[0])
+        MessageItem(getAlerts()[0])
     }
 }
