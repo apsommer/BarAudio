@@ -4,10 +4,10 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.sommerengineering.baraudio.alerts.AlertsScreen
 import com.sommerengineering.baraudio.login.LoginScreen
-import org.koin.java.KoinJavaComponent.inject
 
 // routes
 const val LoginScreenRoute = "LoginScreen"
@@ -18,7 +18,6 @@ fun Navigation(
     controller: NavHostController
 ) {
 
-    // host is container for current destination
     NavHost(
         navController = controller,
         startDestination = getStartDestination() // LoginScreenRoute
@@ -28,9 +27,7 @@ fun Navigation(
             LoginScreen(
                 onAuthentication = {
                     controller.navigate(AlertScreenRoute) {
-                        popUpTo(LoginScreenRoute) {
-                            inclusive = true
-                        }
+                        popUpTo(LoginScreenRoute) { inclusive = true }
                     }
                 }
             )
@@ -44,15 +41,12 @@ fun Navigation(
 
 fun getStartDestination(): String {
 
+    var startDestination = LoginScreenRoute
+
     // skip login screen if user already signed-in
-    val firebaseAuth: FirebaseAuth by inject(FirebaseAuth::class.java)
-    val isUserSignedIn = firebaseAuth.currentUser != null
-
-    if (isUserSignedIn) { logMessage("Firebase authenticated, user already signed-in") }
-
-    val startDestination =
-        if (isUserSignedIn) { AlertScreenRoute }
-        else { LoginScreenRoute }
+    if (Firebase.auth.currentUser != null) {
+        startDestination = AlertScreenRoute
+        logMessage("Firebase authenticated, user already signed-in") }
 
     return startDestination
 }

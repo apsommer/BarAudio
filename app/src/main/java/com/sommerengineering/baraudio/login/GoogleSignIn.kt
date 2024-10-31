@@ -30,6 +30,7 @@ fun signInWithGoogle (
     onAuthentication: () -> Unit,
 ) {
 
+    // todo use this bottom ui in production
     // display ui with bottom sheet and progress bar
 //    val signInOptions = GetGoogleIdOption.Builder()
 //        .setFilterByAuthorizedAccounts(true) // false to initiate sign-up flow
@@ -92,51 +93,3 @@ fun handleGoogleCredential(
         } else -> { logMessage("Unexpected type of google credential") }
     }
 }
-
-fun signInWithFirebase(
-    activityContext: Context,
-    googleToken: String) {
-
-    // inject dependencies
-    val firebaseAuth: FirebaseAuth by inject(FirebaseAuth::class.java)
-
-    // wrap google token into firebase credential
-    val firebaseCredential = GoogleAuthProvider.getCredential(googleToken, null)
-
-    try {
-
-        firebaseAuth.signInWithCredential(firebaseCredential)
-            .addOnCompleteListener(activityContext as Activity) { task ->
-                if (task.isSuccessful) { handleSuccess(activityContext) }
-                else { logException(task.exception) }
-            }
-
-    } catch (e: GoogleIdTokenParsingException) { logException(e) }
-}
-
-fun handleSuccess(activityContext: Context) {
-
-    logMessage("Firebase sign-in successful")
-
-    // get user id
-    val firebaseAuth: FirebaseAuth by inject(FirebaseAuth::class.java)
-    val firebaseUser = firebaseAuth.currentUser ?: return
-
-    firebaseUser.getIdToken(false).addOnCompleteListener { task ->
-
-        if (task.isSuccessful) {
-
-            val token = task.result.token // todo somehow this token can persist past clear app data, uninstall/install, and onNewToken callback, wow!
-            val cachedToken =
-                runBlocking {
-                    activityContext.dataStore.data.map { it[tokenKey] }.first()
-                } ?: return@addOnCompleteListener
-
-            // compare cached token with user token
-            if (token != cachedToken) { writeNewUserToDatabase(cachedToken) }
-            else { logMessage("Token already in cache, skipping database write") }
-        }
-    }
-}
-
-// todo sign-out

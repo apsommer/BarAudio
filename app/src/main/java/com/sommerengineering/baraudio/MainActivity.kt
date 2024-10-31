@@ -71,7 +71,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent { App() }
-        isAppOpen = true
+        isAppOpen = true // true for background and foreground, false if closed
     }
 
     // initialize text-to-speech engine
@@ -84,12 +84,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun App() {
     AppTheme {
-
-        // initialize
-        val navController = rememberNavController()
-
         Scaffold { padding ->
-            Navigation(navController)
+            Navigation(rememberNavController())
             Modifier.padding(padding)
         }
     }

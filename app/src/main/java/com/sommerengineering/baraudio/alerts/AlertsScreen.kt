@@ -9,15 +9,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.databaseUrl
-import com.sommerengineering.baraudio.logException
 import com.sommerengineering.baraudio.logMessage
 import org.koin.java.KoinJavaComponent.inject
 
@@ -57,8 +56,7 @@ fun AlertsScreen(
 fun listenToDatabaseWrites() {
 
     // get user id
-    val firebaseAuth: FirebaseAuth by inject(FirebaseAuth::class.java)
-    val uid = firebaseAuth.currentUser?.uid ?: return
+    val uid = Firebase.auth.currentUser?.uid ?: return
 
     // get reference to database
     val db = Firebase.database(databaseUrl)

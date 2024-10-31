@@ -36,4 +36,3 @@ fun beautifyTimestamp(timestamp: String): String {
         Locale.getDefault())
         .format(Date(timestamp.toLong()))
 }
-
