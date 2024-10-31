@@ -114,4 +114,8 @@ dependencies {
 
     // preferences datastore
     implementation(libs.androidx.datastore.preferences)
+
+    // coil
+    implementation("io.coil-kt.coil3:coil-compose:3.0.0-rc02")
+    implementation("io.coil-kt.coil3:coil-network-okhttp:3.0.0-rc02")
 }
