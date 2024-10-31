@@ -1,16 +1,24 @@
 package com.sommerengineering.baraudio.messages
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
@@ -18,11 +26,12 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.sommerengineering.baraudio.MainActivity
+import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.databaseUrl
 import java.util.Objects
 
 @Composable
-fun AlertsScreen(
+fun MessagesScreen(
     modifier: Modifier = Modifier) {
 
     // todo show some ui explaining permission request?
@@ -32,12 +41,7 @@ fun AlertsScreen(
     listenToDatabaseWrites(messages)
 
     Scaffold(
-        topBar = {
-            // todo profile image top right
-        },
-        floatingActionButton = {
-            // todo plus button
-        }
+        topBar = { TopAppBar(modifier) },
     ) { padding ->
 
         LazyColumn(Modifier.padding(padding)) {
@@ -47,6 +51,28 @@ fun AlertsScreen(
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TopAppBar(modifier: Modifier = Modifier) {
+    return CenterAlignedTopAppBar(
+        title = {
+            Image(
+                painterResource(R.drawable.logo_banner),
+                contentDescription = null,
+            )
+        },
+        actions = {
+            IconButton(
+                onClick = { /* todo open settings ui */ }) {
+                Icon(
+                    painterResource(R.drawable.logo_full),
+                    contentDescription = null
+                )
+            }
+        }
+    )
 }
 
 fun listenToDatabaseWrites(
@@ -86,4 +112,3 @@ fun listenToDatabaseWrites(
     })
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
