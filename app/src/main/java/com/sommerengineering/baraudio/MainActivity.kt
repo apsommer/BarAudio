@@ -22,6 +22,7 @@ import com.sommerengineering.baraudio.theme.AppTheme
 import org.koin.android.ext.android.get
 import org.koin.java.KoinJavaComponent.inject
 
+var isAppOpen = false
 class MainActivity : ComponentActivity() {
 
     // initialize system permission request ui
@@ -56,6 +57,9 @@ class MainActivity : ComponentActivity() {
         val importance = NotificationManager.IMPORTANCE_DEFAULT // >= DEFAULT to show in status bar
         val channel = NotificationChannel(id, name, importance)
         channel.description = description
+
+        // todo channel group shown as "other" in settings, change this to something better
+
         // todo set system-wide category for do not disturb visibility
         //  https://developer.android.com/develop/ui/views/notifications/build-notification#system-category
 
@@ -69,9 +73,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContent {
-            App()
-        }
+        setContent { App() }
+        isAppOpen = true // true for background and foreground, false if closed
     }
 
     // initialize text-to-speech engine
@@ -84,28 +87,9 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun App() {
     AppTheme {
-
-        // initialize
-        val navController = rememberNavController()
-
         Scaffold { padding ->
-            Navigation(navController)
+            Navigation(rememberNavController())
             Modifier.padding(padding)
         }
     }
-}
-
-fun getStartDestination(): String {
-
-    // skip login screen if user already signed-in
-    val firebaseAuth: FirebaseAuth by inject(FirebaseAuth::class.java)
-    val isUserSignedIn = firebaseAuth.currentUser != null
-
-    if (isUserSignedIn) { logMessage("Firebase authenticated, user already signed-in") }
-
-    val startDestination =
-        if (isUserSignedIn) { AlertScreenRoute }
-        else { LoginScreenRoute }
-
-    return startDestination
 }

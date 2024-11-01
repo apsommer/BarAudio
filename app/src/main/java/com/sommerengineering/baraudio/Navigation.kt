@@ -4,7 +4,9 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.sommerengineering.baraudio.alerts.AlertsScreen
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+import com.sommerengineering.baraudio.messages.MessagesScreen
 import com.sommerengineering.baraudio.login.LoginScreen
 
 // routes
@@ -16,7 +18,6 @@ fun Navigation(
     controller: NavHostController
 ) {
 
-    // host is container for current destination
     NavHost(
         navController = controller,
         startDestination = getStartDestination() // LoginScreenRoute
@@ -26,16 +27,26 @@ fun Navigation(
             LoginScreen(
                 onAuthentication = {
                     controller.navigate(AlertScreenRoute) {
-                        popUpTo(LoginScreenRoute) {
-                            inclusive = true
-                        }
+                        popUpTo(LoginScreenRoute) { inclusive = true }
                     }
                 }
             )
         }
         composable(
             route = AlertScreenRoute) {
-            AlertsScreen()
+            MessagesScreen()
         }
     }
+}
+
+fun getStartDestination(): String {
+
+    var startDestination = LoginScreenRoute
+
+    // skip login screen if user already signed-in
+    if (Firebase.auth.currentUser != null) {
+        startDestination = AlertScreenRoute
+        logMessage("Firebase authenticated, user already signed-in") }
+
+    return startDestination
 }
