@@ -29,16 +29,19 @@ fun signInWithFirebase(
 
         Firebase.auth.signInWithCredential(firebaseCredential)
             .addOnCompleteListener(activityContext as Activity) { task ->
-                if (task.isSuccessful) { handleSuccess(activityContext) }
-                else { logException(task.exception) }
+
+                if (task.isSuccessful) {
+                    onAuthentication()
+                    validateToken(activityContext)
+
+                } else { logException(task.exception) }
             }
 
     } catch (e: GoogleIdTokenParsingException) { logException(e) }
 }
 
-fun handleSuccess(
-    activityContext: Context,
-    onAuthentication: () -> Unit) {
+fun validateToken(
+    activityContext: Context) {
 
     logMessage("Firebase sign-in successful")
 
@@ -54,15 +57,15 @@ fun handleSuccess(
             val token = task.result.token
             val cachedToken = runBlocking { activityContext.dataStore.data.map { it[tokenKey] }.first() }
                 ?: return@addOnCompleteListener
-            
+
             // update database user:token association in database, if needed
-            if (token != cachedToken) { writeNewUserToDatabase(cachedToken) }
+            if (token != cachedToken) { writeNewTokenToDatabase(cachedToken) }
             else { logMessage("Token already in cache, skipping database write") }
         }
     }
 }
 
-fun writeNewUserToDatabase(token: String) {
+fun writeNewTokenToDatabase(token: String) {
 
     // get user id
     val uid = Firebase.auth.currentUser?.uid ?: return

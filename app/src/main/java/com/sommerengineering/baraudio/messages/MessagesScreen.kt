@@ -50,10 +50,9 @@ fun MessagesScreen(
     // todo show some ui explaining permission request?
     (LocalContext.current as MainActivity).requestRealtimeNotificationPermission()
 
-    // todo very first read does not occur, checkout initial setup!
+    //
     val messages = remember { mutableStateListOf<Message>() }
     listenToDatabaseWrites(messages)
-    logMessage("Here")
 
     Scaffold(
         topBar = { TopAppBar(modifier) },
@@ -97,9 +96,7 @@ fun onClickProfileImage() {
 
 fun listenToDatabaseWrites(
     messages: SnapshotStateList<Message>) {
-
-    logMessage("But not here")
-
+    
     // get user id
     val uid = Firebase.auth.currentUser?.uid ?: return
 
