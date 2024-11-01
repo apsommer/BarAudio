@@ -1,26 +1,36 @@
 package com.sommerengineering.baraudio.messages
 
+import android.content.Context
+import android.util.Log
+import android.widget.ImageButton
+import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import coil3.transform.CircleCropTransformation
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
@@ -30,6 +40,7 @@ import com.google.firebase.ktx.Firebase
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.databaseUrl
+import com.sommerengineering.baraudio.logMessage
 import java.util.Objects
 
 @Composable
@@ -39,8 +50,10 @@ fun MessagesScreen(
     // todo show some ui explaining permission request?
     (LocalContext.current as MainActivity).requestRealtimeNotificationPermission()
 
+    // todo very first read does not occur, checkout initial setup!
     val messages = remember { mutableStateListOf<Message>() }
     listenToDatabaseWrites(messages)
+    logMessage("Here")
 
     Scaffold(
         topBar = { TopAppBar(modifier) },
@@ -68,19 +81,24 @@ fun TopAppBar(modifier: Modifier = Modifier) {
         },
         actions = {
             IconButton(
-                onClick = { /* todo open settings ui */ }) {
+                onClick = { onClickProfileImage() }) {
                 AsyncImage(
+                    modifier = Modifier.clip(CircleShape),
                     model = Firebase.auth.currentUser?.photoUrl,
-                    contentDescription = null
-                )
+                    contentDescription = null)
             }
         }
     )
 }
 
+fun onClickProfileImage() {
+    logMessage("Profile image click!")
+}
+
 fun listenToDatabaseWrites(
-    messages: SnapshotStateList<Message>
-) {
+    messages: SnapshotStateList<Message>) {
+
+    logMessage("But not here")
 
     // get user id
     val uid = Firebase.auth.currentUser?.uid ?: return
@@ -88,6 +106,7 @@ fun listenToDatabaseWrites(
     // get reference to database
     val db = Firebase.database(databaseUrl)
     val uidKey = db.getReference("messages").child(uid)
+    logMessage(uidKey.toString())
 
     // listen to new message database writes
     // triggers once for every child on initial connection
@@ -103,7 +122,8 @@ fun listenToDatabaseWrites(
 
             if (timestamp.isNullOrEmpty() || message.isEmpty()) return
 
-            messages.add(
+            // todo observe a State<LinkedList> to reverse order efficiently
+            messages.add(0,
                 Message(timestamp, message))
         }
 

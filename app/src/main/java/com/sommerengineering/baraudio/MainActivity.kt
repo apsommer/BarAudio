@@ -57,6 +57,9 @@ class MainActivity : ComponentActivity() {
         val importance = NotificationManager.IMPORTANCE_DEFAULT // >= DEFAULT to show in status bar
         val channel = NotificationChannel(id, name, importance)
         channel.description = description
+
+        // todo channel group shown as "other" in settings, change this to something better
+
         // todo set system-wide category for do not disturb visibility
         //  https://developer.android.com/develop/ui/views/notifications/build-notification#system-category
 

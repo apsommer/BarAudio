@@ -7,19 +7,15 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.datastore.preferences.core.edit
-import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import org.koin.android.ext.android.get
-import org.koin.java.KoinJavaComponent.inject
 
 class FirebaseService : FirebaseMessagingService() {
 
@@ -41,8 +37,6 @@ class FirebaseService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         handleMessage(remoteMessage)
     }
-
-
 
     private fun handleMessage(remoteMessage: RemoteMessage) {
 
@@ -97,19 +91,4 @@ class FirebaseService : FirebaseMessagingService() {
             timestamp.toLong().toInt(),
             builder.build())
     }
-}
-
-fun writeNewUserToDatabase(token: String) {
-
-    // get user id
-    val firebaseAuth: FirebaseAuth by inject(FirebaseAuth::class.java)
-    val uid = firebaseAuth.currentUser?.uid ?: return
-
-    // write new user/token to database
-    Firebase.database(databaseUrl)
-        .getReference(users)
-        .child(uid)
-        .setValue(token)
-
-    logMessage("New user: token written to database")
 }

@@ -1,6 +1,5 @@
 package com.sommerengineering.baraudio.login
 
-import android.app.Activity
 import android.content.Context
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
@@ -8,27 +7,16 @@ import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
-import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.GoogleAuthProvider
 import com.sommerengineering.baraudio.BuildConfig
-import com.sommerengineering.baraudio.dataStore
 import com.sommerengineering.baraudio.logException
 import com.sommerengineering.baraudio.logMessage
-import com.sommerengineering.baraudio.tokenKey
-import com.sommerengineering.baraudio.writeNewUserToDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import org.koin.java.KoinJavaComponent.inject
 
 fun signInWithGoogle (
     activityContext: Context,
-    onAuthentication: () -> Unit,
-) {
+    onAuthentication: () -> Unit) {
 
     // todo use this bottom ui in production
     // display ui with bottom sheet and progress bar
@@ -55,15 +43,14 @@ fun signInWithGoogle (
     // todo refactor to LaunchedEffect
     coroutineScope.launch { try {
 
-            val result = credentialManager.getCredential(
-                request = request,
-                context = activityContext)
+        val result = credentialManager.getCredential(
+            activityContext,
+            request)
 
-            handleGoogleCredential(
-                activityContext = activityContext,
-                result = result)
-
-            onAuthentication()
+        handleGoogleCredential(
+            activityContext,
+            result,
+            onAuthentication)
 
         } catch (e: Exception) { logException(e) }
     }
@@ -71,7 +58,8 @@ fun signInWithGoogle (
 
 fun handleGoogleCredential(
     activityContext: Context,
-    result: GetCredentialResponse) {
+    result: GetCredentialResponse,
+    onAuthentication: () -> Unit) {
 
     // extract credential
     val credential = result.credential
@@ -85,7 +73,10 @@ fun handleGoogleCredential(
                 val googleToken = googleIdTokenCredential.idToken
 
                 logMessage("Google sign-in successful")
-                signInWithFirebase(activityContext, googleToken)
+                signInWithFirebase(
+                    activityContext,
+                    googleToken,
+                    onAuthentication)
 
             } else { logMessage("Unexpected type of google credential") }
         } else -> { logMessage("Unexpected type of google credential") }
