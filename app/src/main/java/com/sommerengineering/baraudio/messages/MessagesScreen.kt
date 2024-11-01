@@ -7,6 +7,10 @@ import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -44,24 +49,37 @@ import com.sommerengineering.baraudio.logMessage
 import java.util.Objects
 
 @Composable
-fun MessagesScreen(
-    modifier: Modifier = Modifier) {
+fun MessagesScreen() {
 
-    // todo show some ui explaining permission request?
+    // request notification permission
     (LocalContext.current as MainActivity).requestRealtimeNotificationPermission()
 
-    //
+    // initialize message list
     val messages = remember { mutableStateListOf<Message>() }
     listenToDatabaseWrites(messages)
 
     Scaffold(
-        topBar = { TopAppBar(modifier) },
-    ) { padding ->
+        topBar = {
+            TopAppBar() }) { scaffoldPadding ->
 
-        LazyColumn(Modifier.padding(padding)) {
-            items(messages) {
-                MessageItem(it)
-                HorizontalDivider()
+        Box(Modifier
+            .fillMaxSize()
+            .padding(scaffoldPadding)) {
+
+            // background image
+            Column(
+                Modifier.align(Alignment.BottomCenter)) {
+                Image(
+                    painter = painterResource(R.drawable.background),
+                    contentDescription = null)
+            }
+
+            // messages list
+            LazyColumn {
+                items(messages) { message ->
+                    MessageItem(message)
+                    HorizontalDivider()
+                }
             }
         }
     }
@@ -69,7 +87,7 @@ fun MessagesScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopAppBar(modifier: Modifier = Modifier) {
+fun TopAppBar() {
     return CenterAlignedTopAppBar(
         title = {
             Image(
@@ -96,7 +114,7 @@ fun onClickProfileImage() {
 
 fun listenToDatabaseWrites(
     messages: SnapshotStateList<Message>) {
-    
+
     // get user id
     val uid = Firebase.auth.currentUser?.uid ?: return
 
