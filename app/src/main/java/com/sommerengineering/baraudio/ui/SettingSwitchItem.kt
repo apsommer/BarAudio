@@ -17,16 +17,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
+import com.sommerengineering.baraudio.R
 
 @Composable
 fun SettingSwitchItem(
     @DrawableRes icon: Int,
     @StringRes title: Int,
-    @StringRes description: Int,
     state: State<Boolean>,
     onClick: (Boolean) -> Unit
 ) {
+
+    // toggle description
+    val description =
+        if (state.value) { R.string.queue_behavior_flush_description }
+        else { R.string.queue_behavior_add_description }
 
     Surface {
         Column {
