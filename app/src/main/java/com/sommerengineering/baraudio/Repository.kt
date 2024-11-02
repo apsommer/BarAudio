@@ -6,6 +6,5 @@ data class User(
 
 class Repository {
 
-    // initialize user
-    var user = User(null)
+    // todo
 }
