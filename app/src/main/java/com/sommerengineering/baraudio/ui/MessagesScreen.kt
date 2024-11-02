@@ -35,7 +35,6 @@ import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.databaseUrl
 import com.sommerengineering.baraudio.logMessage
 import com.sommerengineering.baraudio.models.Message
-import com.sommerengineering.baraudio.models.MessageItem
 import java.util.Objects
 
 @Composable
@@ -109,7 +108,6 @@ fun listenToDatabaseWrites(
     // get reference to database
     val db = Firebase.database(databaseUrl)
     val uidKey = db.getReference("messages").child(uid)
-    logMessage(uidKey.toString())
 
     // listen to new message database writes
     // triggers once for every child on initial connection

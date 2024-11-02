@@ -3,12 +3,9 @@ package com.sommerengineering.baraudio.ui
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -30,35 +27,33 @@ fun SettingSwitchItem(
     state: State<Boolean>,
     onClick: (Boolean) -> Unit
 ) {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween) {
+
+    Surface {
+        Column {
             Row(
-                verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    painterResource(icon),
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = stringResource(title),
-                    // modifier = Modifier.padding(16.dp),
-                    style = MaterialTheme.typography.bodyMedium)
-                Text(
-                    text = stringResource(description),
-                    // modifier = Modifier.padding(16.dp),
-                    style = MaterialTheme.typography.bodySmall)
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween) {
+                Row(
+                    modifier = Modifier.weight(1f),
+                    verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        modifier = Modifier.padding(24.dp),
+                        painter = painterResource(icon),
+                        contentDescription = null)
+                    Column {
+                        Text(
+                            text = stringResource(title),
+                            style = MaterialTheme.typography.titleMedium)
+                        Text(
+                            text = stringResource(description),
+                            style = MaterialTheme.typography.bodySmall)
+                    }
+                }
+                Switch(
+                    modifier = Modifier.padding(24.dp),
+                    checked = state.value,
+                    onCheckedChange = { onClick(it) })
             }
-            Spacer(modifier = Modifier.weight(1f))
-            Switch(
-                checked = state.value,
-                onCheckedChange = { onClick(it) })
         }
     }
 }
