@@ -149,4 +149,3 @@ fun listenToDatabaseWrites(
         override fun onCancelled(error: DatabaseError) { }
     })
 }
-
