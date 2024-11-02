@@ -13,4 +13,5 @@ val appModule = module {
     single<TextToSpeechImpl> { TextToSpeechImpl(androidContext())}
 }
 
+// preferences datastore
 val Context.dataStore by preferencesDataStore(localCache)

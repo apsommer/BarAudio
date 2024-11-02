@@ -118,4 +118,7 @@ dependencies {
     // coil
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
+
+    // splash screen
+    implementation(libs.androidx.core.splashscreen)
 }
