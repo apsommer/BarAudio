@@ -15,4 +15,9 @@ class MainViewModel(
     private val _ttsSpeed: MutableStateFlow<Float> = MutableStateFlow(1f)
     var ttsSpeed = _ttsSpeed.asStateFlow()
     fun setSpeed(speed: Float) { _ttsSpeed.value = speed }
+
+    // queue behavior
+    private val _isQueueFlush: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    var isQueueFlush = _isQueueFlush.asStateFlow()
+    fun setIsQueueFlush(isQueueFlush: Boolean) { _isQueueFlush.value = isQueueFlush}
 }
