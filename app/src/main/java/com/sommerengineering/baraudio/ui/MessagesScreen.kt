@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.messages
+package com.sommerengineering.baraudio.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -34,10 +34,14 @@ import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.databaseUrl
 import com.sommerengineering.baraudio.logMessage
+import com.sommerengineering.baraudio.models.Message
+import com.sommerengineering.baraudio.models.MessageItem
 import java.util.Objects
 
 @Composable
-fun MessagesScreen() {
+fun MessagesScreen(
+    onSettingsClick: () -> Unit
+) {
 
     // request notification permission
     (LocalContext.current as MainActivity).requestRealtimeNotificationPermission()
@@ -48,7 +52,7 @@ fun MessagesScreen() {
 
     Scaffold(
         topBar = {
-            MessagesTopBar() }) { scaffoldPadding ->
+            MessagesTopBar(onSettingsClick) }) { scaffoldPadding ->
 
         Box(Modifier
             .fillMaxSize()
@@ -75,7 +79,7 @@ fun MessagesScreen() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MessagesTopBar() {
+fun MessagesTopBar(onSettingsClick: () -> Unit) {
     return CenterAlignedTopAppBar(
         title = {
             Image(
@@ -86,7 +90,7 @@ fun MessagesTopBar() {
         },
         actions = {
             IconButton(
-                onClick = { onClickProfileImage() }) {
+                onClick = { onSettingsClick() }) {
                 AsyncImage(
                     modifier = Modifier.clip(CircleShape),
                     model = Firebase.auth.currentUser?.photoUrl,
@@ -94,10 +98,6 @@ fun MessagesTopBar() {
             }
         }
     )
-}
-
-fun onClickProfileImage() {
-    logMessage("Profile image click!")
 }
 
 fun listenToDatabaseWrites(
@@ -127,7 +127,8 @@ fun listenToDatabaseWrites(
 
             // todo observe a State<LinkedList> to reverse order efficiently
             messages.add(0,
-                Message(timestamp, message))
+                Message(timestamp, message)
+            )
         }
 
         // do nothing

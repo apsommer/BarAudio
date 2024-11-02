@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.settings
+package com.sommerengineering.baraudio.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -34,7 +34,7 @@ fun SettingsScreen(
         }
     ) { padding ->
         Column(Modifier.padding(16.dp)) {
-            SettingItem(
+            SettingSwitchItem(
                 icon = android.R.drawable.stat_sys_speakerphone,
                 title = R.string.queue_behavior_title,
                 description = R.string.queue_behaivior_description,

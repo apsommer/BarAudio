@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.login
+package com.sommerengineering.baraudio.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.R
+import com.sommerengineering.baraudio.login.signInWithGoogle
 
 @Composable
 fun LoginScreen (

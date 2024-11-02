@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.settings
+package com.sommerengineering.baraudio.ui
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -23,7 +23,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun SettingItem(
+fun SettingSwitchItem(
     @DrawableRes icon: Int,
     @StringRes title: Int,
     @StringRes description: Int,
