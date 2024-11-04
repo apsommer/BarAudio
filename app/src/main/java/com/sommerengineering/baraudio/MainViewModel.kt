@@ -1,5 +1,7 @@
 package com.sommerengineering.baraudio
 
+import android.content.Context
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -8,11 +10,15 @@ class MainViewModel(
 ) : ViewModel() {
 
     // webhook
+    fun saveToClipboard(context: Context) {
 
-    fun saveToClipboard() {
-        logMessage("Copied https://...")
         // todo save to clipboard
-        // todo toast message
+
+        Toast.makeText(
+            context,
+            webhookUrl,
+            Toast.LENGTH_SHORT)
+            .show()
     }
 
     // tts voice speed
@@ -21,11 +27,19 @@ class MainViewModel(
 
     // queue behavior
     val isQueueFlush = MutableStateFlow(false)
-    val queueSettingDescription = MutableStateFlow(R.string.queue_behavior_add_description)
-    fun setIsQueueFlush(isChecked: Boolean) {
+    val queueSettingDescription = MutableStateFlow(webhookUrl)
+
+    fun setIsQueueFlush(
+        context: Context,
+        isChecked: Boolean) {
+
         isQueueFlush.value = isChecked
-        if (isChecked) queueSettingDescription.value = R.string.queue_behavior_flush_description
-        else queueSettingDescription.value = R.string.queue_behavior_add_description
+
+        val resId =
+            if (isChecked) R.string.queue_behavior_flush_description
+            else R.string.queue_behavior_add_description
+
+        queueSettingDescription.value = context.getString(resId)
     }
 
     // todo auth state

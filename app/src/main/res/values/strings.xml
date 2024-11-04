@@ -10,5 +10,4 @@
     <string name="queue_behavior_flush_description">Play new alerts immediately</string>
     <string name="queue_behavior_add_description">Add new alerts to queue</string>
     <string name="webhook_title">Webhook</string>
-    <string name="webhook_description">http://todo...</string>
 </resources>

@@ -14,12 +14,14 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.logMessage
+import com.sommerengineering.baraudio.webhookUrl
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -27,6 +29,9 @@ import org.koin.androidx.compose.koinViewModel
 fun SettingsScreen(
     viewModel: MainViewModel = koinViewModel(),
     onBackClicked: () -> Unit, ) {
+
+    // capture context
+    val context = LocalContext.current
 
     Scaffold(
         topBar = {
@@ -49,10 +54,10 @@ fun SettingsScreen(
             SettingItem(
                 icon = R.drawable.webhook,
                 title = R.string.webhook_title,
-                description = R.string.webhook_description) {
+                description = webhookUrl) {
                 IconButton(
                     modifier = Modifier.padding(24.dp),
-                    onClick = { viewModel.saveToClipboard() }) {
+                    onClick = { viewModel.saveToClipboard(context) }) {
                     Icon(
                         painter = painterResource(R.drawable.copy),
                         contentDescription = null)
@@ -74,7 +79,7 @@ fun SettingsScreen(
                 Switch(
                     modifier = Modifier.padding(24.dp),
                     checked = viewModel.isQueueFlush.collectAsState().value,
-                    onCheckedChange = { viewModel.setIsQueueFlush(it) })
+                    onCheckedChange = { viewModel.setIsQueueFlush(context, it) })
             }
 
             // todo
