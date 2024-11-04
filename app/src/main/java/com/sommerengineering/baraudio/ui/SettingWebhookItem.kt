@@ -21,18 +21,13 @@ import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.R
 
 @Composable
-fun SettingSwitchItem(
+fun SettingWebhookItem(
     @DrawableRes icon: Int,
     @StringRes title: Int,
-    @StringRes initDescription: Int,
+    @StringRes description: Int = R.string.queue_behavior_add_description,
     state: State<Boolean>,
     onClick: (Boolean) -> Unit
 ) {
-
-    // toggle description
-    val description =
-        if (state.value) { R.string.queue_behavior_flush_description }
-        else { R.string.queue_behavior_add_description }
 
     Surface {
         Column {
@@ -55,10 +50,10 @@ fun SettingSwitchItem(
                             style = MaterialTheme.typography.bodySmall)
                     }
                 }
-                Switch(
+                Icon(
                     modifier = Modifier.padding(24.dp),
-                    checked = state.value,
-                    onCheckedChange = { onClick(it) })
+                    painter = painterResource(icon),
+                    contentDescription = null)
             }
         }
     }

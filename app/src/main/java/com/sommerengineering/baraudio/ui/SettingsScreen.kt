@@ -1,8 +1,6 @@
 package com.sommerengineering.baraudio.ui
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -59,6 +57,7 @@ fun SettingsScreen(
             SettingSwitchItem(
                 icon = R.drawable.text_to_speech,
                 title = R.string.queue_behavior_title,
+                description = R.string.queue_behavior_add_description,
                 state = viewModel.isQueueFlush.collectAsState(),
                 onClick = { viewModel.setIsQueueFlush(it) })
 
