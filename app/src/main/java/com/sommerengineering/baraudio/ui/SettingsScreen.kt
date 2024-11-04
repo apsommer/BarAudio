@@ -8,15 +8,18 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
+import com.sommerengineering.baraudio.logMessage
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,10 +46,20 @@ fun SettingsScreen(
 
         Column(Modifier.padding(scaffoldPadding)) {
 
+            SettingItem(
+                icon = R.drawable.webhook,
+                title = R.string.webhook_title,
+                description = R.string.webhook_description) {
+                IconButton(
+                    modifier = Modifier.padding(24.dp),
+                    onClick = { viewModel.saveToClipboard() }) {
+                    Icon(
+                        painter = painterResource(R.drawable.copy),
+                        contentDescription = null)
+                }
+            }
+
             // todo
-            Text(
-                modifier = Modifier.padding(24.dp),
-                text = "Webhook, display in description, copy icon and function right side")
             Text(
                 modifier = Modifier.padding(24.dp),
                 text = "Voice picker, exposed dropdown")
@@ -54,12 +67,15 @@ fun SettingsScreen(
                 modifier = Modifier.padding(24.dp),
                 text = "Voice speed, slider")
 
-            SettingSwitchItem(
+            SettingItem(
                 icon = R.drawable.text_to_speech,
                 title = R.string.queue_behavior_title,
-                description = R.string.queue_behavior_add_description,
-                state = viewModel.isQueueFlush.collectAsState(),
-                onClick = { viewModel.setIsQueueFlush(it) })
+                description = viewModel.queueSettingDescription.collectAsState().value) {
+                Switch(
+                    modifier = Modifier.padding(24.dp),
+                    checked = viewModel.isQueueFlush.collectAsState().value,
+                    onCheckedChange = { viewModel.setIsQueueFlush(it) })
+            }
 
             // todo
             Text(

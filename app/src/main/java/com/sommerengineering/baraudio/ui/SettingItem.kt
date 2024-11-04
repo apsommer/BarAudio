@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
@@ -22,12 +21,11 @@ import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.R
 
 @Composable
-fun SettingWebhookItem(
+fun SettingItem(
     @DrawableRes icon: Int,
     @StringRes title: Int,
-    @StringRes description: Int = R.string.queue_behavior_add_description,
-    // state: State<Boolean>,
-    onClick: () -> Unit
+    @StringRes description: Int,
+    content: @Composable () -> Unit
 ) {
 
     Surface {
@@ -51,14 +49,7 @@ fun SettingWebhookItem(
                             style = MaterialTheme.typography.bodySmall)
                     }
                 }
-                IconButton(
-                    modifier = Modifier.padding(24.dp),
-                    onClick = onClick) {
-                    Icon(
-                        painter = painterResource(R.drawable.copy),
-                        contentDescription = null
-                    )
-                }
+                content()
             }
         }
     }
