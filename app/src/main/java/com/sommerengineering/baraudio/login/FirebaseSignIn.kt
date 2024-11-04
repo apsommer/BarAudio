@@ -7,15 +7,13 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import com.sommerengineering.baraudio.dataStore
+import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.databaseUrl
 import com.sommerengineering.baraudio.logException
 import com.sommerengineering.baraudio.logMessage
 import com.sommerengineering.baraudio.tokenKey
 import com.sommerengineering.baraudio.users
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.runBlocking
+import org.koin.java.KoinJavaComponent.inject
 
 fun signInWithFirebase(
     activityContext: Context,
@@ -45,6 +43,8 @@ fun validateToken(
 
     logMessage("Firebase sign-in successful")
 
+    val viewModel: MainViewModel by inject(MainViewModel::class.java)
+
     val firebaseUser = Firebase.auth.currentUser ?: return
     firebaseUser.getIdToken(false).addOnCompleteListener { task ->
 
@@ -55,7 +55,7 @@ fun validateToken(
 
             // compare correct cached token with user token (potentially invalid)
             val token = task.result.token
-            val cachedToken = runBlocking { activityContext.dataStore.data.map { it[tokenKey] }.first() }
+            val cachedToken = viewModel.readFromDataStore(activityContext,  tokenKey)
                 ?: return@addOnCompleteListener
 
             // update database user:token association in database, if needed

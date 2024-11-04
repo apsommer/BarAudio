@@ -1,9 +1,6 @@
 package com.sommerengineering.baraudio
 
 import android.util.Log
-import androidx.datastore.preferences.core.stringPreferencesKey
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -12,13 +9,14 @@ import java.util.Locale
 const val TAG = "~"
 
 // firebase
-val webhookUrl = "https://baraudio-555667494303.us-central1.run.app/?uid=${Firebase.auth.currentUser?.uid}"
 const val databaseUrl = "https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/"
+const val webhookBaseUrl = "https://baraudio-555667494303.us-central1.run.app/?uid="
 const val users = "users"
 
 // preferences datastore
 const val localCache = "localCache"
-val tokenKey = stringPreferencesKey("token")
+const val tokenKey = "token"
+const val isQueueFlushKey = "isQueueFlush"
 
 // todo display app-wide banner for 'no internet connection', for example sign-in currently fails silently
 fun logException(e: Exception?) =

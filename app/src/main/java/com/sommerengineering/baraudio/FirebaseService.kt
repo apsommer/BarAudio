@@ -16,23 +16,15 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get
+import org.koin.android.ext.android.inject
 
-class FirebaseService : FirebaseMessagingService() {
+class FirebaseService: FirebaseMessagingService() {
 
     private val tts: TextToSpeechImpl = get()
+    private val viewModel: MainViewModel by inject()
 
-    override fun onNewToken(token: String) {
-
-        // write token to local cache
-        CoroutineScope(Dispatchers.IO).launch {
-
-            applicationContext.dataStore.edit {
-                it[tokenKey] = token
-            }
-
-            logMessage("New token written to local cache: $token")
-        }
-    }
+    override fun onNewToken(token: String) =
+        viewModel.writeToDataStore(applicationContext, tokenKey, token)
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         handleMessage(remoteMessage)

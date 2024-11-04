@@ -20,8 +20,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.logMessage
-import com.sommerengineering.baraudio.webhookUrl
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -30,8 +28,10 @@ fun SettingsScreen(
     viewModel: MainViewModel = koinViewModel(),
     onBackClicked: () -> Unit, ) {
 
-    // capture context
+    // initialize common
     val context = LocalContext.current
+    val modifier = Modifier.padding(24.dp)
+    viewModel.initSettings(context)
 
     Scaffold(
         topBar = {
@@ -51,12 +51,13 @@ fun SettingsScreen(
 
         Column(Modifier.padding(scaffoldPadding)) {
 
+            // webhook
             SettingItem(
                 icon = R.drawable.webhook,
                 title = R.string.webhook_title,
-                description = webhookUrl) {
+                description = viewModel.webhookUrl) {
                 IconButton(
-                    modifier = Modifier.padding(24.dp),
+                    modifier = modifier,
                     onClick = { viewModel.saveToClipboard(context) }) {
                     Icon(
                         painter = painterResource(R.drawable.copy),
@@ -64,34 +65,43 @@ fun SettingsScreen(
                 }
             }
 
-            // todo
+            // todo voice
             Text(
                 modifier = Modifier.padding(24.dp),
                 text = "Voice picker, exposed dropdown")
+
+            // todo speed
             Text(
                 modifier = Modifier.padding(24.dp),
                 text = "Voice speed, slider")
 
+            // queue behavior
             SettingItem(
                 icon = R.drawable.text_to_speech,
                 title = R.string.queue_behavior_title,
                 description = viewModel.queueSettingDescription.collectAsState().value) {
                 Switch(
-                    modifier = Modifier.padding(24.dp),
+                    modifier = modifier,
                     checked = viewModel.isQueueFlush.collectAsState().value,
                     onCheckedChange = { viewModel.setIsQueueFlush(context, it) })
             }
 
-            // todo
+            // todo about
             Text(
                 modifier = Modifier.padding(24.dp),
                 text = "About, external link to website")
+
+            // todo privacy policy
             Text(
                 modifier = Modifier.padding(24.dp),
                 text = "Privacy Policy, external link to website")
+
+            // todo terms and conditions
             Text(
                 modifier = Modifier.padding(24.dp),
                 text = "Terms and Conditions, external link to website")
+
+            // todo sign-out
             Text(
                 modifier = Modifier.padding(24.dp),
                 text = "Sign out, firebase sign-out and return to login screen")

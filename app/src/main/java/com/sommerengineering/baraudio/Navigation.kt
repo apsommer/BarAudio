@@ -22,7 +22,7 @@ fun Navigation(
 
     NavHost(
         navController = controller,
-        startDestination = SettingsScreenRoute // getStartDestination()
+        startDestination = getStartDestination() // SettingsScreenRoute // getStartDestination()
     ) {
         composable(
             route = LoginScreenRoute) {
