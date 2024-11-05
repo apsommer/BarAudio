@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.models
+package com.sommerengineering.baraudio.messages
 
 data class Message(
     var timestamp: String,

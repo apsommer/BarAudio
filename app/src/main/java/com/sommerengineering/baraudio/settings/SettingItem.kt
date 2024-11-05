@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.ui
+package com.sommerengineering.baraudio.settings
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes

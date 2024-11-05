@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.ui
+package com.sommerengineering.baraudio.messages
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -33,8 +33,6 @@ import com.google.firebase.ktx.Firebase
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.databaseUrl
-import com.sommerengineering.baraudio.logMessage
-import com.sommerengineering.baraudio.models.Message
 import java.util.Objects
 
 @Composable

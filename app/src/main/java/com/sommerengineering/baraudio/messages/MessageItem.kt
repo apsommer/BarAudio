@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.ui
+package com.sommerengineering.baraudio.messages
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -13,7 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.beautifyTimestamp
-import com.sommerengineering.baraudio.models.Message
 
 @Composable
 fun MessageItem(

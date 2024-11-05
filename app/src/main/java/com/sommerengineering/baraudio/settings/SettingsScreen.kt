@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.ui
+package com.sommerengineering.baraudio.settings
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -30,7 +30,7 @@ fun SettingsScreen(
 
     // initialize common
     val context = LocalContext.current
-    val modifier = Modifier.padding(24.dp)
+    val modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp)
     viewModel.initSettings(context)
 
     Scaffold(
@@ -75,7 +75,7 @@ fun SettingsScreen(
                     modifier = modifier,
                     onClick = { }) {
                     Icon(
-                        painter = painterResource(R.drawable.voice),
+                        painter = painterResource(R.drawable.more_vertical),
                         contentDescription = null)
                 }
             }
