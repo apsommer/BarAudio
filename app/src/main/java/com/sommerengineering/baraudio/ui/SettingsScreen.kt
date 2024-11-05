@@ -66,10 +66,19 @@ fun SettingsScreen(
                 }
             }
 
-            // todo voice
-            Text(
-                modifier = Modifier.padding(24.dp),
-                text = "Voice picker, exposed dropdown")
+            // voice
+            SettingItem(
+                icon = R.drawable.voice,
+                title = R.string.voice_title,
+                description = viewModel.voiceDescription.collectAsState().value)  {
+                IconButton(
+                    modifier = modifier,
+                    onClick = { }) {
+                    Icon(
+                        painter = painterResource(R.drawable.voice),
+                        contentDescription = null)
+                }
+            }
 
             // todo speed
             Text(
@@ -80,7 +89,7 @@ fun SettingsScreen(
             SettingItem(
                 icon = R.drawable.text_to_speech,
                 title = R.string.queue_behavior_title,
-                description = viewModel.queueSettingDescription.collectAsState().value) {
+                description = viewModel.queueBehaviorDescription.collectAsState().value) {
                 Switch(
                     modifier = modifier,
                     checked = viewModel.isQueueFlush.collectAsState().value,

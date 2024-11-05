@@ -22,9 +22,13 @@ class MainViewModel(
 ) : ViewModel() {
 
     var isQueueFlush = MutableStateFlow(false)
-    var queueSettingDescription = MutableStateFlow("")
+    var queueBehaviorDescription = MutableStateFlow("")
+    var voiceDescription = MutableStateFlow("")
 
     fun initSettings(context: Context) {
+
+        // todo temp
+        voiceDescription.value = "English - austrialian accent - male"
 
         isQueueFlush.value = readFromDataStore(context, isQueueFlushKey).toBoolean()
         setQueueSettingDescription(context)
@@ -39,6 +43,9 @@ class MainViewModel(
         val clip = ClipData.newPlainText("", webhookUrl)
         clipboardManager.setPrimaryClip(clip)
     }
+
+    // voice
+
 
     // queue behavior
     fun setIsQueueFlush(
@@ -57,7 +64,7 @@ class MainViewModel(
             if (isQueueFlush.value) R.string.queue_behavior_flush_description
             else R.string.queue_behavior_add_description
 
-        queueSettingDescription.value = context.getString(resId)
+        queueBehaviorDescription.value = context.getString(resId)
     }
 
     fun readFromDataStore(
