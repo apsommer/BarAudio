@@ -5,9 +5,6 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
-import androidx.datastore.core.IOException
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.ViewModel
@@ -26,14 +23,12 @@ class MainViewModel(
 ) : ViewModel() {
 
     var isQueueFlush = MutableStateFlow(false)
-    var ttsSpeed = MutableStateFlow(1f)
     var queueSettingDescription = MutableStateFlow("")
 
     fun initSettings(context: Context) {
 
-        setIsQueueFlush(
-            context,
-            readFromDataStore(context, isQueueFlushKey).toBoolean())
+        isQueueFlush.value = readFromDataStore(context, isQueueFlushKey).toBoolean()
+        setQueueSettingDescription(context)
     }
 
     // webhook
@@ -44,15 +39,6 @@ class MainViewModel(
         val clipboardManager = context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
         val clip = ClipData.newPlainText("", webhookUrl)
         clipboardManager.setPrimaryClip(clip)
-
-        // toast success todo not necessary Android > 13 ... show for earlier OS?
-        // Toast.makeText(context, webhookUrl, Toast.LENGTH_SHORT).show()
-    }
-
-    // tts voice speed
-    fun setSpeed(speed: Float) {
-
-        ttsSpeed.value = speed
     }
 
     // queue behavior
@@ -62,9 +48,14 @@ class MainViewModel(
 
         isQueueFlush.value = isChecked
         writeToDataStore(context, isQueueFlushKey, isChecked.toString())
+        setQueueSettingDescription(context)
+    }
+
+    fun setQueueSettingDescription(
+        context: Context) {
 
         val resId =
-            if (isChecked) R.string.queue_behavior_flush_description
+            if (isQueueFlush.value) R.string.queue_behavior_flush_description
             else R.string.queue_behavior_add_description
 
         queueSettingDescription.value = context.getString(resId)
