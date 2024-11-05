@@ -71,7 +71,7 @@ fun SettingsScreen(
                 icon = R.drawable.voice,
                 title = R.string.voice_title,
                 description = viewModel.voiceDescription.collectAsState().value)  {
-                VoiceDropdownMenu()
+                VoiceDropdownMenu(viewModel.getVoices())
             }
 
             // todo speed

@@ -4,6 +4,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
+import android.speech.tts.Voice
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.ViewModel
@@ -17,7 +18,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
+
 class MainViewModel(
+    private val tts: TextToSpeechImpl,
     private val repository: Repository
 ) : ViewModel() {
 
@@ -45,7 +48,9 @@ class MainViewModel(
     }
 
     // voice
-
+    fun getVoices(): List<Voice> {
+        return tts.getVoices().toList()
+    }
 
     // queue behavior
     fun setIsQueueFlush(
@@ -91,6 +96,4 @@ class MainViewModel(
 
         if (key == tokenKey) logMessage("New token: $value")
     }
-
-    // todo alert list: local retrieval with room
 }

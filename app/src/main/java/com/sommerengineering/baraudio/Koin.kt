@@ -10,7 +10,7 @@ import org.koin.dsl.module
 // koin modules
 val appModule = module {
     single<Repository> { Repository() }
-    viewModel { MainViewModel(get()) }
+    viewModel { MainViewModel(get(), get()) }
     single<TextToSpeechImpl> { TextToSpeechImpl(androidContext())}
 }
 

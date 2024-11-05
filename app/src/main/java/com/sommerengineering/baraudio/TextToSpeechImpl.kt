@@ -2,6 +2,7 @@ package com.sommerengineering.baraudio
 
 import android.content.Context
 import android.speech.tts.TextToSpeech
+import android.speech.tts.Voice
 
 class TextToSpeechImpl(
     activityContext: Context
@@ -39,5 +40,9 @@ class TextToSpeechImpl(
 
         // clear unspoken message container
         message = ""
+    }
+
+    fun getVoices(): Set<Voice> {
+        return textToSpeech.voices
     }
 }
