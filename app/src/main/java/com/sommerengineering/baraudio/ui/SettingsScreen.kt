@@ -55,7 +55,8 @@ fun SettingsScreen(
             SettingItem(
                 icon = R.drawable.webhook,
                 title = R.string.webhook_title,
-                description = viewModel.webhookUrl) {
+                description = viewModel.webhookUrl,
+                onClick = { viewModel.saveToClipboard(context) }) {
                 IconButton(
                     modifier = modifier,
                     onClick = { viewModel.saveToClipboard(context) }) {

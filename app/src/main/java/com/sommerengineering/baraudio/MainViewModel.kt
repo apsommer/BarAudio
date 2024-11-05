@@ -1,6 +1,5 @@
 package com.sommerengineering.baraudio
 
-
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context

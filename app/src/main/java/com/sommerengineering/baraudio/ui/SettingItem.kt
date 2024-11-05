@@ -2,6 +2,7 @@ package com.sommerengineering.baraudio.ui
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,12 +24,19 @@ fun SettingItem(
     @DrawableRes icon: Int,
     @StringRes title: Int,
     description: String,
+    onClick: (() -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
+
+    // toggle row clickable
+    val modifier =
+        if (onClick != null) Modifier.clickable { onClick() }
+        else Modifier.clickable(enabled = false, onClick = { })
 
     Surface {
         Column {
             Row(
+                modifier = modifier,
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween) {
                 Row(
