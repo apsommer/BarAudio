@@ -11,4 +11,5 @@
     <string name="queue_behavior_add_description">Add new alerts to queue</string>
     <string name="webhook_title">Webhook</string>
     <string name="voice_title">Voice</string>
+    <string name="speed_title">Speed</string>
 </resources>

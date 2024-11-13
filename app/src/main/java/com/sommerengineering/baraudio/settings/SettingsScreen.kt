@@ -74,10 +74,15 @@ fun SettingsScreen(
                 VoiceDropdownMenu(viewModel.getVoices())
             }
 
-            // todo speed
-            Text(
-                modifier = Modifier.padding(24.dp),
-                text = "Voice speed, slider")
+            // speed
+            SettingItem(
+                icon = R.drawable.speed,
+                title = R.string.speed_title,
+                description = viewModel.speedDescription.collectAsState().value) {
+                Icon(
+                    painter = painterResource(R.drawable.speed),
+                    contentDescription = null)
+            }
 
             // queue behavior
             SettingItem(

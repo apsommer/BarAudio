@@ -27,11 +27,13 @@ class MainViewModel(
     var isQueueFlush = MutableStateFlow(false)
     var queueBehaviorDescription = MutableStateFlow("")
     var voiceDescription = MutableStateFlow("")
+    var speedDescription = MutableStateFlow("")
 
     fun initSettings(context: Context) {
 
         // todo temp
         voiceDescription.value = "English - austrialian accent - male"
+        speedDescription.value = "1.0"
 
         isQueueFlush.value = readFromDataStore(context, isQueueFlushKey).toBoolean()
         setQueueSettingDescription(context)
@@ -51,6 +53,8 @@ class MainViewModel(
     fun getVoices(): List<Voice> {
         return tts.getVoices().toList()
     }
+
+    // speed
 
     // queue behavior
     fun setIsQueueFlush(
