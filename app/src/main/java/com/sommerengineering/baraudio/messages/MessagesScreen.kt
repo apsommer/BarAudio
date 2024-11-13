@@ -47,6 +47,9 @@ fun MessagesScreen(
     val messages = remember { mutableStateListOf<Message>() }
     listenToDatabaseWrites(messages)
 
+    // todo temp
+    onSettingsClick.invoke()
+
     Scaffold(
         topBar = {
             MessagesTopBar(onSettingsClick) }) { scaffoldPadding ->
@@ -74,6 +77,7 @@ fun MessagesScreen(
     }
 }
 
+// todo do this without experimental optin
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MessagesTopBar(onSettingsClick: () -> Unit) {

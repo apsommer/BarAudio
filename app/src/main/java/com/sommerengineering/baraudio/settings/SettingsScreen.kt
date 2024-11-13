@@ -80,9 +80,7 @@ fun SettingsScreen(
                 icon = R.drawable.speed,
                 title = R.string.speed_title,
                 description = viewModel.speedDescription.collectAsState().value) {
-                Icon(
-                    painter = painterResource(R.drawable.speed),
-                    contentDescription = null)
+                SpeedSlider()
             }
 
             // queue behavior
