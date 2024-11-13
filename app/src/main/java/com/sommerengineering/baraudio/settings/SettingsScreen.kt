@@ -89,6 +89,17 @@ fun SettingsScreen(
                 )
             }
 
+            // pitch
+            SettingItem(
+                icon = R.drawable.pitch,
+                title = R.string.pitch_title,
+                description = viewModel.pitchDescription.collectAsState().value) {
+                SpeedSlider(
+                    initPosition = viewModel.getPitch(),
+                    onValueChanged = { viewModel.setPitch(context, it) }
+                )
+            }
+
             // queue behavior
             SettingItem(
                 icon = R.drawable.text_to_speech,

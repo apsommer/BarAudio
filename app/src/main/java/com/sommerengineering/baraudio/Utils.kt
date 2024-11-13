@@ -18,6 +18,7 @@ const val localCache = "localCache"
 const val tokenKey = "token"
 const val isQueueFlushKey = "isQueueFlush"
 const val speedKey = "speed"
+const val pitchKey = "pitch"
 
 // todo display app-wide banner for 'no internet connection', for example sign-in currently fails silently
 fun logException(e: Exception?) =
