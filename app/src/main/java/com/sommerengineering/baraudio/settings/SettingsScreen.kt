@@ -84,7 +84,8 @@ fun SettingsScreen(
                 title = R.string.speed_title,
                 description = viewModel.speedDescription.collectAsState().value) {
                 SpeedSlider(
-                    onValueChanged = { viewModel.setSpeed(it) }
+                    initPosition = viewModel.getSpeed(),
+                    onValueChanged = { viewModel.setSpeed(context, it) }
                 )
             }
 

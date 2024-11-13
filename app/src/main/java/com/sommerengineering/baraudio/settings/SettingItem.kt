@@ -41,9 +41,7 @@ fun SettingItem(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    // modifier = Modifier.weight(1f)
-                    ) {
+                    verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         modifier = Modifier.padding(24.dp),
                         painter = painterResource(icon),

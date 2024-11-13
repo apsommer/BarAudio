@@ -14,22 +14,21 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun SpeedSlider(
+    initPosition: Float,
     onValueChanged: (Float) -> Unit
 ) {
 
-    var position by remember { mutableFloatStateOf(0f) }
+    var position by remember { mutableFloatStateOf(initPosition) }
 
     Column(
-        modifier = Modifier
-            .padding(horizontal = 24.dp)
-            .width(200.dp)
+        modifier = Modifier.padding(horizontal = 24.dp)
     ) {
         Slider(
             value = position,
             onValueChange = {
                 position = it
-                onValueChanged(it) }
-        )
+                onValueChanged(it) },
+            valueRange = 0.5f..2f,
+            steps = 14)
     }
-
 }

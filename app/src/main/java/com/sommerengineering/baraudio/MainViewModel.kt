@@ -8,6 +8,7 @@ import android.speech.tts.Voice
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
@@ -17,6 +18,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlin.math.roundToInt
 
 
 class MainViewModel(
@@ -27,15 +29,16 @@ class MainViewModel(
     var isQueueFlush = MutableStateFlow(false)
     var queueBehaviorDescription = MutableStateFlow("")
     var voiceDescription = MutableStateFlow("")
-    var speedDescription = MutableStateFlow("")
     var speed = MutableStateFlow(1f)
+    var speedDescription = MutableStateFlow("")
 
     fun initSettings(context: Context) {
 
         voiceDescription.value = "English - austrialian accent - male"
-        speedDescription.value = speed.value.toString() // todo readfromdatastore
         isQueueFlush.value = readFromDataStore(context, isQueueFlushKey).toBoolean()
         setQueueSettingDescription(context)
+        speed.value = readFromDataStore(context, speedKey)?.toFloat() ?: 1f
+        speedDescription.value = speed.value.toString()
     }
 
     // webhook
@@ -54,12 +57,19 @@ class MainViewModel(
     }
 
     // speed
-    fun setSpeed(aSpeed: Float) {
-        speed.value = aSpeed
-        // todo writetodatastore
+    fun getSpeed() =
+        speed.value
+
+    fun setSpeed(
+        context: Context,
+        rawSpeed: Float) {
+
+        // round to nearest tenth
+        speed.value = ((rawSpeed * 10).roundToInt()).toFloat() / 10
+        writeToDataStore(context, speedKey, speed.value.toString())
         speedDescription.value = speed.value.toString()
     }
-
+    
     // queue behavior
     fun setIsQueueFlush(
         context: Context,
