@@ -1,7 +1,9 @@
 package com.sommerengineering.baraudio.settings
 
 import android.speech.tts.Voice
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -26,12 +28,12 @@ fun VoiceDropdownMenu(
 
     var isExpanded by remember { mutableStateOf(false) }
 
-    IconButton(
-        onClick = { isExpanded = !isExpanded }) {
-        Icon(
-            painter = painterResource(R.drawable.more_vertical),
-            contentDescription = null)
-    }
+    Icon(
+        modifier = Modifier
+            .padding(horizontal = 24.dp)
+            .clickable { isExpanded = !isExpanded},
+        painter = painterResource(R.drawable.more_vertical),
+        contentDescription = null)
     DropdownMenu(
         expanded = isExpanded,
         onDismissRequest = { isExpanded = false }) {

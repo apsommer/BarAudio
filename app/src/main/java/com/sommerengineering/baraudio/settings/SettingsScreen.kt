@@ -1,6 +1,7 @@
 package com.sommerengineering.baraudio.settings
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -31,7 +32,6 @@ fun SettingsScreen(
 
     // initialize common
     val context = LocalContext.current
-    val modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp)
     viewModel.initSettings(context)
 
     Scaffold(
@@ -59,8 +59,11 @@ fun SettingsScreen(
                 description = viewModel.webhookUrl,
                 onClick = { viewModel.saveToClipboard(context) }) {
                 IconButton(
-                    modifier = modifier,
+                    modifier = Modifier.padding(
+//                        horizontal = 24.dp,
+                        vertical = 12.dp),
                     onClick = { viewModel.saveToClipboard(context) }) {
+                    // todo play with .weight etc to show this icon correctly
                     Icon(
                         painter = painterResource(R.drawable.copy),
                         contentDescription = null)
@@ -80,7 +83,9 @@ fun SettingsScreen(
                 icon = R.drawable.speed,
                 title = R.string.speed_title,
                 description = viewModel.speedDescription.collectAsState().value) {
-                SpeedSlider()
+                SpeedSlider(
+                    onValueChanged = { viewModel.setSpeed(it) }
+                )
             }
 
             // queue behavior
@@ -89,7 +94,9 @@ fun SettingsScreen(
                 title = R.string.queue_behavior_title,
                 description = viewModel.queueBehaviorDescription.collectAsState().value) {
                 Switch(
-                    modifier = modifier,
+                    modifier = Modifier.padding(
+                        horizontal = 24.dp,
+                        vertical = 12.dp),
                     checked = viewModel.isQueueFlush.collectAsState().value,
                     onCheckedChange = { viewModel.setIsQueueFlush(context, it) })
             }

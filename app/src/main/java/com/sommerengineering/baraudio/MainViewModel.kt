@@ -28,13 +28,12 @@ class MainViewModel(
     var queueBehaviorDescription = MutableStateFlow("")
     var voiceDescription = MutableStateFlow("")
     var speedDescription = MutableStateFlow("")
+    var speed = MutableStateFlow(1f)
 
     fun initSettings(context: Context) {
 
-        // todo temp
         voiceDescription.value = "English - austrialian accent - male"
-        speedDescription.value = "1.0"
-
+        speedDescription.value = speed.value.toString() // todo readfromdatastore
         isQueueFlush.value = readFromDataStore(context, isQueueFlushKey).toBoolean()
         setQueueSettingDescription(context)
     }
@@ -55,6 +54,11 @@ class MainViewModel(
     }
 
     // speed
+    fun setSpeed(aSpeed: Float) {
+        speed.value = aSpeed
+        // todo writetodatastore
+        speedDescription.value = speed.value.toString()
+    }
 
     // queue behavior
     fun setIsQueueFlush(

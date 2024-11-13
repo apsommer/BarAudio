@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -37,11 +38,12 @@ fun SettingItem(
         Column {
             Row(
                 modifier = modifier,
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween) {
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Row(
-                    modifier = Modifier.weight(1f),
-                    verticalAlignment = Alignment.CenterVertically) {
+                    verticalAlignment = Alignment.CenterVertically,
+                    // modifier = Modifier.weight(1f)
+                    ) {
                     Icon(
                         modifier = Modifier.padding(24.dp),
                         painter = painterResource(icon),
@@ -59,6 +61,7 @@ fun SettingItem(
                         }
                     }
                 }
+                Spacer(modifier = Modifier.weight(1f))
                 content()
             }
         }
