@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 fun SettingItem(
     @DrawableRes icon: Int,
     @StringRes title: Int,
-    description: String,
+    description: String? = null,
     onClick: (() -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
@@ -50,11 +50,13 @@ fun SettingItem(
                         Text(
                             text = stringResource(title),
                             style = MaterialTheme.typography.titleMedium)
-                        Text(
-                            text = description,
-                            style = MaterialTheme.typography.bodySmall,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis)
+                        description?.let {
+                            Text(
+                                text = description,
+                                style = MaterialTheme.typography.bodySmall,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis)
+                        }
                     }
                 }
                 content()

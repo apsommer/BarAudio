@@ -12,4 +12,8 @@
     <string name="webhook_title">Webhook</string>
     <string name="voice_title">Voice</string>
     <string name="speed_title">Speed</string>
+    <string name="about_title">About</string>
+    <string name="privacy_title">Privacy Policy</string>
+    <string name="terms_title">Terms and Conditions</string>
+    <string name="sign_out_title">Sign-out</string>
 </resources>

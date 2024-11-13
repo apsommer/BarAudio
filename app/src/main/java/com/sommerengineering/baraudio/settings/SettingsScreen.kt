@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -95,25 +96,25 @@ fun SettingsScreen(
                     onCheckedChange = { viewModel.setIsQueueFlush(context, it) })
             }
 
-            // todo about
-            Text(
-                modifier = Modifier.padding(24.dp),
-                text = "About, external link to website")
+            // about
+            SettingItem(
+                icon = R.drawable.browser,
+                title = R.string.about_title) { }
 
-            // todo privacy policy
-            Text(
-                modifier = Modifier.padding(24.dp),
-                text = "Privacy Policy, external link to website")
+            // privacy
+            SettingItem(
+                icon = R.drawable.browser,
+                title = R.string.privacy_title) { }
 
-            // todo terms and conditions
-            Text(
-                modifier = Modifier.padding(24.dp),
-                text = "Terms and Conditions, external link to website")
+            // terms
+            SettingItem(
+                icon = R.drawable.browser,
+                title = R.string.terms_title) { }
 
-            // todo sign-out
-            Text(
-                modifier = Modifier.padding(24.dp),
-                text = "Sign out, firebase sign-out and return to login screen")
+            // terms
+            SettingItem(
+                icon = R.drawable.sign_out,
+                title = R.string.sign_out_title) { }
         }
     }
 }
