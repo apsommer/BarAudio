@@ -17,7 +17,10 @@ class FirebaseService: FirebaseMessagingService() {
     private val viewModel: MainViewModel by inject()
 
     override fun onNewToken(token: String) =
-        viewModel.writeToDataStore(applicationContext, tokenKey, token)
+        viewModel.writeToDataStore(
+            applicationContext,
+            viewModel.tokenKey,
+            token)
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         handleMessage(remoteMessage)

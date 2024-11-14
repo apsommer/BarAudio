@@ -26,21 +26,31 @@ class MainViewModel(
 ) : ViewModel() {
 
     var isQueueFlush = MutableStateFlow(false)
-    var queueBehaviorDescription = MutableStateFlow("")
-    var voiceDescription = MutableStateFlow("")
     var speed = MutableStateFlow(1f)
-    var speedDescription = MutableStateFlow("")
     var pitch = MutableStateFlow(1f)
+
+    var voiceDescription = MutableStateFlow("")
+    var queueBehaviorDescription = MutableStateFlow("")
+    var speedDescription = MutableStateFlow("")
     var pitchDescription = MutableStateFlow("")
+
+    // init preferences datastore
+    private val uid = Firebase.auth.currentUser?.uid
+    val tokenKey by lazy { uid + tokenBaseKey }
+    val isQueueFlushKey by lazy { uid + isQueueFlushBaseKey }
+    val speedKey by lazy { uid + speedBaseKey }
+    val pitchKey by lazy { uid + pitchBaseKey }
 
     fun initSettings(context: Context) {
 
         voiceDescription.value = "English - austrialian accent - male"
+
         isQueueFlush.value = readFromDataStore(context, isQueueFlushKey).toBoolean()
-        setQueueSettingDescription(context)
         speed.value = readFromDataStore(context, speedKey)?.toFloat() ?: 1f
-        speedDescription.value = speed.value.toString()
         pitch.value = readFromDataStore(context, pitchKey)?.toFloat() ?: 1f
+
+        setQueueSettingDescription(context)
+        speedDescription.value = speed.value.toString()
         pitchDescription.value = pitch.value.toString()
     }
 
@@ -54,15 +64,9 @@ class MainViewModel(
         clipboardManager.setPrimaryClip(clip)
     }
 
-    // voice
-    fun getVoices(): List<Voice> {
-        return tts.getVoices().toList()
-    }
+    fun getVoices() = tts.getVoices().toList()
 
-    // speed
-    fun getSpeed() =
-        speed.value
-
+    fun getSpeed() = speed.value
     fun setSpeed(
         context: Context,
         rawSpeed: Float) {
@@ -74,9 +78,7 @@ class MainViewModel(
     }
 
     // pitch
-    fun getPitch() =
-        pitch.value
-
+    fun getPitch() = pitch.value
     fun setPitch(
         context: Context,
         rawPitch: Float) {
