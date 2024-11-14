@@ -11,6 +11,9 @@ const val TAG = "~"
 // firebase
 const val databaseUrl = "https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/"
 const val webhookBaseUrl = "https://baraudio-555667494303.us-central1.run.app/?uid="
+const val aboutUrl = "https://baraud.io/"
+const val privacyUrl = "https://baraud.io/privacy/"
+const val termsUrl = "https://baraud.io/terms/"
 const val users = "users"
 
 // preferences datastore

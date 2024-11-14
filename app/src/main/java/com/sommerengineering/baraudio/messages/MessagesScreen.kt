@@ -1,5 +1,7 @@
 package com.sommerengineering.baraudio.messages
 
+import android.os.Handler
+import android.os.Looper
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,6 +35,7 @@ import com.google.firebase.ktx.Firebase
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.databaseUrl
+import okhttp3.internal.http2.Http2Reader
 import java.util.Objects
 
 @Composable
@@ -48,7 +51,9 @@ fun MessagesScreen(
     listenToDatabaseWrites(messages)
 
     // todo temp
-    onSettingsClick.invoke()
+    Handler(Looper.getMainLooper()).postDelayed( {
+        onSettingsClick.invoke()
+    }, 1)
 
     Scaffold(
         topBar = {

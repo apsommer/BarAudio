@@ -17,11 +17,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
+import com.sommerengineering.baraudio.aboutUrl
+import com.sommerengineering.baraudio.privacyUrl
+import com.sommerengineering.baraudio.termsUrl
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -32,6 +36,7 @@ fun SettingsScreen(
 
     // initialize common
     val context = LocalContext.current
+    val uriHandler = LocalUriHandler.current
     viewModel.initSettings(context)
 
     Scaffold(
@@ -116,19 +121,22 @@ fun SettingsScreen(
             // about
             SettingItem(
                 icon = R.drawable.browser,
-                title = R.string.about_title) { }
+                title = R.string.about_title,
+                onClick = { uriHandler.openUri(aboutUrl) }) { }
 
             // privacy
             SettingItem(
                 icon = R.drawable.browser,
-                title = R.string.privacy_title) { }
+                title = R.string.privacy_title,
+                onClick = { uriHandler.openUri(privacyUrl) }) { }
 
             // terms
             SettingItem(
                 icon = R.drawable.browser,
-                title = R.string.terms_title) { }
+                title = R.string.terms_title,
+                onClick = { uriHandler.openUri(termsUrl) }) { }
 
-            // terms
+            // sign-out
             SettingItem(
                 icon = R.drawable.sign_out,
                 title = R.string.sign_out_title) { }
