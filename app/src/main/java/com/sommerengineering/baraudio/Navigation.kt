@@ -37,16 +37,18 @@ fun Navigation(
         composable(
             route = AlertScreenRoute) {
             MessagesScreen(
-                onSettingsClick = {
-                    controller.navigate(SettingsScreenRoute)
-                }
+                onSettingsClick = { controller.navigate(SettingsScreenRoute) }
             )
         }
         composable(
             route = SettingsScreenRoute) {
             SettingsScreen(
-                onBackClicked = {
-                    controller.navigateUp()
+                onBackClicked = { controller.navigateUp() },
+                onSignOut = {
+                    Firebase.auth.signOut()
+                    controller.navigate(LoginScreenRoute) {
+                        popUpTo(AlertScreenRoute) { inclusive = true }
+                    }
                 }
             )
         }

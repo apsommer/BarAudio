@@ -51,9 +51,9 @@ fun MessagesScreen(
     listenToDatabaseWrites(messages)
 
     // todo temp
-    Handler(Looper.getMainLooper()).postDelayed( {
-        onSettingsClick.invoke()
-    }, 1)
+//    Handler(Looper.getMainLooper()).postDelayed( {
+//        onSettingsClick.invoke()
+//    }, 1)
 
     Scaffold(
         topBar = {

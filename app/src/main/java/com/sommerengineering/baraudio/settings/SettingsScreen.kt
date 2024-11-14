@@ -32,7 +32,8 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun SettingsScreen(
     viewModel: MainViewModel = koinViewModel(),
-    onBackClicked: () -> Unit, ) {
+    onBackClicked: () -> Unit,
+    onSignOut: () -> Unit) {
 
     // initialize common
     val context = LocalContext.current
@@ -66,12 +67,14 @@ fun SettingsScreen(
                 IconButton(
                     modifier = Modifier.padding(
 //                        horizontal = 24.dp,
-                        vertical = 12.dp),
+                        vertical = 12.dp
+                    ),
                     onClick = { viewModel.saveToClipboard(context) }) {
                     // todo play with .weight etc to show this icon correctly
                     Icon(
                         painter = painterResource(R.drawable.copy),
-                        contentDescription = null)
+                        contentDescription = null
+                    )
                 }
             }
 
@@ -79,7 +82,8 @@ fun SettingsScreen(
             SettingItem(
                 icon = R.drawable.voice,
                 title = R.string.voice_title,
-                description = viewModel.voiceDescription.collectAsState().value)  {
+                description = viewModel.voiceDescription.collectAsState().value
+            ) {
                 VoiceDropdownMenu(viewModel.getVoices())
             }
 
@@ -87,7 +91,8 @@ fun SettingsScreen(
             SettingItem(
                 icon = R.drawable.speed,
                 title = R.string.speed_title,
-                description = viewModel.speedDescription.collectAsState().value) {
+                description = viewModel.speedDescription.collectAsState().value
+            ) {
                 SpeedSlider(
                     initPosition = viewModel.getSpeed(),
                     onValueChanged = { viewModel.setSpeed(context, it) }
@@ -98,7 +103,8 @@ fun SettingsScreen(
             SettingItem(
                 icon = R.drawable.pitch,
                 title = R.string.pitch_title,
-                description = viewModel.pitchDescription.collectAsState().value) {
+                description = viewModel.pitchDescription.collectAsState().value
+            ) {
                 SpeedSlider(
                     initPosition = viewModel.getPitch(),
                     onValueChanged = { viewModel.setPitch(context, it) }
@@ -109,11 +115,13 @@ fun SettingsScreen(
             SettingItem(
                 icon = R.drawable.text_to_speech,
                 title = R.string.queue_behavior_title,
-                description = viewModel.queueBehaviorDescription.collectAsState().value) {
+                description = viewModel.queueBehaviorDescription.collectAsState().value
+            ) {
                 Switch(
                     modifier = Modifier.padding(
                         horizontal = 24.dp,
-                        vertical = 12.dp),
+                        vertical = 12.dp
+                    ),
                     checked = viewModel.isQueueFlush.collectAsState().value,
                     onCheckedChange = { viewModel.setIsQueueFlush(context, it) })
             }
@@ -139,7 +147,8 @@ fun SettingsScreen(
             // sign-out
             SettingItem(
                 icon = R.drawable.sign_out,
-                title = R.string.sign_out_title) { }
+                title = R.string.sign_out_title,
+                onClick = { onSignOut() }) { }
         }
     }
 }
