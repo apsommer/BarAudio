@@ -4,7 +4,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
-import android.speech.tts.Voice
+import androidx.compose.runtime.mutableStateOf
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.ViewModel
@@ -29,11 +29,6 @@ class MainViewModel(
     var speed = MutableStateFlow(1f)
     var pitch = MutableStateFlow(1f)
 
-    var voiceDescription = MutableStateFlow("")
-    var queueBehaviorDescription = MutableStateFlow("")
-    var speedDescription = MutableStateFlow("")
-    var pitchDescription = MutableStateFlow("")
-
     // init preferences datastore
     private val uid = Firebase.auth.currentUser?.uid
     val tokenKey by lazy { uid + tokenBaseKey }
@@ -41,17 +36,22 @@ class MainViewModel(
     val speedKey by lazy { uid + speedBaseKey }
     val pitchKey by lazy { uid + pitchBaseKey }
 
-    fun initSettings(context: Context) {
+    val voiceDescription by lazy { mutableStateOf("English - austrialian accent - male") }
+    val speedDescription by lazy { mutableStateOf(speed.value.toString()) }
+    val pitchDescription by lazy { mutableStateOf(pitch.value.toString()) }
+    val queueBehaviorDescription by lazy { mutableStateOf(getQueueSettingDescription()) }
 
-        voiceDescription.value = "English - austrialian accent - male"
+    fun initConfig(context: Context) {
 
         isQueueFlush.value = readFromDataStore(context, isQueueFlushKey).toBoolean()
         speed.value = readFromDataStore(context, speedKey)?.toFloat() ?: 1f
         pitch.value = readFromDataStore(context, pitchKey)?.toFloat() ?: 1f
 
-        setQueueSettingDescription(context)
-        speedDescription.value = speed.value.toString()
-        pitchDescription.value = pitch.value.toString()
+        logMessage("Text-to-speech config initialized")
+        logMessage(isQueueFlush.value.toString())
+        logMessage(speed.value.toString())
+        logMessage(pitch.value.toString())
+        logMessage(this.hashCode().toString())
     }
 
     // webhook
@@ -64,7 +64,8 @@ class MainViewModel(
         clipboardManager.setPrimaryClip(clip)
     }
 
-    fun getVoices() = tts.getVoices().toList()
+    fun getVoices() =
+        tts.getVoices().toList()
 
     fun getSpeed() = speed.value
     fun setSpeed(
@@ -72,9 +73,11 @@ class MainViewModel(
         rawSpeed: Float) {
 
         // round to nearest tenth
-        speed.value = ((rawSpeed * 10).roundToInt()).toFloat() / 10
-        writeToDataStore(context, speedKey, speed.value.toString())
-        speedDescription.value = speed.value.toString()
+        val selectedSpeed = ((rawSpeed * 10).roundToInt()).toFloat() / 10
+
+        speed.value = selectedSpeed
+        writeToDataStore(context, speedKey, selectedSpeed.toString())
+        speedDescription.value = selectedSpeed.toString()
     }
 
     // pitch
@@ -84,9 +87,11 @@ class MainViewModel(
         rawPitch: Float) {
 
         // round to nearest tenth
-        pitch.value = ((rawPitch * 10).roundToInt()).toFloat() / 10
-        writeToDataStore(context, pitchKey, pitch.value.toString())
-        pitchDescription.value = pitch.value.toString()
+        val selectedPitch = ((rawPitch * 10).roundToInt()).toFloat() / 10
+
+        pitch.value = selectedPitch
+        pitchDescription.value = selectedPitch.toString()
+        writeToDataStore(context, pitchKey, selectedPitch.toString())
     }
 
     // queue behavior
@@ -96,17 +101,20 @@ class MainViewModel(
 
         isQueueFlush.value = isChecked
         writeToDataStore(context, isQueueFlushKey, isChecked.toString())
-        setQueueSettingDescription(context)
+        setQueueSettingDescription()
     }
 
-    fun setQueueSettingDescription(
-        context: Context) {
+    fun getQueueSettingDescription() =
+        if (isQueueFlush.value) queueBehaviorFlushDescription
+        else queueBehaviorAddDescription
 
-        val resId =
-            if (isQueueFlush.value) R.string.queue_behavior_flush_description
-            else R.string.queue_behavior_add_description
+    fun setQueueSettingDescription() {
 
-        queueBehaviorDescription.value = context.getString(resId)
+        val description =
+            if (isQueueFlush.value) queueBehaviorFlushDescription
+            else queueBehaviorAddDescription
+
+        queueBehaviorDescription.value = description
     }
 
     fun readFromDataStore(

@@ -1,12 +1,10 @@
 package com.sommerengineering.baraudio.settings
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -21,12 +19,16 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.aboutUrl
 import com.sommerengineering.baraudio.privacyUrl
 import com.sommerengineering.baraudio.termsUrl
 import org.koin.androidx.compose.koinViewModel
+import org.koin.java.KoinJavaComponent.getKoin
+import org.koin.java.KoinJavaComponent.inject
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,7 +40,7 @@ fun SettingsScreen(
     // initialize common
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
-    viewModel.initSettings(context)
+    viewModel.initConfig(context)
 
     Scaffold(
         topBar = {
@@ -65,10 +67,7 @@ fun SettingsScreen(
                 description = viewModel.webhookUrl,
                 onClick = { viewModel.saveToClipboard(context) }) {
                 IconButton(
-                    modifier = Modifier.padding(
-//                        horizontal = 24.dp,
-                        vertical = 12.dp
-                    ),
+                    modifier = Modifier.padding(vertical = 12.dp),
                     onClick = { viewModel.saveToClipboard(context) }) {
                     // todo play with .weight etc to show this icon correctly
                     Icon(
@@ -82,7 +81,7 @@ fun SettingsScreen(
             SettingItem(
                 icon = R.drawable.voice,
                 title = R.string.voice_title,
-                description = viewModel.voiceDescription.collectAsState().value
+                description = viewModel.voiceDescription.value
             ) {
                 VoiceDropdownMenu(viewModel.getVoices())
             }
@@ -91,7 +90,7 @@ fun SettingsScreen(
             SettingItem(
                 icon = R.drawable.speed,
                 title = R.string.speed_title,
-                description = viewModel.speedDescription.collectAsState().value
+                description = viewModel.speedDescription.value
             ) {
                 SpeedSlider(
                     initPosition = viewModel.getSpeed(),
@@ -103,7 +102,7 @@ fun SettingsScreen(
             SettingItem(
                 icon = R.drawable.pitch,
                 title = R.string.pitch_title,
-                description = viewModel.pitchDescription.collectAsState().value
+                description = viewModel.pitchDescription.value
             ) {
                 SpeedSlider(
                     initPosition = viewModel.getPitch(),
@@ -115,7 +114,7 @@ fun SettingsScreen(
             SettingItem(
                 icon = R.drawable.text_to_speech,
                 title = R.string.queue_behavior_title,
-                description = viewModel.queueBehaviorDescription.collectAsState().value
+                description = viewModel.queueBehaviorDescription.value
             ) {
                 Switch(
                     modifier = Modifier.padding(

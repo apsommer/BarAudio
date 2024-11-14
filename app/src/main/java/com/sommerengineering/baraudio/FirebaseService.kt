@@ -23,10 +23,6 @@ class FirebaseService: FirebaseMessagingService() {
             token)
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        handleMessage(remoteMessage)
-    }
-
-    private fun handleMessage(remoteMessage: RemoteMessage) {
 
         // extract attributes
         val timestamp = remoteMessage.data["timestamp"] ?: return
@@ -47,8 +43,7 @@ class FirebaseService: FirebaseMessagingService() {
 
     private fun showNotification(
         timestamp: String,
-        message: String
-    ) {
+        message: String) {
 
         // todo check that notifications have appropriate settings:
         //  importance, sound, etc at minimum levels, else show ui saying it's required

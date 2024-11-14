@@ -8,6 +8,8 @@ import java.util.Locale
 // debug logcat
 const val TAG = "~"
 
+// todo extract to strings.xml
+
 // firebase
 const val databaseUrl = "https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/"
 const val webhookBaseUrl = "https://baraudio-555667494303.us-central1.run.app/?uid="
@@ -22,6 +24,8 @@ const val tokenBaseKey = "_token"
 const val isQueueFlushBaseKey = "_isQueueFlush"
 const val speedBaseKey = "_speed"
 const val pitchBaseKey = "_pitch"
+const val queueBehaviorFlushDescription = "Play new alerts immediately"
+const val queueBehaviorAddDescription = "Add new alerts to queue"
 
 // todo display app-wide banner for 'no internet connection', for example sign-in currently fails silently
 fun logException(e: Exception?) =

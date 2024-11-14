@@ -44,7 +44,7 @@ fun validateToken(
 
     val viewModel: MainViewModel by inject(MainViewModel::class.java)
     val firebaseUser = Firebase.auth.currentUser ?: return
-    
+
     firebaseUser.getIdToken(false).addOnCompleteListener { task ->
 
         if (task.isSuccessful) {
