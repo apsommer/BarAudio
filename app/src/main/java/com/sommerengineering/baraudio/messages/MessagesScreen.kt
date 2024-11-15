@@ -101,10 +101,15 @@ fun MessagesTopBar(onSettingsClick: () -> Unit) {
         actions = {
             IconButton(
                 onClick = { onSettingsClick() }) {
-                AsyncImage(
-                    modifier = Modifier.clip(CircleShape),
-                    model = Firebase.auth.currentUser?.photoUrl,
-                    contentDescription = null)
+                Image(
+                    modifier = Modifier.padding(8.dp),
+                    painter = painterResource(R.drawable.sweep),
+                    contentDescription = null
+                )
+//                AsyncImage(
+//                    modifier = Modifier.clip(CircleShape),
+//                    model = Firebase.auth.currentUser?.photoUrl,
+//                    contentDescription = null)
             }
         }
     )
