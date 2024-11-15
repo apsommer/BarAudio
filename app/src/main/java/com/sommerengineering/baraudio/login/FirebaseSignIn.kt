@@ -11,6 +11,8 @@ import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.databaseUrl
 import com.sommerengineering.baraudio.logException
 import com.sommerengineering.baraudio.logMessage
+import com.sommerengineering.baraudio.readFromDataStore
+import com.sommerengineering.baraudio.tokenKey
 import com.sommerengineering.baraudio.users
 import org.koin.java.KoinJavaComponent.inject
 
@@ -42,7 +44,6 @@ fun validateToken(
 
     logMessage("Firebase sign-in successful")
 
-    val viewModel: MainViewModel by inject(MainViewModel::class.java)
     val firebaseUser = Firebase.auth.currentUser ?: return
 
     firebaseUser.getIdToken(false).addOnCompleteListener { task ->
@@ -54,7 +55,7 @@ fun validateToken(
 
             // compare correct cached token with user token (potentially invalid)
             val token = task.result.token
-            val cachedToken = viewModel.readFromDataStore(activityContext, viewModel.tokenKey)
+            val cachedToken = readFromDataStore(activityContext, tokenKey)
                 ?: return@addOnCompleteListener
 
             // update database user:token association in database, if needed

@@ -12,7 +12,6 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -25,7 +24,6 @@ import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.aboutUrl
 import com.sommerengineering.baraudio.privacyUrl
 import com.sommerengineering.baraudio.termsUrl
-import com.sommerengineering.baraudio.tokenBaseKey
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,10 +36,6 @@ fun SettingsScreen(
     // initialize common
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
-
-//    LaunchedEffect(tokenBaseKey) {
-//        viewModel.initConfig(context)
-//    }
 
     Scaffold(
         topBar = {
@@ -122,8 +116,8 @@ fun SettingsScreen(
                         horizontal = 24.dp,
                         vertical = 12.dp
                     ),
-                    checked = viewModel.isQueueFlush.collectAsState().value,
-                    onCheckedChange = { viewModel.setIsQueueFlush(context, it) })
+                    checked = viewModel.isQueueAdd.collectAsState().value,
+                    onCheckedChange = { viewModel.setIsQueueAdd(context, it) })
             }
 
             // about

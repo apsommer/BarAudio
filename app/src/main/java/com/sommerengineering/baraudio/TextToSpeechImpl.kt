@@ -3,31 +3,35 @@ package com.sommerengineering.baraudio
 import android.content.Context
 import android.speech.tts.TextToSpeech
 import android.speech.tts.Voice
-import org.koin.java.KoinJavaComponent.inject
+import kotlinx.coroutines.flow.MutableStateFlow
 
 class TextToSpeechImpl(
     private val context: Context
 ) : TextToSpeech.OnInitListener {
 
-    val viewModel: MainViewModel by inject(MainViewModel::class.java)
-
     private val textToSpeech = TextToSpeech(context, this)
+
+    var isQueueAdd = MutableStateFlow(false)
+    var speed = MutableStateFlow(1f)
+    var pitch = MutableStateFlow(1f)
+
     var isInitialized = false
-    var message = ""
-
     override fun onInit(status: Int) {
-        if (status == TextToSpeech.SUCCESS) {
 
-            isInitialized = true
-            logMessage("Text-to-speech initialized")
+        if (status != TextToSpeech.SUCCESS) { return }
 
-            // configure engine settings
-            viewModel.initConfig(context)
-            configure()
+        isInitialized = true
 
-            // speak any messages waiting in queue
-            speakMessage()
-        }
+        isQueueAdd.value = readFromDataStore(context, isQueueAddKey).toBoolean()
+        speed.value = readFromDataStore(context, speedKey)?.toFloat() ?: 1f
+        pitch.value = readFromDataStore(context, pitchKey)?.toFloat() ?: 1f
+
+        // configure engine settings
+        configure()
+
+        // speak any messages waiting in queue
+        speakMessage()
+
     }
 
     fun configure() {
@@ -38,21 +42,26 @@ class TextToSpeechImpl(
             .filter { it.locale.toString().contains("en") }
             .get(0)
 
-        // set speed
-        textToSpeech.setSpeechRate(viewModel.getSpeed())
-        textToSpeech.setPitch(viewModel.getPitch())
+        textToSpeech.setSpeechRate(speed.value)
+        textToSpeech.setPitch(pitch.value)
 
         logMessage("Text-to-speech configured")
     }
 
+    var message = ""
     fun speakMessage() {
 
         if (message.isBlank() || !isInitialized) return
 
         // speak message
-        val status = textToSpeech.speak(message, 1, null, "42")
+        val status = textToSpeech.speak(
+            message,
+            isQueueAdd.value.compareTo(false),
+            null,
+            "42")
+
         if (status == TextToSpeech.ERROR) { logMessage("Text-to-speech error [$status]") }
-        logMessage("Text-to-speech message spoken: $message")
+        else logMessage("Text-to-speech message spoken: $message")
 
         // clear unspoken message container
         message = ""

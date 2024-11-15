@@ -8,7 +8,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.math.roundToInt
 
 class MainViewModel(
@@ -16,27 +15,10 @@ class MainViewModel(
     private val repository: Repository
 ) : ViewModel() {
 
-    var isQueueFlush = MutableStateFlow(false)
-    var speed = MutableStateFlow(1f)
-    var pitch = MutableStateFlow(1f)
-
     val voiceDescription by lazy { mutableStateOf("English - austrialian accent - male") }
-    val speedDescription by lazy { mutableStateOf(speed.value.toString()) }
-    val pitchDescription by lazy { mutableStateOf(pitch.value.toString()) }
+    val speedDescription by lazy { mutableStateOf(tts.speed.value.toString()) }
+    val pitchDescription by lazy { mutableStateOf(tts.pitch.value.toString()) }
     val queueBehaviorDescription by lazy { mutableStateOf(getQueueSettingDescription()) }
-
-    fun initConfig(context: Context) {
-
-        isQueueFlush.value = readFromDataStore(context, isQueueFlushKey).toBoolean()
-        speed.value = readFromDataStore(context, speedKey)?.toFloat() ?: 1f
-        pitch.value = readFromDataStore(context, pitchKey)?.toFloat() ?: 1f
-
-        logMessage("Text-to-speech config initialized")
-        logMessage(isQueueFlush.value.toString())
-        logMessage(speed.value.toString())
-        logMessage(pitch.value.toString())
-        logMessage(this.hashCode().toString())
-    }
 
     // webhook
     val webhookUrl by lazy { webhookBaseUrl + Firebase.auth.currentUser?.uid }
@@ -51,7 +33,7 @@ class MainViewModel(
     fun getVoices() =
         tts.getVoices().toList()
 
-    fun getSpeed() = speed.value
+    fun getSpeed() = tts.speed.value
     fun setSpeed(
         context: Context,
         rawSpeed: Float) {
@@ -59,13 +41,13 @@ class MainViewModel(
         // round to nearest tenth
         val selectedSpeed = ((rawSpeed * 10).roundToInt()).toFloat() / 10
 
-        speed.value = selectedSpeed
+        tts.speed.value = selectedSpeed
         writeToDataStore(context, speedKey, selectedSpeed.toString())
         speedDescription.value = selectedSpeed.toString()
     }
 
     // pitch
-    fun getPitch() = pitch.value
+    fun getPitch() = tts.pitch.value
     fun setPitch(
         context: Context,
         rawPitch: Float) {
@@ -73,33 +55,33 @@ class MainViewModel(
         // round to nearest tenth
         val selectedPitch = ((rawPitch * 10).roundToInt()).toFloat() / 10
 
-        pitch.value = selectedPitch
+        tts.pitch.value = selectedPitch
         pitchDescription.value = selectedPitch.toString()
         writeToDataStore(context, pitchKey, selectedPitch.toString())
     }
 
     // queue behavior
-    fun setIsQueueFlush(
+    var isQueueAdd = tts.isQueueAdd
+    fun setIsQueueAdd(
         context: Context,
         isChecked: Boolean) {
 
-        isQueueFlush.value = isChecked
-        writeToDataStore(context, isQueueFlushKey, isChecked.toString())
+        tts.isQueueAdd.value = isChecked
+        writeToDataStore(context, isQueueAddKey, isChecked.toString())
         setQueueSettingDescription()
     }
 
     fun getQueueSettingDescription() =
-        if (isQueueFlush.value) queueBehaviorFlushDescription
-        else queueBehaviorAddDescription
+        if (tts.isQueueAdd.value) queueBehaviorAddDescription
+        else queueBehaviorFlushDescription
 
     fun setQueueSettingDescription() {
 
         val description =
-            if (isQueueFlush.value) queueBehaviorFlushDescription
-            else queueBehaviorAddDescription
+            if (tts.isQueueAdd.value) queueBehaviorAddDescription
+            else queueBehaviorFlushDescription
 
         queueBehaviorDescription.value = description
     }
-
 
 }

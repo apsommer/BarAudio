@@ -21,7 +21,7 @@ const val pitchBaseKey = "_pitch"
 
 private val uid = Firebase.auth.currentUser?.uid
 val tokenKey by lazy { uid + tokenBaseKey }
-val isQueueFlushKey by lazy { uid + isQueueFlushBaseKey }
+val isQueueAddKey by lazy { uid + isQueueFlushBaseKey }
 val speedKey by lazy { uid + speedBaseKey }
 val pitchKey by lazy { uid + pitchBaseKey }
 
