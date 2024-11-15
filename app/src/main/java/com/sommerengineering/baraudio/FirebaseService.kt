@@ -66,6 +66,7 @@ class FirebaseService: FirebaseMessagingService() {
                 .bigText(beautifulTimestamp))
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
+            .setTimeoutAfter(10000) // todo more sophisticated? utterprogresslistener oncomplete when app open, else 10 seconds?
 
         // show notification
         NotificationManagerCompat.from(this).notify(

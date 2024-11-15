@@ -1,7 +1,5 @@
 package com.sommerengineering.baraudio.messages
 
-import android.os.Handler
-import android.os.Looper
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,6 +14,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -47,12 +46,15 @@ fun MessagesScreen(
 
     // initialize message list
     val messages = remember { mutableStateListOf<Message>() }
-    listenToDatabaseWrites(messages)
+
+    LaunchedEffect(databaseUrl) {
+        listenToDatabaseWrites(messages)
+    }
 
     // todo temp
-    Handler(Looper.getMainLooper()).postDelayed( {
-        onSettingsClick.invoke()
-    }, 100)
+//    Handler(Looper.getMainLooper()).postDelayed( {
+//        onSettingsClick.invoke()
+//    }, 100)
 
     Scaffold(
         topBar = {
@@ -130,9 +132,10 @@ fun listenToDatabaseWrites(
             if (timestamp.isNullOrEmpty() || message.isEmpty()) return
 
             // todo observe a State<LinkedList> to reverse order efficiently
-            messages.add(0,
-                Message(timestamp, message)
-            )
+            messages.add(0, Message(timestamp, message))
+
+            // limit size
+            if (messages.size > 100) { messages.removeAt(100) }
         }
 
         // do nothing

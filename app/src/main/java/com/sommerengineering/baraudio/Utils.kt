@@ -1,5 +1,6 @@
 package com.sommerengineering.baraudio
 
+import android.text.format.DateUtils
 import android.util.Log
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -23,7 +24,14 @@ fun beautifyTimestamp(timestamp: String): String {
     // todo handle local change in system system while app running
     //  https://stackoverflow.com/a/23556454/9212084
 
-    val pattern = "h:mm:ss a 'on' MMMM dd, yyyy" // 6:27:53 PM on October 30, 2024
+    // todo relative timespan is interesting?
+    //  DateUtils.getRelativeTimeSpanString(timestamp.toLong())
+
+    val isToday = DateUtils.isToday(timestamp.toLong())
+
+    val pattern =
+        if (isToday) "h:mm:ss a" // 6:27:53 PM
+        else "h:mm:ss a 'on' MMMM dd, yyyy" // 6:27:53 PM on October 30, 2024
 
     return SimpleDateFormat(
         pattern,
