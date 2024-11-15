@@ -1,6 +1,7 @@
 package com.sommerengineering.baraudio.messages
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -90,9 +91,11 @@ fun MessagesTopBar(onSettingsClick: () -> Unit) {
     return CenterAlignedTopAppBar(
         title = {
             Image(
-                painterResource(R.drawable.logo_banner),
-                contentDescription = null,
-                modifier = Modifier.padding(8.dp)
+                modifier = Modifier
+                    .padding(8.dp)
+                    .clickable { onSettingsClick() },
+                painter = painterResource(R.drawable.logo_banner),
+                contentDescription = null
             )
         },
         actions = {
