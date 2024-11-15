@@ -115,7 +115,7 @@ dependencies {
     // preferences datastore
     implementation(libs.androidx.datastore.preferences)
 
-    // coil
+    // coil todo can remove if choose sweep feature instead?
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
 

@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -21,11 +20,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
@@ -39,18 +36,16 @@ import java.util.Objects
 
 @Composable
 fun MessagesScreen(
-    onSettingsClick: () -> Unit
-) {
+    onSettingsClick: () -> Unit) {
 
-    // request notification permission
+    // request notification permission, does nothing if already granted
     (LocalContext.current as MainActivity).requestRealtimeNotificationPermission()
 
     // initialize message list
     val messages = remember { mutableStateListOf<Message>() }
 
-    LaunchedEffect(databaseUrl) {
-        listenToDatabaseWrites(messages)
-    }
+    // listen to database writes
+    LaunchedEffect(databaseUrl) { listenToDatabaseWrites(messages) }
 
     // todo temp
 //    Handler(Looper.getMainLooper()).postDelayed( {
@@ -59,7 +54,11 @@ fun MessagesScreen(
 
     Scaffold(
         topBar = {
-            MessagesTopBar(onSettingsClick) }) { scaffoldPadding ->
+            MessagesTopBar(
+                onSettingsClick,
+                messages)
+        }
+    ) { scaffoldPadding ->
 
         Box(Modifier
             .fillMaxSize()
@@ -87,7 +86,7 @@ fun MessagesScreen(
 // todo do this without experimental optin
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MessagesTopBar(onSettingsClick: () -> Unit) {
+fun MessagesTopBar(onSettingsClick: () -> Unit, messages: SnapshotStateList<Message>) {
     return CenterAlignedTopAppBar(
         title = {
             Image(
@@ -95,39 +94,32 @@ fun MessagesTopBar(onSettingsClick: () -> Unit) {
                     .padding(8.dp)
                     .clickable { onSettingsClick() },
                 painter = painterResource(R.drawable.logo_banner),
-                contentDescription = null
-            )
+                contentDescription = null)
         },
         actions = {
             IconButton(
-                onClick = { onSettingsClick() }) {
+                onClick = { deleteDatabaseMessages(messages) }) {
                 Image(
                     modifier = Modifier.padding(8.dp),
-                    painter = painterResource(R.drawable.sweep),
-                    contentDescription = null
-                )
-//                AsyncImage(
-//                    modifier = Modifier.clip(CircleShape),
-//                    model = Firebase.auth.currentUser?.photoUrl,
-//                    contentDescription = null)
+                    painter = painterResource(R.drawable.delete),
+                    contentDescription = null)
             }
         }
     )
 }
 
+val dbRef by lazy {
+
+    val uid = Firebase.auth.currentUser?.uid ?: "unauthenticated_user"
+    val db = Firebase.database(databaseUrl)
+    db.getReference("messages").child(uid)
+}
+
 fun listenToDatabaseWrites(
     messages: SnapshotStateList<Message>) {
 
-    // get user id
-    val uid = Firebase.auth.currentUser?.uid ?: return
-
-    // get reference to database
-    val db = Firebase.database(databaseUrl)
-    val uidKey = db.getReference("messages").child(uid)
-
-    // listen to new message database writes
     // triggers once for every child on initial connection
-    uidKey.addChildEventListener(object : ChildEventListener {
+    dbRef.addChildEventListener(object : ChildEventListener {
 
         override fun onChildAdded(
             snapshot: DataSnapshot,
@@ -143,7 +135,10 @@ fun listenToDatabaseWrites(
             messages.add(0, Message(timestamp, message))
 
             // limit size
-            if (messages.size > 100) { messages.removeAt(100) }
+            if (messages.size > 100) {
+                messages.removeAt(100)
+                // todo delete on backend as well
+            }
         }
 
         // do nothing
@@ -152,4 +147,11 @@ fun listenToDatabaseWrites(
         override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) { }
         override fun onCancelled(error: DatabaseError) { }
     })
+}
+
+fun deleteDatabaseMessages(
+    messages: SnapshotStateList<Message>) {
+
+    dbRef.removeValue()
+    messages.clear()
 }
