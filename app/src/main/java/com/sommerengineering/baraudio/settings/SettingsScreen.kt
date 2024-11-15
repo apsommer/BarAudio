@@ -12,6 +12,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -19,16 +20,13 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.aboutUrl
 import com.sommerengineering.baraudio.privacyUrl
 import com.sommerengineering.baraudio.termsUrl
+import com.sommerengineering.baraudio.tokenBaseKey
 import org.koin.androidx.compose.koinViewModel
-import org.koin.java.KoinJavaComponent.getKoin
-import org.koin.java.KoinJavaComponent.inject
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,7 +38,10 @@ fun SettingsScreen(
     // initialize common
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
-    viewModel.initConfig(context)
+
+//    LaunchedEffect(tokenBaseKey) {
+//        viewModel.initConfig(context)
+//    }
 
     Scaffold(
         topBar = {

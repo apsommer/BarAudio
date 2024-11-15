@@ -14,12 +14,11 @@ import org.koin.android.ext.android.inject
 class FirebaseService: FirebaseMessagingService() {
 
     private val tts: TextToSpeechImpl = get()
-    private val viewModel: MainViewModel by inject()
 
     override fun onNewToken(token: String) =
-        viewModel.writeToDataStore(
+        writeToDataStore(
             applicationContext,
-            viewModel.tokenKey,
+            tokenKey,
             token)
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {

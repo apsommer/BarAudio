@@ -18,13 +18,9 @@ import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
-import com.google.firebase.auth.FirebaseAuth
 import com.sommerengineering.baraudio.theme.AppTheme
 import org.koin.android.ext.android.get
-import org.koin.androidx.compose.KoinAndroidContext
-import org.koin.compose.KoinApplication
-import org.koin.core.KoinApplication
-import org.koin.java.KoinJavaComponent.inject
+import org.koin.compose.KoinContext
 
 var isAppOpen = false
 class MainActivity : ComponentActivity() {
@@ -91,8 +87,9 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun App() {
-    AppTheme {
-        KoinAndroidContext {
+
+    KoinContext {
+        AppTheme {
             Scaffold { padding ->
                 Navigation(rememberNavController())
                 Modifier.padding(padding)

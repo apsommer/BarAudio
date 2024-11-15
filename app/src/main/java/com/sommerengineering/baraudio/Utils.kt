@@ -5,10 +5,10 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-// debug logcat
+// logcat
 const val TAG = "~"
-
-// todo extract to strings.xml
+fun logException(e: Exception?) = Log.e(TAG, "handleException: ${e?.message}", e)
+fun logMessage(msg: String?) = Log.v(TAG, "$msg")
 
 // firebase
 const val databaseUrl = "https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/"
@@ -17,22 +17,6 @@ const val aboutUrl = "https://baraud.io/"
 const val privacyUrl = "https://baraud.io/privacy/"
 const val termsUrl = "https://baraud.io/terms/"
 const val users = "users"
-
-// preferences datastore
-const val localCache = "localCache"
-const val tokenBaseKey = "_token"
-const val isQueueFlushBaseKey = "_isQueueFlush"
-const val speedBaseKey = "_speed"
-const val pitchBaseKey = "_pitch"
-const val queueBehaviorFlushDescription = "Play new alerts immediately"
-const val queueBehaviorAddDescription = "Add new alerts to queue"
-
-// todo display app-wide banner for 'no internet connection', for example sign-in currently fails silently
-fun logException(e: Exception?) =
-    Log.e(TAG, "handleException: ${e?.message}", e)
-
-fun logMessage(msg: String?) =
-    Log.v(TAG, "$msg")
 
 fun beautifyTimestamp(timestamp: String): String {
 
