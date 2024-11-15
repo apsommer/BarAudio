@@ -9,7 +9,6 @@ import androidx.core.app.NotificationManagerCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import org.koin.android.ext.android.get
-import org.koin.android.ext.android.inject
 
 class FirebaseService: FirebaseMessagingService() {
 
@@ -37,7 +36,7 @@ class FirebaseService: FirebaseMessagingService() {
 
         // speak message
         tts.message = message
-        tts.speakMessage()
+        tts.speak()
     }
 
     private fun showNotification(

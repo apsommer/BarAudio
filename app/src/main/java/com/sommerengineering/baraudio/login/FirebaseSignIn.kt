@@ -7,14 +7,12 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.databaseUrl
 import com.sommerengineering.baraudio.logException
 import com.sommerengineering.baraudio.logMessage
 import com.sommerengineering.baraudio.readFromDataStore
 import com.sommerengineering.baraudio.tokenKey
 import com.sommerengineering.baraudio.users
-import org.koin.java.KoinJavaComponent.inject
 
 fun signInWithFirebase(
     activityContext: Context,

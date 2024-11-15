@@ -25,16 +25,12 @@ class TextToSpeechImpl(
         isQueueAdd.value = readFromDataStore(context, isQueueAddKey).toBoolean()
         speed.value = readFromDataStore(context, speedKey)?.toFloat() ?: 1f
         pitch.value = readFromDataStore(context, pitchKey)?.toFloat() ?: 1f
-
-        // configure engine settings
-        configure()
-
-        // speak any messages waiting in queue
-        speakMessage()
-
     }
 
-    fun configure() {
+    var message = ""
+    fun speak() {
+
+        if (message.isBlank() || !isInitialized) return
 
         // todo use high quality english voice for testing
         textToSpeech.voice = textToSpeech.voices
@@ -44,14 +40,6 @@ class TextToSpeechImpl(
 
         textToSpeech.setSpeechRate(speed.value)
         textToSpeech.setPitch(pitch.value)
-
-        logMessage("Text-to-speech configured")
-    }
-
-    var message = ""
-    fun speakMessage() {
-
-        if (message.isBlank() || !isInitialized) return
 
         // speak message
         val status = textToSpeech.speak(
