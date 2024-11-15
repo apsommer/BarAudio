@@ -13,6 +13,6 @@
     }
   ],
   "database": {
-    "rules": "database.rules"
+    "rules": "database-rules.json"
   }
 }
