@@ -11,5 +11,8 @@
         "*.local"
       ]
     }
-  ]
+  ],
+  "database": {
+    "rules": "database.rules"
+  }
 }
