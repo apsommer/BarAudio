@@ -1,7 +1,7 @@
 package com.sommerengineering.baraudio.settings
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -53,10 +53,10 @@ fun SettingsScreen(
                 })
         }) { scaffoldPadding ->
 
-        Column(Modifier.padding(scaffoldPadding)) {
+        LazyColumn(Modifier.padding(scaffoldPadding)) {
 
             // webhook
-            SettingItem(
+            item { SettingItem(
                 icon = R.drawable.webhook,
                 title = R.string.webhook_title,
                 description = viewModel.webhookUrl,
@@ -67,82 +67,78 @@ fun SettingsScreen(
                     // todo play with .weight etc to show this icon correctly
                     Icon(
                         painter = painterResource(R.drawable.copy),
-                        contentDescription = null
-                    )
+                        contentDescription = null)
                 }
-            }
+            }}
 
             // voice
-            SettingItem(
+            item { SettingItem(
                 icon = R.drawable.voice,
                 title = R.string.voice_title,
-                description = viewModel.voiceDescription.value
-            ) {
+                description = viewModel.voiceDescription.value) {
                 VoiceDropdownMenu(viewModel.getVoices())
-            }
+            }}
 
             // speed
-            SettingItem(
+            item { SettingItem(
                 icon = R.drawable.speed,
                 title = R.string.speed_title,
-                description = viewModel.speedDescription.value
-            ) {
+                description = viewModel.speedDescription.value) {
                 SpeedSlider(
                     initPosition = viewModel.getSpeed(),
-                    onValueChanged = { viewModel.setSpeed(context, it) }
-                )
-            }
+                    onValueChanged = { viewModel.setSpeed(context, it) })
+            }}
 
             // pitch
-            SettingItem(
+            item { SettingItem(
                 icon = R.drawable.pitch,
                 title = R.string.pitch_title,
-                description = viewModel.pitchDescription.value
-            ) {
+                description = viewModel.pitchDescription.value) {
                 SpeedSlider(
                     initPosition = viewModel.getPitch(),
-                    onValueChanged = { viewModel.setPitch(context, it) }
-                )
-            }
+                    onValueChanged = { viewModel.setPitch(context, it) })
+            }}
 
             // queue behavior
-            SettingItem(
+            item { SettingItem(
                 icon = R.drawable.text_to_speech,
                 title = R.string.queue_behavior_title,
-                description = viewModel.queueBehaviorDescription.value
-            ) {
+                description = viewModel.queueBehaviorDescription.value) {
                 Switch(
                     modifier = Modifier.padding(
                         horizontal = 24.dp,
-                        vertical = 12.dp
-                    ),
+                        vertical = 12.dp),
                     checked = viewModel.isQueueAdd.collectAsState().value,
                     onCheckedChange = { viewModel.setIsQueueAdd(context, it) })
-            }
+            }}
 
             // about
-            SettingItem(
+            item { SettingItem(
                 icon = R.drawable.browser,
                 title = R.string.about_title,
                 onClick = { uriHandler.openUri(aboutUrl) }) { }
+            }
 
             // privacy
-            SettingItem(
+            item { SettingItem(
                 icon = R.drawable.browser,
                 title = R.string.privacy_title,
                 onClick = { uriHandler.openUri(privacyUrl) }) { }
+            }
 
             // terms
-            SettingItem(
+            item { SettingItem(
                 icon = R.drawable.browser,
                 title = R.string.terms_title,
                 onClick = { uriHandler.openUri(termsUrl) }) { }
+            }
 
             // sign-out
-            SettingItem(
+            item { SettingItem(
                 icon = R.drawable.sign_out,
                 title = R.string.sign_out_title,
                 onClick = { onSignOut() }) { }
+            }
         }
     }
 }
