@@ -7,7 +7,6 @@ import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.bundle.bundleOf
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import org.koin.android.ext.android.get
@@ -25,10 +24,8 @@ class FirebaseService: FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
 
         // extract attributes
-        val timestamp = remoteMessage.data["timestamp"] ?: return
-        val message = remoteMessage.data["message"] ?: return
-
-        logMessage("FCM message received, $timestamp: $message")
+        val timestamp = remoteMessage.data[timestampKey] ?: return
+        val message = remoteMessage.data[messageKey] ?: return
 
         // show notification
         showNotification(timestamp, message)

@@ -19,8 +19,10 @@ const val privacyUrl = "https://baraud.io/privacy/"
 const val termsUrl = "https://baraud.io/terms/"
 const val users = "users"
 
-//
+// notifications
 const val isLaunchFromNotification = "isLaunchFromNotification"
+const val timestampKey = "timestamp"
+const val messageKey = "message"
 
 fun beautifyTimestamp(timestamp: String): String {
 
