@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
@@ -71,17 +72,22 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         installSplashScreen()
         super.onCreate(savedInstanceState)
+
+        // initialize text-to-speech engine
+        get<TextToSpeechImpl>()
+
+        // true for background and foreground, false if closed
+        isAppOpen = true
+
+        // dismiss notifications after launch
+        val isLaunchFromNotification = intent.extras?.getBoolean(isLaunchFromNotification) ?: false
+        if (isLaunchFromNotification) { NotificationManagerCompat.from(this).cancelAll() }
+
         enableEdgeToEdge()
         setContent { App() }
-        isAppOpen = true // true for background and foreground, false if closed
-    }
-
-    // initialize text-to-speech engine
-    override fun onStart() {
-        super.onStart()
-        get<TextToSpeechImpl>()
     }
 }
 

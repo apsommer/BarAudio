@@ -19,6 +19,9 @@ const val privacyUrl = "https://baraud.io/privacy/"
 const val termsUrl = "https://baraud.io/terms/"
 const val users = "users"
 
+//
+const val isLaunchFromNotification = "isLaunchFromNotification"
+
 fun beautifyTimestamp(timestamp: String): String {
 
     // todo handle local change in system system while app running

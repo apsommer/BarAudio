@@ -2,10 +2,12 @@ package com.sommerengineering.baraudio
 
 import android.Manifest
 import android.app.PendingIntent
+import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.bundle.bundleOf
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import org.koin.android.ext.android.get
@@ -52,8 +54,10 @@ class FirebaseService: FirebaseMessagingService() {
             != PackageManager.PERMISSION_GRANTED) { return }
 
         // create pending intent to activity
-        val intent = packageManager.getLaunchIntentForPackage(getString(R.string.package_name))
-        val pendingIntent= PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+        val intent = Intent(this, MainActivity::class.java)
+            .putExtra(isLaunchFromNotification, true)
+        val pendingIntent= PendingIntent
+            .getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
         // configure options
         val beautifulTimestamp = beautifyTimestamp(timestamp)
