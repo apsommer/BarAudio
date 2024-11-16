@@ -2,7 +2,6 @@ package com.sommerengineering.baraudio.settings
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Slider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -13,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun SpeedSlider(
+fun SliderImpl(
     initPosition: Float,
     onValueChanged: (Float) -> Unit
 ) {
@@ -21,8 +20,7 @@ fun SpeedSlider(
     var position by remember { mutableFloatStateOf(initPosition) }
 
     Column(
-        modifier = Modifier.padding(horizontal = 24.dp)
-    ) {
+        modifier = Modifier.padding(horizontal = 24.dp)) {
         Slider(
             value = position,
             onValueChange = {

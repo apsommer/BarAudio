@@ -38,8 +38,7 @@ fun SettingItem(
         Column {
             Row(
                 modifier = modifier,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+                verticalAlignment = Alignment.CenterVertically) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically) {
                     Icon(

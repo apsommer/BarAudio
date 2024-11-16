@@ -45,8 +45,7 @@ fun SettingsScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = null)
-                    }
-                },
+                }},
                 title = {
                     Text(
                         text = stringResource(R.string.settings))
@@ -61,15 +60,14 @@ fun SettingsScreen(
                 title = R.string.webhook_title,
                 description = viewModel.webhookUrl,
                 onClick = { viewModel.saveToClipboard(context) }) {
-                IconButton(
+                IconButton( // todo refactor to Icon
                     modifier = Modifier.padding(vertical = 12.dp),
                     onClick = { viewModel.saveToClipboard(context) }) {
                     // todo play with .weight etc to show this icon correctly
                     Icon(
                         painter = painterResource(R.drawable.copy),
                         contentDescription = null)
-                }
-            }}
+            }}}
 
             // voice
             item { SettingItem(
@@ -84,7 +82,7 @@ fun SettingsScreen(
                 icon = R.drawable.speed,
                 title = R.string.speed_title,
                 description = viewModel.speedDescription.value) {
-                SpeedSlider(
+                SliderImpl(
                     initPosition = viewModel.getSpeed(),
                     onValueChanged = { viewModel.setSpeed(context, it) })
             }}
@@ -94,7 +92,7 @@ fun SettingsScreen(
                 icon = R.drawable.pitch,
                 title = R.string.pitch_title,
                 description = viewModel.pitchDescription.value) {
-                SpeedSlider(
+                SliderImpl(
                     initPosition = viewModel.getPitch(),
                     onValueChanged = { viewModel.setPitch(context, it) })
             }}
