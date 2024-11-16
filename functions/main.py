@@ -30,7 +30,11 @@ def send_fcm(uid: str, timestamp: str, message: str):
 
     # get device token
     group_key = db.reference('users')
+
+    # log
+
     device_token = group_key.get()[uid] # todo must catch bad uid, users will for sure do this, send "are you sure that's the uid?" response
+    # device_token = group_key.child(uid).get()
 
     # set priority to high todo are these configs needed, default may be sufficient?
     config = messaging.AndroidConfig(
