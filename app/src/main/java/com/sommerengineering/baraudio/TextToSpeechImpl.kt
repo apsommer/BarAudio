@@ -2,7 +2,9 @@ package com.sommerengineering.baraudio
 
 import android.content.Context
 import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
 import android.speech.tts.Voice
+import androidx.core.app.NotificationManagerCompat
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class TextToSpeechImpl(
@@ -27,11 +29,13 @@ class TextToSpeechImpl(
         pitch.value = readFromDataStore(context, pitchKey)?.toFloat() ?: 1f
     }
 
-    var message = ""
-    fun speak() {
+    fun speak(
+        timestamp: String,
+        message: String) {
 
         if (message.isBlank() || !isInitialized) return
 
+        // config engine params
         // todo use high quality english voice for testing
         textToSpeech.voice = textToSpeech.voices
             .filter { it.quality >= 400 }
@@ -41,18 +45,25 @@ class TextToSpeechImpl(
         textToSpeech.setSpeechRate(speed.value)
         textToSpeech.setPitch(pitch.value)
 
+        // clear notification when done speaking
+        textToSpeech.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+
+            override fun onDone(utteranceId: String?) {
+                logMessage("Text-to-speech message done speaking")
+                NotificationManagerCompat.from(context).cancel(timestamp.toLong().toInt())
+            }
+
+            // do nothing
+            override fun onStart(utteranceId: String?) { }
+            override fun onError(utteranceId: String?) { }
+        })
+
         // speak message
-        val status = textToSpeech.speak(
+        textToSpeech.speak(
             message,
             isQueueAdd.value.compareTo(false),
             null,
-            "42")
-
-        if (status == TextToSpeech.ERROR) { logMessage("Text-to-speech error [$status]") }
-        else logMessage("Text-to-speech message spoken: $message")
-
-        // clear unspoken message container
-        message = ""
+            timestamp)
     }
 
     fun getVoices(): Set<Voice> {
