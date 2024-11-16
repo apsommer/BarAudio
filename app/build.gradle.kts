@@ -102,7 +102,7 @@ dependencies {
 
     // koin
     implementation(libs.koin.androidx.compose)
-    implementation(libs.koin.androidx.compose.navigation)
+    // implementation(libs.koin.androidx.compose.navigation) // todo remove, not necessary?
 
     // firebase
     implementation(platform(libs.firebase.bom))
@@ -115,7 +115,7 @@ dependencies {
     // preferences datastore
     implementation(libs.androidx.datastore.preferences)
 
-    // coil
+    // coil todo can remove if choose sweep feature instead?
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
 

@@ -2,49 +2,30 @@ package com.sommerengineering.baraudio
 
 import android.Manifest
 import android.app.PendingIntent
+import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.datastore.preferences.core.edit
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get
 
-class FirebaseService : FirebaseMessagingService() {
+class FirebaseService: FirebaseMessagingService() {
 
     private val tts: TextToSpeechImpl = get()
 
-    override fun onNewToken(token: String) {
-
-        // write token to local cache
-        CoroutineScope(Dispatchers.IO).launch {
-
-            applicationContext.dataStore.edit {
-                it[tokenKey] = token
-            }
-
-            logMessage("New token written to local cache: $token")
-        }
-    }
+    override fun onNewToken(token: String) =
+        writeToDataStore(
+            applicationContext,
+            tokenKey,
+            token)
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        handleMessage(remoteMessage)
-    }
-
-    private fun handleMessage(remoteMessage: RemoteMessage) {
 
         // extract attributes
-        val timestamp = remoteMessage.data["timestamp"] ?: return
-        val message = remoteMessage.data["message"] ?: return
-
-        logMessage("FCM message received, $timestamp: $message")
+        val timestamp = remoteMessage.data[timestampKey] ?: return
+        val message = remoteMessage.data[messageKey] ?: return
 
         // show notification
         showNotification(timestamp, message)
@@ -53,14 +34,12 @@ class FirebaseService : FirebaseMessagingService() {
         if (!isAppOpen) { return }
 
         // speak message
-        tts.message = message
-        tts.speakMessage()
+        tts.speak(timestamp, message)
     }
 
     private fun showNotification(
         timestamp: String,
-        message: String
-    ) {
+        message: String) {
 
         // todo check that notifications have appropriate settings:
         //  importance, sound, etc at minimum levels, else show ui saying it's required
@@ -72,8 +51,10 @@ class FirebaseService : FirebaseMessagingService() {
             != PackageManager.PERMISSION_GRANTED) { return }
 
         // create pending intent to activity
-        val intent = packageManager.getLaunchIntentForPackage(getString(R.string.package_name))
-        val pendingIntent= PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+        val intent = Intent(this, MainActivity::class.java)
+            .putExtra(isLaunchFromNotification, true)
+        val pendingIntent= PendingIntent
+            .getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
         // configure options
         val beautifulTimestamp = beautifyTimestamp(timestamp)
@@ -88,7 +69,7 @@ class FirebaseService : FirebaseMessagingService() {
 
         // show notification
         NotificationManagerCompat.from(this).notify(
-            timestamp.toLong().toInt(),
+            trimTimestamp(timestamp),
             builder.build())
     }
 }

@@ -8,9 +8,9 @@ import org.koin.dsl.module
 
 // koin modules
 val appModule = module {
-    single<Repository> { Repository() }
-    viewModel { MainViewModel(get()) }
     single<TextToSpeechImpl> { TextToSpeechImpl(androidContext())}
+    single<Repository> { Repository() }
+    viewModel { MainViewModel(get(), get()) }
 }
 
 // preferences datastore

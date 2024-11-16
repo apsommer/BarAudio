@@ -5,4 +5,16 @@
     <string name="notification_channel_description">Notification for incoming webhook</string>
     <string name="lorem_ipsum">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercise ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</string>
     <string name="package_name">com.sommerengineering.baraudio</string>
+    <string name="settings">Settings</string>
+    <string name="queue_behavior_title">Queue behavior</string>
+<!--    <string name="queue_behavior_flush_description">Play new alerts immediately</string>-->
+<!--    <string name="queue_behavior_add_description">Add new alerts to queue</string>-->
+    <string name="webhook_title">Webhook</string>
+    <string name="voice_title">Voice</string>
+    <string name="speed_title">Speed</string>
+    <string name="pitch_title">Pitch</string>
+    <string name="about_title">About</string>
+    <string name="privacy_title">Privacy Policy</string>
+    <string name="terms_title">Terms and Conditions</string>
+    <string name="sign_out_title">Sign-out</string>
 </resources>

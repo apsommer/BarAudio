@@ -1,38 +1,50 @@
 package com.sommerengineering.baraudio
 
+import android.text.format.DateUtils
 import android.util.Log
-import androidx.datastore.preferences.core.stringPreferencesKey
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-// debug logcat
+// logcat
 const val TAG = "~"
+fun logException(e: Exception?) = Log.e(TAG, "handleException: ${e?.message}", e)
+fun logMessage(msg: String?) = Log.v(TAG, "$msg")
 
 // firebase
 const val databaseUrl = "https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/"
+const val webhookBaseUrl = "https://baraudio-555667494303.us-central1.run.app/?uid="
+const val aboutUrl = "https://baraud.io/"
+const val privacyUrl = "https://baraud.io/privacy/"
+const val termsUrl = "https://baraud.io/terms/"
 const val users = "users"
 
-// preferences datastore
-const val localCache = "localCache"
-val tokenKey = stringPreferencesKey("token")
-
-// todo display app-wide banner for 'no internet connection', for example sign-in currently fails silently
-fun logException(e: Exception?) =
-    Log.e(TAG, "handleException: ${e?.message}", e)
-
-fun logMessage(msg: String?) =
-    Log.v(TAG, "$msg")
+// notifications
+const val isLaunchFromNotification = "isLaunchFromNotification"
+const val timestampKey = "timestamp"
+const val messageKey = "message"
 
 fun beautifyTimestamp(timestamp: String): String {
 
     // todo handle local change in system system while app running
     //  https://stackoverflow.com/a/23556454/9212084
 
-    val pattern = "h:mm:ss a 'on' MMMM dd, yyyy" // 6:27:53 PM on October 30, 2024
+    // todo relative timespan is interesting?
+    //  DateUtils.getRelativeTimeSpanString(timestamp.toLong())
+
+    val isToday = DateUtils.isToday(timestamp.toLong())
+
+    val pattern =
+        if (isToday) "h:mm:ss a" // 6:27:53 PM
+        else "h:mm:ss a 'on' MMMM dd, yyyy" // 6:27:53 PM on October 30, 2024
 
     return SimpleDateFormat(
         pattern,
         Locale.getDefault())
         .format(Date(timestamp.toLong()))
 }
+
+fun trimTimestamp(timestamp: String) =
+    timestamp
+        .substring(timestamp.length - 9, timestamp.length)
+        .toInt()

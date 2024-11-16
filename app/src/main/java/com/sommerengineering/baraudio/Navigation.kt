@@ -6,12 +6,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import com.sommerengineering.baraudio.messages.MessagesScreen
 import com.sommerengineering.baraudio.login.LoginScreen
+import com.sommerengineering.baraudio.messages.MessagesScreen
+import com.sommerengineering.baraudio.settings.SettingsScreen
 
 // routes
 const val LoginScreenRoute = "LoginScreen"
 const val AlertScreenRoute = "AlertScreen"
+const val SettingsScreenRoute = "SettingsScreen"
 
 @Composable
 fun Navigation(
@@ -20,7 +22,7 @@ fun Navigation(
 
     NavHost(
         navController = controller,
-        startDestination = getStartDestination() // LoginScreenRoute
+        startDestination = getStartDestination()
     ) {
         composable(
             route = LoginScreenRoute) {
@@ -34,7 +36,21 @@ fun Navigation(
         }
         composable(
             route = AlertScreenRoute) {
-            MessagesScreen()
+            MessagesScreen(
+                onSettingsClick = { controller.navigate(SettingsScreenRoute) }
+            )
+        }
+        composable(
+            route = SettingsScreenRoute) {
+            SettingsScreen(
+                onBackClicked = { controller.navigateUp() },
+                onSignOut = {
+                    Firebase.auth.signOut()
+                    controller.navigate(LoginScreenRoute) {
+                        popUpTo(AlertScreenRoute) { inclusive = true }
+                    }
+                }
+            )
         }
     }
 }

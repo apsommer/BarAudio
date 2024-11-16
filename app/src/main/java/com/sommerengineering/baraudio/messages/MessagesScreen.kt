@@ -1,41 +1,28 @@
 package com.sommerengineering.baraudio.messages
 
-import android.content.Context
-import android.util.Log
-import android.widget.ImageButton
-import android.widget.Toast
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
-import coil3.transform.CircleCropTransformation
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
@@ -45,22 +32,33 @@ import com.google.firebase.ktx.Firebase
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.databaseUrl
-import com.sommerengineering.baraudio.logMessage
 import java.util.Objects
 
 @Composable
-fun MessagesScreen() {
+fun MessagesScreen(
+    onSettingsClick: () -> Unit) {
 
-    // request notification permission
+    // request notification permission, does nothing if already granted
     (LocalContext.current as MainActivity).requestRealtimeNotificationPermission()
 
     // initialize message list
     val messages = remember { mutableStateListOf<Message>() }
-    listenToDatabaseWrites(messages)
+
+    // listen to database writes
+    LaunchedEffect(databaseUrl) { listenToDatabaseWrites(messages) }
+
+    // todo temp
+//    Handler(Looper.getMainLooper()).postDelayed( {
+//        onSettingsClick.invoke()
+//    }, 100)
 
     Scaffold(
         topBar = {
-            TopAppBar() }) { scaffoldPadding ->
+            MessagesTopBar(
+                onSettingsClick,
+                messages)
+        }
+    ) { scaffoldPadding ->
 
         Box(Modifier
             .fillMaxSize()
@@ -85,47 +83,43 @@ fun MessagesScreen() {
     }
 }
 
+// todo do this without experimental optin
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopAppBar() {
+fun MessagesTopBar(onSettingsClick: () -> Unit, messages: SnapshotStateList<Message>) {
     return CenterAlignedTopAppBar(
         title = {
             Image(
-                painterResource(R.drawable.logo_banner),
-                contentDescription = null,
-                modifier = Modifier.padding(8.dp)
-            )
+                modifier = Modifier
+                    .padding(8.dp)
+                    .clickable { onSettingsClick() },
+                painter = painterResource(R.drawable.logo_banner),
+                contentDescription = null)
         },
         actions = {
             IconButton(
-                onClick = { onClickProfileImage() }) {
-                AsyncImage(
-                    modifier = Modifier.clip(CircleShape),
-                    model = Firebase.auth.currentUser?.photoUrl,
+                onClick = { deleteDatabaseMessages(messages) }) {
+                Image(
+                    modifier = Modifier.padding(8.dp),
+                    painter = painterResource(R.drawable.delete),
                     contentDescription = null)
             }
         }
     )
 }
 
-fun onClickProfileImage() {
-    logMessage("Profile image click!")
+val dbRef by lazy {
+
+    val uid = Firebase.auth.currentUser?.uid ?: "unauthenticated_user"
+    val db = Firebase.database(databaseUrl)
+    db.getReference("messages").child(uid)
 }
 
 fun listenToDatabaseWrites(
     messages: SnapshotStateList<Message>) {
 
-    // get user id
-    val uid = Firebase.auth.currentUser?.uid ?: return
-
-    // get reference to database
-    val db = Firebase.database(databaseUrl)
-    val uidKey = db.getReference("messages").child(uid)
-    logMessage(uidKey.toString())
-
-    // listen to new message database writes
     // triggers once for every child on initial connection
-    uidKey.addChildEventListener(object : ChildEventListener {
+    dbRef.addChildEventListener(object : ChildEventListener {
 
         override fun onChildAdded(
             snapshot: DataSnapshot,
@@ -138,8 +132,13 @@ fun listenToDatabaseWrites(
             if (timestamp.isNullOrEmpty() || message.isEmpty()) return
 
             // todo observe a State<LinkedList> to reverse order efficiently
-            messages.add(0,
-                Message(timestamp, message))
+            messages.add(0, Message(timestamp, message))
+
+            // limit size
+            if (messages.size > 100) {
+                messages.removeAt(100)
+                // todo delete on backend as well
+            }
         }
 
         // do nothing
@@ -148,4 +147,11 @@ fun listenToDatabaseWrites(
         override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) { }
         override fun onCancelled(error: DatabaseError) { }
     })
+}
+
+fun deleteDatabaseMessages(
+    messages: SnapshotStateList<Message>) {
+
+    dbRef.removeValue()
+    messages.clear()
 }
