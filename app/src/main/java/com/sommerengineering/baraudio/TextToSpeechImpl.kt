@@ -27,6 +27,28 @@ class TextToSpeechImpl(
         isQueueAdd.value = readFromDataStore(context, isQueueAddKey).toBoolean()
         speed.value = readFromDataStore(context, speedKey)?.toFloat() ?: 1f
         pitch.value = readFromDataStore(context, pitchKey)?.toFloat() ?: 1f
+
+        // attach progress listener to clear notification when done speaking
+        textToSpeech.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+
+            override fun onDone(timestamp: String?) =
+                clearNotification(timestamp)
+
+            override fun onStop(timestamp: String?, isInterupted: Boolean) =
+                clearNotification(timestamp)
+
+            // do nothing
+            override fun onStart(utteranceId: String?) { }
+            override fun onError(utteranceId: String?) { }
+        })
+    }
+
+    fun clearNotification(timestamp: String?) {
+
+        if (timestamp == null) return
+
+        NotificationManagerCompat.from(context)
+            .cancel(trimTimestamp(timestamp))
     }
 
     fun speak(
@@ -44,19 +66,6 @@ class TextToSpeechImpl(
 
         textToSpeech.setSpeechRate(speed.value)
         textToSpeech.setPitch(pitch.value)
-
-        // clear notification when done speaking
-        textToSpeech.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
-
-            override fun onDone(utteranceId: String?) {
-                logMessage("Text-to-speech message done speaking")
-                NotificationManagerCompat.from(context).cancel(timestamp.toLong().toInt())
-            }
-
-            // do nothing
-            override fun onStart(utteranceId: String?) { }
-            override fun onError(utteranceId: String?) { }
-        })
 
         // speak message
         textToSpeech.speak(

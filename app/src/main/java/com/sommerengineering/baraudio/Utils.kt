@@ -38,3 +38,8 @@ fun beautifyTimestamp(timestamp: String): String {
         Locale.getDefault())
         .format(Date(timestamp.toLong()))
 }
+
+fun trimTimestamp(timestamp: String) =
+    timestamp
+        .substring(timestamp.length - 9, timestamp.length)
+        .toInt()

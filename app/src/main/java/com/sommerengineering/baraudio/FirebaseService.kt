@@ -68,7 +68,7 @@ class FirebaseService: FirebaseMessagingService() {
 
         // show notification
         NotificationManagerCompat.from(this).notify(
-            timestamp.toLong().toInt(),
+            trimTimestamp(timestamp),
             builder.build())
     }
 }
