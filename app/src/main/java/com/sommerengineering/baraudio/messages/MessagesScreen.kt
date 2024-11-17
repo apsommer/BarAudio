@@ -32,6 +32,9 @@ import com.google.firebase.ktx.Firebase
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.databaseUrl
+import com.sommerengineering.baraudio.messageKey
+import com.sommerengineering.baraudio.originKey
+import org.json.JSONObject
 import java.util.Objects
 
 @Composable
@@ -127,12 +130,17 @@ fun listenToDatabaseWrites(
 
             // extract attributes
             val timestamp = snapshot.key
-            val message = Objects.toString(snapshot.value, "")
+            val messageJson = Objects.toString(snapshot.value, "")
 
-            if (timestamp.isNullOrEmpty() || message.isEmpty()) return
+            if (timestamp.isNullOrEmpty() || messageJson.isEmpty()) return
+
+            // parse json
+            val json = JSONObject(messageJson)
+            val message = json.getString(messageKey)
+            val imageId = getOriginImageId(json.getString(originKey))
 
             // todo observe a State<LinkedList> to reverse order efficiently
-            messages.add(0, Message(timestamp, message))
+            messages.add(0, Message(timestamp, message, imageId))
 
             // limit size
             if (messages.size > 100) {
