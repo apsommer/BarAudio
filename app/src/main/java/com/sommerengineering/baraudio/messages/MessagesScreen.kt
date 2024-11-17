@@ -1,5 +1,6 @@
 package com.sommerengineering.baraudio.messages
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -37,6 +38,7 @@ import com.sommerengineering.baraudio.originKey
 import org.json.JSONObject
 import java.util.Objects
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MessagesScreen(
     onSettingsClick: () -> Unit) {
@@ -77,9 +79,10 @@ fun MessagesScreen(
 
             // messages list
             LazyColumn {
-                items(messages) { message ->
-                    MessageItem(message)
-                    HorizontalDivider()
+                items(
+                    messages,
+                    key = { it.timestamp }) {
+                    MessageItem(it, Modifier.animateItem())
                 }
             }
         }
