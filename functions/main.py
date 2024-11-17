@@ -1,9 +1,12 @@
 from firebase_admin import initialize_app, credentials, db, messaging
-from firebase_functions import https_fn
+from firebase_functions import https_fn, logger
 import time
 
 # initialize admin sdk
-app = initialize_app(credential = credentials.Certificate('admin.json'))
+app = initialize_app(
+    credential = credentials.Certificate('admin.json'),
+    options = { 'databaseURL': 'https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/' }
+)
 
 @https_fn.on_request()
 def baraudio(req: https_fn.Request) -> https_fn.Response:
@@ -30,11 +33,7 @@ def send_fcm(uid: str, timestamp: str, message: str):
 
     # get device token
     group_key = db.reference('users')
-
-    # log
-
     device_token = group_key.get()[uid] # todo must catch bad uid, users will for sure do this, send "are you sure that's the uid?" response
-    # device_token = group_key.child(uid).get()
 
     # set priority to high todo are these configs needed, default may be sufficient?
     config = messaging.AndroidConfig(
@@ -50,5 +49,5 @@ def send_fcm(uid: str, timestamp: str, message: str):
         android = config,
         token = device_token)
 
-    # send notification
+    # send notification to device
     messaging.send(remote_message)
