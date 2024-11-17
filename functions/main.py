@@ -17,17 +17,25 @@ def baraudio(req: https_fn.Request) -> https_fn.Response:
 
     # process webhook when request is properly formed
     if req.method == 'POST' and uid is not None and len(message) > 0:
+
+        # extract origin of webhook: tradingview, trendspider, ...
+        agent = req.user_agent.string
+
+        logger.info("user_agent: " + agent)
+        logger.info("X-Forwarded-For: " + str(req.headers.get('X-Forwarded-For')))
+        logger.info("headers: " + str(req.headers))
+
         timestamp = str(round(time.time() * 1000))
-        write_to_database(uid, timestamp, message)
+        write_to_database(uid, timestamp, message, agent)
         send_fcm(uid, timestamp, message)
 
     # respond with simple message
     return https_fn.Response('Thank you for using BarAudio! :)')
 
-def write_to_database(uid: str, timestamp: str, message: str):
+def write_to_database(uid: str, timestamp: str, message: str, origin: str):
 
     group_key = db.reference('messages')
-    group_key.child(uid).child(timestamp).set(message)
+    group_key.child(uid).child(timestamp).set('{ "message": "' + message + '", "origin": "' + origin + '" }')
 
 def send_fcm(uid: str, timestamp: str, message: str):
 
