@@ -24,8 +24,8 @@ class FirebaseService: FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
 
         // extract attributes
-        val timestamp = remoteMessage.data[timestampKey] ?: return
-        val message = remoteMessage.data[messageKey] ?: return
+        val timestamp = remoteMessage.data[timestamp] ?: return
+        val message = remoteMessage.data[message] ?: return
 
         // show notification
         showNotification(timestamp, message)

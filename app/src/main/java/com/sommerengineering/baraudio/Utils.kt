@@ -21,9 +21,10 @@ const val users = "users"
 
 // notifications
 const val isLaunchFromNotification = "isLaunchFromNotification"
-const val timestampKey = "timestamp"
-const val messageKey = "message"
-const val originKey = "origin"
+const val timestamp = "timestamp"
+const val message = "message"
+const val origin = "origin"
+const val insomnia = "insomnia"
 
 fun beautifyTimestamp(timestamp: String): String {
 

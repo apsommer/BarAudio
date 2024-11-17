@@ -20,13 +20,14 @@ def baraudio(req: https_fn.Request) -> https_fn.Response:
 
         # extract origin of webhook: tradingview, trendspider, ...
         agent = req.user_agent.string
+        origin = str(req.headers.get('X-Forwarded-For'))
 
-        logger.info("user_agent: " + agent)
-        logger.info("X-Forwarded-For: " + str(req.headers.get('X-Forwarded-For')))
-        logger.info("headers: " + str(req.headers))
+        # todo dev
+        if "insomnia" in agent:
+            origin = "insomnia"
 
         timestamp = str(round(time.time() * 1000))
-        write_to_database(uid, timestamp, message, agent)
+        write_to_database(uid, timestamp, message, origin)
         send_fcm(uid, timestamp, message)
 
     # respond with simple message

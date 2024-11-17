@@ -11,7 +11,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -33,8 +32,8 @@ import com.google.firebase.ktx.Firebase
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.databaseUrl
-import com.sommerengineering.baraudio.messageKey
-import com.sommerengineering.baraudio.originKey
+import com.sommerengineering.baraudio.message
+import com.sommerengineering.baraudio.origin
 import org.json.JSONObject
 import java.util.Objects
 
@@ -82,7 +81,11 @@ fun MessagesScreen(
                 items(
                     messages,
                     key = { it.timestamp }) {
-                    MessageItem(it, Modifier.animateItem())
+                    MessageItem(
+                        it,
+                        Modifier
+                            .animateItem()
+                    )
                 }
             }
         }
@@ -139,8 +142,8 @@ fun listenToDatabaseWrites(
 
             // parse json
             val json = JSONObject(messageJson)
-            val message = json.getString(messageKey)
-            val imageId = getOriginImageId(json.getString(originKey))
+            val message = json.getString(message)
+            val imageId = getOriginImageId(json.getString(origin))
 
             // todo observe a State<LinkedList> to reverse order efficiently
             messages.add(0, Message(timestamp, message, imageId))

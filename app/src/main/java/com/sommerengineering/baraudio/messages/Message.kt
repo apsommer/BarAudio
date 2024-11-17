@@ -1,6 +1,7 @@
 package com.sommerengineering.baraudio.messages
 
 import com.sommerengineering.baraudio.R
+import com.sommerengineering.baraudio.insomnia
 
 data class Message(
     var timestamp: String,
@@ -10,8 +11,8 @@ data class Message(
 
 fun getOriginImageId(origin: String): Int? {
 
-    if (origin.contains("insomnia")) return R.drawable.insomnia
-    tradingviewWhitelistIps.forEach { if (origin.equals(it)) return R.drawable.tradingview }
+    if (origin == insomnia) return R.drawable.insomnia
+    tradingviewWhitelistIps.forEach { if (origin == it) return R.drawable.tradingview }
     if (origin.equals(trendspiderWhitelistIp)) return R.drawable.trendspider
 
     return null
