@@ -13,6 +13,7 @@ class TextToSpeechImpl(
 
     private val textToSpeech = TextToSpeech(context, this)
 
+    // todo refactor to mutableStateOf ... no need for Flow and .collectAsState()
     var isQueueAdd = MutableStateFlow(false)
     var speed = MutableStateFlow(1f)
     var pitch = MutableStateFlow(1f)

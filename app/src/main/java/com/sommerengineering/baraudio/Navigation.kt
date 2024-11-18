@@ -22,8 +22,7 @@ fun Navigation(
 
     NavHost(
         navController = controller,
-        startDestination = getStartDestination()
-    ) {
+        startDestination = getStartDestination()) {
         composable(
             route = LoginScreenRoute) {
             LoginScreen(
@@ -31,14 +30,12 @@ fun Navigation(
                     controller.navigate(AlertScreenRoute) {
                         popUpTo(LoginScreenRoute) { inclusive = true }
                     }
-                }
-            )
+                })
         }
         composable(
             route = AlertScreenRoute) {
             MessagesScreen(
-                onSettingsClick = { controller.navigate(SettingsScreenRoute) }
-            )
+                onSettingsClick = { controller.navigate(SettingsScreenRoute) })
         }
         composable(
             route = SettingsScreenRoute) {
@@ -49,20 +46,12 @@ fun Navigation(
                     controller.navigate(LoginScreenRoute) {
                         popUpTo(AlertScreenRoute) { inclusive = true }
                     }
-                }
-            )
+                })
         }
     }
 }
 
-fun getStartDestination(): String {
-
-    var startDestination = LoginScreenRoute
-
-    // skip login screen if user already signed-in
-    if (Firebase.auth.currentUser != null) {
-        startDestination = AlertScreenRoute
-        logMessage("Firebase authenticated, user already signed-in") }
-
-    return startDestination
-}
+// skip login screen if user already authenticated
+fun getStartDestination() =
+    if (Firebase.auth.currentUser != null) { AlertScreenRoute }
+    else LoginScreenRoute

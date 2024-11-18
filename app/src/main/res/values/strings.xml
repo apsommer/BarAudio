@@ -13,7 +13,7 @@
     <string name="voice_title">Voice</string>
     <string name="speed_title">Speed</string>
     <string name="pitch_title">Pitch</string>
-    <string name="dark_mode_title">Dark mode</string>
+    <string name="ui_mode_title">Theme</string>
     <string name="about_title">About</string>
     <string name="privacy_title">Privacy Policy</string>
     <string name="terms_title">Terms and Conditions</string>

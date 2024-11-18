@@ -19,6 +19,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.aboutUrl
@@ -29,15 +30,15 @@ import org.koin.androidx.compose.koinViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    viewModel: MainViewModel = koinViewModel(),
     onBackClicked: () -> Unit,
     onSignOut: () -> Unit) {
 
     // todo remove unused svg
 
-    // initialize common
+    // init
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
+    val viewModel: MainViewModel = koinViewModel(null, context as MainActivity)
 
     Scaffold(
         topBar = {
@@ -114,8 +115,9 @@ fun SettingsScreen(
 
             // dark mode
             item { SettingItem(
-                icon = R.drawable.dark_mode,
-                title = R.string.dark_mode_title) {
+                icon = R.drawable.contrast,
+                title = R.string.ui_mode_title,
+                description = viewModel.uiModeDescription.value) {
                 Switch(
                     modifier = Modifier.padding(
                         horizontal = 24.dp,

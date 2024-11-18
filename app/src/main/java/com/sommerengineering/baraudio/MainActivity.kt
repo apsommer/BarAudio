@@ -14,13 +14,17 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
 import com.sommerengineering.baraudio.theme.AppTheme
 import org.koin.android.ext.android.get
+import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.KoinContext
 
 var isAppOpen = false
@@ -94,8 +98,12 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun App() {
 
+    // get ui mode
+    val viewModel: MainViewModel = koinViewModel()
+    val isDarkMode = viewModel.getIsDarkMode(LocalContext.current)
+
     KoinContext {
-        AppTheme {
+        AppTheme(isDarkMode) {
             Scaffold { padding ->
                 Navigation(rememberNavController())
                 Modifier.padding(padding)

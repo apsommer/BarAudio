@@ -4,7 +4,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.ktx.auth
@@ -19,7 +19,8 @@ class MainViewModel(
     val voiceDescription by lazy { mutableStateOf("English - austrialian accent - male") }
     val speedDescription by lazy { mutableStateOf(tts.speed.value.toString()) }
     val pitchDescription by lazy { mutableStateOf(tts.pitch.value.toString()) }
-    val queueBehaviorDescription by lazy { mutableStateOf(getQueueSettingDescription()) }
+    val queueBehaviorDescription by lazy { mutableStateOf(getQueueBehaviorDescription()) }
+    val uiModeDescription by lazy { mutableStateOf(getUiModeDescription()) }
 
     // webhook
     val webhookUrl by lazy { webhookBaseUrl + Firebase.auth.currentUser?.uid }
@@ -71,26 +72,41 @@ class MainViewModel(
 
         tts.isQueueAdd.value = isChecked
         writeToDataStore(context, isQueueAddKey, isChecked.toString())
-        setQueueSettingDescription()
+        setQueueBehaviorDescription()
     }
 
-    fun getQueueSettingDescription() =
+    fun getQueueBehaviorDescription() =
         if (tts.isQueueAdd.value) queueBehaviorAddDescription
         else queueBehaviorFlushDescription
 
-    fun setQueueSettingDescription() {
-        val description =
+    fun setQueueBehaviorDescription() {
+        queueBehaviorDescription.value =
             if (tts.isQueueAdd.value) queueBehaviorAddDescription
             else queueBehaviorFlushDescription
-        queueBehaviorDescription.value = description
     }
 
-    // dark mode
-    var isDarkMode = mutableStateOf(true)
+    val isDarkMode = mutableStateOf(true)
+    fun getIsDarkMode(context: Context): Boolean {
+        isDarkMode.value = readFromDataStore(context, isDarkModeKey).toBoolean()
+        return isDarkMode.value
+    }
+
     fun setIsDarkMode(
         context: Context,
         isChecked: Boolean) {
 
         isDarkMode.value = isChecked
+        writeToDataStore(context, isDarkModeKey, isChecked.toString())
+        setUiModeDescription()
+    }
+
+    fun getUiModeDescription() =
+        if (isDarkMode.value) uiModeDarkDescription
+        else uiModeLightDescription
+
+    fun setUiModeDescription() {
+        uiModeDescription.value =
+            if (isDarkMode.value) uiModeDarkDescription
+            else uiModeLightDescription
     }
 }

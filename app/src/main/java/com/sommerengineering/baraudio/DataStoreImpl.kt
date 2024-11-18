@@ -15,18 +15,23 @@ import kotlinx.coroutines.runBlocking
 const val localCache = "localCache"
 
 const val tokenBaseKey = "_token"
-const val isQueueFlushBaseKey = "_isQueueFlush"
 const val speedBaseKey = "_speed"
 const val pitchBaseKey = "_pitch"
+const val isQueueFlushBaseKey = "_isQueueFlush"
+const val isDarkModeBaseKey = "_isDarkMode"
 
 private val uid = Firebase.auth.currentUser?.uid
 val tokenKey by lazy { uid + tokenBaseKey }
-val isQueueAddKey by lazy { uid + isQueueFlushBaseKey }
 val speedKey by lazy { uid + speedBaseKey }
 val pitchKey by lazy { uid + pitchBaseKey }
+val isQueueAddKey by lazy { uid + isQueueFlushBaseKey }
+val isDarkModeKey by lazy { uid + isDarkModeBaseKey }
 
+// todo extract to strings.xml
 const val queueBehaviorFlushDescription = "Play new alerts immediately"
 const val queueBehaviorAddDescription = "Add new alerts to queue"
+const val uiModeDarkDescription = "Dark"
+const val uiModeLightDescription = "Light"
 
 fun readFromDataStore(
     context: Context,
