@@ -33,6 +33,8 @@ fun SettingsScreen(
     onBackClicked: () -> Unit,
     onSignOut: () -> Unit) {
 
+    // todo remove unused svg
+
     // initialize common
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
