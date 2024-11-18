@@ -9,13 +9,11 @@ data class Message(
     var originImageId: Int?
 )
 
-fun getOriginImageId(origin: String): Int? {
-
-    if (origin == insomnia) return R.drawable.insomnia
-    tradingviewWhitelistIps.forEach { if (origin == it) return R.drawable.tradingview }
-    if (origin.equals(trendspiderWhitelistIp)) return R.drawable.trendspider
-
-    return null
+fun getOriginImageId(origin: String): Int? = when (origin) {
+    insomnia -> R.drawable.insomnia
+    in tradingviewWhitelistIps -> R.drawable.tradingview
+    trendspiderWhitelistIp -> R.drawable.trendspider
+    else -> null
 }
 
 // https://www.tradingview.com/support/solutions/43000529348-about-webhooks/
