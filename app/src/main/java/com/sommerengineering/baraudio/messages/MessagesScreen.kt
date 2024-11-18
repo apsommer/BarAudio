@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -97,23 +98,28 @@ fun MessagesScreen(
 @Composable
 fun MessagesTopBar(onSettingsClick: () -> Unit, messages: SnapshotStateList<Message>) {
     return CenterAlignedTopAppBar(
+        modifier = Modifier.padding(horizontal = 18.dp),
+        navigationIcon = {
+            Image(
+                modifier = Modifier
+                    .clickable { deleteDatabaseMessages(messages) },
+                painter = painterResource(R.drawable.delete),
+                contentDescription = null)
+        },
         title = {
             Image(
                 modifier = Modifier
-                    .padding(8.dp)
-                    .clickable { onSettingsClick() },
+                    .padding(8.dp),
                 painter = painterResource(R.drawable.logo_banner),
                 contentDescription = null)
         },
         actions = {
-            IconButton(
-                onClick = { deleteDatabaseMessages(messages) }) {
-                Image(
-                    modifier = Modifier.padding(8.dp),
-                    painter = painterResource(R.drawable.delete),
-                    contentDescription = null)
-            }
-        }
+            Image(
+                modifier = Modifier
+                    .clickable { onSettingsClick() },
+                painter = painterResource(R.drawable.more_vertical),
+                contentDescription = null)
+        },
     )
 }
 
