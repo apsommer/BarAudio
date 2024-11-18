@@ -4,6 +4,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.ktx.auth
@@ -30,9 +31,11 @@ class MainViewModel(
         clipboardManager.setPrimaryClip(clip)
     }
 
+    // voice
     fun getVoices() =
         tts.getVoices().toList()
 
+    // speed
     fun getSpeed() = tts.speed.value
     fun setSpeed(
         context: Context,
@@ -76,11 +79,18 @@ class MainViewModel(
         else queueBehaviorFlushDescription
 
     fun setQueueSettingDescription() {
-
         val description =
             if (tts.isQueueAdd.value) queueBehaviorAddDescription
             else queueBehaviorFlushDescription
-
         queueBehaviorDescription.value = description
+    }
+
+    // dark mode
+    var isDarkMode = mutableStateOf(true)
+    fun setIsDarkMode(
+        context: Context,
+        isChecked: Boolean) {
+
+        isDarkMode.value = isChecked
     }
 }

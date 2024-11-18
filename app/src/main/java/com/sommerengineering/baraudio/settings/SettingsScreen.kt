@@ -110,6 +110,18 @@ fun SettingsScreen(
                     onCheckedChange = { viewModel.setIsQueueAdd(context, it) })
             }}
 
+            // dark mode
+            item { SettingItem(
+                icon = R.drawable.dark_mode,
+                title = R.string.dark_mode_title) {
+                Switch(
+                    modifier = Modifier.padding(
+                        horizontal = 24.dp,
+                        vertical = 12.dp),
+                    checked = viewModel.isDarkMode.value,
+                    onCheckedChange = { viewModel.setIsDarkMode(context, it) })
+            }}
+
             // about
             item { SettingItem(
                 icon = R.drawable.browser,
