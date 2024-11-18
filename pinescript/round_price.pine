@@ -1,0 +1,17 @@
+// @version=5
+strategy(
+     title = "Simple webhook",
+     overlay = true,
+     calc_on_every_tick = true, // realtime (true), on bar close (false)
+     process_orders_on_close = true) // on bar close (true), next bar open (false)
+
+// capture params of interest
+ticker = str.substring(syminfo.ticker, 0, 3)
+price = str.format("{0, number}", math.round(close)) // str.tostring(math.round(close))
+
+// build alert message string
+message = ticker + ' ' + price
+
+// entries, realtime limit, close market
+if close > 0
+    alert(message, alert.freq_once_per_bar)
