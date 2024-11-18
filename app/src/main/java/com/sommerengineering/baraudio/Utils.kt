@@ -18,6 +18,8 @@ const val aboutUrl = "https://baraud.io/"
 const val privacyUrl = "https://baraud.io/privacy/"
 const val termsUrl = "https://baraud.io/terms/"
 const val users = "users"
+const val messages = "messages"
+const val unauthenticatedUser = "unauthenticatedUser"
 
 // notifications
 const val isLaunchFromNotification = "isLaunchFromNotification"

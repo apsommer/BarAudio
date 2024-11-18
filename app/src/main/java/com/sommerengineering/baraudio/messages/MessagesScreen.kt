@@ -7,17 +7,18 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,7 +35,11 @@ import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.databaseUrl
 import com.sommerengineering.baraudio.message
+import com.sommerengineering.baraudio.messages
 import com.sommerengineering.baraudio.origin
+import com.sommerengineering.baraudio.unauthenticatedUser
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.util.Objects
 
@@ -43,19 +48,26 @@ import java.util.Objects
 fun MessagesScreen(
     onSettingsClick: () -> Unit) {
 
-    // request notification permission, does nothing if already granted
-    (LocalContext.current as MainActivity).requestRealtimeNotificationPermission()
-
-    // initialize message list
-    val messages = remember { mutableStateListOf<Message>() }
-
-    // listen to database writes
-    LaunchedEffect(databaseUrl) { listenToDatabaseWrites(messages) }
-
-    // todo temp
+    // todo dev: launch to settings
 //    Handler(Looper.getMainLooper()).postDelayed( {
 //        onSettingsClick.invoke()
 //    }, 100)
+
+    // request notification permission, does nothing if already granted
+    (LocalContext.current as MainActivity).requestRealtimeNotificationPermission()
+
+    // init
+    val messages = remember { mutableStateListOf<Message>() }
+    val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
+
+    // listen to database writes
+    LaunchedEffect(databaseUrl) {
+        listenToDatabaseWrites(
+            messages,
+            listState,
+            coroutineScope)
+    }
 
     Scaffold(
         topBar = {
@@ -78,15 +90,12 @@ fun MessagesScreen(
             }
 
             // messages list
-            LazyColumn {
+            LazyColumn(
+                state = listState) {
                 items(
                     messages,
                     key = { it.timestamp }) {
-                    MessageItem(
-                        it,
-                        Modifier
-                            .animateItem()
-                    )
+                    MessageItem(it, Modifier.animateItem())
                 }
             }
         }
@@ -119,19 +128,19 @@ fun MessagesTopBar(onSettingsClick: () -> Unit, messages: SnapshotStateList<Mess
                     .clickable { onSettingsClick() },
                 painter = painterResource(R.drawable.more_vertical),
                 contentDescription = null)
-        },
-    )
+        })
 }
 
 val dbRef by lazy {
-
-    val uid = Firebase.auth.currentUser?.uid ?: "unauthenticated_user"
+    val uid = Firebase.auth.currentUser?.uid ?: unauthenticatedUser
     val db = Firebase.database(databaseUrl)
-    db.getReference("messages").child(uid)
+    db.getReference(messages).child(uid)
 }
 
 fun listenToDatabaseWrites(
-    messages: SnapshotStateList<Message>) {
+    messages: SnapshotStateList<Message>,
+    listState: LazyListState,
+    coroutineScope: CoroutineScope) {
 
     // triggers once for every child on initial connection
     dbRef.addChildEventListener(object : ChildEventListener {
@@ -153,6 +162,7 @@ fun listenToDatabaseWrites(
 
             // todo observe a State<LinkedList> to reverse order efficiently
             messages.add(0, Message(timestamp, message, imageId))
+            coroutineScope.launch { listState.scrollToItem(0) }
 
             // limit size
             if (messages.size > 100) {

@@ -40,8 +40,6 @@ fun signInWithFirebase(
 fun validateToken(
     activityContext: Context) {
 
-    logMessage("Firebase sign-in successful")
-
     val firebaseUser = Firebase.auth.currentUser ?: return
 
     firebaseUser.getIdToken(false).addOnCompleteListener { task ->

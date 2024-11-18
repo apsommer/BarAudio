@@ -72,12 +72,12 @@ fun handleGoogleCredential(
                 val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
                 val googleToken = googleIdTokenCredential.idToken
 
-                logMessage("Google sign-in successful")
                 signInWithFirebase(
                     activityContext,
                     googleToken,
                     onAuthentication)
 
+            // do nothing
             } else { logMessage("Unexpected type of google credential") }
         } else -> { logMessage("Unexpected type of google credential") }
     }
