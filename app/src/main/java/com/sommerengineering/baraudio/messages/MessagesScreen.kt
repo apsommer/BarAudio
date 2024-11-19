@@ -2,9 +2,7 @@ package com.sommerengineering.baraudio.messages
 
 import android.os.Handler
 import android.os.Looper
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,7 +19,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -48,7 +45,6 @@ import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.util.Objects
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MessagesScreen(
     onSettingsClick: () -> Unit) {
@@ -79,8 +75,7 @@ fun MessagesScreen(
             MessagesTopBar(
                 onSettingsClick,
                 messages)
-        }
-    ) { scaffoldPadding ->
+        }) { scaffoldPadding ->
 
         Box(Modifier
             .fillMaxSize()

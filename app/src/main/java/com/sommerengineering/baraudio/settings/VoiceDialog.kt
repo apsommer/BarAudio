@@ -29,10 +29,11 @@ import com.sommerengineering.baraudio.beautifyTimestamp
 @Composable
 fun VoiceDialog(
     voices: List<Voice>,
-    onItemSelected: (Voice) -> Unit) {
+    onItemSelected: (Voice) -> Unit,
+    onDismiss: () -> Unit) {
 
     Dialog (
-        onDismissRequest = { }) {
+        onDismissRequest = { onDismiss() }) {
         Surface(
             modifier = Modifier.padding(vertical = 36.dp)
         ) {

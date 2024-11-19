@@ -86,7 +86,6 @@ fun SettingsScreen(
                 icon = R.drawable.voice,
                 title = R.string.voice_title,
                 description = viewModel.voiceDescription.value) {
-                // VoiceDropdownMenu(viewModel.getVoices())
 
                 Icon(
                     modifier = Modifier
@@ -98,10 +97,11 @@ fun SettingsScreen(
                 if (isShowVoiceDialog) {
                     VoiceDialog(
                         voices = viewModel.getVoices(),
-                        onItemSelected = { voice ->
-                            viewModel.setVoice(voice)
+                        onItemSelected = {
+                            viewModel.setVoice(it)
                             isShowVoiceDialog = false
-                        }
+                        },
+                        onDismiss = { isShowVoiceDialog = false }
                     )
                 }
             }}
