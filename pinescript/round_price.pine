@@ -4,16 +4,16 @@ indicator(
      overlay = true)
 
 // capture and format params of interest
-ticker = syminfo.ticker
+ticker = str.substring(syminfo.ticker, 0, str.length(syminfo.ticker) - 5)
 price = str.format("{0, number}", math.round(close))
 day_open = request.security(syminfo.tickerid, "D", open)
-percent_from_day_open = str.replace(str.format(
-     "{0, number, #.##}%", ((close - day_open) / day_open) * 100), ' ', '')
-percent_from_day_open_formatted = str.contains(percent_from_day_open, '0.0') ? 
-     "less than 0.1%" : percent_from_day_open
+percent_from_day_open = str.replace(str.replace(str.format(
+     "{0, number, #.##}%", ((close - day_open) / day_open) * 100), 
+     ' ', ''), 
+     "0.", ".")
 
 // build alert message string
-message = ticker + ' ' + price + ', ' + percent_from_day_open_formatted + ' from open'
+message = ticker + ' ' + price + ', ' + percent_from_day_open
 
 // alert on bar close
 if close > 0
