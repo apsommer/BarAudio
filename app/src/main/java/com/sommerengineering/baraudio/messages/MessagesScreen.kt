@@ -1,5 +1,7 @@
 package com.sommerengineering.baraudio.messages
 
+import android.os.Handler
+import android.os.Looper
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -52,9 +54,9 @@ fun MessagesScreen(
     onSettingsClick: () -> Unit) {
 
     // todo dev: launch to settings
-//    Handler(Looper.getMainLooper()).postDelayed( {
-//        onSettingsClick.invoke()
-//    }, 100)
+    Handler(Looper.getMainLooper()).postDelayed( {
+        onSettingsClick.invoke()
+    }, 100)
 
     // request notification permission, does nothing if already granted
     (LocalContext.current as MainActivity).requestRealtimeNotificationPermission()

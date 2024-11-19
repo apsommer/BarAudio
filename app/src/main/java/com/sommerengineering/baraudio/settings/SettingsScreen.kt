@@ -1,5 +1,6 @@
 package com.sommerengineering.baraudio.settings
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -13,6 +14,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
@@ -40,6 +45,8 @@ fun SettingsScreen(
     val uriHandler = LocalUriHandler.current
     val viewModel: MainViewModel = koinViewModel(null, context as MainActivity)
 
+
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -54,6 +61,8 @@ fun SettingsScreen(
                         text = stringResource(R.string.settings))
                 })
         }) { scaffoldPadding ->
+
+        var isShowVoiceDialog by remember { mutableStateOf(false) }
 
         LazyColumn(Modifier.padding(scaffoldPadding)) {
 
@@ -77,7 +86,21 @@ fun SettingsScreen(
                 icon = R.drawable.voice,
                 title = R.string.voice_title,
                 description = viewModel.voiceDescription.value) {
-                VoiceDropdownMenu(viewModel.getVoices())
+                // VoiceDropdownMenu(viewModel.getVoices())
+
+                Icon(
+                    modifier = Modifier
+                        .padding(horizontal = 24.dp)
+                        .clickable { isShowVoiceDialog = true },
+                    painter = painterResource(R.drawable.more_vertical),
+                    contentDescription = null)
+
+                if (isShowVoiceDialog) {
+                    VoiceDialog(
+                        voices = viewModel.getVoices(),
+                        onItemSelected = { isShowVoiceDialog = false }
+                    )
+                }
             }}
 
             // speed
