@@ -4,6 +4,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
+import android.speech.tts.Voice
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -16,7 +17,7 @@ class MainViewModel(
     private val repository: Repository
 ) : ViewModel() {
 
-    val voiceDescription by lazy { mutableStateOf("English - austrialian accent - male") }
+    val voiceDescription by lazy { mutableStateOf(tts.voice.value.name.toString()) }
     val speedDescription by lazy { mutableStateOf(tts.speed.value.toString()) }
     val pitchDescription by lazy { mutableStateOf(tts.pitch.value.toString()) }
     val queueBehaviorDescription by lazy { mutableStateOf(getQueueBehaviorDescription()) }
@@ -33,8 +34,16 @@ class MainViewModel(
     }
 
     // voice
+    fun setVoice(
+        voice: Voice
+    ) {
+        tts.voice.value = voice
+        // todo write to datastore
+        voiceDescription.value = voice.name
+    }
+
     fun getVoices() =
-        tts.getVoices().toList()
+        tts.getVoices().toList().sortedBy { it.name }
 
     // speed
     fun getSpeed() = tts.speed.value

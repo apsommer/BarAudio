@@ -4,6 +4,8 @@ import android.content.Context
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.speech.tts.Voice
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.NotificationManagerCompat
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -14,9 +16,11 @@ class TextToSpeechImpl(
     private val textToSpeech = TextToSpeech(context, this)
 
     // todo refactor to mutableStateOf ... no need for Flow and .collectAsState()
-    var isQueueAdd = MutableStateFlow(false)
+    lateinit var voice: MutableState<Voice>
+
     var speed = MutableStateFlow(1f)
     var pitch = MutableStateFlow(1f)
+    var isQueueAdd = MutableStateFlow(false)
 
     var isInitialized = false
     override fun onInit(status: Int) {
@@ -25,9 +29,16 @@ class TextToSpeechImpl(
 
         isInitialized = true
 
-        isQueueAdd.value = readFromDataStore(context, isQueueAddKey).toBoolean()
+        // todo read from datastore
+        voice = mutableStateOf(
+            textToSpeech.voices
+                .filter { it.quality >= 400 }
+                .filter { it.locale.toString().contains("en") }
+                .get(0))
+
         speed.value = readFromDataStore(context, speedKey)?.toFloat() ?: 1f
         pitch.value = readFromDataStore(context, pitchKey)?.toFloat() ?: 1f
+        isQueueAdd.value = readFromDataStore(context, isQueueAddKey).toBoolean()
 
         // attach progress listener to clear notification when done speaking
         textToSpeech.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
@@ -59,12 +70,7 @@ class TextToSpeechImpl(
         if (message.isBlank() || !isInitialized) return
 
         // config engine params
-        // todo use high quality english voice for testing
-        textToSpeech.voice = textToSpeech.voices
-            .filter { it.quality >= 400 }
-            .filter { it.locale.toString().contains("en") }
-            .get(0)
-
+        textToSpeech.setVoice(voice.value)
         textToSpeech.setSpeechRate(speed.value)
         textToSpeech.setPitch(pitch.value)
 
