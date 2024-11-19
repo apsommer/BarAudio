@@ -7,6 +7,9 @@ import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import com.google.firebase.auth.auth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import org.koin.android.ext.android.get
@@ -30,8 +33,8 @@ class FirebaseService: FirebaseMessagingService() {
         // show notification
         showNotification(timestamp, message)
 
-        // only speak if app is open in background or foreground, not when closed
-        if (!isAppOpen) { return }
+        // only speak if user signed-in, and app open in background or foreground
+        if (Firebase.auth.currentUser == null || !isAppOpen) { return }
 
         // speak message
         tts.speak(timestamp, message)
