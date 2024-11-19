@@ -15,7 +15,6 @@ class TextToSpeechImpl(
     private val textToSpeech = TextToSpeech(context, this)
 
     val voice by lazy { mutableStateOf(textToSpeech.voice) }
-
     // todo refactor to mutableStateOf ... no need for Flow and .collectAsState()
     var speed = MutableStateFlow(1f)
     var pitch = MutableStateFlow(1f)
@@ -25,10 +24,12 @@ class TextToSpeechImpl(
     override fun onInit(status: Int) {
 
         if (status != TextToSpeech.SUCCESS) { return }
-
         isInitialized = true
 
-        getVoiceFromDataStore()
+        readFromDataStore(context, voiceKey)?.let { voiceName ->
+            voice.value = textToSpeech.voices
+                .first { it.name == voiceName }
+        }
         speed.value = readFromDataStore(context, speedKey)?.toFloat() ?: 1f
         pitch.value = readFromDataStore(context, pitchKey)?.toFloat() ?: 1f
         isQueueAdd.value = readFromDataStore(context, isQueueAddKey).toBoolean()
@@ -46,18 +47,6 @@ class TextToSpeechImpl(
             override fun onStart(utteranceId: String?) { }
             override fun onError(utteranceId: String?) { }
         })
-    }
-
-    private fun getVoiceFromDataStore() {
-
-        val voiceName = readFromDataStore(context, voiceKey)
-
-        try {
-            voiceName?.let { voice.value =
-                textToSpeech.voices
-                    .first { it.name == voiceName }
-            }
-        } catch (e: NoSuchElementException) { logException(e) }
     }
 
     fun clearNotification(timestamp: String?) {

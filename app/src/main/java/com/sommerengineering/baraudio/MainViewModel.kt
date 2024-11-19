@@ -5,7 +5,6 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
 import android.speech.tts.Voice
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.ktx.auth
@@ -17,7 +16,7 @@ class MainViewModel(
     private val repository: Repository
 ) : ViewModel() {
 
-    val voiceDescription by lazy { mutableStateOf(tts.voice.value.name.toString()) }
+    val voiceDescription by lazy { mutableStateOf(beautifyVoiceName(tts.voice.value.name)) }
     val speedDescription by lazy { mutableStateOf(tts.speed.value.toString()) }
     val pitchDescription by lazy { mutableStateOf(tts.pitch.value.toString()) }
     val queueBehaviorDescription by lazy { mutableStateOf(getQueueBehaviorDescription()) }
@@ -34,20 +33,25 @@ class MainViewModel(
     }
 
     // voice
-    fun setVoice(
-        context: Context,
-        voice: Voice
-    ) {
-        tts.voice.value = voice
-        writeToDataStore(context, voiceKey, voice.name)
-        voiceDescription.value = voice.name
+    val voices by lazy {
+        tts.getVoices()
+            .toList()
+            .sortedBy { it.locale.displayName }
     }
 
-    fun getVoices() =
-        tts.getVoices().toList().sortedBy { it.name }
+    fun setVoice(
+        context: Context,
+        voice: Voice) {
+
+        tts.voice.value = voice
+        writeToDataStore(context, voiceKey, voice.name)
+        voiceDescription.value = beautifyVoiceName(voice.name)
+    }
 
     // speed
-    fun getSpeed() = tts.speed.value
+    fun getSpeed() =
+        tts.speed.value
+
     fun setSpeed(
         context: Context,
         rawSpeed: Float) {
@@ -61,7 +65,9 @@ class MainViewModel(
     }
 
     // pitch
-    fun getPitch() = tts.pitch.value
+    fun getPitch() =
+        tts.pitch.value
+
     fun setPitch(
         context: Context,
         rawPitch: Float) {
@@ -75,7 +81,9 @@ class MainViewModel(
     }
 
     // queue behavior
-    var isQueueAdd = tts.isQueueAdd
+    var isQueueAdd =
+        tts.isQueueAdd
+
     fun setIsQueueAdd(
         context: Context,
         isChecked: Boolean) {
@@ -118,5 +126,50 @@ class MainViewModel(
         uiModeDescription.value =
             if (isDarkMode.value) uiModeDarkDescription
             else uiModeLightDescription
+    }
+
+    fun beautifyVoiceName(name: String) =
+        voiceNameMap[name] ?: ""
+
+    val voiceNameMap by lazy {
+
+        val map = HashMap<String, String>()
+
+        // group voices by language/country
+        val grouped = voices
+            .groupBy { it.locale.displayName }
+
+        // iterate through groups adding roman numerals to display name
+        grouped.keys.forEach { languageCountry ->
+            val voices = grouped[languageCountry]
+            voices?.forEachIndexed { i, voice ->
+                map[voice.name] = formatVoiceName(voice.locale.displayName, i)
+            }
+        }
+
+        map
+    }
+
+    fun formatVoiceName(
+        displayName: String,
+        number: Int): String {
+
+        var romanNumeral = "I"
+        if (number == 1) romanNumeral = "II"
+        if (number == 2) romanNumeral = "III"
+        if (number == 3) romanNumeral = "IV"
+        if (number == 4) romanNumeral = "V"
+        if (number == 5) romanNumeral = "VI"
+        if (number == 6) romanNumeral = "VII"
+        if (number == 7) romanNumeral = "VIII"
+        if (number == 8) romanNumeral = "IX"
+        if (number == 9) romanNumeral = "X"
+        if (number == 10) romanNumeral = "XI"
+        if (number == 11) romanNumeral = "XII"
+        if (number == 12) romanNumeral = "XIII"
+        if (number == 13) romanNumeral = "XIV"
+        if (number == 14) romanNumeral = "XV"
+
+        return "$displayName \u2022 Voice $romanNumeral"
     }
 }

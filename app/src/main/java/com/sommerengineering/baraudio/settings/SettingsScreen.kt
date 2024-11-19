@@ -45,8 +45,6 @@ fun SettingsScreen(
     val uriHandler = LocalUriHandler.current
     val viewModel: MainViewModel = koinViewModel(null, context as MainActivity)
 
-
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -96,7 +94,7 @@ fun SettingsScreen(
 
                 if (isShowVoiceDialog) {
                     VoiceDialog(
-                        voices = viewModel.getVoices(),
+                        viewModel = viewModel,
                         onItemSelected = {
                             viewModel.setVoice(context, it)
                             isShowVoiceDialog = false
