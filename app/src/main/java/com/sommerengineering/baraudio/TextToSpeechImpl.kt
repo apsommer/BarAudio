@@ -4,7 +4,6 @@ import android.content.Context
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.speech.tts.Voice
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.NotificationManagerCompat
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,9 +14,9 @@ class TextToSpeechImpl(
 
     private val textToSpeech = TextToSpeech(context, this)
 
-    // todo refactor to mutableStateOf ... no need for Flow and .collectAsState()
-    lateinit var voice: MutableState<Voice>
+    val voice by lazy { mutableStateOf(textToSpeech.voice) }
 
+    // todo refactor to mutableStateOf ... no need for Flow and .collectAsState()
     var speed = MutableStateFlow(1f)
     var pitch = MutableStateFlow(1f)
     var isQueueAdd = MutableStateFlow(false)
@@ -29,13 +28,7 @@ class TextToSpeechImpl(
 
         isInitialized = true
 
-        // todo read from datastore
-        voice = mutableStateOf(
-            textToSpeech.voices
-                .filter { it.quality >= 400 }
-                .filter { it.locale.toString().contains("en") }
-                .get(0))
-
+        getVoiceFromDataStore()
         speed.value = readFromDataStore(context, speedKey)?.toFloat() ?: 1f
         pitch.value = readFromDataStore(context, pitchKey)?.toFloat() ?: 1f
         isQueueAdd.value = readFromDataStore(context, isQueueAddKey).toBoolean()
@@ -53,6 +46,18 @@ class TextToSpeechImpl(
             override fun onStart(utteranceId: String?) { }
             override fun onError(utteranceId: String?) { }
         })
+    }
+
+    private fun getVoiceFromDataStore() {
+
+        val voiceName = readFromDataStore(context, voiceKey)
+
+        try {
+            voiceName?.let { voice.value =
+                textToSpeech.voices
+                    .first { it.name == voiceName }
+            }
+        } catch (e: NoSuchElementException) { logException(e) }
     }
 
     fun clearNotification(timestamp: String?) {

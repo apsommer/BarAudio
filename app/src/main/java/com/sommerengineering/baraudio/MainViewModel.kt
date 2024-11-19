@@ -35,10 +35,11 @@ class MainViewModel(
 
     // voice
     fun setVoice(
+        context: Context,
         voice: Voice
     ) {
         tts.voice.value = voice
-        // todo write to datastore
+        writeToDataStore(context, voiceKey, voice.name)
         voiceDescription.value = voice.name
     }
 

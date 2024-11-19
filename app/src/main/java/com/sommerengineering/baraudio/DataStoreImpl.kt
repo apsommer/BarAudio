@@ -15,6 +15,7 @@ import kotlinx.coroutines.runBlocking
 const val localCache = "localCache"
 
 const val tokenBaseKey = "_token"
+const val voiceBaseKey = "_voice"
 const val speedBaseKey = "_speed"
 const val pitchBaseKey = "_pitch"
 const val isQueueFlushBaseKey = "_isQueueFlush"
@@ -22,6 +23,7 @@ const val isDarkModeBaseKey = "_isDarkMode"
 
 private val uid = Firebase.auth.currentUser?.uid
 val tokenKey by lazy { uid + tokenBaseKey }
+val voiceKey by lazy { uid + voiceBaseKey }
 val speedKey by lazy { uid + speedBaseKey }
 val pitchKey by lazy { uid + pitchBaseKey }
 val isQueueAddKey by lazy { uid + isQueueFlushBaseKey }
