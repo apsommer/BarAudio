@@ -167,6 +167,8 @@ fun SettingsScreen(
             }
 
             // how to use
+            // todo shimmer this on first app launch
+            //  https://medium.com/@m.derakhshan/how-to-implement-the-shimmer-effect-using-jetpack-compose-fc0e81e47747
             item { SettingItem(
                 icon = R.drawable.browser,
                 title = R.string.how_to_use,
