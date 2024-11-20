@@ -1,10 +1,11 @@
 // @version=5
 indicator( 
-     title = "price_alert",
+     title = "futures_price_alert",
      overlay = true)
 
 // capture and format params of interest
-ticker = str.substring(syminfo.ticker, 0, str.length(syminfo.ticker) - 5)
+removeTickerChars = str.contains(syminfo.ticker, "!") ? 2 : 5
+ticker = str.substring(syminfo.ticker, 0, str.length(syminfo.ticker) - removeTickerChars)
 price = str.format("{0, number}", math.round(close))
 day_open = request.security(syminfo.tickerid, "D", open)
 percent_from_day_open = str.replace(str.replace(str.format(

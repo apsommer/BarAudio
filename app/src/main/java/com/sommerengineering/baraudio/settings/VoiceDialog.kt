@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -28,7 +29,8 @@ fun VoiceDialog(
     Dialog (
         onDismissRequest = { onDismiss() }) {
         Surface(
-            modifier = Modifier.padding(vertical = 36.dp)
+            modifier = Modifier.padding(vertical = 24.dp),
+            shape = RoundedCornerShape(16.dp)
         ) {
             LazyColumn {
                 items(viewModel.voices) {
