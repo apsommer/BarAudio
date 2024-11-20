@@ -5,6 +5,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
 import android.speech.tts.Voice
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.ktx.auth
@@ -104,9 +105,13 @@ class MainViewModel(
     }
 
     val isDarkMode = mutableStateOf(true)
-    fun getIsDarkMode(context: Context): Boolean {
-        isDarkMode.value = readFromDataStore(context, isDarkModeKey).toBoolean()
-        return isDarkMode.value
+    fun initDarkMode(
+        context: Context,
+        isSystemInDarkTheme: Boolean) {
+
+        isDarkMode.value =
+            if (Firebase.auth.currentUser == null) isSystemInDarkTheme
+            else readFromDataStore(context, isDarkModeKey).toBoolean()
     }
 
     fun setIsDarkMode(

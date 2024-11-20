@@ -1,6 +1,5 @@
 package com.sommerengineering.baraudio.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
@@ -82,9 +81,8 @@ private val darkScheme = darkColorScheme(
 
 @Composable
 fun AppTheme(
-    isDarkMode: Boolean = isSystemInDarkTheme(),
-    content: @Composable () -> Unit
-) {
+    isDarkMode: Boolean,
+    content: @Composable () -> Unit) {
 
     // toggle dark mode
     val colorScheme =

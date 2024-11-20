@@ -44,10 +44,10 @@ fun SettingsScreen(
     onBackClicked: () -> Unit,
     onSignOut: () -> Unit) {
 
-    // init
+    // inject viewmodel
     val context = LocalContext.current
+    val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
     val uriHandler = LocalUriHandler.current
-    val viewModel: MainViewModel = koinViewModel(null, context as MainActivity)
 
     Scaffold(
         topBar = {

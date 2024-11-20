@@ -11,12 +11,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
@@ -98,9 +99,15 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun App() {
 
-    // get ui mode
-    val viewModel: MainViewModel = koinViewModel()
-    val isDarkMode = viewModel.getIsDarkMode(LocalContext.current)
+    // inject viewmodel
+    val context = LocalContext.current
+    val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
+
+    // track ui mode
+    viewModel.initDarkMode(
+        context = context,
+        isSystemInDarkTheme = isSystemInDarkTheme())
+    val isDarkMode by remember { viewModel.isDarkMode }
 
     KoinContext {
         AppTheme(isDarkMode) {

@@ -48,9 +48,10 @@ fun LoginScreen (
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(24.dp)
-                        .clickable { signInWithGoogle(
-                            context = context,
-                            onAuthentication = onAuthentication)
+                        .clickable {
+                            signInWithGoogle(
+                                context = context,
+                                onAuthentication = onAuthentication)
                     },
                     contentScale = ContentScale.FillWidth,
                     painter = painterResource(R.drawable.google_dark),

@@ -1,7 +1,5 @@
 package com.sommerengineering.baraudio.messages
 
-import android.os.Handler
-import android.os.Looper
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,7 +39,6 @@ import com.sommerengineering.baraudio.messages
 import com.sommerengineering.baraudio.origin
 import com.sommerengineering.baraudio.unauthenticatedUser
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.util.Objects
@@ -62,10 +59,10 @@ fun MessagesScreen(
     LaunchedEffect(databaseUrl) {
 
         // todo dev: launch to settings
-        coroutineScope.launch {
-            delay(100)
-            onSettingsClick.invoke()
-        }
+//        coroutineScope.launch {
+//            delay(100)
+//            onSettingsClick.invoke()
+//        }
 
         listenToDatabaseWrites(
             messages,
