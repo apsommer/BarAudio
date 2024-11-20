@@ -1,7 +1,10 @@
 package com.sommerengineering.baraudio.settings
 
 import android.content.Intent
+import android.os.Handler
+import android.os.Looper
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -18,6 +21,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -29,6 +33,7 @@ import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.aboutUrl
+import com.sommerengineering.baraudio.howToUseUrl
 import com.sommerengineering.baraudio.privacyUrl
 import com.sommerengineering.baraudio.termsUrl
 import org.koin.androidx.compose.koinViewModel
@@ -38,8 +43,6 @@ import org.koin.androidx.compose.koinViewModel
 fun SettingsScreen(
     onBackClicked: () -> Unit,
     onSignOut: () -> Unit) {
-
-    // todo remove unused svg
 
     // init
     val context = LocalContext.current
@@ -57,7 +60,7 @@ fun SettingsScreen(
                 }},
                 title = {
                     Text(
-                        text = stringResource(R.string.settings_title))
+                        text = stringResource(R.string.settings))
                 })
         }) { scaffoldPadding ->
 
@@ -68,7 +71,7 @@ fun SettingsScreen(
             // webhook
             item { SettingItem(
                 icon = R.drawable.webhook,
-                title = R.string.webhook_title,
+                title = R.string.webhook,
                 description = viewModel.webhookUrl,
                 onClick = { viewModel.saveToClipboard(context) }) {
                 IconButton( // todo refactor to Icon
@@ -83,7 +86,7 @@ fun SettingsScreen(
             // voice
             item { SettingItem(
                 icon = R.drawable.voice,
-                title = R.string.voice_title,
+                title = R.string.voice,
                 description = viewModel.voiceDescription.value) {
 
                 Icon(
@@ -108,7 +111,7 @@ fun SettingsScreen(
             // speed
             item { SettingItem(
                 icon = R.drawable.speed,
-                title = R.string.speed_title,
+                title = R.string.speed,
                 description = viewModel.speedDescription.value) {
                 SliderImpl(
                     initPosition = viewModel.getSpeed(),
@@ -118,7 +121,7 @@ fun SettingsScreen(
             // pitch
             item { SettingItem(
                 icon = R.drawable.pitch,
-                title = R.string.pitch_title,
+                title = R.string.pitch,
                 description = viewModel.pitchDescription.value) {
                 SliderImpl(
                     initPosition = viewModel.getPitch(),
@@ -128,7 +131,7 @@ fun SettingsScreen(
             // queue behavior
             item { SettingItem(
                 icon = R.drawable.text_to_speech,
-                title = R.string.queue_behavior_title,
+                title = R.string.queue_behavior,
                 description = viewModel.queueBehaviorDescription.value) {
                 Switch(
                     modifier = Modifier.padding(
@@ -141,7 +144,7 @@ fun SettingsScreen(
             // dark mode
             item { SettingItem(
                 icon = R.drawable.contrast,
-                title = R.string.ui_mode_title,
+                title = R.string.ui_mode,
                 description = viewModel.uiModeDescription.value) {
                 Switch(
                     modifier = Modifier.padding(
@@ -155,7 +158,7 @@ fun SettingsScreen(
             item {
                 SettingItem(
                     icon = R.drawable.settings,
-                    title = R.string.system_tts_title,
+                    title = R.string.system_tts,
                     onClick = { with(context) {
                         startActivity(
                             Intent(getString(R.string.system_tts_settings_package_name))
@@ -163,31 +166,38 @@ fun SettingsScreen(
                     }}) { }
             }
 
+            // how to use
+            item { SettingItem(
+                icon = R.drawable.browser,
+                title = R.string.how_to_use,
+                onClick = { uriHandler.openUri(howToUseUrl) }) { }
+            }
+
             // about
             item { SettingItem(
                 icon = R.drawable.browser,
-                title = R.string.about_title,
+                title = R.string.about,
                 onClick = { uriHandler.openUri(aboutUrl) }) { }
             }
 
             // privacy
             item { SettingItem(
                 icon = R.drawable.browser,
-                title = R.string.privacy_title,
+                title = R.string.privacy,
                 onClick = { uriHandler.openUri(privacyUrl) }) { }
             }
 
             // terms
             item { SettingItem(
                 icon = R.drawable.browser,
-                title = R.string.terms_title,
+                title = R.string.terms,
                 onClick = { uriHandler.openUri(termsUrl) }) { }
             }
 
             // sign-out
             item { SettingItem(
                 icon = R.drawable.sign_out,
-                title = R.string.sign_out_title,
+                title = R.string.sign_out,
                 onClick = { onSignOut() }) { }
             }
         }

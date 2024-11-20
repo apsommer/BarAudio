@@ -41,6 +41,7 @@ import com.sommerengineering.baraudio.messages
 import com.sommerengineering.baraudio.origin
 import com.sommerengineering.baraudio.unauthenticatedUser
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.util.Objects
@@ -48,11 +49,6 @@ import java.util.Objects
 @Composable
 fun MessagesScreen(
     onSettingsClick: () -> Unit) {
-
-    // todo dev: launch to settings
-    Handler(Looper.getMainLooper()).postDelayed( {
-        onSettingsClick.invoke()
-    }, 100)
 
     // request notification permission, does nothing if already granted
     (LocalContext.current as MainActivity).requestRealtimeNotificationPermission()
@@ -64,6 +60,13 @@ fun MessagesScreen(
 
     // listen to database writes
     LaunchedEffect(databaseUrl) {
+
+        // todo dev: launch to settings
+        coroutineScope.launch {
+            delay(100)
+            onSettingsClick.invoke()
+        }
+
         listenToDatabaseWrites(
             messages,
             listState,
