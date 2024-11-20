@@ -9,7 +9,7 @@ ticker = str.substring(syminfo.ticker, 0, str.length(syminfo.ticker) - removeTic
 price = str.format("{0, number}", math.round(close))
 day_open = request.security(syminfo.tickerid, "D", open)
 percent_from_day_open = str.replace(str.replace(str.format(
-     "{0, number, #.##}%", ((close - day_open) / day_open) * 100), 
+     "{0, number, #.#}%", math.round(((close - day_open) / day_open) * 100), 1),
      ' ', ''), 
      "0.", ".")
 
