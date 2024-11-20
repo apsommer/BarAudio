@@ -1,6 +1,8 @@
 package com.sommerengineering.baraudio.login
 
+import android.widget.ImageButton
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -30,43 +33,35 @@ fun LoginScreen (
     Surface {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = modifier.fillMaxSize()
-        ) {
+            modifier = modifier.fillMaxSize()) {
             Row(
-                Modifier.padding(top = 120.dp, bottom = 60.dp)
-            ) {
+                Modifier.padding(top = 120.dp, bottom = 60.dp)) {
                 Spacer(modifier = Modifier.weight(1f))
                 Image(
                     painterResource(R.drawable.logo_full),
                     contentDescription = null,
-                    Modifier.weight(3f)
-                )
+                    Modifier.weight(3f))
                 Spacer(modifier = Modifier.weight(1f))
             }
             Column(
-                Modifier.padding(60.dp)
-            ) {
-                Button(
-                    onClick = {
-                        signInWithGoogle(
-                            activityContext = context,
-                            onAuthentication = onAuthentication
-                        )
+                Modifier.padding(60.dp)) {
+                Image(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp)
+                        .clickable { signInWithGoogle(
+                            context = context,
+                            onAuthentication = onAuthentication)
                     },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(
-                        text = "Sign in with Google ..."
-                    )
-                }
+                    contentScale = ContentScale.FillWidth,
+                    painter = painterResource(R.drawable.google_dark),
+                    contentDescription = null)
                 Spacer(modifier = Modifier.height(12.dp))
                 Button(
                     onClick = { },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
+                    modifier = Modifier.fillMaxWidth()) {
                     Text(
-                        text = "Sign in with Github ..."
-                    )
+                        text = "Sign in with Github ...")
                 }
             }
         }

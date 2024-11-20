@@ -15,10 +15,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 fun signInWithGoogle (
-    activityContext: Context,
+    context: Context,
     onAuthentication: () -> Unit) {
 
-    // todo use this bottom ui in production
+    // todo use this bottom ui in production?
     // display ui with bottom sheet and progress bar
 //    val signInOptions = GetGoogleIdOption.Builder()
 //        .setFilterByAuthorizedAccounts(true) // false to initiate sign-up flow
@@ -32,7 +32,7 @@ fun signInWithGoogle (
         .build()
 
     // create credential manager and coroutine
-    val credentialManager = CredentialManager.create(activityContext)
+    val credentialManager = CredentialManager.create(context)
     val coroutineScope = CoroutineScope(Dispatchers.Main)
 
     // create request
@@ -44,11 +44,11 @@ fun signInWithGoogle (
     coroutineScope.launch { try {
 
         val result = credentialManager.getCredential(
-            activityContext,
+            context,
             request)
 
         handleGoogleCredential(
-            activityContext,
+            context,
             result,
             onAuthentication)
 
