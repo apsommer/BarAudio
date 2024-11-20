@@ -169,6 +169,11 @@ class MainViewModel(
         if (number == 12) romanNumeral = "XIII"
         if (number == 13) romanNumeral = "XIV"
         if (number == 14) romanNumeral = "XV"
+        if (number == 15) romanNumeral = "XVI"
+        if (number == 16) romanNumeral = "XVII"
+        if (number == 17) romanNumeral = "XVIII"
+        if (number == 18) romanNumeral = "XIX"
+        if (number == 19) romanNumeral = "XX"
 
         return "$displayName \u2022 Voice $romanNumeral"
     }

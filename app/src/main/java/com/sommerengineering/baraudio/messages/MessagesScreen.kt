@@ -50,9 +50,9 @@ fun MessagesScreen(
     onSettingsClick: () -> Unit) {
 
     // todo dev: launch to settings
-//    Handler(Looper.getMainLooper()).postDelayed( {
-//        onSettingsClick.invoke()
-//    }, 100)
+    Handler(Looper.getMainLooper()).postDelayed( {
+        onSettingsClick.invoke()
+    }, 100)
 
     // request notification permission, does nothing if already granted
     (LocalContext.current as MainActivity).requestRealtimeNotificationPermission()
