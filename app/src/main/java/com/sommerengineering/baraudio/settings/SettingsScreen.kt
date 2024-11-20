@@ -1,5 +1,6 @@
 package com.sommerengineering.baraudio.settings
 
+import android.content.Intent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -56,7 +57,7 @@ fun SettingsScreen(
                 }},
                 title = {
                     Text(
-                        text = stringResource(R.string.settings))
+                        text = stringResource(R.string.settings_title))
                 })
         }) { scaffoldPadding ->
 
@@ -149,6 +150,18 @@ fun SettingsScreen(
                     checked = viewModel.isDarkMode.value,
                     onCheckedChange = { viewModel.setIsDarkMode(context, it) })
             }}
+
+            // system tts settings
+            item {
+                SettingItem(
+                    icon = R.drawable.settings,
+                    title = R.string.system_tts_title,
+                    onClick = { with(context) {
+                        startActivity(
+                            Intent(getString(R.string.system_tts_settings_package_name))
+                                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                    }}) { }
+            }
 
             // about
             item { SettingItem(

@@ -1,6 +1,5 @@
 package com.sommerengineering.baraudio
 
-import android.speech.tts.Voice
 import android.text.format.DateUtils
 import android.util.Log
 import java.text.SimpleDateFormat

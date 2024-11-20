@@ -2,6 +2,7 @@ package com.sommerengineering.baraudio.settings
 
 import android.speech.tts.Voice
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -48,9 +49,8 @@ fun VoiceItem(
     voice: Voice,
     onItemSelected: (Voice) -> Unit) {
 
-    Surface(
-        modifier = Modifier.clickable { onItemSelected(voice) }
-    ) {
+    Column (
+        modifier = Modifier.clickable { onItemSelected(voice) }) {
         Row(
             modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically) {
