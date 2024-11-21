@@ -49,6 +49,12 @@ class MainViewModel(
         voiceDescription.value = beautifyVoiceName(voice.name)
     }
 
+    fun getVoiceIndex() =
+        voices.indexOf(
+            voices.find {
+                it == tts.voice.value })
+
+
     // speed
     fun getSpeed() =
         tts.speed.value
