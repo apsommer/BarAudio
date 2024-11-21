@@ -102,6 +102,7 @@ fun SettingsScreen(
                         viewModel = viewModel,
                         onItemSelected = {
                             viewModel.setVoice(context, it)
+                            viewModel.speakLastMessage()
                             isShowVoiceDialog = false
                         },
                         onDismiss = { isShowVoiceDialog = false }

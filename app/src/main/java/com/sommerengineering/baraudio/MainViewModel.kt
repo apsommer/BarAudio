@@ -8,12 +8,20 @@ import android.speech.tts.Voice
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.ChildEventListener
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import org.json.JSONObject
+import java.util.Objects
 import kotlin.math.roundToInt
 
 class MainViewModel(
-    private val tts: TextToSpeechImpl,
+    val tts: TextToSpeechImpl,
     private val repository: Repository
 ) : ViewModel() {
 
@@ -54,6 +62,35 @@ class MainViewModel(
             voices.find {
                 it == tts.voice.value })
 
+    fun speakLastMessage() {
+
+        // todo get from local cache
+        //  temporarily get from db
+
+        val uid = Firebase.auth.currentUser?.uid ?: unauthenticatedUser
+        val db = Firebase.database(databaseUrl)
+        val dbRef = db.getReference(messages).child(uid)
+
+        dbRef.limitToFirst(1).addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+
+                var lastMessage = defaultMessage
+
+                val children = snapshot.children
+                if (!children.none()) {
+
+                    // parse json
+                    val json = JSONObject(children.first().value.toString())
+                    val jsonMessage = json.getString(message)
+                    if (jsonMessage.isNotEmpty()) lastMessage = jsonMessage
+                }
+
+                tts.speak("", lastMessage)
+            }
+
+            override fun onCancelled(error: DatabaseError) { }
+        })
+    }
 
     // speed
     fun getSpeed() =

@@ -44,8 +44,7 @@ fun VoiceDialog(
                     VoiceItem(
                         viewModel = viewModel,
                         voice = it,
-                        onItemSelected = onItemSelected
-                    )
+                        onItemSelected = onItemSelected)
                 }
                 coroutineScope.launch {
                     listState.scrollToItem(

@@ -28,6 +28,7 @@ const val timestamp = "timestamp"
 const val message = "message"
 const val origin = "origin"
 const val insomnia = "insomnia"
+const val defaultMessage = "Thank you for using BarAudio!"
 
 fun beautifyTimestamp(timestamp: String): String {
 

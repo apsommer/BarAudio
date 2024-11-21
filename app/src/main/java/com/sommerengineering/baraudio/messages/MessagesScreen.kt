@@ -60,10 +60,10 @@ fun MessagesScreen(
     LaunchedEffect(databaseUrl) {
 
         // todo dev: launch to settings
-        coroutineScope.launch {
-            delay(100)
-            onSettingsClick.invoke()
-        }
+//        coroutineScope.launch {
+//            delay(100)
+//            onSettingsClick.invoke()
+//        }
 
         listenToDatabaseWrites(
             messages,
