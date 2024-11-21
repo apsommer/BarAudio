@@ -7,11 +7,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,7 +23,7 @@ fun LoginScreen (
     onAuthentication: () -> Unit,
     modifier: Modifier = Modifier) {
 
-    // initialize
+    // init
     val context = LocalContext.current
 
     Surface {
@@ -56,13 +53,13 @@ fun LoginScreen (
                     contentScale = ContentScale.FillWidth,
                     painter = painterResource(R.drawable.google_dark),
                     contentDescription = null)
-                Spacer(modifier = Modifier.height(12.dp))
-                Button(
-                    onClick = { },
-                    modifier = Modifier.fillMaxWidth()) {
-                    Text(
-                        text = "Sign in with Github ...")
-                }
+//                Spacer(modifier = Modifier.height(12.dp))
+//                Button(
+//                    onClick = { },
+//                    modifier = Modifier.fillMaxWidth()) {
+//                    Text(
+//                        text = "Sign in with Github ...")
+//                }
             }
         }
     }
