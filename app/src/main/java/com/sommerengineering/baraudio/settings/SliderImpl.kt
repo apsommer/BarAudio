@@ -14,7 +14,8 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun SliderImpl(
     initPosition: Float,
-    onValueChanged: (Float) -> Unit
+    onValueChanged: (Float) -> Unit,
+    onValueChangeFinished: () -> Unit
 ) {
 
     var position by remember { mutableFloatStateOf(initPosition) }
@@ -25,7 +26,11 @@ fun SliderImpl(
             value = position,
             onValueChange = {
                 position = it
-                onValueChanged(it) },
+                onValueChanged(it)
+            },
+            onValueChangeFinished = {
+                onValueChangeFinished()
+            },
             valueRange = 0.5f..2f,
             steps = 14)
     }

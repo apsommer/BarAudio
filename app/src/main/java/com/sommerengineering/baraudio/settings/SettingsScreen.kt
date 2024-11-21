@@ -117,7 +117,8 @@ fun SettingsScreen(
                 description = viewModel.speedDescription.value) {
                 SliderImpl(
                     initPosition = viewModel.getSpeed(),
-                    onValueChanged = { viewModel.setSpeed(context, it) })
+                    onValueChanged = { viewModel.setSpeed(context, it) },
+                    onValueChangeFinished = { viewModel.speakLastMessage() })
             }}
 
             // pitch
@@ -127,7 +128,8 @@ fun SettingsScreen(
                 description = viewModel.pitchDescription.value) {
                 SliderImpl(
                     initPosition = viewModel.getPitch(),
-                    onValueChanged = { viewModel.setPitch(context, it) })
+                    onValueChanged = { viewModel.setPitch(context, it) },
+                    onValueChangeFinished = { viewModel.speakLastMessage() })
             }}
 
             // queue behavior
