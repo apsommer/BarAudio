@@ -7,7 +7,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -17,6 +20,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.R
+import com.sommerengineering.baraudio.logMessage
 
 @Composable
 fun LoginScreen (
@@ -30,6 +34,7 @@ fun LoginScreen (
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = modifier.fillMaxSize()) {
+
             Row(
                 Modifier.padding(top = 120.dp, bottom = 60.dp)) {
                 Spacer(modifier = Modifier.weight(1f))
@@ -39,8 +44,11 @@ fun LoginScreen (
                     Modifier.weight(3f))
                 Spacer(modifier = Modifier.weight(1f))
             }
+
             Column(
-                Modifier.padding(60.dp)) {
+                Modifier.padding(60.dp),
+                horizontalAlignment = Alignment.CenterHorizontally) {
+
                 Image(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -51,15 +59,24 @@ fun LoginScreen (
                                 onAuthentication = onAuthentication)
                     },
                     contentScale = ContentScale.FillWidth,
-                    painter = painterResource(R.drawable.google_dark),
+                    painter = painterResource(R.drawable.google),
                     contentDescription = null)
-//                Spacer(modifier = Modifier.height(12.dp))
-//                Button(
-//                    onClick = { },
-//                    modifier = Modifier.fillMaxWidth()) {
-//                    Text(
-//                        text = "Sign in with Github ...")
-//                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Image(
+                    modifier = Modifier
+//                        .width(100.dp)
+                        .padding(24.dp)
+                        .clickable {
+
+                            // todo
+                            logMessage("Login with github ...")
+                        },
+                    alignment = Alignment.Center,
+//                    contentScale = ContentScale.FillWidth,
+                    painter = painterResource(R.drawable.github),
+                    contentDescription = null)
             }
         }
     }
