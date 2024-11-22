@@ -1,0 +1,22 @@
+// @version=5
+indicator( 
+     title = "futures_alert",
+     overlay = true)
+
+// capture and format params of interest
+num_ticker_char_to_remove = str.contains(syminfo.ticker, "!") ? 2 : 5
+ticker = str.substring(syminfo.ticker, 0, str.length(syminfo.ticker) - num_ticker_char_to_remove)
+price = str.tostring(math.round(close))
+day_open = request.security(syminfo.tickerid, "D", open)
+raw_percent_from_day_open = str.tostring(math.round(((close - day_open) / day_open) * 100, 1)) + "%"
+percent_from_day_open = str.replace(str.replace(str.replace(raw_percent_from_day_open, ' ', ''), "0.", "."), ".0", "0")
+
+// build alert message string
+message = 
+     ticker + ', ' + 
+     // price + ', ' + 
+     percent_from_day_open
+
+// alert on bar close
+if close > 0
+    alert(message, alert.freq_once_per_bar)
