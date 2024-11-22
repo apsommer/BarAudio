@@ -21,6 +21,7 @@ const val termsUrl = "https://baraud.io/terms/"
 const val users = "users"
 const val messages = "messages"
 const val unauthenticatedUser = "unauthenticatedUser"
+const val gitHubProviderId = "github.com"
 
 // notifications
 const val isLaunchFromNotification = "isLaunchFromNotification"

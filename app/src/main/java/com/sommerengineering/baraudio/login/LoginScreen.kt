@@ -1,6 +1,5 @@
 package com.sommerengineering.baraudio.login
 
-import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -18,14 +17,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.google.firebase.auth.AuthResult
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.OAuthCredential
-import com.google.firebase.auth.OAuthProvider
-import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.logException
-import com.sommerengineering.baraudio.logMessage
 
 @Composable
 fun LoginScreen (
@@ -78,55 +70,4 @@ fun LoginScreen (
             }
         }
     }
-}
-
-fun signInWithGitHub (
-    context: Context,
-    onAuthentication: () -> Unit) {
-
-    // init
-    val firebaseAuth = FirebaseAuth.getInstance()
-    val provider = OAuthProvider.newBuilder("github.com")
-
-    // todo optional account suggestion with hint
-    // provider.addCustomParameters(mapOf("login" to "your-email@gmail.com"))
-
-    // todo additional scopes must be preconfigured in app's api permissions, don't need it?
-    // provider.scopes = listOf("user:email")
-
-    // Signing in via this method puts your Activity in the background, which means that it can be
-    // reclaimed by the system during the sign in flow. In order to make sure that you don't make
-    // the user try again if this happens, you should check if a result is already present.
-    val pendingTaskResult = firebaseAuth.pendingAuthResult
-    if (pendingTaskResult != null) {
-
-        // scenario above has occurred, finish sign-in flow
-        pendingTaskResult
-            .addOnSuccessListener { handleSuccess(it) }
-            .addOnFailureListener { logException(it) }
-
-    // start sign-in flow
-    } else {
-
-        firebaseAuth
-            .startActivityForSignInWithProvider(
-                context as MainActivity,
-                provider.build())
-            .addOnSuccessListener { handleSuccess(it) }
-            .addOnFailureListener { logException(it) }
-    }
-}
-
-fun handleSuccess(authResult: AuthResult) {
-
-    logMessage("Github sign-in success!")
-
-    val idpData = authResult.additionalUserInfo?.profile
-    logMessage(idpData.toString())
-
-    val oathToken = (authResult.credential as OAuthCredential).accessToken
-    logMessage(oathToken)
-
-    val oathSecret = (authResult.credential as OAuthCredential).secret
-    logMessage(oathSecret)
 }

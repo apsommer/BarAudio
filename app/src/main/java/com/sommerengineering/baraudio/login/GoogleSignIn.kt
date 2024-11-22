@@ -2,14 +2,15 @@ package com.sommerengineering.baraudio.login
 
 import android.content.Context
 import androidx.credentials.CredentialManager
-import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
-import androidx.credentials.GetCredentialResponse
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.sommerengineering.baraudio.BuildConfig
 import com.sommerengineering.baraudio.logException
-import com.sommerengineering.baraudio.logMessage
+import com.sommerengineering.baraudio.validateToken
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -41,44 +42,30 @@ fun signInWithGoogle (
         .build()
 
     // todo refactor to LaunchedEffect
-    coroutineScope.launch { try {
+    coroutineScope.launch {
 
-        val result = credentialManager.getCredential(
-            context,
-            request)
+        // request credential
+        val credential = credentialManager
+            .getCredential(context, request)
+            .credential
 
-        handleGoogleCredential(
-            context,
-            result,
-            onAuthentication)
+        if (credential.type != GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL)
+            return@launch
 
-        } catch (e: Exception) { logException(e) }
-    }
-}
+        // extract google id
+        val googleToken = GoogleIdTokenCredential
+            .createFrom(credential.data)
+            .idToken
 
-fun handleGoogleCredential(
-    activityContext: Context,
-    result: GetCredentialResponse,
-    onAuthentication: () -> Unit) {
-
-    // extract credential
-    val credential = result.credential
-
-    when (credential) {
-        is CustomCredential -> {
-            if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
-
-                // extract google id
-                val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
-                val googleToken = googleIdTokenCredential.idToken
-
-                signInWithFirebase(
-                    activityContext,
-                    googleToken,
-                    onAuthentication)
-
-            // do nothing
-            } else { logMessage("Unexpected type of google credential") }
-        } else -> { logMessage("Unexpected type of google credential") }
+        Firebase.auth
+            .signInWithCredential(
+                GoogleAuthProvider.getCredential(googleToken, null))
+            .addOnSuccessListener {
+                onAuthentication()
+                validateToken(context)
+            }
+            .addOnFailureListener {
+                logException(it)
+            }
     }
 }

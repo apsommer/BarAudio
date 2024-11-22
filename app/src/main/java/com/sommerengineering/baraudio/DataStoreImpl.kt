@@ -13,21 +13,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 const val localCache = "localCache"
-
-const val tokenBaseKey = "_token"
-const val voiceBaseKey = "_voice"
-const val speedBaseKey = "_speed"
-const val pitchBaseKey = "_pitch"
-const val isQueueFlushBaseKey = "_isQueueFlush"
-const val isDarkModeBaseKey = "_isDarkMode"
-
-private val uid = Firebase.auth.currentUser?.uid
-val tokenKey by lazy { uid + tokenBaseKey }
-val voiceKey by lazy { uid + voiceBaseKey }
-val speedKey by lazy { uid + speedBaseKey }
-val pitchKey by lazy { uid + pitchBaseKey }
-val isQueueAddKey by lazy { uid + isQueueFlushBaseKey }
-val isDarkModeKey by lazy { uid + isDarkModeBaseKey }
+val tokenKey by lazy { Firebase.auth.currentUser?.uid ?: unauthenticatedUser }
+const val voiceKey = "voice"
+const val speedKey = "speed"
+const val pitchKey = "pitch"
+const val isQueueAddKey = "isQueueFlush"
+const val isDarkModeKey = "isDarkMode"
 
 // todo extract to strings.xml
 const val queueBehaviorFlushDescription = "Play new alerts immediately"
@@ -56,6 +47,4 @@ fun writeToDataStore(
             it[stringPreferencesKey(key)] = value
         }
     }
-
-    if (key == tokenKey) logMessage("New token: $value")
 }
