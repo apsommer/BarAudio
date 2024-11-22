@@ -109,3 +109,7 @@ fun validateToken(
             logException(it)
         }
 }
+
+fun signOut() =
+    Firebase.auth.signOut()
+

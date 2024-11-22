@@ -5,19 +5,15 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
 import android.speech.tts.Voice
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import org.json.JSONObject
-import java.util.Objects
 import kotlin.math.roundToInt
 
 class MainViewModel(
@@ -149,12 +145,9 @@ class MainViewModel(
 
     val isDarkMode = mutableStateOf(true)
     fun initDarkMode(
-        context: Context,
-        isSystemInDarkTheme: Boolean) {
+        context: Context) {
 
-        isDarkMode.value =
-            if (Firebase.auth.currentUser == null) isSystemInDarkTheme
-            else readFromDataStore(context, isDarkModeKey).toBoolean()
+        isDarkMode.value = readFromDataStore(context, isDarkModeKey).toBoolean()
     }
 
     fun setIsDarkMode(
@@ -191,18 +184,20 @@ class MainViewModel(
         grouped.keys.forEach { languageCountry ->
             val voices = grouped[languageCountry]
             voices?.forEachIndexed { i, voice ->
-                map[voice.name] = formatVoiceName(voice.locale.displayName, i)
+                map[voice.name] = enumerateVoices(voice, i)
             }
         }
 
         map
     }
 
-    fun formatVoiceName(
-        displayName: String,
+    private fun enumerateVoices(
+        voice: Voice,
         number: Int): String {
 
+        val displayName = voice.locale.displayName
         var romanNumeral = "I"
+
         if (number == 1) romanNumeral = "II"
         if (number == 2) romanNumeral = "III"
         if (number == 3) romanNumeral = "IV"
@@ -225,4 +220,12 @@ class MainViewModel(
 
         return "$displayName \u2022 Voice $romanNumeral"
     }
+
+    fun getGoogleImageId() =
+        if (isDarkMode.value) R.drawable.google_dark
+        else R.drawable.google_light
+
+    fun getGitHubImageId() =
+        if (isDarkMode.value) R.drawable.github_light
+        else R.drawable.github_dark
 }

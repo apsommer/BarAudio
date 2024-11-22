@@ -21,6 +21,7 @@
 
         <activity
             android:name=".MainActivity"
+            android:configChanges="uiMode"
             android:exported="true"
             android:theme="@style/Theme.BarAudio.Splash" >
             <intent-filter>

@@ -17,15 +17,20 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.sommerengineering.baraudio.MainActivity
+import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun LoginScreen (
     onAuthentication: () -> Unit,
     modifier: Modifier = Modifier) {
 
-    // init
+    // inject viewmodel
     val context = LocalContext.current
+    val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
 
     Surface {
         Column(
@@ -53,7 +58,7 @@ fun LoginScreen (
                                 onAuthentication = onAuthentication)
                     },
                     contentScale = ContentScale.FillWidth,
-                    painter = painterResource(R.drawable.google),
+                    painter = painterResource(viewModel.getGoogleImageId()),
                     contentDescription = null)
                 Spacer(modifier = Modifier.height(12.dp))
                 Image(
@@ -65,7 +70,7 @@ fun LoginScreen (
                                 onAuthentication = onAuthentication)
                         },
                     alignment = Alignment.Center,
-                    painter = painterResource(R.drawable.github),
+                    painter = painterResource(viewModel.getGitHubImageId()),
                     contentDescription = null)
             }
         }

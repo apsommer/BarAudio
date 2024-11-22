@@ -36,9 +36,6 @@ fun Navigation(
             route = LoginScreenRoute) {
             LoginScreen(
                 onAuthentication = {
-                    viewModel.initDarkMode(
-                        context = context,
-                        isSystemInDarkTheme = isSystemInDarkTheme)
                     controller.navigate(MessagesScreenRoute) {
                         popUpTo(LoginScreenRoute) { inclusive = true }
                     }
@@ -54,8 +51,7 @@ fun Navigation(
             SettingsScreen(
                 onBackClicked = { controller.navigateUp() },
                 onSignOut = {
-                    Firebase.auth.signOut()
-                    viewModel.isDarkMode.value = isSystemInDarkTheme
+                    signOut()
                     controller.navigate(LoginScreenRoute) {
                         popUpTo(MessagesScreenRoute) { inclusive = true }
                     }
