@@ -2,10 +2,12 @@ package com.sommerengineering.baraudio
 
 import android.content.Context
 import android.speech.tts.TextToSpeech
+import android.speech.tts.TextToSpeech.Engine.KEY_PARAM_VOLUME
 import android.speech.tts.UtteranceProgressListener
 import android.speech.tts.Voice
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.bundle.Bundle
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class TextToSpeechImpl(
@@ -19,6 +21,7 @@ class TextToSpeechImpl(
     var speed = MutableStateFlow(1f)
     var pitch = MutableStateFlow(1f)
     var isQueueAdd = MutableStateFlow(false)
+    var params = Bundle()
 
     var isInitialized = false
     override fun onInit(status: Int) {
@@ -63,6 +66,12 @@ class TextToSpeechImpl(
 
         if (message.isBlank() || !isInitialized) return
 
+        //
+        if (textToSpeech.isSpeaking && params.getFloat(KEY_PARAM_VOLUME) == 0f) {
+            logMessage("Shutting now ...")
+            textToSpeech.stop()
+        }
+
         // config engine params
         textToSpeech.setVoice(voice.value)
         textToSpeech.setSpeechRate(speed.value)
@@ -72,9 +81,12 @@ class TextToSpeechImpl(
         textToSpeech.speak(
             message,
             isQueueAdd.value.compareTo(false),
-            null,
+            params,
             timestamp)
     }
+
+    fun isSpeaking() = textToSpeech.isSpeaking
+    fun stop() = textToSpeech.stop()
 
     fun getVoices(): Set<Voice> {
         return textToSpeech.voices

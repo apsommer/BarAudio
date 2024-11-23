@@ -4,6 +4,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
+import android.speech.tts.TextToSpeech.Engine.KEY_PARAM_VOLUME
 import android.speech.tts.Voice
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -167,10 +168,8 @@ class MainViewModel(
             else uiModeLightDescription
     }
 
-    fun beautifyVoiceName(name: String) =
-        voiceNameMap[name] ?: ""
-
-    val voiceNameMap by lazy {
+    fun beautifyVoiceName(
+        name: String): String {
 
         val map = HashMap<String, String>()
 
@@ -178,15 +177,16 @@ class MainViewModel(
         val grouped = voices
             .groupBy { it.locale.displayName }
 
-        // iterate through groups adding roman numerals to display name
+        // iterate through groups, add roman numerals to display name
         grouped.keys.forEach { languageCountry ->
+
             val voices = grouped[languageCountry]
             voices?.forEachIndexed { i, voice ->
                 map[voice.name] = enumerateVoices(voice, i)
             }
         }
 
-        map
+        return map[name] ?: ""
     }
 
     private fun enumerateVoices(
@@ -226,4 +226,17 @@ class MainViewModel(
     fun getGitHubImageId() =
         if (isDarkMode.value) R.drawable.github_light
         else R.drawable.github_dark
+
+    val isMute = mutableStateOf(false)
+    fun setIsMute() {
+        isMute.value = !isMute.value
+
+        if (isMute.value) {
+            tts.params.putFloat(KEY_PARAM_VOLUME, 0f)
+            if (tts.isSpeaking()) {
+                tts.stop()
+            }
+        }
+        else tts.params.putFloat(KEY_PARAM_VOLUME, 1f)
+    }
 }

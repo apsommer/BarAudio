@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -16,6 +17,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeFloatingActionButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,6 +27,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -35,6 +38,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.sommerengineering.baraudio.MainActivity
+import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.databaseUrl
 import com.sommerengineering.baraudio.dbRef
@@ -50,6 +54,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.json.JSONObject
+import org.koin.androidx.compose.koinViewModel
 import java.util.Objects
 
 @Composable
@@ -63,6 +68,10 @@ fun MessagesScreen(
     val messages = remember { mutableStateListOf<Message>() }
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
+
+    // inject viewmodel
+    val context = LocalContext.current
+    val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
 
     // listen to database writes
     LaunchedEffect(databaseUrl) {
@@ -79,21 +88,29 @@ fun MessagesScreen(
             coroutineScope)
     }
 
+    // toggle fab image
+    val fabImageId =
+        if (viewModel.isMute.value) R.drawable.volume_off
+        else R.drawable.volume_on
+    val fabTint =
+        if (viewModel.isMute.value) Color.Gray
+        else LocalContentColor.current
+
     Scaffold(
         topBar = {
             MessagesTopBar(
-                onSettingsClick,
-                messages)
+                onSettingsClick = onSettingsClick,
+                messages = messages)
         },
         floatingActionButton = {
             LargeFloatingActionButton (
                 shape = CircleShape,
-                onClick = { logMessage("Click on fab") }
-            ) {
+                onClick = { viewModel.setIsMute() }) {
                 Icon(
-                    painter = painterResource(R.drawable.webhook),
-                    contentDescription = null
-                )
+                    modifier = Modifier.size(42.dp),
+                    painter = painterResource(fabImageId),
+                    tint = fabTint,
+                    contentDescription = null)
             }
         }
     ) { scaffoldPadding ->
