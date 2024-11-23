@@ -40,10 +40,6 @@ def write_to_database(device_token: str, timestamp: str, message: str, origin: s
 
 def send_fcm(device_token: str, timestamp: str, message: str):
 
-    # get device token
-    # group_key = db.reference('users')
-    # device_token = group_key.get()[device_token] # todo must catch bad uid, users will for sure do this, send "are you sure that's the uid?" response
-
     # set priority to high
     config = messaging.AndroidConfig(
         priority = "high", # "normal" is default, "high" attempts to wake device in doze mode

@@ -84,29 +84,6 @@ class FirebaseService: FirebaseMessagingService() {
     }
 }
 
-fun validateToken() {
-
-    val user = Firebase.auth.currentUser ?: return
-
-    user.getIdToken(false)
-        .addOnSuccessListener {
-
-            logMessage("Sign-in success with user: ${user.uid}")
-
-            // compare cached token (correct) with user token (potentially invalid)
-            if (it.token == token) logMessage("Token already in cache, skipping database write")
-            logMessage("Cached token: $token")
-
-            // update user:token association in database
-            Firebase.database(databaseUrl)
-                .getReference(users)
-                .child(user.uid)
-                .setValue(token)
-
-            logMessage("New {user: token} written to database")
-        }
-}
-
 fun signOut() =
     Firebase.auth.signOut()
 
