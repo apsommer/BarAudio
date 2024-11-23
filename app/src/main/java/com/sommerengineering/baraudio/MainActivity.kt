@@ -106,29 +106,14 @@ fun App() {
     val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
 
     // track ui mode
-    viewModel.initDarkMode(context, isSystemInDarkTheme())
     val isDarkMode by remember { viewModel.isDarkMode }
 
-    // todo
-    val darkMode =
-        if (isDarkMode) DarkMode(true)
-        else DarkMode(false)
-
     KoinContext {
-
-        // todo
-        CompositionLocalProvider(LocalDarkMode provides darkMode) {
-
-            AppTheme(isDarkMode = LocalDarkMode.current.isDarkMode) {
-                Scaffold { padding ->
-                    Navigation(rememberNavController())
-                    Modifier.padding(padding)
-                }
+        AppTheme(isDarkMode) {
+            Scaffold { padding ->
+                Navigation(rememberNavController())
+                Modifier.padding(padding)
             }
         }
     }
 }
-
-// todo
-data class DarkMode(val isDarkMode: Boolean = true)
-val LocalDarkMode = compositionLocalOf { DarkMode() }

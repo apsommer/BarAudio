@@ -46,7 +46,7 @@ fun signInWithGoogle (
     // todo refactor to LaunchedEffect
     coroutine.launch {
 
-        // check internet connection
+        // todo observe to connection status app-wide
         if (!isInternetConnected(context)) return@launch
 
         // request credential
