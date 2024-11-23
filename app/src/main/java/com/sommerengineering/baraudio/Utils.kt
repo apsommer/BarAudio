@@ -1,6 +1,8 @@
 package com.sommerengineering.baraudio
 
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.text.format.DateUtils
 import android.util.Log
 import androidx.datastore.preferences.core.edit
@@ -84,23 +86,33 @@ fun trimTimestamp(timestamp: String) =
 
 fun readFromDataStore(
     context: Context,
-    key: String): String? {
-
-    return runBlocking {
-        context.dataStore.data.map {
-            it[stringPreferencesKey(key)]
-        }.first()
-    }
-}
+    key: String) =
+        runBlocking {
+            context.dataStore.data
+                .map { it[stringPreferencesKey(key)] }
+                .first()
+        }
 
 fun writeToDataStore(
     context: Context,
     key: String,
-    value: String) {
-
-    CoroutineScope(Dispatchers.IO).launch {
-        context.dataStore.edit {
-            it[stringPreferencesKey(key)] = value
+    value: String) =
+        CoroutineScope(Dispatchers.IO).launch {
+            context.dataStore.edit {
+                it[stringPreferencesKey(key)] = value
+            }
         }
-    }
+
+// todo observe to connection status app-wide
+//  https://medium.com/scalereal/observing-live-connectivity-status-in-jetpack-compose-way-f849ce8431c7
+fun isInternetConnected(
+    context: Context
+): Boolean {
+
+    val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    val capabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+
+    val isConnected = (capabilities != null && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET))
+    if (!isConnected) logMessage("Not connected to internet!")
+    return isConnected
 }

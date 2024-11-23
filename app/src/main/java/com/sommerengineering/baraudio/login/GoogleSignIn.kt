@@ -9,7 +9,9 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.sommerengineering.baraudio.BuildConfig
+import com.sommerengineering.baraudio.isInternetConnected
 import com.sommerengineering.baraudio.logException
+import com.sommerengineering.baraudio.logMessage
 import com.sommerengineering.baraudio.validateToken
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -34,7 +36,7 @@ fun signInWithGoogle (
 
     // create credential manager and coroutine
     val credentialManager = CredentialManager.create(context)
-    val coroutineScope = CoroutineScope(Dispatchers.Main)
+    val coroutine = CoroutineScope(Dispatchers.Main)
 
     // create request
     val request: GetCredentialRequest = GetCredentialRequest.Builder()
@@ -42,7 +44,10 @@ fun signInWithGoogle (
         .build()
 
     // todo refactor to LaunchedEffect
-    coroutineScope.launch {
+    coroutine.launch {
+
+        // check internet connection
+        if (!isInternetConnected(context)) return@launch
 
         // request credential
         val credential = credentialManager

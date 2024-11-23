@@ -145,9 +145,12 @@ class MainViewModel(
 
     val isDarkMode = mutableStateOf(true)
     fun initDarkMode(
-        context: Context) {
+        context: Context,
+        isSystemInDarkTheme: Boolean) {
 
-        isDarkMode.value = readFromDataStore(context, isDarkModeKey).toBoolean()
+        isDarkMode.value =
+            if (Firebase.auth.currentUser == null) isSystemInDarkTheme
+            else readFromDataStore(context, isDarkModeKey).toBoolean()
     }
 
     fun setIsDarkMode(

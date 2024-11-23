@@ -11,9 +11,12 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -103,15 +106,29 @@ fun App() {
     val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
 
     // track ui mode
-    viewModel.initDarkMode(context)
+    viewModel.initDarkMode(context, isSystemInDarkTheme())
     val isDarkMode by remember { viewModel.isDarkMode }
 
+    // todo
+    val darkMode =
+        if (isDarkMode) DarkMode(true)
+        else DarkMode(false)
+
     KoinContext {
-        AppTheme(isDarkMode) {
-            Scaffold { padding ->
-                Navigation(rememberNavController())
-                Modifier.padding(padding)
+
+        // todo
+        CompositionLocalProvider(LocalDarkMode provides darkMode) {
+
+            AppTheme(isDarkMode = LocalDarkMode.current.isDarkMode) {
+                Scaffold { padding ->
+                    Navigation(rememberNavController())
+                    Modifier.padding(padding)
+                }
             }
         }
     }
 }
+
+// todo
+data class DarkMode(val isDarkMode: Boolean = true)
+val LocalDarkMode = compositionLocalOf { DarkMode() }
