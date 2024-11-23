@@ -27,7 +27,7 @@ fun AppTheme(
 fun animateColor(target: Color) =
     animateColorAsState(
         targetValue = target,
-        animationSpec = tween(durationMillis = 1000)
+        animationSpec = tween(durationMillis = 500)
     ).value
 
 @Composable

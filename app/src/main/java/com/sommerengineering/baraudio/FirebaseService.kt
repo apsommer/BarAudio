@@ -26,7 +26,7 @@ class FirebaseService: FirebaseMessagingService() {
             tokenKey,
             token)
 
-        logMessage("New token generated: $token")
+        logMessage("New app token: $token")
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
@@ -92,21 +92,19 @@ fun validateToken(
 
             logMessage("Sign-in success with user: ${user.uid}")
 
-            // compare correct cached token with user token (potentially invalid)
-            val cachedToken = readFromDataStore(context, tokenKey) ?: return@addOnSuccessListener
-
-            // update database user:token association in database, if needed
+            // compare cached token (correct) with user token (potentially invalid)
+            val cachedToken = readFromDataStore(context, tokenKey)
             if (it.token == cachedToken) logMessage("Token already in cache, skipping database write")
 
+            logMessage("Cached token: $cachedToken")
+
+            // update user:token association in database
             Firebase.database(databaseUrl)
                 .getReference(users)
                 .child(user.uid)
                 .setValue(cachedToken)
 
-            logMessage("New pair {user: token} written to database")
-        }
-        .addOnFailureListener {
-            logException(it)
+            logMessage("New {user: token} written to database")
         }
 }
 

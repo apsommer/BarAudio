@@ -46,7 +46,7 @@ const val defaultMessage = "Thank you for using BarAudio!"
 
 // datastore
 const val localCache = "localCache"
-val tokenKey by lazy { Firebase.auth.currentUser?.uid ?: unauthenticatedUser }
+const val tokenKey = "token"
 const val voiceKey = "voice"
 const val speedKey = "speed"
 const val pitchKey = "pitch"
