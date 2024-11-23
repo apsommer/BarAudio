@@ -66,12 +66,6 @@ class TextToSpeechImpl(
 
         if (message.isBlank() || !isInitialized) return
 
-        //
-        if (textToSpeech.isSpeaking && params.getFloat(KEY_PARAM_VOLUME) == 0f) {
-            logMessage("Shutting now ...")
-            textToSpeech.stop()
-        }
-
         // config engine params
         textToSpeech.setVoice(voice.value)
         textToSpeech.setSpeechRate(speed.value)

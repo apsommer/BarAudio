@@ -233,9 +233,7 @@ class MainViewModel(
 
         if (isMute.value) {
             tts.params.putFloat(KEY_PARAM_VOLUME, 0f)
-            if (tts.isSpeaking()) {
-                tts.stop()
-            }
+            if (tts.isSpeaking()) { tts.stop() }
         }
         else tts.params.putFloat(KEY_PARAM_VOLUME, 1f)
     }
