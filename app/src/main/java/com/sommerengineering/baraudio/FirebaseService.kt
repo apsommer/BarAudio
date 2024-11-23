@@ -2,7 +2,6 @@ package com.sommerengineering.baraudio
 
 import android.Manifest
 import android.app.PendingIntent
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
@@ -82,6 +81,13 @@ class FirebaseService: FirebaseMessagingService() {
             trimTimestamp(timestamp),
             builder.build())
     }
+}
+
+val dbRef by lazy {
+    Firebase
+        .database(databaseUrl)
+        .getReference(messages)
+        .child(token)
 }
 
 fun signOut() =

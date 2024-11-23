@@ -32,8 +32,6 @@ fun LoginScreen (
     val context = LocalContext.current
     val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
 
-    viewModel.initDarkMode(context, isSystemInDarkTheme())
-
     Surface {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,

@@ -11,7 +11,6 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import org.json.JSONObject
 import kotlin.math.roundToInt
@@ -62,10 +61,6 @@ class MainViewModel(
 
         // todo get from local cache
         //  temporarily get from db
-
-        val uid = Firebase.auth.currentUser?.uid ?: unauthenticatedUser
-        val db = Firebase.database(databaseUrl)
-        val dbRef = db.getReference(messages).child(uid)
 
         dbRef.limitToFirst(1).addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -144,7 +139,7 @@ class MainViewModel(
     }
 
     val isDarkMode = mutableStateOf(true)
-    fun initDarkMode(
+    fun setUiMode(
         context: Context,
         isSystemInDarkTheme: Boolean) {
 

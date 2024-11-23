@@ -34,6 +34,7 @@ import com.google.firebase.ktx.Firebase
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.databaseUrl
+import com.sommerengineering.baraudio.dbRef
 import com.sommerengineering.baraudio.logMessage
 import com.sommerengineering.baraudio.message
 import com.sommerengineering.baraudio.messages
@@ -140,11 +141,6 @@ fun MessagesTopBar(
                     contentDescription = null)
             }
         })
-}
-
-val dbRef by lazy {
-    val db = Firebase.database(databaseUrl)
-    db.getReference(messages).child(token)
 }
 
 fun listenToDatabaseWrites(
