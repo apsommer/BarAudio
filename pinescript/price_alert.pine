@@ -1,0 +1,12 @@
+// @version=5
+indicator(
+     title = "price_alert", 
+     overlay = true)
+
+message =
+     syminfo.description + 
+     ', price: ' + str.tostring(close) + 
+     ', volume: ' + str.tostring(volume)
+
+if close > 0
+    alert(message)

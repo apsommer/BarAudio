@@ -1,22 +1,24 @@
 package com.sommerengineering.baraudio.messages
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,6 +34,14 @@ import com.google.firebase.ktx.Firebase
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.databaseUrl
+import com.sommerengineering.baraudio.message
+import com.sommerengineering.baraudio.messages
+import com.sommerengineering.baraudio.origin
+import com.sommerengineering.baraudio.unauthenticatedUser
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import org.json.JSONObject
 import java.util.Objects
 
 @Composable
@@ -41,24 +51,32 @@ fun MessagesScreen(
     // request notification permission, does nothing if already granted
     (LocalContext.current as MainActivity).requestRealtimeNotificationPermission()
 
-    // initialize message list
+    // init
     val messages = remember { mutableStateListOf<Message>() }
+    val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
 
     // listen to database writes
-    LaunchedEffect(databaseUrl) { listenToDatabaseWrites(messages) }
+    LaunchedEffect(databaseUrl) {
 
-    // todo temp
-//    Handler(Looper.getMainLooper()).postDelayed( {
-//        onSettingsClick.invoke()
-//    }, 100)
+        // todo dev: launch to settings
+//        coroutineScope.launch {
+//            delay(100)
+//            onSettingsClick.invoke()
+//        }
+
+        listenToDatabaseWrites(
+            messages,
+            listState,
+            coroutineScope)
+    }
 
     Scaffold(
         topBar = {
             MessagesTopBar(
                 onSettingsClick,
                 messages)
-        }
-    ) { scaffoldPadding ->
+        }) { scaffoldPadding ->
 
         Box(Modifier
             .fillMaxSize()
@@ -73,10 +91,12 @@ fun MessagesScreen(
             }
 
             // messages list
-            LazyColumn {
-                items(messages) { message ->
-                    MessageItem(message)
-                    HorizontalDivider()
+            LazyColumn(
+                state = listState) {
+                items(
+                    messages,
+                    key = { it.timestamp }) {
+                    MessageItem(it, Modifier.animateItem())
                 }
             }
         }
@@ -86,37 +106,48 @@ fun MessagesScreen(
 // todo do this without experimental optin
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MessagesTopBar(onSettingsClick: () -> Unit, messages: SnapshotStateList<Message>) {
+fun MessagesTopBar(
+    onSettingsClick: () -> Unit,
+    messages: SnapshotStateList<Message>) {
+
     return CenterAlignedTopAppBar(
+        modifier = Modifier.padding(start = 8.dp),
+        navigationIcon = {
+            IconButton(
+                onClick = { deleteDatabaseMessages(messages) },
+                enabled = !messages.isEmpty()) {
+                Icon(
+                    painter = painterResource(R.drawable.sweep),
+                    contentDescription = null)
+            }
+        },
         title = {
             Image(
                 modifier = Modifier
-                    .padding(8.dp)
-                    .clickable { onSettingsClick() },
+                    .padding(8.dp),
                 painter = painterResource(R.drawable.logo_banner),
                 contentDescription = null)
         },
         actions = {
             IconButton(
-                onClick = { deleteDatabaseMessages(messages) }) {
-                Image(
-                    modifier = Modifier.padding(8.dp),
-                    painter = painterResource(R.drawable.delete),
+                onClick = { onSettingsClick() }) {
+                Icon(
+                    painter = painterResource(R.drawable.more_vertical),
                     contentDescription = null)
             }
-        }
-    )
+        })
 }
 
 val dbRef by lazy {
-
-    val uid = Firebase.auth.currentUser?.uid ?: "unauthenticated_user"
+    val uid = Firebase.auth.currentUser?.uid ?: unauthenticatedUser
     val db = Firebase.database(databaseUrl)
-    db.getReference("messages").child(uid)
+    db.getReference(messages).child(uid)
 }
 
 fun listenToDatabaseWrites(
-    messages: SnapshotStateList<Message>) {
+    messages: SnapshotStateList<Message>,
+    listState: LazyListState,
+    coroutineScope: CoroutineScope) {
 
     // triggers once for every child on initial connection
     dbRef.addChildEventListener(object : ChildEventListener {
@@ -127,12 +158,18 @@ fun listenToDatabaseWrites(
 
             // extract attributes
             val timestamp = snapshot.key
-            val message = Objects.toString(snapshot.value, "")
+            val messageJson = Objects.toString(snapshot.value, "")
 
-            if (timestamp.isNullOrEmpty() || message.isEmpty()) return
+            if (timestamp.isNullOrEmpty() || messageJson.isEmpty()) return
+
+            // parse json
+            val json = JSONObject(messageJson)
+            val message = json.getString(message)
+            val imageId = getOriginImageId(json.getString(origin))
 
             // todo observe a State<LinkedList> to reverse order efficiently
-            messages.add(0, Message(timestamp, message))
+            messages.add(0, Message(timestamp, message, imageId))
+            coroutineScope.launch { listState.scrollToItem(0) }
 
             // limit size
             if (messages.size > 100) {

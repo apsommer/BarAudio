@@ -1,6 +1,8 @@
 package com.sommerengineering.baraudio
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -9,60 +11,58 @@ import com.google.firebase.ktx.Firebase
 import com.sommerengineering.baraudio.login.LoginScreen
 import com.sommerengineering.baraudio.messages.MessagesScreen
 import com.sommerengineering.baraudio.settings.SettingsScreen
+import org.koin.androidx.compose.koinViewModel
 
 // routes
 const val LoginScreenRoute = "LoginScreen"
-const val AlertScreenRoute = "AlertScreen"
+const val MessagesScreenRoute = "AlertScreen"
 const val SettingsScreenRoute = "SettingsScreen"
 
 @Composable
 fun Navigation(
-    controller: NavHostController
-) {
+    controller: NavHostController) {
+
+    // inject viewmodel
+    val context = LocalContext.current
+    val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
+
+    // capture system theme
+    val isSystemInDarkTheme = isSystemInDarkTheme()
 
     NavHost(
         navController = controller,
-        startDestination = getStartDestination()
-    ) {
+        startDestination = getStartDestination()) {
         composable(
             route = LoginScreenRoute) {
             LoginScreen(
                 onAuthentication = {
-                    controller.navigate(AlertScreenRoute) {
+                    controller.navigate(MessagesScreenRoute) {
                         popUpTo(LoginScreenRoute) { inclusive = true }
                     }
-                }
-            )
+                })
         }
         composable(
-            route = AlertScreenRoute) {
+            route = MessagesScreenRoute) {
             MessagesScreen(
-                onSettingsClick = { controller.navigate(SettingsScreenRoute) }
-            )
+                onSettingsClick = { controller.navigate(SettingsScreenRoute) })
         }
         composable(
             route = SettingsScreenRoute) {
             SettingsScreen(
                 onBackClicked = { controller.navigateUp() },
                 onSignOut = {
-                    Firebase.auth.signOut()
+                    signOut()
                     controller.navigate(LoginScreenRoute) {
-                        popUpTo(AlertScreenRoute) { inclusive = true }
+                        popUpTo(MessagesScreenRoute) { inclusive = true }
                     }
-                }
-            )
+                })
         }
     }
 }
 
-fun getStartDestination(): String {
+// skip login screen if user already authenticated
+fun getStartDestination() =
+    if (Firebase.auth.currentUser != null) { MessagesScreenRoute }
+    else LoginScreenRoute
 
-    var startDestination = LoginScreenRoute
 
-    // skip login screen if user already signed-in
-    if (Firebase.auth.currentUser != null) {
-        startDestination = AlertScreenRoute
-        logMessage("Firebase authenticated, user already signed-in") }
-
-    return startDestination
-}

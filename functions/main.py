@@ -1,9 +1,12 @@
 from firebase_admin import initialize_app, credentials, db, messaging
-from firebase_functions import https_fn
+from firebase_functions import https_fn, logger
 import time
 
 # initialize admin sdk
-app = initialize_app(credential = credentials.Certificate('admin.json'))
+app = initialize_app(
+    credential = credentials.Certificate('admin.json'),
+    options = { 'databaseURL': 'https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/' }
+)
 
 @https_fn.on_request()
 def baraudio(req: https_fn.Request) -> https_fn.Response:
@@ -14,17 +17,26 @@ def baraudio(req: https_fn.Request) -> https_fn.Response:
 
     # process webhook when request is properly formed
     if req.method == 'POST' and uid is not None and len(message) > 0:
+
+        # extract origin of webhook: tradingview, trendspider, ...
+        agent = req.user_agent.string
+        origin = str(req.headers.get('X-Forwarded-For'))
+
+        # todo dev
+        if "insomnia" in agent:
+            origin = "insomnia"
+
         timestamp = str(round(time.time() * 1000))
-        write_to_database(uid, timestamp, message)
+        write_to_database(uid, timestamp, message, origin)
         send_fcm(uid, timestamp, message)
 
     # respond with simple message
     return https_fn.Response('Thank you for using BarAudio! :)')
 
-def write_to_database(uid: str, timestamp: str, message: str):
+def write_to_database(uid: str, timestamp: str, message: str, origin: str):
 
     group_key = db.reference('messages')
-    group_key.child(uid).child(timestamp).set(message)
+    group_key.child(uid).child(timestamp).set('{ "message": "' + message + '", "origin": "' + origin + '" }')
 
 def send_fcm(uid: str, timestamp: str, message: str):
 
@@ -46,5 +58,5 @@ def send_fcm(uid: str, timestamp: str, message: str):
         android = config,
         token = device_token)
 
-    # send notification
+    # send notification to device
     messaging.send(remote_message)

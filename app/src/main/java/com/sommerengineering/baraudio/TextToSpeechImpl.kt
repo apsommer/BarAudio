@@ -4,6 +4,7 @@ import android.content.Context
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.speech.tts.Voice
+import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.NotificationManagerCompat
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -13,20 +14,25 @@ class TextToSpeechImpl(
 
     private val textToSpeech = TextToSpeech(context, this)
 
-    var isQueueAdd = MutableStateFlow(false)
+    val voice by lazy { mutableStateOf(textToSpeech.voice) }
+    // todo refactor to mutableStateOf ... no need for Flow and .collectAsState()
     var speed = MutableStateFlow(1f)
     var pitch = MutableStateFlow(1f)
+    var isQueueAdd = MutableStateFlow(false)
 
     var isInitialized = false
     override fun onInit(status: Int) {
 
         if (status != TextToSpeech.SUCCESS) { return }
-
         isInitialized = true
 
-        isQueueAdd.value = readFromDataStore(context, isQueueAddKey).toBoolean()
+        readFromDataStore(context, voiceKey)?.let { voiceName ->
+            voice.value = textToSpeech.voices
+                .first { it.name == voiceName }
+        }
         speed.value = readFromDataStore(context, speedKey)?.toFloat() ?: 1f
         pitch.value = readFromDataStore(context, pitchKey)?.toFloat() ?: 1f
+        isQueueAdd.value = readFromDataStore(context, isQueueAddKey).toBoolean()
 
         // attach progress listener to clear notification when done speaking
         textToSpeech.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
@@ -58,12 +64,7 @@ class TextToSpeechImpl(
         if (message.isBlank() || !isInitialized) return
 
         // config engine params
-        // todo use high quality english voice for testing
-        textToSpeech.voice = textToSpeech.voices
-            .filter { it.quality >= 400 }
-            .filter { it.locale.toString().contains("en") }
-            .get(0)
-
+        textToSpeech.setVoice(voice.value)
         textToSpeech.setSpeechRate(speed.value)
         textToSpeech.setPitch(pitch.value)
 
