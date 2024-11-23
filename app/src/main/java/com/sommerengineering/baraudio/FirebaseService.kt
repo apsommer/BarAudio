@@ -2,7 +2,6 @@ package com.sommerengineering.baraudio
 
 import android.Manifest
 import android.app.PendingIntent
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
@@ -19,14 +18,16 @@ class FirebaseService: FirebaseMessagingService() {
 
     private val tts: TextToSpeechImpl = get()
 
-    override fun onNewToken(token: String) {
+    override fun onNewToken(newToken: String) {
+
+        token = newToken
 
         writeToDataStore(
             applicationContext,
             tokenKey,
-            token)
+            newToken)
 
-        logMessage("New token generated: $token")
+        logMessage("New token: $token")
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
@@ -82,32 +83,11 @@ class FirebaseService: FirebaseMessagingService() {
     }
 }
 
-fun validateToken(
-    context: Context) {
-
-    val user = Firebase.auth.currentUser ?: return
-
-    user.getIdToken(false)
-        .addOnSuccessListener {
-
-            logMessage("Sign-in success with user: ${user.uid}")
-
-            // compare correct cached token with user token (potentially invalid)
-            val cachedToken = readFromDataStore(context, tokenKey) ?: return@addOnSuccessListener
-
-            // update database user:token association in database, if needed
-            if (it.token == cachedToken) logMessage("Token already in cache, skipping database write")
-
-            Firebase.database(databaseUrl)
-                .getReference(users)
-                .child(user.uid)
-                .setValue(cachedToken)
-
-            logMessage("New pair {user: token} written to database")
-        }
-        .addOnFailureListener {
-            logException(it)
-        }
+val dbRef by lazy {
+    Firebase
+        .database(databaseUrl)
+        .getReference(messages)
+        .child(token)
 }
 
 fun signOut() =

@@ -25,8 +25,6 @@ fun Navigation(
     // inject viewmodel
     val context = LocalContext.current
     val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
-
-    // capture system theme
     val isSystemInDarkTheme = isSystemInDarkTheme()
 
     NavHost(
@@ -36,6 +34,7 @@ fun Navigation(
             route = LoginScreenRoute) {
             LoginScreen(
                 onAuthentication = {
+                    viewModel.setUiMode(context, isSystemInDarkTheme)
                     controller.navigate(MessagesScreenRoute) {
                         popUpTo(LoginScreenRoute) { inclusive = true }
                     }
@@ -52,6 +51,7 @@ fun Navigation(
                 onBackClicked = { controller.navigateUp() },
                 onSignOut = {
                     signOut()
+                    viewModel.setUiMode(context, isSystemInDarkTheme)
                     controller.navigate(LoginScreenRoute) {
                         popUpTo(MessagesScreenRoute) { inclusive = true }
                     }

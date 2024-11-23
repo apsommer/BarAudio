@@ -26,7 +26,7 @@ fun logMessage(msg: String?) = Log.v(TAG, "$msg")
 
 // firebase
 const val databaseUrl = "https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/"
-const val webhookBaseUrl = "https://baraudio-555667494303.us-central1.run.app/?uid="
+const val webhookBaseUrl = "https://baraudio-555667494303.us-central1.run.app/?id="
 const val howToUseUrl = "https://baraud.io/" // todo
 const val aboutUrl = "https://baraud.io/"
 const val privacyUrl = "https://baraud.io/privacy/"
@@ -46,7 +46,7 @@ const val defaultMessage = "Thank you for using BarAudio!"
 
 // datastore
 const val localCache = "localCache"
-val tokenKey by lazy { Firebase.auth.currentUser?.uid ?: unauthenticatedUser }
+const val tokenKey = "token"
 const val voiceKey = "voice"
 const val speedKey = "speed"
 const val pitchKey = "pitch"

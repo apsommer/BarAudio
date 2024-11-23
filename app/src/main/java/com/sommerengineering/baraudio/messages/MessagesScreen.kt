@@ -34,9 +34,14 @@ import com.google.firebase.ktx.Firebase
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.databaseUrl
+import com.sommerengineering.baraudio.dbRef
+import com.sommerengineering.baraudio.logMessage
 import com.sommerengineering.baraudio.message
 import com.sommerengineering.baraudio.messages
 import com.sommerengineering.baraudio.origin
+import com.sommerengineering.baraudio.readFromDataStore
+import com.sommerengineering.baraudio.token
+import com.sommerengineering.baraudio.tokenKey
 import com.sommerengineering.baraudio.unauthenticatedUser
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -136,12 +141,6 @@ fun MessagesTopBar(
                     contentDescription = null)
             }
         })
-}
-
-val dbRef by lazy {
-    val uid = Firebase.auth.currentUser?.uid ?: unauthenticatedUser
-    val db = Firebase.database(databaseUrl)
-    db.getReference(messages).child(uid)
 }
 
 fun listenToDatabaseWrites(
