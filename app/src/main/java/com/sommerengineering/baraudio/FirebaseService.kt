@@ -19,14 +19,16 @@ class FirebaseService: FirebaseMessagingService() {
 
     private val tts: TextToSpeechImpl = get()
 
-    override fun onNewToken(token: String) {
+    override fun onNewToken(newToken: String) {
+
+        token = newToken
 
         writeToDataStore(
             applicationContext,
             tokenKey,
-            token)
+            newToken)
 
-        logMessage("New app token: $token")
+        logMessage("New token: $token")
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
@@ -82,8 +84,7 @@ class FirebaseService: FirebaseMessagingService() {
     }
 }
 
-fun validateToken(
-    context: Context) {
+fun validateToken() {
 
     val user = Firebase.auth.currentUser ?: return
 
@@ -93,16 +94,14 @@ fun validateToken(
             logMessage("Sign-in success with user: ${user.uid}")
 
             // compare cached token (correct) with user token (potentially invalid)
-            val cachedToken = readFromDataStore(context, tokenKey)
-            if (it.token == cachedToken) logMessage("Token already in cache, skipping database write")
-
-            logMessage("Cached token: $cachedToken")
+            if (it.token == token) logMessage("Token already in cache, skipping database write")
+            logMessage("Cached token: $token")
 
             // update user:token association in database
             Firebase.database(databaseUrl)
                 .getReference(users)
                 .child(user.uid)
-                .setValue(cachedToken)
+                .setValue(token)
 
             logMessage("New {user: token} written to database")
         }

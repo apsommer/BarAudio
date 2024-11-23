@@ -11,12 +11,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -31,6 +28,8 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.KoinContext
 
 var isAppOpen = false
+var token = ""
+
 class MainActivity : ComponentActivity() {
 
     // initialize system permission request ui
@@ -83,11 +82,10 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         super.onCreate(savedInstanceState)
 
-        // initialize text-to-speech engine
+        // init
         get<TextToSpeechImpl>()
-
-        // true for background and foreground, false if closed
-        isAppOpen = true
+        isAppOpen = true // true for background and foreground, false if closed
+        token = readFromDataStore(this, tokenKey) ?: unauthenticatedUser
 
         // dismiss notifications after launch
         val isLaunchFromNotification = intent.extras?.getBoolean(isLaunchFromNotification) ?: false

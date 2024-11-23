@@ -12,11 +12,11 @@ app = initialize_app(
 def baraudio(req: https_fn.Request) -> https_fn.Response:
 
     # extract attributes from request
-    uid = req.args.get(key='uid', type=str) # uid as query param
+    device_token = req.args.get(key='id', type=str) # uid as query param
     message = req.get_data(as_text = True) # message as plain/text from body
 
     # process webhook when request is properly formed
-    if req.method == 'POST' and uid is not None and len(message) > 0:
+    if req.method == 'POST' and device_token is not None and len(message) > 0:
 
         # extract origin of webhook: tradingview, trendspider, ...
         agent = req.user_agent.string
@@ -27,24 +27,24 @@ def baraudio(req: https_fn.Request) -> https_fn.Response:
             origin = "insomnia"
 
         timestamp = str(round(time.time() * 1000))
-        write_to_database(uid, timestamp, message, origin)
-        send_fcm(uid, timestamp, message)
+        write_to_database(device_token, timestamp, message, origin)
+        send_fcm(device_token, timestamp, message)
 
     # respond with simple message
     return https_fn.Response('Thank you for using BarAudio! :)')
 
-def write_to_database(uid: str, timestamp: str, message: str, origin: str):
+def write_to_database(device_token: str, timestamp: str, message: str, origin: str):
 
     group_key = db.reference('messages')
-    group_key.child(uid).child(timestamp).set('{ "message": "' + message + '", "origin": "' + origin + '" }')
+    group_key.child(device_token).child(timestamp).set('{ "message": "' + message + '", "origin": "' + origin + '" }')
 
-def send_fcm(uid: str, timestamp: str, message: str):
+def send_fcm(device_token: str, timestamp: str, message: str):
 
     # get device token
-    group_key = db.reference('users')
-    device_token = group_key.get()[uid] # todo must catch bad uid, users will for sure do this, send "are you sure that's the uid?" response
+    # group_key = db.reference('users')
+    # device_token = group_key.get()[device_token] # todo must catch bad uid, users will for sure do this, send "are you sure that's the uid?" response
 
-    # set priority to high todo are these configs needed, default may be sufficient?
+    # set priority to high
     config = messaging.AndroidConfig(
         priority = "high", # "normal" is default, "high" attempts to wake device in doze mode
         ttl = 0 # ttl is "time to live", 0 means "now or never" and fcm discards if can't be delivered immediately

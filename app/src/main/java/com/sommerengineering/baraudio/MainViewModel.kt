@@ -28,7 +28,7 @@ class MainViewModel(
     val uiModeDescription by lazy { mutableStateOf(getUiModeDescription()) }
 
     // webhook
-    val webhookUrl by lazy { webhookBaseUrl + Firebase.auth.currentUser?.uid }
+    val webhookUrl by lazy { webhookBaseUrl + token }
     fun saveToClipboard(context: Context) {
 
         // save url to clipboard

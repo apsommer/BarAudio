@@ -10,9 +10,6 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.sommerengineering.baraudio.BuildConfig
 import com.sommerengineering.baraudio.isInternetConnected
-import com.sommerengineering.baraudio.logException
-import com.sommerengineering.baraudio.logMessage
-import com.sommerengineering.baraudio.validateToken
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -65,12 +62,6 @@ fun signInWithGoogle (
         Firebase.auth
             .signInWithCredential(
                 GoogleAuthProvider.getCredential(googleToken, null))
-            .addOnSuccessListener {
-                onAuthentication()
-                validateToken(context)
-            }
-            .addOnFailureListener {
-                logException(it)
-            }
+            .addOnSuccessListener { onAuthentication() }
     }
 }

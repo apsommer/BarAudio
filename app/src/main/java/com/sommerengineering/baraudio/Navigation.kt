@@ -1,8 +1,6 @@
 package com.sommerengineering.baraudio
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -11,7 +9,6 @@ import com.google.firebase.ktx.Firebase
 import com.sommerengineering.baraudio.login.LoginScreen
 import com.sommerengineering.baraudio.messages.MessagesScreen
 import com.sommerengineering.baraudio.settings.SettingsScreen
-import org.koin.androidx.compose.koinViewModel
 
 // routes
 const val LoginScreenRoute = "LoginScreen"
@@ -22,13 +19,6 @@ const val SettingsScreenRoute = "SettingsScreen"
 fun Navigation(
     controller: NavHostController) {
 
-    // inject viewmodel
-    val context = LocalContext.current
-    val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
-
-    // capture system theme
-    val isSystemInDarkTheme = isSystemInDarkTheme()
-
     NavHost(
         navController = controller,
         startDestination = getStartDestination()) {
@@ -36,6 +26,7 @@ fun Navigation(
             route = LoginScreenRoute) {
             LoginScreen(
                 onAuthentication = {
+                    validateToken()
                     controller.navigate(MessagesScreenRoute) {
                         popUpTo(LoginScreenRoute) { inclusive = true }
                     }

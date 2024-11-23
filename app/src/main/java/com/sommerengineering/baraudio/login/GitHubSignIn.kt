@@ -6,8 +6,6 @@ import com.google.firebase.auth.OAuthProvider
 import com.google.firebase.auth.auth
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.gitHubProviderId
-import com.sommerengineering.baraudio.logException
-import com.sommerengineering.baraudio.validateToken
 
 fun signInWithGitHub (
     context: Context,
@@ -18,11 +16,5 @@ fun signInWithGitHub (
         .startActivityForSignInWithProvider(
             context as MainActivity,
             OAuthProvider.newBuilder(gitHubProviderId).build())
-        .addOnSuccessListener {
-            onAuthentication()
-            validateToken(context)
-        }
-        .addOnFailureListener {
-            logException(it)
-        }
+        .addOnSuccessListener { onAuthentication() }
 }
