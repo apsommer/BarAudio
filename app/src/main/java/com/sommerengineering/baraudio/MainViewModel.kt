@@ -238,7 +238,7 @@ class MainViewModel(
             if (tts.isSpeaking()) { tts.stop() }
             return
         }
-        
+
         tts.params = tts.unmute
     }
 }

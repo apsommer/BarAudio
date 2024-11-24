@@ -18,6 +18,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
@@ -39,6 +42,7 @@ import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.databaseUrl
 import com.sommerengineering.baraudio.dbRef
 import com.sommerengineering.baraudio.message
+import com.sommerengineering.baraudio.messageMaxSize
 import com.sommerengineering.baraudio.origin
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -104,13 +108,14 @@ fun MessagesScreen(
         }
     ) { scaffoldPadding ->
 
-        Box(Modifier
-            .fillMaxSize()
-            .padding(scaffoldPadding)) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(scaffoldPadding)) {
 
             // background image
             Column(
-                Modifier.align(Alignment.BottomCenter)) {
+                modifier = Modifier.align(Alignment.BottomCenter)) {
                 Image(
                     painter = painterResource(R.drawable.background),
                     contentDescription = null)
@@ -121,8 +126,23 @@ fun MessagesScreen(
                 state = listState) {
                 items(
                     messages,
-                    key = { it.timestamp }) {
-                    MessageItem(it, Modifier.animateItem())
+                    key = { it.timestamp }) { message ->
+
+                    val dismissState = rememberSwipeToDismissBoxState(
+                        confirmValueChange = {
+                            swipeToDelete(
+                                messages = messages,
+                                message = message,
+                                position = it)
+                        })
+
+                    SwipeToDismissBox(
+                        state = dismissState,
+                        modifier = Modifier.animateItem(),
+                        backgroundContent = { }) {
+                        MessageItem(
+                            message = message)
+                    }
                 }
             }
         }
@@ -192,9 +212,11 @@ fun listenToDatabaseWrites(
             coroutineScope.launch { listState.scrollToItem(0) }
 
             // limit size
-            if (messages.size > 100) {
-                messages.removeAt(100)
-                // todo delete on backend as well
+            if (messages.size > messageMaxSize) {
+
+                deleteMessage(
+                    messages = messages,
+                    message = messages[messageMaxSize])
             }
         }
 
@@ -206,15 +228,34 @@ fun listenToDatabaseWrites(
     })
 }
 
+fun swipeToDelete(
+    messages: SnapshotStateList<Message>,
+    message: Message,
+    position: SwipeToDismissBoxValue): Boolean {
+
+    val startToEnd = SwipeToDismissBoxValue.StartToEnd
+    val endToStart = SwipeToDismissBoxValue.EndToStart
+
+    if (position != startToEnd && position != endToStart) return false
+
+    deleteMessage(
+        messages = messages,
+        message = message)
+
+    return true
+}
+
+fun deleteMessage(
+    messages: SnapshotStateList<Message>,
+    message: Message) {
+
+    dbRef.child(message.timestamp).removeValue()
+    messages.remove(message)
+}
+
 fun deleteAllMessages(
     messages: SnapshotStateList<Message>) {
 
     dbRef.removeValue()
     messages.clear()
-}
-
-fun deleteMessage(
-    message: Message
-) {
-
 }

@@ -1,8 +1,6 @@
 package com.sommerengineering.baraudio.messages
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.gestures.anchoredDraggable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,10 +21,9 @@ import com.sommerengineering.baraudio.beautifyTimestamp
 
 @Composable
 fun MessageItem(
-    message: Message,
-    modifier: Modifier) {
+    message: Message) {
 
-    Surface(modifier) {
+    Surface {
         Column {
             Row(
                 modifier = Modifier.padding(12.dp),
