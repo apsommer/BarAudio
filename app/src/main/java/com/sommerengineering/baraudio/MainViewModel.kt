@@ -5,9 +5,11 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
 import android.speech.tts.Voice
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
@@ -220,14 +222,7 @@ class MainViewModel(
         return "$displayName \u2022 Voice $romanNumeral"
     }
 
-    fun getGoogleImageId() =
-        if (isDarkMode.value) R.drawable.google_dark
-        else R.drawable.google_light
-
-    fun getGitHubImageId() =
-        if (isDarkMode.value) R.drawable.github_light
-        else R.drawable.github_dark
-
+    // todo persist
     var isMute by mutableStateOf(false)
     fun setIsMute() {
 
@@ -241,4 +236,22 @@ class MainViewModel(
 
         tts.params = tts.unmute
     }
+
+    // images //////////////////////////////////////////////////////////////////////////////////////
+
+    fun getGoogleImageId() =
+        if (isDarkMode.value) R.drawable.google_dark
+        else R.drawable.google_light
+
+    fun getGitHubImageId() =
+        if (isDarkMode.value) R.drawable.github_light
+        else R.drawable.github_dark
+
+    fun getFabIconId() =
+        if (isMute) R.drawable.volume_off
+        else R.drawable.volume_on
+
+    fun getFabTintColor() =
+        if (isMute) Color.Gray
+        else Color.Unspecified
 }
