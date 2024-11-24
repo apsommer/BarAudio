@@ -35,9 +35,11 @@ fun Navigation(
             LoginScreen(
                 onAuthentication = {
                     viewModel.setUiMode(context, isSystemInDarkTheme)
+                    context.requestRealtimeNotificationPermission()
                     controller.navigate(MessagesScreenRoute) {
                         popUpTo(LoginScreenRoute) { inclusive = true }
                     }
+                    logMessage("Sign-in success with user: ${Firebase.auth.currentUser?.uid}")
                 })
         }
         composable(

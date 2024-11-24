@@ -5,7 +5,10 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
 import android.speech.tts.Voice
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
@@ -13,6 +16,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
 import org.json.JSONObject
+import kotlin.math.log
 import kotlin.math.roundToInt
 
 class MainViewModel(
@@ -124,7 +128,7 @@ class MainViewModel(
         isChecked: Boolean) {
 
         tts.isQueueAdd.value = isChecked
-        writeToDataStore(context, isQueueAddKey, isChecked.toString())
+        writeToDataStore(context, isQueueFlushKey, isChecked.toString())
         setQueueBehaviorDescription()
     }
 
@@ -167,10 +171,8 @@ class MainViewModel(
             else uiModeLightDescription
     }
 
-    fun beautifyVoiceName(name: String) =
-        voiceNameMap[name] ?: ""
-
-    val voiceNameMap by lazy {
+    fun beautifyVoiceName(
+        name: String): String {
 
         val map = HashMap<String, String>()
 
@@ -178,15 +180,16 @@ class MainViewModel(
         val grouped = voices
             .groupBy { it.locale.displayName }
 
-        // iterate through groups adding roman numerals to display name
+        // iterate through groups, add roman numerals to display name
         grouped.keys.forEach { languageCountry ->
+
             val voices = grouped[languageCountry]
             voices?.forEachIndexed { i, voice ->
                 map[voice.name] = enumerateVoices(voice, i)
             }
         }
 
-        map
+        return map[name] ?: ""
     }
 
     private fun enumerateVoices(
@@ -219,6 +222,28 @@ class MainViewModel(
         return "$displayName \u2022 Voice $romanNumeral"
     }
 
+    var isMute by mutableStateOf(false)
+    fun initMute(
+        context: Context) {
+
+        tts.volume.value = readFromDataStore(context, volumeKey)?.toFloat() ?: 1f
+        isMute = tts.volume.value == 0f
+    }
+
+    fun setIsMute(
+        context: Context) {
+
+        isMute = !isMute
+
+        if (isMute) { tts.volume.value = 0f }
+        else { tts.volume.value = 1f }
+        if (isMute && tts.isSpeaking()) { tts.stop() }
+
+        writeToDataStore(context, volumeKey, tts.volume.value.toString())
+    }
+
+    // images //////////////////////////////////////////////////////////////////////////////////////
+
     fun getGoogleImageId() =
         if (isDarkMode.value) R.drawable.google_dark
         else R.drawable.google_light
@@ -226,4 +251,12 @@ class MainViewModel(
     fun getGitHubImageId() =
         if (isDarkMode.value) R.drawable.github_light
         else R.drawable.github_dark
+
+    fun getFabIconId() =
+        if (isMute) R.drawable.volume_off
+        else R.drawable.volume_on
+
+    fun getFabTintColor() =
+        if (isMute) Color.Gray
+        else Color.Unspecified
 }

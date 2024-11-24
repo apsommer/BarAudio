@@ -2,10 +2,13 @@ package com.sommerengineering.baraudio
 
 import android.content.Context
 import android.speech.tts.TextToSpeech
+import android.speech.tts.TextToSpeech.Engine.KEY_PARAM_VOLUME
 import android.speech.tts.UtteranceProgressListener
 import android.speech.tts.Voice
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.bundle.Bundle
+import androidx.core.bundle.bundleOf
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class TextToSpeechImpl(
@@ -14,11 +17,12 @@ class TextToSpeechImpl(
 
     private val textToSpeech = TextToSpeech(context, this)
 
-    val voice by lazy { mutableStateOf(textToSpeech.voice) }
     // todo refactor to mutableStateOf ... no need for Flow and .collectAsState()
+    val voice by lazy { mutableStateOf(textToSpeech.voice) }
     var speed = MutableStateFlow(1f)
     var pitch = MutableStateFlow(1f)
     var isQueueAdd = MutableStateFlow(false)
+    var volume = MutableStateFlow(1f)
 
     var isInitialized = false
     override fun onInit(status: Int) {
@@ -32,7 +36,7 @@ class TextToSpeechImpl(
         }
         speed.value = readFromDataStore(context, speedKey)?.toFloat() ?: 1f
         pitch.value = readFromDataStore(context, pitchKey)?.toFloat() ?: 1f
-        isQueueAdd.value = readFromDataStore(context, isQueueAddKey).toBoolean()
+        isQueueAdd.value = readFromDataStore(context, isQueueFlushKey).toBoolean()
 
         // attach progress listener to clear notification when done speaking
         textToSpeech.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
@@ -48,6 +52,9 @@ class TextToSpeechImpl(
             override fun onError(utteranceId: String?) { }
         })
     }
+
+    fun getVoices() =
+        textToSpeech.voices
 
     fun clearNotification(timestamp: String?) {
 
@@ -67,16 +74,17 @@ class TextToSpeechImpl(
         textToSpeech.setVoice(voice.value)
         textToSpeech.setSpeechRate(speed.value)
         textToSpeech.setPitch(pitch.value)
+        val params = bundleOf(volumeKey to volume.value)
 
         // speak message
         textToSpeech.speak(
             message,
             isQueueAdd.value.compareTo(false),
-            null,
+            params,
             timestamp)
     }
 
-    fun getVoices(): Set<Voice> {
-        return textToSpeech.voices
-    }
+    // mute
+    fun isSpeaking() = textToSpeech.isSpeaking
+    fun stop() = textToSpeech.stop()
 }

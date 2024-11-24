@@ -5,15 +5,18 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
@@ -25,41 +28,36 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
 import com.sommerengineering.baraudio.MainActivity
+import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.databaseUrl
 import com.sommerengineering.baraudio.dbRef
-import com.sommerengineering.baraudio.logMessage
 import com.sommerengineering.baraudio.message
-import com.sommerengineering.baraudio.messages
+import com.sommerengineering.baraudio.messageMaxSize
 import com.sommerengineering.baraudio.origin
-import com.sommerengineering.baraudio.readFromDataStore
-import com.sommerengineering.baraudio.token
-import com.sommerengineering.baraudio.tokenKey
-import com.sommerengineering.baraudio.unauthenticatedUser
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.json.JSONObject
+import org.koin.androidx.compose.koinViewModel
 import java.util.Objects
 
 @Composable
 fun MessagesScreen(
     onSettingsClick: () -> Unit) {
 
-    // request notification permission, does nothing if already granted
-    (LocalContext.current as MainActivity).requestRealtimeNotificationPermission()
-
     // init
     val messages = remember { mutableStateListOf<Message>() }
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
+
+    // inject viewmodel
+    val context = LocalContext.current
+    val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
 
     // listen to database writes
     LaunchedEffect(databaseUrl) {
@@ -70,6 +68,9 @@ fun MessagesScreen(
 //            onSettingsClick.invoke()
 //        }
 
+        // mute button, can't wait for tts init (as with other tts params) since icon needed for ui
+        viewModel.initMute(context)
+
         listenToDatabaseWrites(
             messages,
             listState,
@@ -79,115 +80,52 @@ fun MessagesScreen(
     Scaffold(
         topBar = {
             MessagesTopBar(
-                onSettingsClick,
-                messages)
-        }) { scaffoldPadding ->
+                onSettingsClick = onSettingsClick,
+                messages = messages)
+        },
+        floatingActionButton = {
+            LargeFloatingActionButton (
+                shape = CircleShape,
+                onClick = { viewModel.setIsMute(context) }) {
+                Icon(
+                    modifier = Modifier.size(42.dp),
+                    painter = painterResource(viewModel.getFabIconId()),
+                    tint = viewModel.getFabTintColor(),
+                    contentDescription = null)
+            }
+        }
+    ) { padding ->
 
-        Box(Modifier
-            .fillMaxSize()
-            .padding(scaffoldPadding)) {
-
-            // background image
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)) {
             Column(
-                Modifier.align(Alignment.BottomCenter)) {
+                modifier = Modifier.align(Alignment.BottomCenter)) {
                 Image(
                     painter = painterResource(R.drawable.background),
                     contentDescription = null)
             }
-
-            // messages list
             LazyColumn(
                 state = listState) {
                 items(
                     messages,
-                    key = { it.timestamp }) {
-                    MessageItem(it, Modifier.animateItem())
+                    key = { it.timestamp }) { message ->
+                    SwipeToDismissBox(
+                        state = rememberSwipeToDismissBoxState(
+                            confirmValueChange = {
+                                swipeToDelete(
+                                    messages = messages,
+                                    message = message,
+                                    position = it)
+                            }),
+                        modifier = Modifier.animateItem(),
+                        backgroundContent = { }) {
+                        MessageItem(
+                            message = message)
+                    }
                 }
             }
         }
     }
-}
-
-// todo do this without experimental optin
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun MessagesTopBar(
-    onSettingsClick: () -> Unit,
-    messages: SnapshotStateList<Message>) {
-
-    return CenterAlignedTopAppBar(
-        modifier = Modifier.padding(start = 8.dp),
-        navigationIcon = {
-            IconButton(
-                onClick = { deleteDatabaseMessages(messages) },
-                enabled = !messages.isEmpty()) {
-                Icon(
-                    painter = painterResource(R.drawable.sweep),
-                    contentDescription = null)
-            }
-        },
-        title = {
-            Image(
-                modifier = Modifier
-                    .padding(8.dp),
-                painter = painterResource(R.drawable.logo_banner),
-                contentDescription = null)
-        },
-        actions = {
-            IconButton(
-                onClick = { onSettingsClick() }) {
-                Icon(
-                    painter = painterResource(R.drawable.more_vertical),
-                    contentDescription = null)
-            }
-        })
-}
-
-fun listenToDatabaseWrites(
-    messages: SnapshotStateList<Message>,
-    listState: LazyListState,
-    coroutineScope: CoroutineScope) {
-
-    // triggers once for every child on initial connection
-    dbRef.addChildEventListener(object : ChildEventListener {
-
-        override fun onChildAdded(
-            snapshot: DataSnapshot,
-            previousChildName: String?) {
-
-            // extract attributes
-            val timestamp = snapshot.key
-            val messageJson = Objects.toString(snapshot.value, "")
-
-            if (timestamp.isNullOrEmpty() || messageJson.isEmpty()) return
-
-            // parse json
-            val json = JSONObject(messageJson)
-            val message = json.getString(message)
-            val imageId = getOriginImageId(json.getString(origin))
-
-            // todo observe a State<LinkedList> to reverse order efficiently
-            messages.add(0, Message(timestamp, message, imageId))
-            coroutineScope.launch { listState.scrollToItem(0) }
-
-            // limit size
-            if (messages.size > 100) {
-                messages.removeAt(100)
-                // todo delete on backend as well
-            }
-        }
-
-        // do nothing
-        override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) { }
-        override fun onChildRemoved(snapshot: DataSnapshot) { }
-        override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) { }
-        override fun onCancelled(error: DatabaseError) { }
-    })
-}
-
-fun deleteDatabaseMessages(
-    messages: SnapshotStateList<Message>) {
-
-    dbRef.removeValue()
-    messages.clear()
 }

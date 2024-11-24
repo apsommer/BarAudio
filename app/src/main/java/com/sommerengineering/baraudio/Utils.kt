@@ -3,12 +3,11 @@ package com.sommerengineering.baraudio
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.speech.tts.TextToSpeech.Engine.KEY_PARAM_VOLUME
 import android.text.format.DateUtils
 import android.util.Log
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -21,8 +20,8 @@ import java.util.Locale
 
 // logcat
 const val TAG = "~"
-fun logException(e: Exception?) = Log.e(TAG, "handleException: ${e?.message}", e)
 fun logMessage(msg: String?) = Log.v(TAG, "$msg")
+fun logException(e: Exception?) = Log.e(TAG, "handleException: ${e?.message}", e)
 
 // firebase
 const val databaseUrl = "https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/"
@@ -31,10 +30,10 @@ const val howToUseUrl = "https://baraud.io/" // todo
 const val aboutUrl = "https://baraud.io/"
 const val privacyUrl = "https://baraud.io/privacy/"
 const val termsUrl = "https://baraud.io/terms/"
-const val users = "users"
 const val messages = "messages"
 const val unauthenticatedUser = "unauthenticatedUser"
 const val gitHubProviderId = "github.com"
+const val messageMaxSize = 100
 
 // notifications
 const val isLaunchFromNotification = "isLaunchFromNotification"
@@ -50,8 +49,9 @@ const val tokenKey = "token"
 const val voiceKey = "voice"
 const val speedKey = "speed"
 const val pitchKey = "pitch"
-const val isQueueAddKey = "isQueueFlush"
+const val isQueueFlushKey = "isQueueFlush"
 const val isDarkModeKey = "isDarkMode"
+const val volumeKey = KEY_PARAM_VOLUME
 
 // todo extract to strings.xml
 const val queueBehaviorFlushDescription = "Play new alerts immediately"
