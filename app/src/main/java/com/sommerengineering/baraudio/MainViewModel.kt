@@ -24,12 +24,6 @@ class MainViewModel(
     private val repository: Repository
 ) : ViewModel() {
 
-    val voiceDescription by lazy { mutableStateOf(beautifyVoiceName(tts.voice.value.name)) }
-    val speedDescription by lazy { mutableStateOf(tts.speed.value.toString()) }
-    val pitchDescription by lazy { mutableStateOf(tts.pitch.value.toString()) }
-    val queueBehaviorDescription by lazy { mutableStateOf(getQueueBehaviorDescription()) }
-    val uiModeDescription by lazy { mutableStateOf(getUiModeDescription()) }
-
     // webhook
     val webhookUrl by lazy { webhookBaseUrl + Firebase.auth.currentUser?.uid }
     fun saveToClipboard(context: Context) {
@@ -45,6 +39,12 @@ class MainViewModel(
         tts.getVoices()
             .toList()
             .sortedBy { it.locale.displayName }
+    }
+
+    val voiceDescription by lazy {
+        mutableStateOf(
+            beautifyVoiceName(
+                tts.voice.value.name))
     }
 
     fun setVoice(
@@ -89,7 +89,12 @@ class MainViewModel(
 
     // speed
     fun getSpeed() =
-        tts.speed.value
+        tts.speed
+
+    val speedDescription by lazy {
+        mutableStateOf(
+            tts.speed.toString())
+    }
 
     fun setSpeed(
         context: Context,
@@ -98,14 +103,19 @@ class MainViewModel(
         // round to nearest tenth
         val selectedSpeed = ((rawSpeed * 10).roundToInt()).toFloat() / 10
 
-        tts.speed.value = selectedSpeed
+        tts.speed = selectedSpeed
         writeToDataStore(context, speedKey, selectedSpeed.toString())
         speedDescription.value = selectedSpeed.toString()
     }
 
     // pitch
     fun getPitch() =
-        tts.pitch.value
+        tts.pitch
+
+    val pitchDescription by lazy {
+        mutableStateOf(
+            tts.pitch.toString())
+    }
 
     fun setPitch(
         context: Context,
@@ -114,42 +124,48 @@ class MainViewModel(
         // round to nearest tenth
         val selectedPitch = ((rawPitch * 10).roundToInt()).toFloat() / 10
 
-        tts.pitch.value = selectedPitch
-        pitchDescription.value = selectedPitch.toString()
+        tts.pitch = selectedPitch
         writeToDataStore(context, pitchKey, selectedPitch.toString())
+        pitchDescription.value = selectedPitch.toString()
     }
 
     // queue behavior
-    var isQueueAdd =
+    fun isQueueAdd() =
         tts.isQueueAdd
+
+    val queueBehaviorDescription by lazy {
+        mutableStateOf(
+            if (tts.isQueueAdd) queueBehaviorAddDescription
+            else queueBehaviorFlushDescription)
+    }
 
     fun setIsQueueAdd(
         context: Context,
         isChecked: Boolean) {
 
-        tts.isQueueAdd.value = isChecked
+        tts.isQueueAdd = isChecked
         writeToDataStore(context, isQueueFlushKey, isChecked.toString())
-        setQueueBehaviorDescription()
-    }
 
-    fun getQueueBehaviorDescription() =
-        if (tts.isQueueAdd.value) queueBehaviorAddDescription
-        else queueBehaviorFlushDescription
-
-    fun setQueueBehaviorDescription() {
         queueBehaviorDescription.value =
-            if (tts.isQueueAdd.value) queueBehaviorAddDescription
+            if (tts.isQueueAdd) queueBehaviorAddDescription
             else queueBehaviorFlushDescription
     }
 
     val isDarkMode = mutableStateOf(true)
+
+    val uiModeDescription by lazy {
+        mutableStateOf(
+            if (isDarkMode.value) uiModeDarkDescription
+            else uiModeLightDescription)
+    }
+
     fun setUiMode(
         context: Context,
         isSystemInDarkTheme: Boolean) {
 
         isDarkMode.value =
             if (Firebase.auth.currentUser == null) isSystemInDarkTheme
-            else readFromDataStore(context, isDarkModeKey).toBoolean()
+            else readFromDataStore(context, isDarkModeKey)?.toBooleanStrictOrNull() ?: true
     }
 
     fun setIsDarkMode(
@@ -158,14 +174,7 @@ class MainViewModel(
 
         isDarkMode.value = isChecked
         writeToDataStore(context, isDarkModeKey, isChecked.toString())
-        setUiModeDescription()
-    }
 
-    fun getUiModeDescription() =
-        if (isDarkMode.value) uiModeDarkDescription
-        else uiModeLightDescription
-
-    fun setUiModeDescription() {
         uiModeDescription.value =
             if (isDarkMode.value) uiModeDarkDescription
             else uiModeLightDescription
@@ -226,8 +235,8 @@ class MainViewModel(
     fun initMute(
         context: Context) {
 
-        tts.volume.value = readFromDataStore(context, volumeKey)?.toFloat() ?: 1f
-        isMute = tts.volume.value == 0f
+        tts.volume = readFromDataStore(context, volumeKey)?.toFloat() ?: 1f
+        isMute = tts.volume == 0f
     }
 
     fun setIsMute(
@@ -235,11 +244,11 @@ class MainViewModel(
 
         isMute = !isMute
 
-        if (isMute) { tts.volume.value = 0f }
-        else { tts.volume.value = 1f }
+        if (isMute) { tts.volume = 0f }
+        else { tts.volume = 1f }
         if (isMute && tts.isSpeaking()) { tts.stop() }
 
-        writeToDataStore(context, volumeKey, tts.volume.value.toString())
+        writeToDataStore(context, volumeKey, tts.volume.toString())
     }
 
     // images //////////////////////////////////////////////////////////////////////////////////////

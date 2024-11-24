@@ -7,6 +7,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
+const val fadeTimeMillis = 2000
+
 @Composable
 fun AppTheme(
     isDarkMode: Boolean,
@@ -27,8 +29,8 @@ fun AppTheme(
 fun animateColor(target: Color) =
     animateColorAsState(
         targetValue = target,
-        animationSpec = tween(durationMillis = 500)
-    ).value
+        animationSpec = tween(durationMillis = fadeTimeMillis))
+        .value
 
 @Composable
 fun ColorScheme.increment() =

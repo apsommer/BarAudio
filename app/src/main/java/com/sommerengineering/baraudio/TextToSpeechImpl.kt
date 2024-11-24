@@ -2,12 +2,13 @@ package com.sommerengineering.baraudio
 
 import android.content.Context
 import android.speech.tts.TextToSpeech
-import android.speech.tts.TextToSpeech.Engine.KEY_PARAM_VOLUME
 import android.speech.tts.UtteranceProgressListener
 import android.speech.tts.Voice
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.bundle.Bundle
 import androidx.core.bundle.bundleOf
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -17,12 +18,11 @@ class TextToSpeechImpl(
 
     private val textToSpeech = TextToSpeech(context, this)
 
-    // todo refactor to mutableStateOf ... no need for Flow and .collectAsState()
     val voice by lazy { mutableStateOf(textToSpeech.voice) }
-    var speed = MutableStateFlow(1f)
-    var pitch = MutableStateFlow(1f)
-    var isQueueAdd = MutableStateFlow(false)
-    var volume = MutableStateFlow(1f)
+    var speed by mutableStateOf(1f)
+    var pitch by mutableStateOf(1f)
+    var isQueueAdd by mutableStateOf(false)
+    var volume by mutableStateOf(1f)
 
     var isInitialized = false
     override fun onInit(status: Int) {
@@ -30,13 +30,16 @@ class TextToSpeechImpl(
         if (status != TextToSpeech.SUCCESS) { return }
         isInitialized = true
 
-        readFromDataStore(context, voiceKey)?.let { voiceName ->
-            voice.value = textToSpeech.voices
-                .first { it.name == voiceName }
+        voice.value =
+            readFromDataStore(context, voiceKey)
+                ?.let { name ->
+                    textToSpeech
+                        .voices
+                        .first { it.name == name }
         }
-        speed.value = readFromDataStore(context, speedKey)?.toFloat() ?: 1f
-        pitch.value = readFromDataStore(context, pitchKey)?.toFloat() ?: 1f
-        isQueueAdd.value = readFromDataStore(context, isQueueFlushKey).toBoolean()
+        speed = readFromDataStore(context, speedKey)?.toFloat() ?: 1f
+        pitch = readFromDataStore(context, pitchKey)?.toFloat() ?: 1f
+        isQueueAdd = readFromDataStore(context, isQueueFlushKey).toBoolean()
 
         // attach progress listener to clear notification when done speaking
         textToSpeech.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
@@ -72,14 +75,14 @@ class TextToSpeechImpl(
 
         // config engine params
         textToSpeech.setVoice(voice.value)
-        textToSpeech.setSpeechRate(speed.value)
-        textToSpeech.setPitch(pitch.value)
-        val params = bundleOf(volumeKey to volume.value)
+        textToSpeech.setSpeechRate(speed)
+        textToSpeech.setPitch(pitch)
+        val params = bundleOf(volumeKey to volume)
 
         // speak message
         textToSpeech.speak(
             message,
-            isQueueAdd.value.compareTo(false),
+            isQueueAdd.compareTo(false),
             params,
             timestamp)
     }
