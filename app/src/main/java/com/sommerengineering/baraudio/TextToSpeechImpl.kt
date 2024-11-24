@@ -8,6 +8,7 @@ import android.speech.tts.Voice
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.bundle.Bundle
+import androidx.core.bundle.bundleOf
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class TextToSpeechImpl(
@@ -16,8 +17,8 @@ class TextToSpeechImpl(
 
     private val textToSpeech = TextToSpeech(context, this)
 
-    val voice by lazy { mutableStateOf(textToSpeech.voice) }
     // todo refactor to mutableStateOf ... no need for Flow and .collectAsState()
+    val voice by lazy { mutableStateOf(textToSpeech.voice) }
     var speed = MutableStateFlow(1f)
     var pitch = MutableStateFlow(1f)
     var isQueueAdd = MutableStateFlow(false)
@@ -79,6 +80,9 @@ class TextToSpeechImpl(
             timestamp)
     }
 
+    // mute
+    val mute = bundleOf(KEY_PARAM_VOLUME to 0f)
+    val unmute = bundleOf(KEY_PARAM_VOLUME to 1f)
     fun isSpeaking() = textToSpeech.isSpeaking
     fun stop() = textToSpeech.stop()
 

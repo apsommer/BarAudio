@@ -13,7 +13,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeFloatingActionButton
@@ -31,27 +30,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.databaseUrl
 import com.sommerengineering.baraudio.dbRef
-import com.sommerengineering.baraudio.logMessage
 import com.sommerengineering.baraudio.message
-import com.sommerengineering.baraudio.messages
 import com.sommerengineering.baraudio.origin
-import com.sommerengineering.baraudio.readFromDataStore
-import com.sommerengineering.baraudio.token
-import com.sommerengineering.baraudio.tokenKey
-import com.sommerengineering.baraudio.unauthenticatedUser
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import org.koin.androidx.compose.koinViewModel
@@ -90,10 +79,10 @@ fun MessagesScreen(
 
     // toggle fab image
     val fabImageId =
-        if (viewModel.isMute.value) R.drawable.volume_off
+        if (viewModel.isMute) R.drawable.volume_off
         else R.drawable.volume_on
     val fabTint =
-        if (viewModel.isMute.value) Color.Gray
+        if (viewModel.isMute) Color.Gray
         else LocalContentColor.current
 
     Scaffold(
@@ -151,7 +140,7 @@ fun MessagesTopBar(
         modifier = Modifier.padding(start = 8.dp),
         navigationIcon = {
             IconButton(
-                onClick = { deleteDatabaseMessages(messages) },
+                onClick = { deleteAllMessages(messages) },
                 enabled = !messages.isEmpty()) {
                 Icon(
                     painter = painterResource(R.drawable.sweep),
@@ -217,9 +206,15 @@ fun listenToDatabaseWrites(
     })
 }
 
-fun deleteDatabaseMessages(
+fun deleteAllMessages(
     messages: SnapshotStateList<Message>) {
 
     dbRef.removeValue()
     messages.clear()
+}
+
+fun deleteMessage(
+    message: Message
+) {
+
 }

@@ -4,9 +4,10 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
-import android.speech.tts.TextToSpeech.Engine.KEY_PARAM_VOLUME
 import android.speech.tts.Voice
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
@@ -227,14 +228,17 @@ class MainViewModel(
         if (isDarkMode.value) R.drawable.github_light
         else R.drawable.github_dark
 
-    val isMute = mutableStateOf(false)
+    var isMute by mutableStateOf(false)
     fun setIsMute() {
-        isMute.value = !isMute.value
 
-        if (isMute.value) {
-            tts.params.putFloat(KEY_PARAM_VOLUME, 0f)
+        isMute = !isMute
+
+        if (isMute) {
+            tts.params = tts.mute
             if (tts.isSpeaking()) { tts.stop() }
+            return
         }
-        else tts.params.putFloat(KEY_PARAM_VOLUME, 1f)
+        
+        tts.params = tts.unmute
     }
 }
