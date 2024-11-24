@@ -40,6 +40,7 @@ import com.sommerengineering.baraudio.message
 import com.sommerengineering.baraudio.messageMaxSize
 import com.sommerengineering.baraudio.origin
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import org.koin.androidx.compose.koinViewModel
@@ -67,6 +68,9 @@ fun MessagesScreen(
 //            onSettingsClick.invoke()
 //        }
 
+        // mute button, can't wait for tts init (as with other tts params) since icon needed for ui
+        viewModel.initMute(context)
+
         listenToDatabaseWrites(
             messages,
             listState,
@@ -82,7 +86,7 @@ fun MessagesScreen(
         floatingActionButton = {
             LargeFloatingActionButton (
                 shape = CircleShape,
-                onClick = { viewModel.setIsMute() }) {
+                onClick = { viewModel.setIsMute(context) }) {
                 Icon(
                     modifier = Modifier.size(42.dp),
                     painter = painterResource(viewModel.getFabIconId()),

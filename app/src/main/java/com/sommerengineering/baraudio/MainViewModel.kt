@@ -5,7 +5,6 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
 import android.speech.tts.Voice
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -17,6 +16,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
 import org.json.JSONObject
+import kotlin.math.log
 import kotlin.math.roundToInt
 
 class MainViewModel(
@@ -128,7 +128,7 @@ class MainViewModel(
         isChecked: Boolean) {
 
         tts.isQueueAdd.value = isChecked
-        writeToDataStore(context, isQueueAddKey, isChecked.toString())
+        writeToDataStore(context, isQueueFlushKey, isChecked.toString())
         setQueueBehaviorDescription()
     }
 
@@ -222,19 +222,24 @@ class MainViewModel(
         return "$displayName \u2022 Voice $romanNumeral"
     }
 
-    // todo persist
     var isMute by mutableStateOf(false)
-    fun setIsMute() {
+    fun initMute(
+        context: Context) {
+
+        tts.volume.value = readFromDataStore(context, volumeKey)?.toFloat() ?: 1f
+        isMute = tts.volume.value == 0f
+    }
+
+    fun setIsMute(
+        context: Context) {
 
         isMute = !isMute
 
-        if (isMute) {
-            tts.params = tts.mute
-            if (tts.isSpeaking()) { tts.stop() }
-            return
-        }
+        if (isMute) { tts.volume.value = 0f }
+        else { tts.volume.value = 1f }
+        if (isMute && tts.isSpeaking()) { tts.stop() }
 
-        tts.params = tts.unmute
+        writeToDataStore(context, volumeKey, tts.volume.value.toString())
     }
 
     // images //////////////////////////////////////////////////////////////////////////////////////

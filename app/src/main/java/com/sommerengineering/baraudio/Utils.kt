@@ -3,6 +3,7 @@ package com.sommerengineering.baraudio
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.speech.tts.TextToSpeech.Engine.KEY_PARAM_VOLUME
 import android.text.format.DateUtils
 import android.util.Log
 import androidx.datastore.preferences.core.edit
@@ -48,8 +49,9 @@ const val tokenKey = "token"
 const val voiceKey = "voice"
 const val speedKey = "speed"
 const val pitchKey = "pitch"
-const val isQueueAddKey = "isQueueFlush"
+const val isQueueFlushKey = "isQueueFlush"
 const val isDarkModeKey = "isDarkMode"
+const val volumeKey = KEY_PARAM_VOLUME
 
 // todo extract to strings.xml
 const val queueBehaviorFlushDescription = "Play new alerts immediately"

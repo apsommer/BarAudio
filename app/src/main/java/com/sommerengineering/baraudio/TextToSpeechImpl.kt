@@ -22,7 +22,7 @@ class TextToSpeechImpl(
     var speed = MutableStateFlow(1f)
     var pitch = MutableStateFlow(1f)
     var isQueueAdd = MutableStateFlow(false)
-    var params = Bundle()
+    var volume = MutableStateFlow(1f)
 
     var isInitialized = false
     override fun onInit(status: Int) {
@@ -36,7 +36,7 @@ class TextToSpeechImpl(
         }
         speed.value = readFromDataStore(context, speedKey)?.toFloat() ?: 1f
         pitch.value = readFromDataStore(context, pitchKey)?.toFloat() ?: 1f
-        isQueueAdd.value = readFromDataStore(context, isQueueAddKey).toBoolean()
+        isQueueAdd.value = readFromDataStore(context, isQueueFlushKey).toBoolean()
 
         // attach progress listener to clear notification when done speaking
         textToSpeech.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
@@ -52,6 +52,9 @@ class TextToSpeechImpl(
             override fun onError(utteranceId: String?) { }
         })
     }
+
+    fun getVoices() =
+        textToSpeech.voices
 
     fun clearNotification(timestamp: String?) {
 
@@ -71,6 +74,7 @@ class TextToSpeechImpl(
         textToSpeech.setVoice(voice.value)
         textToSpeech.setSpeechRate(speed.value)
         textToSpeech.setPitch(pitch.value)
+        val params = bundleOf(volumeKey to volume.value)
 
         // speak message
         textToSpeech.speak(
@@ -81,12 +85,6 @@ class TextToSpeechImpl(
     }
 
     // mute
-    val mute = bundleOf(KEY_PARAM_VOLUME to 0f)
-    val unmute = bundleOf(KEY_PARAM_VOLUME to 1f)
     fun isSpeaking() = textToSpeech.isSpeaking
     fun stop() = textToSpeech.stop()
-
-    fun getVoices(): Set<Voice> {
-        return textToSpeech.voices
-    }
 }
