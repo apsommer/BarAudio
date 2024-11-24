@@ -25,11 +25,12 @@ fun logException(e: Exception?) = Log.e(TAG, "handleException: ${e?.message}", e
 
 // firebase
 const val databaseUrl = "https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/"
-const val webhookBaseUrl = "https://baraudio-555667494303.us-central1.run.app/?id="
+const val webhookBaseUrl = "https://baraudio-555667494303.us-central1.run.app/?uid="
 const val howToUseUrl = "https://baraud.io/" // todo
 const val aboutUrl = "https://baraud.io/"
 const val privacyUrl = "https://baraud.io/privacy/"
 const val termsUrl = "https://baraud.io/terms/"
+const val users = "users"
 const val messages = "messages"
 const val unauthenticatedUser = "unauthenticatedUser"
 const val gitHubProviderId = "github.com"

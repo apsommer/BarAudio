@@ -2,6 +2,7 @@ package com.sommerengineering.baraudio
 
 import android.Manifest
 import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
@@ -84,6 +85,7 @@ class FirebaseService: FirebaseMessagingService() {
 }
 
 val dbRef by lazy {
+
     Firebase
         .database(databaseUrl)
         .getReference(messages)
@@ -93,3 +95,26 @@ val dbRef by lazy {
 fun signOut() =
     Firebase.auth.signOut()
 
+fun validateToken() {
+
+    val user = Firebase.auth.currentUser ?: return
+    logMessage("Sign-in success with user: ${user.uid}")
+
+    user.getIdToken(false)
+        .addOnSuccessListener {
+
+            // compare correct cached token with user token (potentially invalid)
+            if (it.token == token) {
+                logMessage("Token already in cache, skipping database write")
+                return@addOnSuccessListener
+            }
+
+            // update database user:token association in database, if needed
+            Firebase.database(databaseUrl)
+                .getReference(users)
+                .child(user.uid)
+                .setValue(token)
+
+            logMessage("New user: token pair written to database")
+        }
+}
