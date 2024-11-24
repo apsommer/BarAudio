@@ -141,7 +141,7 @@ fun SettingsScreen(
                     modifier = Modifier.padding(
                         horizontal = 24.dp,
                         vertical = 12.dp),
-                    checked = viewModel.isQueueAdd.collectAsState().value,
+                    checked = viewModel.isQueueAdd(),
                     onCheckedChange = { viewModel.setIsQueueAdd(context, it) })
             }}
 

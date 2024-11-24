@@ -5,33 +5,39 @@ import time
 # initialize admin sdk
 app = initialize_app(
     credential = credentials.Certificate('admin.json'),
-    options = { 'databaseURL': 'https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/' }
-)
+    options = { 'databaseURL': 'https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/' })
 
 @https_fn.on_request()
 def baraudio(req: https_fn.Request) -> https_fn.Response:
 
     # extract attributes from request
-    device_token = req.args.get(key='id', type=str) # uid as query param
+    uid = req.args.get(key='uid', type=str) # uid as query param
     message = req.get_data(as_text = True) # message as plain/text from body
 
     # process webhook when request is properly formed
-    if req.method == 'POST' and device_token is not None and len(message) > 0:
+    if req.method == 'POST' and uid is not None and len(message) > 0:
 
-        # extract origin of webhook: tradingview, trendspider, ...
-        agent = req.user_agent.string
-        origin = str(req.headers.get('X-Forwarded-For'))
-
-        # todo dev
-        if "insomnia" in agent:
-            origin = "insomnia"
-
+        device_token = db.reference('users').get()[uid]
         timestamp = str(round(time.time() * 1000))
+        origin = get_origin(req)
+
         write_to_database(device_token, timestamp, message, origin)
         send_fcm(device_token, timestamp, message)
 
     # respond with simple message
     return https_fn.Response('Thank you for using BarAudio! :)')
+
+def get_origin(req: https_fn.Request) -> str:
+
+    # extract origin of webhook: tradingview, trendspider, ...
+    origin = str(req.headers.get('X-Forwarded-For'))
+
+    # todo detect insomnia calls, can remove in production
+    agent = req.user_agent.string
+    if "insomnia" in agent:
+        origin = "insomnia"
+
+    return origin
 
 def write_to_database(device_token: str, timestamp: str, message: str, origin: str):
 
