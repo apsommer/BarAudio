@@ -63,10 +63,10 @@ fun MessagesScreen(
     LaunchedEffect(databaseUrl) {
 
         // todo dev: launch to settings
-        coroutineScope.launch {
-            delay(100)
-            onSettingsClick.invoke()
-        }
+//        coroutineScope.launch {
+//            delay(100)
+//            onSettingsClick.invoke()
+//        }
 
         // mute button, can't wait for tts init (as with other tts params) since icon needed for ui
         viewModel.initMute(context)

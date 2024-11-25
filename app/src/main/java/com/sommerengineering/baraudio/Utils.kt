@@ -34,7 +34,7 @@ const val users = "users"
 const val messages = "messages"
 const val unauthenticatedUser = "unauthenticatedUser"
 const val gitHubProviderId = "github.com"
-const val messageMaxSize = 100
+const val messageMaxSize = 1000
 
 // notifications
 const val isLaunchFromNotification = "isLaunchFromNotification"
