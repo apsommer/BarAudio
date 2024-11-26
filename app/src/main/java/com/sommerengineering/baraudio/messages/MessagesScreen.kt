@@ -42,6 +42,7 @@ import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.databaseUrl
 import com.sommerengineering.baraudio.dbRef
+import com.sommerengineering.baraudio.login.buttonBorderSize
 import com.sommerengineering.baraudio.message
 import com.sommerengineering.baraudio.messageMaxSize
 import com.sommerengineering.baraudio.origin
@@ -69,10 +70,10 @@ fun MessagesScreen(
     LaunchedEffect(databaseUrl) {
 
         // todo dev: launch to settings
-//        coroutineScope.launch {
-//            delay(100)
-//            onSettingsClick.invoke()
-//        }
+        coroutineScope.launch {
+            delay(100)
+            onSettingsClick.invoke()
+        }
 
         // mute button, can't wait for tts init (as with other tts params) since icon needed for ui
         viewModel.initMute(context)
@@ -94,7 +95,7 @@ fun MessagesScreen(
         floatingActionButton = {
             FloatingActionButton (
                 modifier = Modifier
-                    .size(80.dp)
+                    .size(buttonBorderSize)
                     .border(
                         border = BorderStroke(
                             width = 1.dp,
@@ -104,7 +105,7 @@ fun MessagesScreen(
                 onClick = { viewModel.setIsMute(context) }) {
 
                 Icon(
-                    modifier = Modifier.size(42.dp),
+                    modifier = Modifier.size(buttonBorderSize / 2),
                     painter = painterResource(viewModel.getFabIconId()),
                     tint = viewModel.getFabTintColor(),
                     contentDescription = null)

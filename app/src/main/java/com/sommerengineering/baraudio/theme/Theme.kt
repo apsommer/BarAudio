@@ -20,7 +20,7 @@ fun AppTheme(
         else lightScheme
 
     MaterialTheme(
-        colorScheme = colorScheme.increment(),
+        colorScheme = colorScheme.switch(),
         typography = AppTypography,
         content = content)
 }
@@ -29,11 +29,12 @@ fun AppTheme(
 fun animateColor(target: Color) =
     animateColorAsState(
         targetValue = target,
-        animationSpec = tween(durationMillis = fadeTimeMillis))
+        animationSpec = tween(
+            durationMillis = fadeTimeMillis))
         .value
 
 @Composable
-fun ColorScheme.increment() =
+fun ColorScheme.switch() =
     copy(
         primary = animateColor(primary),
         onPrimary = animateColor(onPrimary),

@@ -27,6 +27,9 @@ import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import org.koin.androidx.compose.koinViewModel
 
+// todo collect and move to utils?
+val buttonBorderSize = 96.dp
+
 @Composable
 fun LoginScreen (
     onAuthentication: () -> Unit,
@@ -37,9 +40,8 @@ fun LoginScreen (
     val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
 
     // size composables
-    val githubImageSize = 50.dp // touch over half border size to align with google
+    val githubImageSize = 50.dp // touch over half buttonBorderSize to align with google
     val logoPadding = 64.dp
-    val buttonBorderSize = 96.dp
 
     Surface {
         Column(

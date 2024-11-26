@@ -1,6 +1,7 @@
 package com.sommerengineering.baraudio
 
 import android.content.Context
+import android.provider.Settings.Global
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.speech.tts.Voice
@@ -26,6 +27,9 @@ class TextToSpeechImpl(
 
     var isInitialized = false
     override fun onInit(status: Int) {
+
+        val apples = Global.getInt(context.contentResolver, "zen_mode")
+        logMessage("do not disturb mode? $apples")
 
         if (status != TextToSpeech.SUCCESS) { return }
         isInitialized = true
