@@ -35,7 +35,8 @@ fun MessageItem(
             Row(
                 modifier = Modifier
                     .padding(
-                        24.dp),
+                        horizontal = 12.dp,
+                        vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically) {
 
                 Column(
@@ -51,7 +52,7 @@ fun MessageItem(
 
                     Spacer(
                         modifier = Modifier
-                            .height(12.dp))
+                            .height(4.dp))
 
                     // timestamp
                     Text(
