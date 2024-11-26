@@ -116,7 +116,7 @@ fun LoginScreen (
                         .align(Alignment.Center)
                         .size(42.dp)
                         .clip(CircleShape)) {
-                    
+
                     Image(
                         painter = painterResource(viewModel.getGitHubImageId()),
                         contentDescription = null)
