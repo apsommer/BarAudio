@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.DividerDefaults
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LargeFloatingActionButton
@@ -91,12 +92,13 @@ fun MessagesScreen(
         },
 
         floatingActionButton = {
-            LargeFloatingActionButton (
+            FloatingActionButton (
                 modifier = Modifier
+                    .size(80.dp)
                     .border(
                         border = BorderStroke(
                             width = 1.dp,
-                            color = MaterialTheme.colorScheme.onSurface),
+                            color = viewModel.getFabBorderColor()),
                         shape = CircleShape),
                 shape = CircleShape,
                 onClick = { viewModel.setIsMute(context) }) {

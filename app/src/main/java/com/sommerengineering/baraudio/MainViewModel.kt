@@ -5,6 +5,8 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
 import android.speech.tts.Voice
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -267,4 +269,9 @@ class MainViewModel(
     fun getFabTintColor() =
         if (isMute) Color.Gray
         else Color.Unspecified
+
+    @Composable
+    fun getFabBorderColor() =
+        if (isMute) Color.Gray
+        else MaterialTheme.colorScheme.onSurface
 }
