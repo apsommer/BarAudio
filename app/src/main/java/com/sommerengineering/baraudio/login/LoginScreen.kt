@@ -47,21 +47,28 @@ fun LoginScreen (
             modifier = modifier
                 .fillMaxSize()
                 .padding(80.dp)) {
+
+            // logo
             Image(
                 modifier = Modifier
                     .padding(
                         top = 80.dp),
                 painter = painterResource(R.drawable.logo_full),
                 contentDescription = null)
+
             Spacer(
                 modifier = Modifier
                     .height(160.dp))
-            Text(
-                text = "Sign in with ...",
-                style = MaterialTheme.typography.bodyLarge)
+
+//            Text(
+//                text = "Sign in with ...",
+//                style = MaterialTheme.typography.bodyLarge)
+
             Spacer(
                 modifier = Modifier
                     .height(40.dp))
+
+            // google
             Box(
                 modifier = Modifier
                     .size(80.dp)
@@ -76,15 +83,19 @@ fun LoginScreen (
                             width = 1.dp,
                             color = MaterialTheme.colorScheme.onSurface),
                         shape = CircleShape)) {
+
                 Image(
                     modifier = Modifier
                         .size(80.dp),
                     painter = painterResource(viewModel.getGoogleImageId()),
                     contentDescription = null)
             }
+
             Spacer(
                 modifier = Modifier
                     .height(40.dp))
+
+            // github
             Box(
                 modifier = Modifier
                     .size(80.dp)
@@ -99,11 +110,13 @@ fun LoginScreen (
                             width = 1.dp,
                             color = MaterialTheme.colorScheme.onSurface),
                         shape = CircleShape)) {
+
                 Box(
                     modifier = Modifier
                         .align(Alignment.Center)
                         .size(42.dp)
                         .clip(CircleShape)) {
+                    
                     Image(
                         painter = painterResource(viewModel.getGitHubImageId()),
                         contentDescription = null)
