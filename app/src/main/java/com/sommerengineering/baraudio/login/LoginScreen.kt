@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -12,21 +13,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.unit.FontScaling
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
@@ -41,85 +36,90 @@ fun LoginScreen (
     val context = LocalContext.current
     val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
 
+    // size composables
+    val githubImageSize = 50.dp // touch over half border size to align with google
+    val logoPadding = 64.dp
+    val buttonBorderSize = 96.dp
+
     Surface {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = modifier
-                .fillMaxSize()
-                .padding(80.dp)) {
+                .fillMaxSize()) {
 
             // logo
-            Image(
+            Column(
                 modifier = Modifier
-                    .padding(
-                        top = 80.dp),
-                painter = painterResource(R.drawable.logo_full),
-                contentDescription = null)
-
-            Spacer(
-                modifier = Modifier
-                    .height(160.dp))
-
-//            Text(
-//                text = "Sign in with ...",
-//                style = MaterialTheme.typography.bodyLarge)
-
-            Spacer(
-                modifier = Modifier
-                    .height(40.dp))
-
-            // google
-            Box(
-                modifier = Modifier
-                    .size(80.dp)
-                    .clip(CircleShape)
-                    .clickable {
-                        signInWithGoogle(
-                            context = context,
-                            onAuthentication = onAuthentication)
-                    }
-                    .border(
-                        border = BorderStroke(
-                            width = 1.dp,
-                            color = MaterialTheme.colorScheme.onSurface),
-                        shape = CircleShape)) {
-
+                    .weight(1f)
+                    .padding(logoPadding),
+                verticalArrangement = Arrangement.Center) {
                 Image(
-                    modifier = Modifier
-                        .size(80.dp),
-                    painter = painterResource(viewModel.getGoogleImageId()),
+                    painter = painterResource(R.drawable.logo_full),
                     contentDescription = null)
             }
 
-            Spacer(
-                modifier = Modifier
-                    .height(40.dp))
+            // HorizontalDivider()
 
-            // github
-            Box(
+            // google
+            Column(
                 modifier = Modifier
-                    .size(80.dp)
-                    .clip(CircleShape)
-                    .clickable {
-                        signInWithGitHub(
-                            context = context,
-                            onAuthentication = onAuthentication)
-                    }
-                    .border(
-                        border = BorderStroke(
-                            width = 1.dp,
-                            color = MaterialTheme.colorScheme.onSurface),
-                        shape = CircleShape)) {
+                    .weight(1f),
+                verticalArrangement = Arrangement.Center) {
 
                 Box(
                     modifier = Modifier
-                        .align(Alignment.Center)
-                        .size(42.dp)
-                        .clip(CircleShape)) {
+                        .size(buttonBorderSize)
+                        .clip(CircleShape)
+                        .clickable {
+                            signInWithGoogle(
+                                context = context,
+                                onAuthentication = onAuthentication)
+                        }
+                        .border(
+                            border = BorderStroke(
+                                width = 1.dp,
+                                color = MaterialTheme.colorScheme.onSurface),
+                            shape = CircleShape
+                        )) {
 
                     Image(
-                        painter = painterResource(viewModel.getGitHubImageId()),
+                        modifier = Modifier
+                            .size(buttonBorderSize),
+                        painter = painterResource(viewModel.getGoogleImageId()),
                         contentDescription = null)
+                }
+
+                Spacer(
+                    modifier = Modifier
+                        .height(buttonBorderSize / 2))
+
+                // github
+                Box(
+                    modifier = Modifier
+                        .size(buttonBorderSize)
+                        .clip(CircleShape)
+                        .clickable {
+                            signInWithGitHub(
+                                context = context,
+                                onAuthentication = onAuthentication)
+                        }
+                        .border(
+                            border = BorderStroke(
+                                width = 1.dp,
+                                color = MaterialTheme.colorScheme.onSurface),
+                            shape = CircleShape
+                        )) {
+
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .size(githubImageSize)
+                            .clip(CircleShape)) {
+
+                        Image(
+                            painter = painterResource(viewModel.getGitHubImageId()),
+                            contentDescription = null)
+                    }
                 }
             }
         }
