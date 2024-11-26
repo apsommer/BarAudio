@@ -16,7 +16,6 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
 import org.json.JSONObject
-import kotlin.math.log
 import kotlin.math.roundToInt
 
 class MainViewModel(
@@ -26,7 +25,7 @@ class MainViewModel(
 
     // webhook
     val webhookUrl by lazy { webhookBaseUrl + Firebase.auth.currentUser?.uid }
-    fun saveToClipboard(context: Context) {
+    fun saveToWebhookClipboard(context: Context) {
 
         // save url to clipboard
         val clipboardManager = context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager

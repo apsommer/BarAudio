@@ -1,11 +1,8 @@
 package com.sommerengineering.baraudio.settings
 
 import android.content.Intent
-import android.os.Handler
-import android.os.Looper
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -18,11 +15,9 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -51,6 +46,7 @@ fun SettingsScreen(
     val uriHandler = LocalUriHandler.current
 
     Scaffold(
+
         topBar = {
             TopAppBar(
                 navigationIcon = {
@@ -63,148 +59,170 @@ fun SettingsScreen(
                     Text(
                         text = stringResource(R.string.settings))
                 })
-        }) { scaffoldPadding ->
+        }) { padding ->
 
         var isShowVoiceDialog by remember { mutableStateOf(false) }
 
-        LazyColumn(Modifier.padding(scaffoldPadding)) {
+        LazyColumn(
+            modifier = Modifier
+                .padding(padding)) {
+
+//            items(
+//                items = SettingItems(
+//                    context = context,
+//                    viewModel = viewModel,
+//                    uriHandler = uriHandler,
+//                    onSignOut = onSignOut)) {
+//                it()
+//            }
 
             // webhook
-            item { SettingItem(
-                icon = R.drawable.webhook,
-                title = R.string.webhook,
-                description = viewModel.webhookUrl,
-                onClick = { viewModel.saveToClipboard(context) }) {
-                IconButton( // todo refactor to Icon
-                    modifier = Modifier.padding(vertical = 12.dp),
-                    onClick = { viewModel.saveToClipboard(context) }) {
-                    // todo play with .weight etc to show this icon correctly
+            item {
+                DialogSettingItem(
+                    icon = R.drawable.webhook,
+                    title = R.string.webhook,
+                    description = viewModel.webhookUrl,
+                    onClick = { viewModel.saveToWebhookClipboard(context) }) {
                     Icon(
                         painter = painterResource(R.drawable.copy),
                         contentDescription = null)
-            }}}
+                    // todo toast for older api
+                }
+            }
 
             // voice
-            item { SettingItem(
-                icon = R.drawable.voice,
-                title = R.string.voice,
-                description = viewModel.voiceDescription.value) {
-
-                Icon(
-                    modifier = Modifier
-                        .padding(horizontal = 24.dp)
-                        .clickable { isShowVoiceDialog = true },
-                    painter = painterResource(R.drawable.more_vertical),
-                    contentDescription = null)
-
-                if (isShowVoiceDialog) {
-                    VoiceDialog(
-                        viewModel = viewModel,
-                        onItemSelected = {
-                            viewModel.setVoice(context, it)
-                            viewModel.speakLastMessage()
-                            isShowVoiceDialog = false
-                        },
-                        onDismiss = { isShowVoiceDialog = false }
-                    )
+            item {
+                DialogSettingItem (
+                    icon = R.drawable.voice,
+                    title = R.string.voice,
+                    description = viewModel.voiceDescription.value,
+                    onClick = {
+                        isShowVoiceDialog = true
+                    }) {
+                    Icon(
+                        modifier = Modifier
+                            .size(24.dp),
+                        painter = painterResource(R.drawable.more_vertical),
+                        contentDescription = null)
+                    if (isShowVoiceDialog) {
+                        VoiceDialog(
+                            viewModel = viewModel,
+                            onItemSelected = {
+                                viewModel.setVoice(context, it)
+                                viewModel.speakLastMessage()
+                                isShowVoiceDialog = false
+                            },
+                            onDismiss = {
+                                isShowVoiceDialog = false
+                            })
+                    }
                 }
-            }}
+            }
 
             // speed
-            item { SettingItem(
-                icon = R.drawable.speed,
-                title = R.string.speed,
-                description = viewModel.speedDescription.value) {
-                SliderImpl(
-                    initPosition = viewModel.getSpeed(),
-                    onValueChanged = { viewModel.setSpeed(context, it) },
-                    onValueChangeFinished = { viewModel.speakLastMessage() })
-            }}
+            item {
+                SliderSettingItem(
+                    icon = R.drawable.speed,
+                    title = R.string.speed,
+                    description = viewModel.speedDescription.value) {
+                        SliderImpl(
+                            initPosition = viewModel.getSpeed(),
+                            onValueChanged = { viewModel.setSpeed(context, it) },
+                            onValueChangeFinished = { viewModel.speakLastMessage() })
+                    }
+            }
 
             // pitch
-            item { SettingItem(
-                icon = R.drawable.pitch,
-                title = R.string.pitch,
-                description = viewModel.pitchDescription.value) {
-                SliderImpl(
-                    initPosition = viewModel.getPitch(),
-                    onValueChanged = { viewModel.setPitch(context, it) },
-                    onValueChangeFinished = { viewModel.speakLastMessage() })
-            }}
+            item {
+                SliderSettingItem(
+                    icon = R.drawable.pitch,
+                    title = R.string.pitch,
+                    description = viewModel.pitchDescription.value) {
+                        SliderImpl(
+                            initPosition = viewModel.getPitch(),
+                            onValueChanged = { viewModel.setPitch(context, it) },
+                            onValueChangeFinished = { viewModel.speakLastMessage() })
+                        }
+            }
 
             // queue behavior
-            item { SettingItem(
-                icon = R.drawable.text_to_speech,
-                title = R.string.queue_behavior,
-                description = viewModel.queueBehaviorDescription.value) {
-                Switch(
-                    modifier = Modifier.padding(
-                        horizontal = 24.dp,
-                        vertical = 12.dp),
-                    checked = viewModel.isQueueAdd(),
-                    onCheckedChange = { viewModel.setIsQueueAdd(context, it) })
-            }}
+            item {
+                SwitchSettingItem(
+                    icon = R.drawable.text_to_speech,
+                    title = R.string.queue_behavior,
+                    description = viewModel.queueBehaviorDescription.value) {
+                        Switch(
+                            checked = viewModel.isQueueAdd(),
+                            onCheckedChange = { viewModel.setIsQueueAdd(context, it) })
+                    }
+            }
 
             // dark mode
-            item { SettingItem(
-                icon = R.drawable.contrast,
-                title = R.string.ui_mode,
-                description = viewModel.uiModeDescription.value) {
-                Switch(
-                    modifier = Modifier.padding(
-                        horizontal = 24.dp,
-                        vertical = 12.dp),
-                    checked = viewModel.isDarkMode.value,
-                    onCheckedChange = { viewModel.setIsDarkMode(context, it) })
-            }}
+            item {
+                SwitchSettingItem(
+                    icon = R.drawable.contrast,
+                    title = R.string.ui_mode,
+                    description = viewModel.uiModeDescription.value) {
+                        Switch(
+                            checked = viewModel.isDarkMode.value,
+                            onCheckedChange = { viewModel.setIsDarkMode(context, it) })
+                    }
+            }
 
             // system tts settings
             item {
-                SettingItem(
+                LinkSettingItem(
                     icon = R.drawable.settings,
                     title = R.string.system_tts,
-                    onClick = { with(context) {
-                        startActivity(
-                            Intent(getString(R.string.system_tts_settings_package_name))
-                                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-                    }}) { }
+                    onClick = {
+                        with(context) {
+                            startActivity(
+                                Intent(getString(R.string.system_tts_settings_package_name))
+                                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                        }
+                    })
             }
 
             // how to use
             // todo shimmer this on first app launch
             //  https://medium.com/@m.derakhshan/how-to-implement-the-shimmer-effect-using-jetpack-compose-fc0e81e47747
-            item { SettingItem(
-                icon = R.drawable.browser,
-                title = R.string.how_to_use,
-                onClick = { uriHandler.openUri(howToUseUrl) }) { }
+            item {
+                LinkSettingItem(
+                    icon = R.drawable.browser,
+                    title = R.string.how_to_use,
+                    onClick = { uriHandler.openUri(howToUseUrl) })
             }
 
             // about
-            item { SettingItem(
-                icon = R.drawable.browser,
-                title = R.string.about,
-                onClick = { uriHandler.openUri(aboutUrl) }) { }
+            item {
+                LinkSettingItem(
+                    icon = R.drawable.browser,
+                    title = R.string.about,
+                    onClick = { uriHandler.openUri(aboutUrl) })
             }
 
             // privacy
-            item { SettingItem(
-                icon = R.drawable.browser,
-                title = R.string.privacy,
-                onClick = { uriHandler.openUri(privacyUrl) }) { }
+            item {
+                LinkSettingItem(
+                    icon = R.drawable.browser,
+                    title = R.string.privacy,
+                    onClick = { uriHandler.openUri(privacyUrl) })
             }
 
             // terms
-            item { SettingItem(
-                icon = R.drawable.browser,
-                title = R.string.terms,
-                onClick = { uriHandler.openUri(termsUrl) }) { }
+            item {
+                LinkSettingItem(
+                    icon = R.drawable.browser,
+                    title = R.string.terms,
+                    onClick = { uriHandler.openUri(termsUrl) })
             }
 
             // sign-out
-            item { SettingItem(
-                icon = R.drawable.sign_out,
-                title = R.string.sign_out,
-                onClick = { onSignOut() }) { }
+            item {
+                LinkSettingItem(
+                    icon = R.drawable.sign_out,
+                    title = R.string.sign_out,
+                    onClick = { onSignOut() })
             }
         }
     }

@@ -100,14 +100,13 @@ fun MessagesScreen(
                     contentDescription = null)
             }
         }
-        
+
     ) { padding ->
 
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)) {
-
             Column(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)) {
@@ -115,13 +114,11 @@ fun MessagesScreen(
                     painter = painterResource(R.drawable.background),
                     contentDescription = null)
             }
-
             LazyColumn(
                 state = listState) {
                 items(
-                    messages,
+                    items = messages,
                     key = { it.timestamp }) { message ->
-
                     SwipeToDismissBox(
                         state = rememberSwipeToDismissBoxState(
                             confirmValueChange = {
@@ -132,7 +129,6 @@ fun MessagesScreen(
                             }),
                         modifier = Modifier.animateItem(),
                         backgroundContent = { }) {
-
                         MessageItem(
                             message = message)
                     }

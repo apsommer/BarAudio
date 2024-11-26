@@ -49,7 +49,9 @@ fun MessageItem(
                         text = message.message,
                         style = MaterialTheme.typography.titleMedium)
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(
+                        modifier = Modifier
+                            .height(12.dp))
 
                     // timestamp
                     Text(

@@ -20,8 +20,7 @@ fun SliderImpl(
 
     var position by remember { mutableFloatStateOf(initPosition) }
 
-    Column(
-        modifier = Modifier.padding(horizontal = 24.dp)) {
+    Column{
         Slider(
             value = position,
             onValueChange = {

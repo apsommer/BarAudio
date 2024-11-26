@@ -56,7 +56,7 @@ const val volumeKey = KEY_PARAM_VOLUME
 
 // todo extract to strings.xml
 const val queueBehaviorFlushDescription = "Play new alerts immediately"
-const val queueBehaviorAddDescription = "Add new alerts to queue"
+const val queueBehaviorAddDescription = "Very long message, will this push out the switch? I think so!" // "Add new alerts to queue"
 const val uiModeDarkDescription = "Dark"
 const val uiModeLightDescription = "Light"
 
