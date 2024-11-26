@@ -5,6 +5,8 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
 import android.speech.tts.Voice
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -16,7 +18,6 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
 import org.json.JSONObject
-import kotlin.math.log
 import kotlin.math.roundToInt
 
 class MainViewModel(
@@ -26,7 +27,7 @@ class MainViewModel(
 
     // webhook
     val webhookUrl by lazy { webhookBaseUrl + Firebase.auth.currentUser?.uid }
-    fun saveToClipboard(context: Context) {
+    fun saveToWebhookClipboard(context: Context) {
 
         // save url to clipboard
         val clipboardManager = context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
@@ -254,8 +255,8 @@ class MainViewModel(
     // images //////////////////////////////////////////////////////////////////////////////////////
 
     fun getGoogleImageId() =
-        if (isDarkMode.value) R.drawable.google_dark
-        else R.drawable.google_light
+        if (isDarkMode.value) R.drawable.google_small_dark // R.drawable.google_dark
+        else R.drawable.google_small_light // R.drawable.google_light
 
     fun getGitHubImageId() =
         if (isDarkMode.value) R.drawable.github_light
@@ -268,4 +269,9 @@ class MainViewModel(
     fun getFabTintColor() =
         if (isMute) Color.Gray
         else Color.Unspecified
+
+    @Composable
+    fun getFabBorderColor() =
+        if (isMute) Color.Gray
+        else MaterialTheme.colorScheme.onSurface
 }

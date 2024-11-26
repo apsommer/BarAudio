@@ -1,20 +1,24 @@
 package com.sommerengineering.baraudio.login
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -22,6 +26,9 @@ import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import org.koin.androidx.compose.koinViewModel
+
+// todo collect and move to utils?
+val buttonBorderSize = 96.dp
 
 @Composable
 fun LoginScreen (
@@ -32,46 +39,90 @@ fun LoginScreen (
     val context = LocalContext.current
     val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
 
+    // size composables
+    val githubImageSize = 50.dp // touch over half buttonBorderSize to align with google
+    val logoPadding = 64.dp
+
     Surface {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = modifier.fillMaxSize()) {
-            Row(
-                Modifier.padding(top = 120.dp, bottom = 60.dp)) {
-                Spacer(modifier = Modifier.weight(1f))
-                Image(
-                    painterResource(R.drawable.logo_full),
-                    contentDescription = null,
-                    Modifier.weight(3f))
-                Spacer(modifier = Modifier.weight(1f))
-            }
+            modifier = modifier
+                .fillMaxSize()) {
+
+            // logo
             Column(
-                Modifier.padding(60.dp),
-                horizontalAlignment = Alignment.CenterHorizontally) {
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(logoPadding),
+                verticalArrangement = Arrangement.Center) {
                 Image(
+                    painter = painterResource(R.drawable.logo_full),
+                    contentDescription = null)
+            }
+
+            // HorizontalDivider()
+
+            // google
+            Column(
+                modifier = Modifier
+                    .weight(1f),
+                verticalArrangement = Arrangement.Center) {
+
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(24.dp)
+                        .size(buttonBorderSize)
+                        .clip(CircleShape)
                         .clickable {
                             signInWithGoogle(
                                 context = context,
                                 onAuthentication = onAuthentication)
-                    },
-                    contentScale = ContentScale.FillWidth,
-                    painter = painterResource(viewModel.getGoogleImageId()),
-                    contentDescription = null)
-                Spacer(modifier = Modifier.height(12.dp))
-                Image(
+                        }
+                        .border(
+                            border = BorderStroke(
+                                width = 1.dp,
+                                color = MaterialTheme.colorScheme.onSurface),
+                            shape = CircleShape
+                        )) {
+
+                    Image(
+                        modifier = Modifier
+                            .size(buttonBorderSize),
+                        painter = painterResource(viewModel.getGoogleImageId()),
+                        contentDescription = null)
+                }
+
+                Spacer(
                     modifier = Modifier
-                        .padding(24.dp)
+                        .height(buttonBorderSize / 2))
+
+                // github
+                Box(
+                    modifier = Modifier
+                        .size(buttonBorderSize)
+                        .clip(CircleShape)
                         .clickable {
                             signInWithGitHub(
                                 context = context,
                                 onAuthentication = onAuthentication)
-                        },
-                    alignment = Alignment.Center,
-                    painter = painterResource(viewModel.getGitHubImageId()),
-                    contentDescription = null)
+                        }
+                        .border(
+                            border = BorderStroke(
+                                width = 1.dp,
+                                color = MaterialTheme.colorScheme.onSurface),
+                            shape = CircleShape
+                        )) {
+
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .size(githubImageSize)
+                            .clip(CircleShape)) {
+
+                        Image(
+                            painter = painterResource(viewModel.getGitHubImageId()),
+                            contentDescription = null)
+                    }
+                }
             }
         }
     }

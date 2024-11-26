@@ -64,7 +64,9 @@ fun Navigation(
 
 // skip login screen if user already authenticated
 fun getStartDestination() =
-    if (Firebase.auth.currentUser != null) { MessagesScreenRoute }
+    if (Firebase.auth.currentUser != null) {
+        logMessage("Sign-in skipped, user: ${Firebase.auth.currentUser?.uid}")
+        MessagesScreenRoute }
     else LoginScreenRoute
 
 

@@ -2,11 +2,14 @@ package com.sommerengineering.baraudio.settings
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -20,44 +23,48 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun SettingItem(
+fun SwitchSettingItem(
     @DrawableRes icon: Int,
     @StringRes title: Int,
-    description: String? = null,
-    onClick: (() -> Unit)? = null,
-    content: @Composable () -> Unit
-) {
-
-    // toggle row clickable
-    val modifier =
-        if (onClick != null) Modifier.clickable { onClick() }
-        else Modifier.clickable(enabled = false, onClick = { })
+    description: String,
+    content: @Composable () -> Unit) {
 
     Surface {
         Column {
             Row(
-                modifier = modifier,
+                modifier = Modifier
+                    .padding(
+                        end = 24.dp),
                 verticalAlignment = Alignment.CenterVertically) {
                 Row(
+                    modifier = Modifier
+                        .weight(1f),
                     verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        modifier = Modifier.padding(24.dp),
-                        painter = painterResource(icon),
-                        contentDescription = null)
+                    Box(
+                        modifier = Modifier
+                            .padding(24.dp)) {
+                        Image(
+                            modifier = Modifier
+                                .size(24.dp),
+                            painter = painterResource(icon),
+                            contentDescription = null)
+                    }
                     Column {
                         Text(
                             text = stringResource(title),
                             style = MaterialTheme.typography.titleMedium)
-                        description?.let {
-                            Text(
-                                text = description,
-                                style = MaterialTheme.typography.bodySmall,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis)
-                        }
+                        Text(
+                            modifier = Modifier
+                                .padding(top = 4.dp),
+                            text = description,
+                            style = MaterialTheme.typography.bodySmall,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis)
                     }
                 }
-                Spacer(modifier = Modifier.weight(1f))
+                Spacer(
+                    modifier = Modifier
+                        .width(24.dp))
                 content()
             }
         }

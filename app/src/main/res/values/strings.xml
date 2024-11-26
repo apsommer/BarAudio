@@ -4,8 +4,8 @@
     <string name="package_name">com.sommerengineering.baraudio</string>
     <string name="system_tts_settings_package_name">com.android.settings.TTS_SETTINGS</string>
     <string name="notification_channel_id">42</string>
-    <string name="notification_channel_name">webhook</string>
-    <string name="notification_channel_description">Notification for incoming webhook</string>
+    <string name="notification_channel_name">Webhook</string>
+    <string name="notification_channel_description">Push notification for incoming webhook</string>
     <string name="settings">Settings</string>
     <string name="queue_behavior">Queue behavior</string>
     <string name="webhook">Webhook</string>
