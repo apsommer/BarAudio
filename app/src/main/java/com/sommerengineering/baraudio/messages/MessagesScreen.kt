@@ -1,6 +1,8 @@
 package com.sommerengineering.baraudio.messages
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -90,6 +92,12 @@ fun MessagesScreen(
 
         floatingActionButton = {
             LargeFloatingActionButton (
+                modifier = Modifier
+                    .border(
+                        border = BorderStroke(
+                            width = 1.dp,
+                            color = MaterialTheme.colorScheme.onSurface),
+                        shape = CircleShape),
                 shape = CircleShape,
                 onClick = { viewModel.setIsMute(context) }) {
 
