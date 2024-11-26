@@ -23,11 +23,12 @@ fun MessagesTopBar(
 
     return CenterAlignedTopAppBar(
 
+        modifier = Modifier
+            .padding(8.dp),
+
         // delete all
         navigationIcon = {
             IconButton(
-                modifier = Modifier
-                    .padding(12.dp),
                 onClick = { deleteAllMessages(messages) },
                 enabled = !messages.isEmpty()) {
                 Icon(
@@ -48,8 +49,6 @@ fun MessagesTopBar(
         // settings
         actions = {
             IconButton(
-                modifier = Modifier
-                    .padding(12.dp),
                 onClick = { onSettingsClick() }) {
                 Icon(
                     painter = painterResource(R.drawable.more_vertical),

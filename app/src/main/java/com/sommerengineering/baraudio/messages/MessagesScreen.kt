@@ -11,8 +11,11 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.DividerDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LargeFloatingActionButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
@@ -78,15 +81,18 @@ fun MessagesScreen(
     }
 
     Scaffold(
+
         topBar = {
             MessagesTopBar(
                 onSettingsClick = onSettingsClick,
                 messages = messages)
         },
+
         floatingActionButton = {
             LargeFloatingActionButton (
                 shape = CircleShape,
                 onClick = { viewModel.setIsMute(context) }) {
+
                 Icon(
                     modifier = Modifier.size(42.dp),
                     painter = painterResource(viewModel.getFabIconId()),
@@ -94,23 +100,28 @@ fun MessagesScreen(
                     contentDescription = null)
             }
         }
+        
     ) { padding ->
 
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)) {
+
             Column(
-                modifier = Modifier.align(Alignment.BottomCenter)) {
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)) {
                 Image(
                     painter = painterResource(R.drawable.background),
                     contentDescription = null)
             }
+
             LazyColumn(
                 state = listState) {
                 items(
                     messages,
                     key = { it.timestamp }) { message ->
+
                     SwipeToDismissBox(
                         state = rememberSwipeToDismissBoxState(
                             confirmValueChange = {
@@ -121,6 +132,7 @@ fun MessagesScreen(
                             }),
                         modifier = Modifier.animateItem(),
                         backgroundContent = { }) {
+
                         MessageItem(
                             message = message)
                     }
