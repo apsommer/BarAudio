@@ -2,7 +2,7 @@ package com.sommerengineering.baraudio.settings
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.compose.animation.Animatable
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -17,17 +17,18 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.sommerengineering.baraudio.theme.darkScheme
 import com.sommerengineering.baraudio.theme.fadeTimeMillis
-import com.sommerengineering.baraudio.theme.lightScheme
-
+import kotlinx.coroutines.delay
 
 @Composable
 fun LinkSettingItem(
@@ -35,29 +36,29 @@ fun LinkSettingItem(
     @StringRes title: Int,
     onClick: () -> Unit) {
 
-    val currentColor = MaterialTheme.colorScheme.onSurface
-    val targetColor =
-        if (currentColor == lightScheme.onSurface) darkScheme.onSurface
-        else lightScheme.onSurface
+    // todo only fast "how to use" on first launch, then never again
+    var isFade by remember { mutableStateOf(false) }
 
-    val color = remember { Animatable(currentColor) }
+    val alpha by animateFloatAsState(
+        targetValue = if (isFade) 0f else 1f,
+        animationSpec = tween(
+            durationMillis = fadeTimeMillis))
 
     LaunchedEffect(false) {
-        color.animateTo(
-            targetValue = targetColor,
-            animationSpec = tween(
-                durationMillis = 1000))
-        color.animateTo(
-            targetValue = currentColor,
-            animationSpec = tween(
-                durationMillis = 1000))
+        delay(fadeTimeMillis.toLong())
+        isFade = true
+        delay(fadeTimeMillis.toLong())
+        isFade = false
     }
 
     Surface {
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .clickable { onClick() },
+                .clickable {
+                    onClick()
+                }
+                .alpha(alpha),
             verticalAlignment = Alignment.CenterVertically) {
             Box(
                 modifier = Modifier
@@ -71,8 +72,7 @@ fun LinkSettingItem(
             Column {
                 Text(
                     text = stringResource(title),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = color.value)
+                    style = MaterialTheme.typography.titleMedium)
             }
         }
     }
