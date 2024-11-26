@@ -37,7 +37,7 @@ class TextToSpeechImpl(
                         .voices
                         .first { it.name == name }
                 } ?: textToSpeech.voice
-        
+
         speed = readFromDataStore(context, speedKey)?.toFloat() ?: 1f
         pitch = readFromDataStore(context, pitchKey)?.toFloat() ?: 1f
         isQueueAdd = readFromDataStore(context, isQueueFlushKey).toBoolean()

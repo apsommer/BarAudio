@@ -1,6 +1,7 @@
 package com.sommerengineering.baraudio.messages
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -18,13 +19,15 @@ import com.sommerengineering.baraudio.R
 @Composable
 fun MessagesTopBar(
     onSettingsClick: () -> Unit,
-    messages: SnapshotStateList<Message>
-) {
+    messages: SnapshotStateList<Message>) {
 
     return CenterAlignedTopAppBar(
-        modifier = Modifier.padding(start = 8.dp),
+
+        // delete all
         navigationIcon = {
             IconButton(
+                modifier = Modifier
+                    .padding(12.dp),
                 onClick = { deleteAllMessages(messages) },
                 enabled = !messages.isEmpty()) {
                 Icon(
@@ -32,6 +35,8 @@ fun MessagesTopBar(
                     contentDescription = null)
             }
         },
+
+        // logo
         title = {
             Image(
                 modifier = Modifier
@@ -39,8 +44,12 @@ fun MessagesTopBar(
                 painter = painterResource(R.drawable.logo_banner),
                 contentDescription = null)
         },
+
+        // settings
         actions = {
             IconButton(
+                modifier = Modifier
+                    .padding(12.dp),
                 onClick = { onSettingsClick() }) {
                 Icon(
                     painter = painterResource(R.drawable.more_vertical),
