@@ -69,6 +69,14 @@ fun SettingsScreen(
             modifier = Modifier
                 .padding(padding)) {
 
+            // how to use
+            item {
+                LinkSettingItem(
+                    icon = R.drawable.browser,
+                    title = R.string.how_to_use,
+                    onClick = { uriHandler.openUri(howToUseUrl) })
+            }
+
             // webhook
             item {
                 DialogSettingItem(
@@ -83,11 +91,6 @@ fun SettingsScreen(
                             contentDescription = null)
                     }
 
-//                    Icon(
-//                        modifier = Modifier
-//                            .clickable { viewModel.saveToWebhookClipboard(context) },
-//                        painter = painterResource(R.drawable.copy),
-//                        contentDescription = null)
                     // todo toast for older api
                 }
             }
@@ -187,14 +190,6 @@ fun SettingsScreen(
                                     .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
                         }
                     })
-            }
-
-            // how to use
-            item {
-                LinkSettingItem(
-                    icon = R.drawable.browser,
-                    title = R.string.how_to_use,
-                    onClick = { uriHandler.openUri(howToUseUrl) })
             }
 
             // about
