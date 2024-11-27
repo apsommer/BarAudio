@@ -38,9 +38,9 @@ const val messageMaxSize = 1000
 
 // notifications
 const val isLaunchFromNotification = "isLaunchFromNotification"
-const val timestamp = "timestamp"
-const val message = "message"
-const val origin = "origin"
+const val timestampKey = "timestamp"
+const val messageKey = "message"
+const val originKey = "origin"
 const val insomnia = "insomnia"
 const val defaultMessage = "Thank you for using BarAudio!"
 

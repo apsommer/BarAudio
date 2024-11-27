@@ -2,7 +2,6 @@ package com.sommerengineering.baraudio
 
 import android.Manifest
 import android.app.PendingIntent
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
@@ -34,8 +33,8 @@ class FirebaseService: FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
 
         // extract attributes
-        val timestamp = remoteMessage.data[timestamp] ?: return
-        val message = remoteMessage.data[message] ?: return
+        val timestamp = remoteMessage.data[timestampKey] ?: return
+        val message = remoteMessage.data[messageKey] ?: return
 
         // show notification
         showNotification(timestamp, message)

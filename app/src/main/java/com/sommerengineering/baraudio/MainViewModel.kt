@@ -77,7 +77,7 @@ class MainViewModel(
 
                     // parse json
                     val json = JSONObject(children.first().value.toString())
-                    val jsonMessage = json.getString(message)
+                    val jsonMessage = json.getString(messageKey)
                     if (jsonMessage.isNotEmpty()) lastMessage = jsonMessage
                 }
 

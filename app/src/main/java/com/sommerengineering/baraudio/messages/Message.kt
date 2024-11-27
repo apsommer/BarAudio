@@ -9,12 +9,16 @@ data class Message(
     var originImageId: Int?
 )
 
-fun getOriginImageId(origin: String): Int? = when (origin) {
-    insomnia -> R.drawable.insomnia
-    in tradingviewWhitelistIps -> R.drawable.tradingview
-    trendspiderWhitelistIp -> R.drawable.trendspider
-    else -> null
-}
+fun getOriginImageId(
+    origin: String): Int? =
+
+    when (origin) {
+        insomnia -> R.drawable.insomnia
+        in tradingviewWhitelistIps -> R.drawable.tradingview
+        trendspiderWhitelistIp -> R.drawable.trendspider
+        error -> R.drawable.error
+        else -> null
+    }
 
 // https://www.tradingview.com/support/solutions/43000529348-about-webhooks/
 val tradingviewWhitelistIps = listOf(
@@ -24,4 +28,5 @@ val tradingviewWhitelistIps = listOf(
     "52.32.178.7")
 
 // https://help.trendspider.com/kb/alerts/webhooks
-val trendspiderWhitelistIp = "3.12.143.24"
+const val trendspiderWhitelistIp = "3.12.143.24"
+const val error = "error"

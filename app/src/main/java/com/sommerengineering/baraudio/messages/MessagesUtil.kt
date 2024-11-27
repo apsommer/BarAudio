@@ -7,13 +7,14 @@ import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.sommerengineering.baraudio.dbRef
-import com.sommerengineering.baraudio.message
+import com.sommerengineering.baraudio.logException
+import com.sommerengineering.baraudio.messageKey
 import com.sommerengineering.baraudio.messageMaxSize
-import com.sommerengineering.baraudio.origin
+import com.sommerengineering.baraudio.originKey
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import org.json.JSONException
 import org.json.JSONObject
-import java.util.Objects
 
 fun listenToDatabaseWrites(
     messages: SnapshotStateList<Message>,
@@ -30,14 +31,28 @@ fun listenToDatabaseWrites(
 
             // extract attributes
             val timestamp = snapshot.key
-            val messageJson = Objects.toString(snapshot.value, "")
+            val rawMessage = snapshot.value.toString()
 
-            if (timestamp.isNullOrEmpty() || messageJson.isEmpty()) return
+            if (timestamp.isNullOrEmpty() || rawMessage.isEmpty()) return
 
             // parse json
-            val json = JSONObject(messageJson)
-            val message = json.getString(message)
-            val imageId = getOriginImageId(json.getString(origin))
+            var message: String
+            var origin: String
+
+            try {
+
+                val json = JSONObject(rawMessage)
+                message = json.getString(messageKey)
+                origin = json.getString(originKey)
+
+            } catch (e: JSONException) {
+
+                logException(e)
+                message = "Error parsing message"
+                origin = error
+            }
+
+            val imageId = getOriginImageId(origin)
 
             // todo observe a State<LinkedList> to reverse order efficiently
             messages.add(0, Message(timestamp, message, imageId))
@@ -87,8 +102,7 @@ fun deleteMessage(
 }
 
 fun deleteAllMessages(
-    messages: SnapshotStateList<Message>
-) {
+    messages: SnapshotStateList<Message>) {
 
     dbRef.removeValue()
     messages.clear()
