@@ -33,22 +33,24 @@ fun SwitchSettingItem(
         Column {
             Row(
                 modifier = Modifier
-                    .padding(
-                        end = 24.dp),
+                    .padding(end = 24.dp),
                 verticalAlignment = Alignment.CenterVertically) {
+
                 Row(
                     modifier = Modifier
                         .weight(1f),
                     verticalAlignment = Alignment.CenterVertically) {
+
                     Box(
                         modifier = Modifier
                             .padding(24.dp)) {
-                        Image(
+                        Icon(
                             modifier = Modifier
                                 .size(24.dp),
                             painter = painterResource(icon),
                             contentDescription = null)
                     }
+
                     Column {
                         Text(
                             text = stringResource(title),
@@ -62,9 +64,11 @@ fun SwitchSettingItem(
                             overflow = TextOverflow.Ellipsis)
                     }
                 }
+
                 Spacer(
                     modifier = Modifier
                         .width(24.dp))
+
                 content()
             }
         }

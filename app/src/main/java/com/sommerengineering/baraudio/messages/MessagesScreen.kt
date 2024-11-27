@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.rememberSwipeToDismissBoxState
@@ -80,15 +81,16 @@ fun MessagesScreen(
                     .border(
                         border = BorderStroke(
                             width = 1.dp,
-                            color = viewModel.getFabBorderColor()),
+                            color = viewModel.getFabIconColor()),
                         shape = CircleShape),
+                containerColor = viewModel.getFabBackgroundColor(),
                 shape = CircleShape,
                 onClick = { viewModel.setIsMute(context) }) {
 
                 Icon(
                     modifier = Modifier.size(buttonBorderSize / 2),
                     painter = painterResource(viewModel.getFabIconId()),
-                    tint = viewModel.getFabTintColor(),
+                    tint = viewModel.getFabIconColor(),
                     contentDescription = null)
             }
         }

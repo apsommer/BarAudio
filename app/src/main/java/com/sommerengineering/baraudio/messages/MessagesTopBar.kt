@@ -39,8 +39,9 @@ fun MessagesTopBar(
 
         // logo
         title = {
-            Image(
+            Icon(
                 modifier = Modifier
+                    .clickable { onSettingsClick() }
                     .padding(8.dp),
                 painter = painterResource(R.drawable.logo_banner),
                 contentDescription = null)

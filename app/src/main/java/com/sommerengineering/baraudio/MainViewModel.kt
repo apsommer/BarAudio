@@ -266,12 +266,13 @@ class MainViewModel(
         if (isMute) R.drawable.volume_off
         else R.drawable.volume_on
 
-    fun getFabTintColor() =
-        if (isMute) Color.Gray
-        else Color.Unspecified
+    @Composable
+    fun getFabIconColor() =
+        if (isMute) MaterialTheme.colorScheme.outline
+        else MaterialTheme.colorScheme.onPrimaryContainer
 
     @Composable
-    fun getFabBorderColor() =
-        if (isMute) Color.Gray
-        else MaterialTheme.colorScheme.onSurface
+    fun getFabBackgroundColor() =
+        if (isMute) MaterialTheme.colorScheme.surfaceVariant
+        else MaterialTheme.colorScheme.primaryContainer
 }

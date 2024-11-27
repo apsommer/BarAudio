@@ -22,6 +22,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.sommerengineering.baraudio.logMessage
 
 @Composable
 fun DialogSettingItem(
@@ -35,25 +36,30 @@ fun DialogSettingItem(
         Column {
             Row(
                 modifier = Modifier
-                    .clickable {
-                        onClick()
-                    }
-                    .padding(
-                        end = 24.dp),
+                    .clickable { onClick() }
+                    .padding(end = 24.dp),
                 verticalAlignment = Alignment.CenterVertically) {
+
                 Row(
                     modifier = Modifier
                         .weight(1f),
                     verticalAlignment = Alignment.CenterVertically) {
+
                     Box(
                         modifier = Modifier
+                            .clickable { onClick() }
                             .padding(24.dp)) {
-                        Image(
+                        Icon(
                             modifier = Modifier
-                                .size(24.dp),
+                                .size(24.dp)
+                                .clickable {
+                                    onClick()
+                                           logMessage("apples")
+                                           },
                             painter = painterResource(icon),
                             contentDescription = null)
                     }
+
                     Column {
                         Text(
                             text = stringResource(title),
@@ -67,10 +73,11 @@ fun DialogSettingItem(
                             overflow = TextOverflow.Ellipsis)
                     }
                 }
+
                 Spacer(
                     modifier = Modifier
-                        .width(24.dp)
-                )
+                        .width(24.dp))
+
                 content()
             }
         }
