@@ -39,34 +39,11 @@ fun LinkSettingItem(
     @StringRes title: Int,
     onClick: () -> Unit) {
 
-    // todo only fast "how to use" on first launch, then never again
-    var isFade by remember { mutableStateOf(false) }
-
-    val alpha by animateFloatAsState(
-        targetValue = if (isFade) 0f else 1f,
-        animationSpec = tween(
-            durationMillis = howToUseFadeTimeMillis))
-
-    if (title == R.string.how_to_use) {
-
-        LaunchedEffect(false) {
-
-            // fade out
-            delay(howToUseFadeTimeMillis.toLong())
-            isFade = true
-
-            // fade in
-            delay(howToUseFadeTimeMillis.toLong())
-            isFade = false
-        }
-    }
-
     Surface {
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .clickable { onClick() }
-                .alpha(alpha), // animate
+                .clickable { onClick() },
             verticalAlignment = Alignment.CenterVertically) {
 
             Box(
