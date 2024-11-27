@@ -45,7 +45,7 @@ class FirebaseService: FirebaseMessagingService() {
             tts.volume == 0f ||
             getSystemVolume() == 0
 
-        if (isShowNotification) { showNotification(timestamp, message) }
+        if (isShowNotification && !isAppForeground) { showNotification(timestamp, message) }
         else { tts.speak(timestamp, message) }
     }
 

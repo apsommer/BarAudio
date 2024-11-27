@@ -30,6 +30,7 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.KoinContext
 
 var isAppOpen = false
+var isAppForeground = false
 var token = ""
 
 class MainActivity : ComponentActivity() {
@@ -101,7 +102,13 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
+        isAppForeground = true
         cancelAllNotifications(context)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        isAppForeground = false
     }
 }
 
