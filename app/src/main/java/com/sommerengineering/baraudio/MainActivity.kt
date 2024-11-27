@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -33,6 +34,8 @@ var token = ""
 
 class MainActivity : ComponentActivity() {
 
+    val context = this
+
     // initialize system permission request ui
     private val requestPermissionLauncher =
         registerForActivityResult(
@@ -49,7 +52,7 @@ class MainActivity : ComponentActivity() {
 
         // permission already granted
         if (ContextCompat.checkSelfPermission
-                (this, Manifest.permission.POST_NOTIFICATIONS)
+                (context, Manifest.permission.POST_NOTIFICATIONS)
                     == PackageManager.PERMISSION_GRANTED) return
 
         // launch system permission request ui
@@ -86,14 +89,19 @@ class MainActivity : ComponentActivity() {
         // init
         get<TextToSpeechImpl>()
         isAppOpen = true // true for background and foreground, false if closed
-        token = readFromDataStore(this, tokenKey) ?: unauthenticatedUser
+        token = readFromDataStore(context, tokenKey) ?: unauthenticatedUser
 
         // dismiss notifications after launch
         val isLaunchFromNotification = intent.extras?.getBoolean(isLaunchFromNotification) ?: false
-        if (isLaunchFromNotification) { NotificationManagerCompat.from(this).cancelAll() }
+        if (isLaunchFromNotification) { cancelAllNotifications(context) }
 
         enableEdgeToEdge()
         setContent { App() }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        cancelAllNotifications(context)
     }
 }
 
@@ -117,3 +125,9 @@ fun App() {
         }
     }
 }
+
+fun cancelAllNotifications(
+    context: Context) =
+        NotificationManagerCompat
+            .from(context)
+            .cancelAll()

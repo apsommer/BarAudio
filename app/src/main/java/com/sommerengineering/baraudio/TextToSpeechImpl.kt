@@ -48,7 +48,7 @@ class TextToSpeechImpl(
 
             override fun onStart(
                 utteranceId: String?) =
-                    NotificationManagerCompat.from(context).cancelAll()
+                    cancelAllNotifications(context)
 
             override fun onDone(timestamp: String?) { }
             override fun onStop(timestamp: String?, isInterupted: Boolean) { }
