@@ -80,7 +80,7 @@ fun MessagesScreen(
                     .size(buttonBorderSize)
                     .border(
                         border = BorderStroke(
-                            width = 1.dp,
+                            width = 1.dp, // if (viewModel.isMute) 2.dp else 1.dp,
                             color = viewModel.getFabIconColor()),
                         shape = CircleShape),
                 containerColor = viewModel.getFabBackgroundColor(),

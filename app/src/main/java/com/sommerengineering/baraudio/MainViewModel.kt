@@ -10,7 +10,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
@@ -255,8 +254,8 @@ class MainViewModel(
     // images //////////////////////////////////////////////////////////////////////////////////////
 
     fun getGoogleImageId() =
-        if (isDarkMode.value) R.drawable.google_small_dark // R.drawable.google_dark
-        else R.drawable.google_small_light // R.drawable.google_light
+        if (isDarkMode.value) R.drawable.google_dark
+        else R.drawable.google_light
 
     fun getGitHubImageId() =
         if (isDarkMode.value) R.drawable.github_light

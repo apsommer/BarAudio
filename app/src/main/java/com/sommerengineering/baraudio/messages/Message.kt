@@ -1,24 +1,10 @@
 package com.sommerengineering.baraudio.messages
 
-import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.insomnia
-
 data class Message(
     var timestamp: String,
     var message: String,
     var originImageId: Int?
 )
-
-fun getOriginImageId(
-    origin: String): Int? =
-
-    when (origin) {
-        insomnia -> R.drawable.insomnia
-        in tradingviewWhitelistIps -> R.drawable.tradingview
-        trendspiderWhitelistIp -> R.drawable.trendspider
-        error -> R.drawable.error
-        else -> null
-    }
 
 // https://www.tradingview.com/support/solutions/43000529348-about-webhooks/
 val tradingviewWhitelistIps = listOf(
