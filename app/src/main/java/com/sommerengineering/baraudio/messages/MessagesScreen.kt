@@ -60,10 +60,10 @@ fun MessagesScreen(
         viewModel.initMute(context)
 
         listenToDatabaseWrites(
-            messages = messages,
-            viewModel = viewModel,
-            listState = listState,
-            coroutine = coroutine)
+            messages,
+            viewModel,
+            listState,
+            coroutine)
     }
 
     Scaffold(
