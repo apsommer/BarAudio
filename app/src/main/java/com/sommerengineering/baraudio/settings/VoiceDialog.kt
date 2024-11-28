@@ -34,18 +34,21 @@ fun VoiceDialog(
 
     Dialog (
         onDismissRequest = { onDismiss() }) {
+
         Surface(
             modifier = Modifier.padding(vertical = 24.dp),
-            shape = RoundedCornerShape(16.dp)
-        ) {
+            shape = RoundedCornerShape(16.dp)) {
+
             LazyColumn(
                 state = listState) {
+
                 items(viewModel.voices) {
                     VoiceItem(
                         viewModel = viewModel,
                         voice = it,
                         onItemSelected = onItemSelected)
                 }
+
                 coroutineScope.launch {
                     listState.scrollToItem(
                         viewModel.getVoiceIndex())

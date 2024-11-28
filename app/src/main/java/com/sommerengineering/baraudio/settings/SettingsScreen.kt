@@ -114,7 +114,6 @@ fun SettingsScreen(
                                 viewModel = viewModel,
                                 onItemSelected = {
                                     viewModel.setVoice(context, it)
-                                    viewModel.speakLastMessage()
                                     isShowVoiceDialog = false
                                 },
                                 onDismiss = {
@@ -134,7 +133,7 @@ fun SettingsScreen(
                         SliderImpl(
                             initPosition = viewModel.getSpeed(),
                             onValueChanged = { viewModel.setSpeed(context, it) },
-                            onValueChangeFinished = { viewModel.speakLastMessage() })
+                            onValueChangeFinished = { viewModel.speakLastMessage(context) })
                     }
             }
 
@@ -148,7 +147,7 @@ fun SettingsScreen(
                         SliderImpl(
                             initPosition = viewModel.getPitch(),
                             onValueChanged = { viewModel.setPitch(context, it) },
-                            onValueChangeFinished = { viewModel.speakLastMessage() })
+                            onValueChangeFinished = { viewModel.speakLastMessage(context) })
                         }
             }
 

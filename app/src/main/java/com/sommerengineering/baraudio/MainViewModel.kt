@@ -54,6 +54,7 @@ class MainViewModel(
         tts.voice.value = voice
         writeToDataStore(context, voiceKey, voice.name)
         voiceDescription.value = beautifyVoiceName(voice.name)
+        speakLastMessage(context)
     }
 
     fun getVoiceIndex() =
@@ -61,12 +62,12 @@ class MainViewModel(
             voices.find {
                 it == tts.voice.value })
 
-    fun speakLastMessage() {
+    fun speakLastMessage(
+        context: Context) {
 
-        // todo get from local cache
-        //  temporarily get from db
+        setMute(context, false)
 
-        dbRef.limitToFirst(1).addListenerForSingleValueEvent(object : ValueEventListener {
+        dbRef.limitToLast(1).addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
 
                 var lastMessage = defaultMessage
@@ -239,10 +240,15 @@ class MainViewModel(
         isMute = tts.volume == 0f
     }
 
-    fun setIsMute(
-        context: Context) {
+    fun toggleMute(
+        context: Context) =
+            setMute(context, !isMute)
 
-        isMute = !isMute
+    fun setMute(
+        context: Context,
+        newMute: Boolean) {
+
+        isMute = newMute
 
         if (isMute) { tts.volume = 0f }
         else { tts.volume = 1f }

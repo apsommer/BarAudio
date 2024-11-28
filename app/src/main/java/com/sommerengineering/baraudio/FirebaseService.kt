@@ -93,6 +93,11 @@ class FirebaseService: FirebaseMessagingService() {
 
 val dbRef by lazy {
 
+    // enable local cache
+    Firebase
+        .database(databaseUrl)
+        .setPersistenceEnabled(true)
+
     Firebase
         .database(databaseUrl)
         .getReference(messages)
