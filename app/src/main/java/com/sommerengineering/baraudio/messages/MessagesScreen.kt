@@ -41,7 +41,7 @@ fun MessagesScreen(
     // init
     val messages = remember { mutableStateListOf<Message>() }
     val listState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
+    val coroutine = rememberCoroutineScope()
 
     // inject viewmodel
     val context = LocalContext.current
@@ -51,7 +51,7 @@ fun MessagesScreen(
     LaunchedEffect(databaseUrl) {
 
         // todo dev: launch to settings
-//        coroutineScope.launch {
+//        coroutine.launch {
 //            delay(100)
 //            onSettingsClick.invoke()
 //        }
@@ -60,9 +60,10 @@ fun MessagesScreen(
         viewModel.initMute(context)
 
         listenToDatabaseWrites(
-            messages,
-            listState,
-            coroutineScope)
+            messages = messages,
+            viewModel = viewModel,
+            listState = listState,
+            coroutine = coroutine)
     }
 
     Scaffold(

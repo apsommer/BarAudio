@@ -6,6 +6,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.dbRef
 import com.sommerengineering.baraudio.logException
 import com.sommerengineering.baraudio.messageKey
@@ -18,9 +19,9 @@ import org.json.JSONObject
 
 fun listenToDatabaseWrites(
     messages: SnapshotStateList<Message>,
+    viewModel: MainViewModel,
     listState: LazyListState,
-    coroutineScope: CoroutineScope
-) {
+    coroutine: CoroutineScope) {
 
     // triggers once for every child on initial connection
     dbRef.addChildEventListener(object : ChildEventListener {
@@ -52,11 +53,11 @@ fun listenToDatabaseWrites(
                 origin = error
             }
 
-            val imageId = getOriginImageId(origin)
+            val imageId = viewModel.getOriginImageId(origin)
 
             // todo observe a State<LinkedList> to reverse order efficiently
             messages.add(0, Message(timestamp, message, imageId))
-            coroutineScope.launch { listState.scrollToItem(0) }
+            coroutine.launch { listState.scrollToItem(0) }
 
             // limit size
             if (messages.size > messageMaxSize) {

@@ -16,6 +16,8 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
+import com.sommerengineering.baraudio.messages.tradingviewWhitelistIps
+import com.sommerengineering.baraudio.messages.trendspiderWhitelistIp
 import org.json.JSONObject
 import kotlin.math.roundToInt
 
@@ -270,6 +272,20 @@ class MainViewModel(
     fun getFabIconId() =
         if (isMute) R.drawable.volume_off
         else R.drawable.volume_on
+
+    fun getOriginImageId(
+        origin: String): Int? =
+
+        when (origin) {
+            insomnia -> R.drawable.insomnia
+            in tradingviewWhitelistIps -> {
+                if (isDarkMode.value) R.drawable.tradingview_light
+                else R.drawable.tradingview_dark
+            }
+            trendspiderWhitelistIp -> R.drawable.trendspider
+            com.sommerengineering.baraudio.messages.error -> R.drawable.error
+            else -> null
+        }
 
     @Composable
     fun getFabIconColor() =

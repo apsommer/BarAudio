@@ -30,7 +30,7 @@ fun VoiceDialog(
     onDismiss: () -> Unit) {
 
     val listState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
+    val coroutine = rememberCoroutineScope()
 
     Dialog (
         onDismissRequest = { onDismiss() }) {
@@ -49,7 +49,7 @@ fun VoiceDialog(
                         onItemSelected = onItemSelected)
                 }
 
-                coroutineScope.launch {
+                coroutine.launch {
                     listState.scrollToItem(
                         viewModel.getVoiceIndex())
                 }
