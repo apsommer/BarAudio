@@ -5,6 +5,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.AudioManager
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -34,17 +35,18 @@ class FirebaseService: FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
 
         // extract attributes
-        val timestamp = remoteMessage.data[timestamp] ?: return
-        val message = remoteMessage.data[message] ?: return
+        val timestamp = remoteMessage.data[timestampKey] ?: return
+        val message = remoteMessage.data[messageKey] ?: return
 
-        // show notification
-        showNotification(timestamp, message)
+        // either speak, or show notification
+        val isShowNotification =
+            Firebase.auth.currentUser == null ||
+            !isAppOpen ||
+            tts.volume == 0f ||
+            getSystemVolume() == 0
 
-        // only speak if user signed-in, and app open in background or foreground
-        if (Firebase.auth.currentUser == null || !isAppOpen) { return }
-
-        // speak message
-        tts.speak(timestamp, message)
+        if (isShowNotification && !isAppForeground) { showNotification(timestamp, message) }
+        else { tts.speak(timestamp, message) }
     }
 
     private fun showNotification(
@@ -82,9 +84,19 @@ class FirebaseService: FirebaseMessagingService() {
             trimTimestamp(timestamp),
             builder.build())
     }
+
+    fun getSystemVolume() =
+        (applicationContext
+            .getSystemService(Context.AUDIO_SERVICE) as AudioManager)
+            .getStreamVolume(AudioManager.STREAM_MUSIC) // between 0-25
 }
 
 val dbRef by lazy {
+
+    // enable local cache
+    Firebase
+        .database(databaseUrl)
+        .setPersistenceEnabled(true)
 
     Firebase
         .database(databaseUrl)

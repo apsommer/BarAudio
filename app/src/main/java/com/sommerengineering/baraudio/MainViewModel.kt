@@ -10,13 +10,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
+import com.sommerengineering.baraudio.messages.tradingviewWhitelistIps
+import com.sommerengineering.baraudio.messages.trendspiderWhitelistIp
 import org.json.JSONObject
 import kotlin.math.roundToInt
 
@@ -55,6 +56,7 @@ class MainViewModel(
         tts.voice.value = voice
         writeToDataStore(context, voiceKey, voice.name)
         voiceDescription.value = beautifyVoiceName(voice.name)
+        speakLastMessage(context)
     }
 
     fun getVoiceIndex() =
@@ -62,12 +64,12 @@ class MainViewModel(
             voices.find {
                 it == tts.voice.value })
 
-    fun speakLastMessage() {
+    fun speakLastMessage(
+        context: Context) {
 
-        // todo get from local cache
-        //  temporarily get from db
+        setMute(context, false)
 
-        dbRef.limitToFirst(1).addListenerForSingleValueEvent(object : ValueEventListener {
+        dbRef.limitToLast(1).addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
 
                 var lastMessage = defaultMessage
@@ -77,7 +79,7 @@ class MainViewModel(
 
                     // parse json
                     val json = JSONObject(children.first().value.toString())
-                    val jsonMessage = json.getString(message)
+                    val jsonMessage = json.getString(messageKey)
                     if (jsonMessage.isNotEmpty()) lastMessage = jsonMessage
                 }
 
@@ -240,10 +242,15 @@ class MainViewModel(
         isMute = tts.volume == 0f
     }
 
-    fun setIsMute(
-        context: Context) {
+    fun toggleMute(
+        context: Context) =
+            setMute(context, !isMute)
 
-        isMute = !isMute
+    fun setMute(
+        context: Context,
+        newMute: Boolean) {
+
+        isMute = newMute
 
         if (isMute) { tts.volume = 0f }
         else { tts.volume = 1f }
@@ -255,8 +262,8 @@ class MainViewModel(
     // images //////////////////////////////////////////////////////////////////////////////////////
 
     fun getGoogleImageId() =
-        if (isDarkMode.value) R.drawable.google_small_dark // R.drawable.google_dark
-        else R.drawable.google_small_light // R.drawable.google_light
+        if (isDarkMode.value) R.drawable.google_dark
+        else R.drawable.google_light
 
     fun getGitHubImageId() =
         if (isDarkMode.value) R.drawable.github_light
@@ -266,12 +273,27 @@ class MainViewModel(
         if (isMute) R.drawable.volume_off
         else R.drawable.volume_on
 
-    fun getFabTintColor() =
-        if (isMute) Color.Gray
-        else Color.Unspecified
+    fun getOriginImageId(
+        origin: String): Int? =
+
+        when (origin) {
+            insomnia -> R.drawable.insomnia
+            in tradingviewWhitelistIps -> {
+                if (isDarkMode.value) R.drawable.tradingview_light
+                else R.drawable.tradingview_dark
+            }
+            trendspiderWhitelistIp -> R.drawable.trendspider
+            com.sommerengineering.baraudio.messages.error -> R.drawable.error
+            else -> null
+        }
 
     @Composable
-    fun getFabBorderColor() =
-        if (isMute) Color.Gray
-        else MaterialTheme.colorScheme.onSurface
+    fun getFabIconColor() =
+        if (isMute) MaterialTheme.colorScheme.outline
+        else MaterialTheme.colorScheme.onPrimaryContainer
+
+    @Composable
+    fun getFabBackgroundColor() =
+        if (isMute) MaterialTheme.colorScheme.surfaceVariant
+        else MaterialTheme.colorScheme.primaryContainer
 }

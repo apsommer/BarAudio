@@ -1,6 +1,7 @@
 package com.sommerengineering.baraudio.settings
 
 import android.content.Intent
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -30,6 +31,7 @@ import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.aboutUrl
 import com.sommerengineering.baraudio.howToUseUrl
+import com.sommerengineering.baraudio.messages.deleteAllMessages
 import com.sommerengineering.baraudio.privacyUrl
 import com.sommerengineering.baraudio.termsUrl
 import org.koin.androidx.compose.koinViewModel
@@ -67,25 +69,28 @@ fun SettingsScreen(
             modifier = Modifier
                 .padding(padding)) {
 
-//            items(
-//                items = SettingItems(
-//                    context = context,
-//                    viewModel = viewModel,
-//                    uriHandler = uriHandler,
-//                    onSignOut = onSignOut)) {
-//                it()
-//            }
+            // how to use
+            item {
+                LinkSettingItem(
+                    icon = R.drawable.browser,
+                    title = R.string.how_to_use,
+                    onClick = { uriHandler.openUri(howToUseUrl) })
+            }
 
             // webhook
             item {
                 DialogSettingItem(
                     icon = R.drawable.webhook,
                     title = R.string.webhook,
-                    description = viewModel.webhookUrl,
-                    onClick = { viewModel.saveToWebhookClipboard(context) }) {
-                    Icon(
-                        painter = painterResource(R.drawable.copy),
-                        contentDescription = null)
+                    description = viewModel.webhookUrl) {
+
+                    IconButton(
+                        onClick = { viewModel.saveToWebhookClipboard(context) }) {
+                        Icon(
+                            painter = painterResource(R.drawable.copy),
+                            contentDescription = null)
+                    }
+
                     // todo toast for older api
                 }
             }
@@ -95,27 +100,26 @@ fun SettingsScreen(
                 DialogSettingItem (
                     icon = R.drawable.voice,
                     title = R.string.voice,
-                    description = viewModel.voiceDescription.value,
-                    onClick = {
-                        isShowVoiceDialog = true
-                    }) {
-                    Icon(
-                        modifier = Modifier
-                            .size(24.dp),
-                        painter = painterResource(R.drawable.more_vertical),
-                        contentDescription = null)
-                    if (isShowVoiceDialog) {
-                        VoiceDialog(
-                            viewModel = viewModel,
-                            onItemSelected = {
-                                viewModel.setVoice(context, it)
-                                viewModel.speakLastMessage()
-                                isShowVoiceDialog = false
-                            },
-                            onDismiss = {
-                                isShowVoiceDialog = false
-                            })
+                    description = viewModel.voiceDescription.value) {
+
+                    IconButton(
+                        onClick = { isShowVoiceDialog = true }) {
+                        Icon(
+                            painter = painterResource(R.drawable.more_vertical),
+                            contentDescription = null)
                     }
+
+                        if (isShowVoiceDialog) {
+                            VoiceDialog(
+                                viewModel = viewModel,
+                                onItemSelected = {
+                                    viewModel.setVoice(context, it)
+                                    isShowVoiceDialog = false
+                                },
+                                onDismiss = {
+                                    isShowVoiceDialog = false
+                                })
+                        }
                 }
             }
 
@@ -125,10 +129,11 @@ fun SettingsScreen(
                     icon = R.drawable.speed,
                     title = R.string.speed,
                     description = viewModel.speedDescription.value) {
+
                         SliderImpl(
                             initPosition = viewModel.getSpeed(),
                             onValueChanged = { viewModel.setSpeed(context, it) },
-                            onValueChangeFinished = { viewModel.speakLastMessage() })
+                            onValueChangeFinished = { viewModel.speakLastMessage(context) })
                     }
             }
 
@@ -138,10 +143,11 @@ fun SettingsScreen(
                     icon = R.drawable.pitch,
                     title = R.string.pitch,
                     description = viewModel.pitchDescription.value) {
+
                         SliderImpl(
                             initPosition = viewModel.getPitch(),
                             onValueChanged = { viewModel.setPitch(context, it) },
-                            onValueChangeFinished = { viewModel.speakLastMessage() })
+                            onValueChangeFinished = { viewModel.speakLastMessage(context) })
                         }
             }
 
@@ -151,6 +157,7 @@ fun SettingsScreen(
                     icon = R.drawable.text_to_speech,
                     title = R.string.queue_behavior,
                     description = viewModel.queueBehaviorDescription.value) {
+
                         Switch(
                             checked = viewModel.isQueueAdd(),
                             onCheckedChange = { viewModel.setIsQueueAdd(context, it) })
@@ -163,6 +170,7 @@ fun SettingsScreen(
                     icon = R.drawable.contrast,
                     title = R.string.ui_mode,
                     description = viewModel.uiModeDescription.value) {
+
                         Switch(
                             checked = viewModel.isDarkMode.value,
                             onCheckedChange = { viewModel.setIsDarkMode(context, it) })
@@ -181,14 +189,6 @@ fun SettingsScreen(
                                     .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
                         }
                     })
-            }
-
-            // how to use
-            item {
-                LinkSettingItem(
-                    icon = R.drawable.browser,
-                    title = R.string.how_to_use,
-                    onClick = { uriHandler.openUri(howToUseUrl) })
             }
 
             // about

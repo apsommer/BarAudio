@@ -38,9 +38,9 @@ const val messageMaxSize = 1000
 
 // notifications
 const val isLaunchFromNotification = "isLaunchFromNotification"
-const val timestamp = "timestamp"
-const val message = "message"
-const val origin = "origin"
+const val timestampKey = "timestamp"
+const val messageKey = "message"
+const val originKey = "origin"
 const val insomnia = "insomnia"
 const val defaultMessage = "Thank you for using BarAudio!"
 
@@ -54,9 +54,9 @@ const val isQueueFlushKey = "isQueueFlush"
 const val isDarkModeKey = "isDarkMode"
 const val volumeKey = KEY_PARAM_VOLUME
 
-// todo extract to strings.xml
+// settings todo extract to strings.xml
 const val queueBehaviorFlushDescription = "Play new alerts immediately"
-const val queueBehaviorAddDescription = "Very long message, will this push out the switch? I think so!" // "Add new alerts to queue"
+const val queueBehaviorAddDescription = "Add new alerts to queue"
 const val uiModeDarkDescription = "Dark"
 const val uiModeLightDescription = "Light"
 

@@ -9,49 +9,30 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LargeFloatingActionButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SwipeToDismissBox
-import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.google.firebase.database.ChildEventListener
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.databaseUrl
-import com.sommerengineering.baraudio.dbRef
 import com.sommerengineering.baraudio.login.buttonBorderSize
-import com.sommerengineering.baraudio.message
-import com.sommerengineering.baraudio.messageMaxSize
-import com.sommerengineering.baraudio.origin
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import org.json.JSONObject
 import org.koin.androidx.compose.koinViewModel
-import java.util.Objects
 
 @Composable
 fun MessagesScreen(
@@ -60,7 +41,7 @@ fun MessagesScreen(
     // init
     val messages = remember { mutableStateListOf<Message>() }
     val listState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
+    val coroutine = rememberCoroutineScope()
 
     // inject viewmodel
     val context = LocalContext.current
@@ -70,18 +51,19 @@ fun MessagesScreen(
     LaunchedEffect(databaseUrl) {
 
         // todo dev: launch to settings
-        coroutineScope.launch {
-            delay(100)
-            onSettingsClick.invoke()
-        }
+//        coroutine.launch {
+//            delay(100)
+//            onSettingsClick.invoke()
+//        }
 
         // mute button, can't wait for tts init (as with other tts params) since icon needed for ui
         viewModel.initMute(context)
 
         listenToDatabaseWrites(
             messages,
+            viewModel,
             listState,
-            coroutineScope)
+            coroutine)
     }
 
     Scaffold(
@@ -98,16 +80,17 @@ fun MessagesScreen(
                     .size(buttonBorderSize)
                     .border(
                         border = BorderStroke(
-                            width = 1.dp,
-                            color = viewModel.getFabBorderColor()),
+                            width = 1.dp, // if (viewModel.isMute) 2.dp else 1.dp,
+                            color = viewModel.getFabIconColor()),
                         shape = CircleShape),
+                containerColor = viewModel.getFabBackgroundColor(),
                 shape = CircleShape,
-                onClick = { viewModel.setIsMute(context) }) {
+                onClick = { viewModel.toggleMute(context) }) {
 
                 Icon(
                     modifier = Modifier.size(buttonBorderSize / 2),
                     painter = painterResource(viewModel.getFabIconId()),
-                    tint = viewModel.getFabTintColor(),
+                    tint = viewModel.getFabIconColor(),
                     contentDescription = null)
             }
         }

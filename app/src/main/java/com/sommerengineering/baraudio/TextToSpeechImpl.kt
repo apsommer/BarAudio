@@ -28,9 +28,6 @@ class TextToSpeechImpl(
     var isInitialized = false
     override fun onInit(status: Int) {
 
-        val apples = Global.getInt(context.contentResolver, "zen_mode")
-        logMessage("do not disturb mode? $apples")
-
         if (status != TextToSpeech.SUCCESS) { return }
         isInitialized = true
 
@@ -46,31 +43,21 @@ class TextToSpeechImpl(
         pitch = readFromDataStore(context, pitchKey)?.toFloat() ?: 1f
         isQueueAdd = readFromDataStore(context, isQueueFlushKey).toBoolean()
 
-        // attach progress listener to clear notification when done speaking
+        // attach progress listener to clear notifications
         textToSpeech.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
 
-            override fun onDone(timestamp: String?) =
-                clearNotification(timestamp)
+            override fun onStart(
+                utteranceId: String?) =
+                    cancelAllNotifications(context)
 
-            override fun onStop(timestamp: String?, isInterupted: Boolean) =
-                clearNotification(timestamp)
-
-            // do nothing
-            override fun onStart(utteranceId: String?) { }
+            override fun onDone(timestamp: String?) { }
+            override fun onStop(timestamp: String?, isInterupted: Boolean) { }
             override fun onError(utteranceId: String?) { }
         })
     }
 
     fun getVoices() =
         textToSpeech.voices
-
-    fun clearNotification(timestamp: String?) {
-
-        if (timestamp == null) return
-
-        NotificationManagerCompat.from(context)
-            .cancel(trimTimestamp(timestamp))
-    }
 
     fun speak(
         timestamp: String,
