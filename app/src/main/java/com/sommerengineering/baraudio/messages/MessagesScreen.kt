@@ -74,6 +74,7 @@ fun MessagesScreen(
                 messages = messages)
         },
 
+        // mute button
         floatingActionButton = {
             FloatingActionButton (
                 modifier = Modifier
@@ -101,6 +102,8 @@ fun MessagesScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)) {
+
+            // background image
             Column(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)) {
@@ -108,11 +111,14 @@ fun MessagesScreen(
                     painter = painterResource(R.drawable.background),
                     contentDescription = null)
             }
+
+            // message list
             LazyColumn(
                 state = listState) {
                 items(
                     items = messages,
                     key = { it.timestamp }) { message ->
+
                     SwipeToDismissBox(
                         state = rememberSwipeToDismissBoxState(
                             confirmValueChange = {
@@ -123,6 +129,7 @@ fun MessagesScreen(
                             }),
                         modifier = Modifier.animateItem(),
                         backgroundContent = { }) {
+
                         MessageItem(
                             message = message)
                     }
