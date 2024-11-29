@@ -16,6 +16,8 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import org.koin.android.ext.android.get
 
+var token = ""
+
 class FirebaseService: FirebaseMessagingService() {
 
     private val tts: TextToSpeechImpl = get()
@@ -98,10 +100,12 @@ val dbRef by lazy {
         .database(databaseUrl)
         .setPersistenceEnabled(true)
 
+    val uid = Firebase.auth.currentUser?.uid ?: unauthUser
+
     Firebase
         .database(databaseUrl)
         .getReference(messages)
-        .child(token)
+        .child(uid)
 }
 
 fun signOut() =
@@ -112,7 +116,8 @@ fun validateToken() {
     val user = Firebase.auth.currentUser ?: return
     logMessage("Sign-in success with user: ${user.uid}")
 
-    user.getIdToken(false)
+    user
+        .getIdToken(false)
         .addOnSuccessListener {
 
             // compare correct cached token with user token (potentially invalid)

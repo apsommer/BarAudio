@@ -155,6 +155,7 @@ class MainViewModel(
     }
 
     val isDarkMode = mutableStateOf(true)
+    var isSystemInDarkTheme = false
 
     val uiModeDescription by lazy {
         mutableStateOf(
@@ -163,8 +164,7 @@ class MainViewModel(
     }
 
     fun setUiMode(
-        context: Context,
-        isSystemInDarkTheme: Boolean) {
+        context: Context) {
 
         isDarkMode.value =
             if (Firebase.auth.currentUser == null) isSystemInDarkTheme

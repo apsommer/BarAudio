@@ -24,6 +24,9 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.auth.auth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.sommerengineering.baraudio.theme.AppTheme
 import org.koin.android.ext.android.get
 import org.koin.androidx.compose.koinViewModel
@@ -31,7 +34,6 @@ import org.koin.compose.KoinContext
 
 var isAppOpen = false
 var isAppForeground = false
-var token = ""
 
 class MainActivity : ComponentActivity() {
 
@@ -90,7 +92,7 @@ class MainActivity : ComponentActivity() {
         // init
         get<TextToSpeechImpl>()
         isAppOpen = true // true for background and foreground, false if closed
-        token = readFromDataStore(context, tokenKey) ?: unauthenticatedUser
+        token = readFromDataStore(context, tokenKey) ?: unauthToken
 
         // dismiss notifications after launch
         val isLaunchFromNotification = intent.extras?.getBoolean(isLaunchFromNotification) ?: false
@@ -120,7 +122,8 @@ fun App() {
     val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
 
     // track ui mode
-    viewModel.setUiMode(context, isSystemInDarkTheme())
+    viewModel.isSystemInDarkTheme = isSystemInDarkTheme()
+    viewModel.setUiMode(context)
     val isDarkMode by remember { viewModel.isDarkMode }
 
     KoinContext {

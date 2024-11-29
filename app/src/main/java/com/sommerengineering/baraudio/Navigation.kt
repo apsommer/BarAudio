@@ -43,7 +43,7 @@ fun Navigation(
     // inject viewmodel
     val context = LocalContext.current
     val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
-    val isSystemInDarkTheme = isSystemInDarkTheme()
+    // val isSystemInDarkTheme = isSystemInDarkTheme()
 
     // todo temp
     launchSubscriptionRequest(context)
@@ -55,13 +55,10 @@ fun Navigation(
             route = LoginScreenRoute) {
             LoginScreen(
                 onAuthentication = {
-                    viewModel.setUiMode(context, isSystemInDarkTheme)
-                    context.requestRealtimeNotificationPermission()
-                    validateToken()
-                    controller.navigate(MessagesScreenRoute) {
-                        popUpTo(LoginScreenRoute) { inclusive = true }
-                    }
-                })
+                    onAuthentication(
+                        controller = controller,
+                        viewModel = viewModel,
+                        context = context) })
         }
         composable(
             route = MessagesScreenRoute) {
@@ -75,18 +72,47 @@ fun Navigation(
             SettingsScreen(
                 onBackClicked = { controller.navigateUp() },
                 onSignOut = {
-                    signOut()
-                    viewModel.setUiMode(context, isSystemInDarkTheme)
-                    controller.navigate(LoginScreenRoute) {
-                        popUpTo(MessagesScreenRoute) { inclusive = true }
-                    }
-                })
+                    onSignOut(
+                        controller = controller,
+                        viewModel = viewModel,
+                        context = context) })
         }
+    }
+}
+
+fun onAuthentication(
+    controller: NavHostController,
+    viewModel: MainViewModel,
+    context: Context) {
+
+    viewModel.setUiMode(context)
+
+    (context as MainActivity).requestRealtimeNotificationPermission()
+
+    validateToken()
+
+    controller.navigate(MessagesScreenRoute) {
+        popUpTo(LoginScreenRoute) { inclusive = true }
+    }
+}
+
+fun onSignOut(
+    controller: NavHostController,
+    viewModel: MainViewModel,
+    context: Context) {
+
+    signOut()
+
+    viewModel.setUiMode(context)
+
+    controller.navigate(LoginScreenRoute) {
+        popUpTo(MessagesScreenRoute) { inclusive = true }
     }
 }
 
 // skip login screen if user already authenticated
 fun getStartDestination() =
+
     if (Firebase.auth.currentUser != null) {
         logMessage("Sign-in skipped, user: ${Firebase.auth.currentUser?.uid}")
         MessagesScreenRoute }
