@@ -69,7 +69,10 @@ class MainViewModel(
 
         setMute(context, false)
 
-        dbRef.limitToLast(1).addListenerForSingleValueEvent(object : ValueEventListener {
+        getDatabaseReference(messagesNode)
+            .limitToLast(1)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+
             override fun onDataChange(snapshot: DataSnapshot) {
 
                 var lastMessage = defaultMessage

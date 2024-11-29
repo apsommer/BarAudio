@@ -24,9 +24,6 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
-import com.google.firebase.auth.auth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import com.sommerengineering.baraudio.theme.AppTheme
 import org.koin.android.ext.android.get
 import org.koin.androidx.compose.koinViewModel
@@ -92,7 +89,7 @@ class MainActivity : ComponentActivity() {
         // init
         get<TextToSpeechImpl>()
         isAppOpen = true // true for background and foreground, false if closed
-        token = readFromDataStore(context, tokenKey) ?: unauthToken
+        token = readFromDataStore(context, tokenKey) ?: unauthenticatedToken
 
         // dismiss notifications after launch
         val isLaunchFromNotification = intent.extras?.getBoolean(isLaunchFromNotification) ?: false

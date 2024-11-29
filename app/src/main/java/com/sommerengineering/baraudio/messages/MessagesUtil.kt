@@ -7,15 +7,19 @@ import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.sommerengineering.baraudio.MainViewModel
-import com.sommerengineering.baraudio.dbRef
+import com.sommerengineering.baraudio.getDatabaseReference
 import com.sommerengineering.baraudio.logException
 import com.sommerengineering.baraudio.messageKey
 import com.sommerengineering.baraudio.messageMaxSize
+import com.sommerengineering.baraudio.messagesNode
 import com.sommerengineering.baraudio.originKey
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.json.JSONException
 import org.json.JSONObject
+
+// todo clean up organization
+lateinit var dbListener: ChildEventListener
 
 fun listenToDatabaseWrites(
     messages: SnapshotStateList<Message>,
@@ -23,8 +27,7 @@ fun listenToDatabaseWrites(
     listState: LazyListState,
     coroutine: CoroutineScope) {
 
-    // triggers once for every child on initial connection
-    dbRef.addChildEventListener(object : ChildEventListener {
+    dbListener = object: ChildEventListener {
 
         override fun onChildAdded(
             snapshot: DataSnapshot,
@@ -73,7 +76,11 @@ fun listenToDatabaseWrites(
         override fun onChildRemoved(snapshot: DataSnapshot) { }
         override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) { }
         override fun onCancelled(error: DatabaseError) { }
-    })
+    }
+
+    // triggers once for every child on initial connection
+    getDatabaseReference(messagesNode)
+        .addChildEventListener(dbListener)
 }
 
 fun swipeToDelete(
@@ -98,13 +105,20 @@ fun deleteMessage(
     messages: SnapshotStateList<Message>,
     message: Message) {
 
-    dbRef.child(message.timestamp).removeValue()
-    messages.remove(message)
+    getDatabaseReference(messagesNode)
+        .child(message.timestamp)
+        .removeValue()
+
+    messages
+        .remove(message)
 }
 
 fun deleteAllMessages(
     messages: SnapshotStateList<Message>) {
 
-    dbRef.removeValue()
-    messages.clear()
+    getDatabaseReference(messagesNode)
+        .removeValue()
+
+    messages
+        .clear()
 }

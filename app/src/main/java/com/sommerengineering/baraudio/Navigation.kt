@@ -1,7 +1,8 @@
 package com.sommerengineering.baraudio
 
+import android.app.Activity
+import android.app.ActivityManager
 import android.content.Context
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
@@ -14,22 +15,22 @@ import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.PendingPurchasesParams
-import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryProductDetailsParams.Product
 import com.android.billingclient.api.queryProductDetails
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.sommerengineering.baraudio.login.LoginScreen
 import com.sommerengineering.baraudio.messages.MessagesScreen
+import com.sommerengineering.baraudio.messages.dbListener
 import com.sommerengineering.baraudio.settings.SettingsScreen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.koinViewModel
-import kotlin.math.log
 
 // routes
 const val LoginScreenRoute = "LoginScreen"
@@ -46,7 +47,7 @@ fun Navigation(
     // val isSystemInDarkTheme = isSystemInDarkTheme()
 
     // todo temp
-    launchSubscriptionRequest(context)
+    // launchSubscriptionRequest(context)
 
     NavHost(
         navController = controller,
@@ -104,6 +105,10 @@ fun onSignOut(
     signOut()
 
     viewModel.setUiMode(context)
+
+    // clear local cache by detaching database listener
+    getDatabaseReference(messagesNode)
+        .removeEventListener(dbListener)
 
     controller.navigate(LoginScreenRoute) {
         popUpTo(MessagesScreenRoute) { inclusive = true }

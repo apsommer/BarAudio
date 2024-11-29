@@ -10,6 +10,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessagingService
@@ -93,23 +94,31 @@ class FirebaseService: FirebaseMessagingService() {
             .getStreamVolume(AudioManager.STREAM_MUSIC) // between 0-25
 }
 
-val dbRef by lazy {
-
-    // enable local cache
-    Firebase
-        .database(databaseUrl)
-        .setPersistenceEnabled(true)
-
-    val uid = Firebase.auth.currentUser?.uid ?: unauthUser
-
-    Firebase
-        .database(databaseUrl)
-        .getReference(messages)
-        .child(uid)
-}
-
 fun signOut() =
     Firebase.auth.signOut()
+
+var isDatabaseInitialized = false
+fun getDatabaseReference(
+    node: String)
+: DatabaseReference {
+
+    if (!isDatabaseInitialized) {
+
+        // enable local cache
+        Firebase
+            .database(databaseUrl)
+            .setPersistenceEnabled(true)
+
+        isDatabaseInitialized = true
+    }
+
+    val uid = Firebase.auth.currentUser?.uid ?: unauthenticatedUser
+
+    return Firebase
+        .database(databaseUrl)
+        .getReference(node)
+        .child(uid)
+}
 
 fun validateToken() {
 
@@ -127,9 +136,7 @@ fun validateToken() {
             }
 
             // update database user:token association in database, if needed
-            Firebase.database(databaseUrl)
-                .getReference(users)
-                .child(user.uid)
+            getDatabaseReference(usersNode)
                 .setValue(token)
 
             logMessage("New user: token pair written to database")
