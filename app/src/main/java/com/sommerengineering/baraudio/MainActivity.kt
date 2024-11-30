@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.view.ActionMode
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -29,7 +30,7 @@ import org.koin.android.ext.android.get
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.KoinContext
 
-var isAppOpen = false
+var isAppBackground = false
 var isAppForeground = false
 
 class MainActivity : ComponentActivity() {
@@ -88,7 +89,6 @@ class MainActivity : ComponentActivity() {
 
         // init
         get<TextToSpeechImpl>()
-        isAppOpen = true // true for background and foreground, false if closed
         token = readFromDataStore(context, tokenKey) ?: unauthenticatedToken
 
         // dismiss notifications after launch
@@ -97,6 +97,11 @@ class MainActivity : ComponentActivity() {
 
         enableEdgeToEdge()
         setContent { App() }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        isAppBackground = true
     }
 
     override fun onResume() {
@@ -108,6 +113,11 @@ class MainActivity : ComponentActivity() {
     override fun onPause() {
         super.onPause()
         isAppForeground = false
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        isAppBackground = false
     }
 }
 

@@ -119,7 +119,7 @@ fun onSignOut(
 fun getStartDestination() =
 
     if (Firebase.auth.currentUser != null) {
-        logMessage("Sign-in skipped, user: ${Firebase.auth.currentUser?.uid}")
+        logMessage("Authentication skipped, user signed-in: ${Firebase.auth.currentUser?.uid}")
         MessagesScreenRoute }
     else LoginScreenRoute
 

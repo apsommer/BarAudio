@@ -2,10 +2,8 @@ package com.sommerengineering.baraudio
 
 import android.Manifest
 import android.app.PendingIntent
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.media.AudioManager
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -33,30 +31,32 @@ class FirebaseService: FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
 
         // extract attributes
+        val uid = remoteMessage.data[uidKey] ?: return
         val timestamp = remoteMessage.data[timestampKey] ?: return
         val message = remoteMessage.data[messageKey] ?: return
 
-        // todo check that sign-in in user matches webhook user,
-        //  else no notification and no announce
+        // either speak, or show notification
+        var isShowNotification =
+            Firebase.auth.currentUser == null || // user not signed-in
+            !isAppBackground || // app closed
+            (tts.volume == 0f && !isAppForeground) // app muted and in background
+
+        // note for different user, same device
+        val note =
+            if (Firebase.auth.currentUser?.uid != uid) {
+                isShowNotification = true
+                unauthenticatedTimestamp
+            } else { "" }
 
         // either speak, or show notification
-        val isShowNotification =
-            Firebase.auth.currentUser == null ||
-            !isAppOpen ||
-            tts.volume == 0f
-
-        if (isShowNotification && !isAppForeground) { showNotification(timestamp, message) }
+        if (isShowNotification) { showNotification(timestamp, message, note) }
         else { tts.speak(timestamp, message) }
     }
 
     private fun showNotification(
         timestamp: String,
-        message: String) {
-
-        // todo check that notifications have appropriate settings:
-        //  importance, sound, etc at minimum levels, else show ui saying it's required
-        //  also put link to system settings somewhere appropriate
-        //  https://developer.android.com/develop/ui/views/notifications/channels#UpdateChannel
+        message: String,
+        note: String) {
 
         // confirm permission granted
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
@@ -68,14 +68,16 @@ class FirebaseService: FirebaseMessagingService() {
         val pendingIntent= PendingIntent
             .getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
-        // configure options
-        val beautifulTimestamp = beautifyTimestamp(timestamp)
+        // configure options todo update icon color, other styling?
+        val timestampWithNote =
+            beautifyTimestamp(timestamp) + note
+
         val builder = NotificationCompat.Builder(this, getString(R.string.notification_channel_id))
             .setSmallIcon(R.drawable.logo_square)
             .setContentTitle(message)
-            .setContentText(beautifulTimestamp)
+            .setContentText(timestampWithNote) // collapsed
             .setStyle(NotificationCompat.BigTextStyle()
-                .bigText(beautifulTimestamp))
+                .bigText(timestampWithNote)) // expanded
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
 
@@ -83,6 +85,11 @@ class FirebaseService: FirebaseMessagingService() {
         NotificationManagerCompat.from(this).notify(
             trimTimestamp(timestamp),
             builder.build())
+
+        // todo check that notifications have appropriate settings:
+        //  importance, sound, etc at minimum levels, else show ui saying it's required
+        //  also put link to system settings somewhere appropriate
+        //  https://developer.android.com/develop/ui/views/notifications/channels#UpdateChannel
     }
 }
 
