@@ -26,12 +26,7 @@ class FirebaseService: FirebaseMessagingService() {
     override fun onNewToken(newToken: String) {
 
         token = newToken
-
-        writeToDataStore(
-            applicationContext,
-            tokenKey,
-            newToken)
-
+        writeToDataStore(applicationContext, tokenKey, token)
         logMessage("New token: $token")
     }
 
@@ -41,12 +36,14 @@ class FirebaseService: FirebaseMessagingService() {
         val timestamp = remoteMessage.data[timestampKey] ?: return
         val message = remoteMessage.data[messageKey] ?: return
 
+        // todo check that sign-in in user matches webhook user,
+        //  else no notification and no announce
+
         // either speak, or show notification
         val isShowNotification =
             Firebase.auth.currentUser == null ||
             !isAppOpen ||
-            tts.volume == 0f ||
-            getSystemVolume() == 0
+            tts.volume == 0f
 
         if (isShowNotification && !isAppForeground) { showNotification(timestamp, message) }
         else { tts.speak(timestamp, message) }
@@ -87,11 +84,6 @@ class FirebaseService: FirebaseMessagingService() {
             trimTimestamp(timestamp),
             builder.build())
     }
-
-    fun getSystemVolume() =
-        (applicationContext
-            .getSystemService(Context.AUDIO_SERVICE) as AudioManager)
-            .getStreamVolume(AudioManager.STREAM_MUSIC) // between 0-25
 }
 
 fun signOut() =
@@ -136,9 +128,7 @@ fun validateToken() {
             }
 
             // update database user:token association in database, if needed
-            getDatabaseReference(usersNode)
-                .setValue(token)
-
+            getDatabaseReference(usersNode).setValue(token)
             logMessage("New user: token pair written to database")
         }
 }
