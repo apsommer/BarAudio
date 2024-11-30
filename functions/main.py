@@ -57,6 +57,7 @@ def send_fcm(uid: str, timestamp: str, message: str):
     # construct notification
     remote_message = messaging.Message(
         data = {
+            'uid': uid,
             'timestamp': timestamp,
             'message': message },
         android = config,
