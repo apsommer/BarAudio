@@ -31,6 +31,7 @@ import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.databaseUrl
+import com.sommerengineering.baraudio.connectBillingClient
 import com.sommerengineering.baraudio.login.buttonBorderSize
 import org.koin.androidx.compose.koinViewModel
 
@@ -86,7 +87,13 @@ fun MessagesScreen(
                         shape = CircleShape),
                 containerColor = viewModel.getFabBackgroundColor(),
                 shape = CircleShape,
-                onClick = { viewModel.toggleMute(context) }) {
+                onClick = {
+
+                    // todo temp
+                    connectBillingClient(context)
+
+                    viewModel.toggleMute(context)
+                }) {
 
                 Icon(
                     modifier = Modifier.size(buttonBorderSize / 2),

@@ -65,6 +65,9 @@ const val queueBehaviorAddDescription = "Add new alerts to queue"
 const val uiModeDarkDescription = "Dark"
 const val uiModeLightDescription = "Light"
 
+// billing
+const val productId = "premium"
+
 fun beautifyTimestamp(timestamp: String): String {
 
     // todo handle local change in system system while app running

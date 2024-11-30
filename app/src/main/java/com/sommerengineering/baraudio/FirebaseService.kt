@@ -15,7 +15,7 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import org.koin.android.ext.android.get
 
-var token = ""
+var token = unauthenticatedToken
 
 class FirebaseService: FirebaseMessagingService() {
 
@@ -43,7 +43,7 @@ class FirebaseService: FirebaseMessagingService() {
 
         // note for different user, same device
         val note =
-            if (Firebase.auth.currentUser?.uid != uid) {
+            if (uid != Firebase.auth.currentUser?.uid) {
                 isShowNotification = true
                 unauthenticatedTimestamp
             } else { "" }
@@ -134,8 +134,11 @@ fun validateToken() {
                 return@addOnSuccessListener
             }
 
-            // update database user:token association in database, if needed
-            getDatabaseReference(usersNode).setValue(token)
-            logMessage("New user: token pair written to database")
+            logMessage("Writing user:token pair to database")
+
+            // write user:token pair to database
+            // no write operation occurs if correct token already exists
+            getDatabaseReference(usersNode)
+                .setValue(token)
         }
 }

@@ -215,6 +215,9 @@ fun SettingsScreen(
                     onClick = { uriHandler.openUri(termsUrl) })
             }
 
+            // todo manage subscription
+            //  https://developer.android.com/google/play/billing/subscriptions#link-specific
+
             // sign-out
             item {
                 LinkSettingItem(
