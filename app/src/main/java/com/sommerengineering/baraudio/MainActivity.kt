@@ -28,6 +28,7 @@ import androidx.navigation.compose.rememberNavController
 import com.sommerengineering.baraudio.login.BillingClientImpl
 import com.sommerengineering.baraudio.theme.AppTheme
 import org.koin.android.ext.android.get
+import org.koin.android.ext.android.inject
 import org.koin.androidx.compose.KoinAndroidContext
 import org.koin.androidx.compose.koinViewModel
 import org.koin.androidx.scope.activityScope
@@ -139,8 +140,9 @@ fun App() {
     viewModel.setUiMode(context)
     val isDarkMode by remember { viewModel.isDarkMode }
 
-    // todo just instantiate normally? seems simpler
+    // initialize billing client
     val billingClientImpl = koinInject<BillingClientImpl> { parametersOf(context) }
+    billingClientImpl.connect()
 
     KoinContext {
         AppTheme(isDarkMode) {

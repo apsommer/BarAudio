@@ -66,7 +66,7 @@ const val uiModeDarkDescription = "Dark"
 const val uiModeLightDescription = "Light"
 
 // billing
-const val productId = "premium"
+const val productId = "premium" // configure in play store
 
 fun beautifyTimestamp(timestamp: String): String {
 

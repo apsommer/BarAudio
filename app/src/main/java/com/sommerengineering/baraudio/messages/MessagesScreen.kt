@@ -31,8 +31,12 @@ import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.databaseUrl
+import com.sommerengineering.baraudio.logMessage
 import com.sommerengineering.baraudio.login.BillingClientImpl
 import com.sommerengineering.baraudio.login.buttonBorderSize
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
@@ -49,7 +53,7 @@ fun MessagesScreen(
     val context = LocalContext.current
     val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
 
-//    // todo just instantiate normally? seems simpler
+    // todo temp
     val billingClientImpl = koinInject<BillingClientImpl>()
 
     // listen to database writes
@@ -94,7 +98,15 @@ fun MessagesScreen(
                 onClick = {
 
                     // todo temp
-                    billingClientImpl.connect()
+                    CoroutineScope(Dispatchers.IO).launch {
+
+                        val isSubscriptionPurchased = billingClientImpl.isSubscriptionPurchased
+                        logMessage("isSubscriptionPurchased: $isSubscriptionPurchased")
+
+                        if (!isSubscriptionPurchased) {
+                            billingClientImpl.launchBillingFlowUi(context)
+                        }
+                    }
 
                     viewModel.toggleMute(context)
                 }) {
