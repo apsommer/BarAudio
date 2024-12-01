@@ -65,8 +65,9 @@ const val queueBehaviorAddDescription = "Add new alerts to queue"
 const val uiModeDarkDescription = "Dark"
 const val uiModeLightDescription = "Light"
 
-// billing
-const val productId = "premium" // configure in play store
+// billing, configure in play store
+const val productId = "premium"
+const val freeTrial = "free-trial"
 
 fun beautifyTimestamp(timestamp: String): String {
 

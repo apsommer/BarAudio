@@ -13,7 +13,7 @@ val appModule = module {
     single<TextToSpeechImpl> { TextToSpeechImpl(androidContext())}
     single<Repository> { Repository() }
     viewModel { MainViewModel(get(), get()) }
-    single<BillingClientImpl> { param -> BillingClientImpl(param.get<Context>()) }
+//    single<BillingClientImpl> { param -> BillingClientImpl(param.get<Context>()) }
 }
 
 // preferences datastore

@@ -30,13 +30,9 @@ import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.databaseUrl
 import com.sommerengineering.baraudio.logMessage
 import com.sommerengineering.baraudio.login.BillingClientImpl
 import com.sommerengineering.baraudio.login.buttonBorderSize
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
@@ -45,19 +41,19 @@ fun MessagesScreen(
     onSettingsClick: () -> Unit) {
 
     // init
+    val context = LocalContext.current
     val messages = remember { mutableStateListOf<Message>() }
     val listState = rememberLazyListState()
     val coroutine = rememberCoroutineScope()
-
-    // inject viewmodel
-    val context = LocalContext.current
     val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
 
     // todo temp
-    val billingClientImpl = koinInject<BillingClientImpl>()
+//    val billingClientImpl = koinInject<BillingClientImpl>()
+//    if (billingClientImpl.billingClient.isReady) {
+//        billingClientImpl.checkPreviousPurchases()
+//    }
 
-    // listen to database writes
-    LaunchedEffect(databaseUrl) {
+    LaunchedEffect(Unit) {
 
         // todo dev: launch to settings
 //        coroutine.launch {
@@ -68,6 +64,7 @@ fun MessagesScreen(
         // mute button, can't wait for tts init (as with other tts params) since icon needed for ui
         viewModel.initMute(context)
 
+        // listen to database writes
         listenToDatabaseWrites(
             messages,
             viewModel,
@@ -90,26 +87,12 @@ fun MessagesScreen(
                     .size(buttonBorderSize)
                     .border(
                         border = BorderStroke(
-                            width = 1.dp, // if (viewModel.isMute) 2.dp else 1.dp,
+                            width = 1.dp,
                             color = viewModel.getFabIconColor()),
                         shape = CircleShape),
                 containerColor = viewModel.getFabBackgroundColor(),
                 shape = CircleShape,
-                onClick = {
-
-                    // todo temp
-                    CoroutineScope(Dispatchers.IO).launch {
-
-                        val isSubscriptionPurchased = billingClientImpl.isSubscriptionPurchased
-                        logMessage("isSubscriptionPurchased: $isSubscriptionPurchased")
-
-//                        if (!isSubscriptionPurchased) {
-                            billingClientImpl.launchBillingFlowUi(context)
-//                        }
-                    }
-
-                    viewModel.toggleMute(context)
-                }) {
+                onClick = { viewModel.toggleMute(context) }) {
 
                 Icon(
                     modifier = Modifier.size(buttonBorderSize / 2),

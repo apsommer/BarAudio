@@ -82,14 +82,17 @@ fun onSignOut(
     viewModel: MainViewModel,
     context: Context) {
 
+    // sign-out firebase
     signOut()
 
+    // reset dark mode to system default
     viewModel.setUiMode(context)
 
     // clear local cache by detaching database listener
     getDatabaseReference(messagesNode)
         .removeEventListener(dbListener)
 
+    // navigate to login screen
     controller.navigate(LoginScreenRoute) {
         popUpTo(MessagesScreenRoute) { inclusive = true }
     }
