@@ -52,9 +52,19 @@ class BillingClientImpl(
         result: BillingResult,
         purchases: MutableList<Purchase>?) {
 
+        if (result.responseCode == BillingResponseCode.USER_CANCELED) {
+            logMessage("Billing flow ui: user canceled")
+            return
+        }
+
+        if (result.responseCode == BillingResponseCode.BILLING_UNAVAILABLE) {
+            logMessage("Billing flow ui: user card declined")
+            return
+        }
+
         // user declined, or other error
         if (result.responseCode != BillingResponseCode.OK || purchases == null) {
-            logMessage("Billing ui result: ${result.debugMessage}")
+            logMessage("Billing flow ui error: ${result.responseCode}")
             return
         }
 
@@ -199,7 +209,7 @@ class BillingClientImpl(
             listOf(
                 BillingFlowParams.ProductDetailsParams.newBuilder()
                     .setProductDetails(subscription)
-                    .setOfferToken(basePlanToken)
+//                    .setOfferToken(basePlanToken)
                     .setOfferToken(freeTrialToken) // todo not sure this pattern is right? how to show both offers on same product_id?
                     .build(),
             )

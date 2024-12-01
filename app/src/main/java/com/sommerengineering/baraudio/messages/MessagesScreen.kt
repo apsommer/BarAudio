@@ -103,9 +103,9 @@ fun MessagesScreen(
                         val isSubscriptionPurchased = billingClientImpl.isSubscriptionPurchased
                         logMessage("isSubscriptionPurchased: $isSubscriptionPurchased")
 
-                        if (!isSubscriptionPurchased) {
+//                        if (!isSubscriptionPurchased) {
                             billingClientImpl.launchBillingFlowUi(context)
-                        }
+//                        }
                     }
 
                     viewModel.toggleMute(context)

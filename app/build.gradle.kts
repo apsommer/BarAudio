@@ -43,6 +43,13 @@ android {
         // debug keystore location
         // ~/.android/debug.keystore
 
+        debug {
+            isMinifyEnabled = false
+            kotlinOptions {
+                freeCompilerArgs = listOf("-Xdebug")
+            }
+        }
+
         release {
             isMinifyEnabled = false
             proguardFiles(
