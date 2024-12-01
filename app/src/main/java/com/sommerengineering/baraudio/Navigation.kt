@@ -25,6 +25,7 @@ import com.android.billingclient.api.queryProductDetails
 import com.android.billingclient.api.queryPurchasesAsync
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.sommerengineering.baraudio.login.BillingClientImpl
 import com.sommerengineering.baraudio.login.LoginScreen
 import com.sommerengineering.baraudio.messages.MessagesScreen
 import com.sommerengineering.baraudio.messages.dbListener
@@ -34,6 +35,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
+import org.koin.core.context.GlobalContext.get
+import org.koin.java.KoinJavaComponent.inject
 
 // routes
 const val LoginScreenRoute = "LoginScreen"
@@ -91,6 +95,8 @@ fun onAuthentication(
 
     validateToken()
 
+    // todo check billing status
+
     controller.navigate(MessagesScreenRoute) {
         popUpTo(LoginScreenRoute) { inclusive = true }
     }
@@ -122,174 +128,10 @@ fun getStartDestination() =
         MessagesScreenRoute }
     else LoginScreenRoute
 
-lateinit var billingClient: BillingClient
 
-fun connectBillingClient(
-    context: Context) {
 
-    // listen for result of billing ui
-    val purchasesUpdatedListener =
-        PurchasesUpdatedListener { result, purchases ->
 
-            val purchase = purchases?.first()
 
-            // user canceled
-            if (result.responseCode == BillingResponseCode.USER_CANCELED) {
-                logMessage("User canceled billing flow: ${result.debugMessage}")
-                return@PurchasesUpdatedListener
-            }
 
-            // unexpected error
-            if (result.responseCode != BillingResponseCode.OK || purchase == null) {
-                logMessage("Error in billing flow: ${result.debugMessage}")
-                return@PurchasesUpdatedListener
-            }
 
-            // process new purchase
-            handlePurchase(billingClient, purchase)
-        }
 
-    // create billing client
-    billingClient =
-        BillingClient.newBuilder(context)
-            .setListener(purchasesUpdatedListener)
-            .enablePendingPurchases(
-                PendingPurchasesParams.newBuilder()
-                    .enableOneTimeProducts().build())
-            .build()
-
-    // connect to play store
-    billingClient
-        .startConnection(object : BillingClientStateListener {
-
-        override fun onBillingSetupFinished(result: BillingResult) {
-
-            // unexpected error
-            if (result.responseCode != BillingResponseCode.OK) {
-                logMessage("Billing client failed to initialize")
-                return
-            }
-
-            CoroutineScope(Dispatchers.IO).launch {
-
-                // todo, check if user has already purchased subscription
-                checkPreviousUserPurchases(context, billingClient)
-
-                // todo, if user has not purchased subscription, launch billing flow ui
-                launchBillingFlowUi(context, billingClient)
-            }
-        }
-
-        override fun onBillingServiceDisconnected() {
-            logMessage("onBillingServiceDisconnected")
-        }
-    })
-
-}
-
-suspend fun checkPreviousUserPurchases(
-    context: Context,
-    billingClient: BillingClient) {
-
-        // todo get user's previous purchases
-        val userPurchasesResult =
-            billingClient.queryPurchasesAsync(
-                QueryPurchasesParams())
-
-        val purchase =
-            userPurchasesResult.purchasesList.first()
-
-        handlePurchase(billingClient, purchase)
-    }
-
-fun handlePurchase(
-    billingClient: BillingClient,
-    purchase: Purchase) {
-
-    // check if purchase already acknowledged
-    if (purchase.isAcknowledged) {
-        logMessage("Purchase already acknowledged")
-        return
-    }
-
-    val acknowledgePurchaseParams =
-        AcknowledgePurchaseParams.newBuilder()
-            .setPurchaseToken(purchase.purchaseToken)
-            .build()
-
-    // acknowledge purchase
-    CoroutineScope(Dispatchers.IO).launch {
-
-         val acknowledgePurchaseResult =
-             billingClient
-                .acknowledgePurchase(acknowledgePurchaseParams)
-
-        if (acknowledgePurchaseResult.responseCode != BillingResponseCode.OK) {
-            logMessage("Error, purchase not acknowledged")
-            return@launch
-        }
-
-        logMessage("Success, purchase acknowledged")
-    }
-}
-
-suspend fun launchBillingFlowUi(
-    context: Context,
-    billingClient: BillingClient) {
-
-    // define subscription product
-    // configured in Play Console
-    val productList =
-        listOf(
-            Product.newBuilder()
-                .setProductId(productId)
-                .setProductType(ProductType.SUBS)
-                .build())
-
-    val params =
-        QueryProductDetailsParams.newBuilder()
-            .setProductList(productList)
-            .build()
-
-    // query play store for subscription product
-    val productDetailsResult =
-        billingClient.queryProductDetails(params)
-
-    if (productDetailsResult.billingResult.responseCode != BillingResponseCode.OK) {
-        logMessage(productDetailsResult.billingResult.debugMessage)
-        return
-    }
-
-    // extract products from result
-    val productDetailsList = productDetailsResult.productDetailsList
-    if (productDetailsList == null) {
-        logMessage("productDetailsList is null")
-        return
-    }
-
-    // build list of product details params
-    val subscription = productDetailsList.first()
-    val basePlanToken = subscription.subscriptionOfferDetails?.first()?.offerToken ?: return
-    val freeTrialToken = subscription.subscriptionOfferDetails?.last()?.offerToken ?: return
-
-    val productDetailsParamList =
-        listOf(
-            BillingFlowParams.ProductDetailsParams.newBuilder()
-                .setProductDetails(subscription)
-                .setOfferToken(basePlanToken)
-                .setOfferToken(freeTrialToken) // todo not sure this pattern is right? how to show both offers on same product_id?
-                .build(),
-        )
-
-    val billingFlowParams =
-        BillingFlowParams.newBuilder()
-            .setProductDetailsParamsList(productDetailsParamList)
-            .build()
-
-    // launch the billing flow
-    val billingResult =
-        billingClient
-            .launchBillingFlow(
-                context as MainActivity,
-                billingFlowParams)
-}

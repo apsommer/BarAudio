@@ -31,9 +31,10 @@ import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.databaseUrl
-import com.sommerengineering.baraudio.connectBillingClient
+import com.sommerengineering.baraudio.login.BillingClientImpl
 import com.sommerengineering.baraudio.login.buttonBorderSize
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 @Composable
 fun MessagesScreen(
@@ -47,6 +48,9 @@ fun MessagesScreen(
     // inject viewmodel
     val context = LocalContext.current
     val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
+
+//    // todo just instantiate normally? seems simpler
+    val billingClientImpl = koinInject<BillingClientImpl>()
 
     // listen to database writes
     LaunchedEffect(databaseUrl) {
@@ -90,7 +94,7 @@ fun MessagesScreen(
                 onClick = {
 
                     // todo temp
-                    connectBillingClient(context)
+                    billingClientImpl.connect()
 
                     viewModel.toggleMute(context)
                 }) {

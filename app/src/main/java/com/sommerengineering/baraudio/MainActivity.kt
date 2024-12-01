@@ -25,10 +25,16 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
+import com.sommerengineering.baraudio.login.BillingClientImpl
 import com.sommerengineering.baraudio.theme.AppTheme
 import org.koin.android.ext.android.get
+import org.koin.androidx.compose.KoinAndroidContext
 import org.koin.androidx.compose.koinViewModel
+import org.koin.androidx.scope.activityScope
 import org.koin.compose.KoinContext
+import org.koin.compose.koinInject
+import org.koin.core.component.KoinComponent
+import org.koin.core.parameter.parametersOf
 
 var isAppBackground = false
 var isAppForeground = false
@@ -132,6 +138,9 @@ fun App() {
     viewModel.isSystemInDarkTheme = isSystemInDarkTheme()
     viewModel.setUiMode(context)
     val isDarkMode by remember { viewModel.isDarkMode }
+
+    // todo just instantiate normally? seems simpler
+    val billingClientImpl = koinInject<BillingClientImpl> { parametersOf(context) }
 
     KoinContext {
         AppTheme(isDarkMode) {
