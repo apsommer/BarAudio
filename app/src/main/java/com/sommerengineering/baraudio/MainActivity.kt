@@ -8,7 +8,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.view.ActionMode
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -28,13 +27,9 @@ import androidx.navigation.compose.rememberNavController
 import com.sommerengineering.baraudio.login.BillingClientImpl
 import com.sommerengineering.baraudio.theme.AppTheme
 import org.koin.android.ext.android.get
-import org.koin.android.ext.android.inject
-import org.koin.androidx.compose.KoinAndroidContext
 import org.koin.androidx.compose.koinViewModel
-import org.koin.androidx.scope.activityScope
 import org.koin.compose.KoinContext
 import org.koin.compose.koinInject
-import org.koin.core.component.KoinComponent
 import org.koin.core.parameter.parametersOf
 
 var isAppBackground = false
@@ -141,8 +136,8 @@ fun App() {
     val isDarkMode by remember { viewModel.isDarkMode }
 
     // initialize billing client
-//    val billingClientImpl = koinInject<BillingClientImpl> { parametersOf(context) }
-//    billingClientImpl.connect()
+    viewModel.initBillingClient(
+        koinInject<BillingClientImpl> { parametersOf(context) })
 
     KoinContext {
         AppTheme(isDarkMode) {

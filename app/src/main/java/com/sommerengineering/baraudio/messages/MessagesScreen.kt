@@ -47,12 +47,6 @@ fun MessagesScreen(
     val coroutine = rememberCoroutineScope()
     val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
 
-    // todo temp
-//    val billingClientImpl = koinInject<BillingClientImpl>()
-//    if (billingClientImpl.billingClient.isReady) {
-//        billingClientImpl.checkPreviousPurchases()
-//    }
-
     LaunchedEffect(Unit) {
 
         // todo dev: launch to settings
@@ -74,6 +68,7 @@ fun MessagesScreen(
 
     Scaffold(
 
+        // top bar
         topBar = {
             MessagesTopBar(
                 onSettingsClick = onSettingsClick,

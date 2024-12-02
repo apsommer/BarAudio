@@ -16,6 +16,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
+import com.sommerengineering.baraudio.login.BillingClientImpl
 import com.sommerengineering.baraudio.messages.tradingviewWhitelistIps
 import com.sommerengineering.baraudio.messages.trendspiderWhitelistIp
 import org.json.JSONObject
@@ -249,9 +250,24 @@ class MainViewModel(
         context: Context) =
             setMute(context, !isMute)
 
+    lateinit var billingClient: BillingClientImpl
+
+    fun initBillingClient(
+        billingClientImpl: BillingClientImpl) {
+
+        billingClient = billingClientImpl
+        billingClient.connect()
+    }
+
     fun setMute(
         context: Context,
         newMute: Boolean) {
+
+        // ensure user has paid
+        if (!billingClient.isSubscriptionPurchased) {
+            billingClient.launchBillingFlowUi(context)
+            return
+        }
 
         isMute = newMute
 

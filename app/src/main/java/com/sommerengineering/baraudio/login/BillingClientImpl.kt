@@ -1,6 +1,9 @@
 package com.sommerengineering.baraudio.login
 
 import android.content.Context
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import com.android.billingclient.api.AcknowledgePurchaseParams
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClient.BillingResponseCode
@@ -24,6 +27,7 @@ import com.sommerengineering.baraudio.productId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 
 class BillingClientImpl(
     private val context: Context)
@@ -33,7 +37,7 @@ class BillingClientImpl(
     // todo remove Google Developer API? seems for backend only
     //  https://developer.android.com/google/play/billing/getting-ready#dev-api
 
-    var isSubscriptionPurchased = false
+    var isSubscriptionPurchased by mutableStateOf(false)
 
     // create billing client
     val billingClient =
@@ -75,6 +79,12 @@ class BillingClientImpl(
 
     fun checkPreviousPurchases() {
 
+        // ensure client is initialized
+        if (!billingClient.isReady) {
+            logMessage("Billing client not initialized, can not checkPreviousPurchases")
+            return
+        }
+
         // define purchase
         val queryPurchasesParams =
             QueryPurchasesParams.newBuilder()
@@ -86,17 +96,13 @@ class BillingClientImpl(
             PurchasesResponseListener { billingResult, purchases ->
 
                 if (billingResult.responseCode != BillingResponseCode.OK) {
-
                     logMessage("Error retrieving previous purchases: ${billingResult.debugMessage}")
-                    logMessage("Checking previous purchases again ...")
-                    checkPreviousPurchases()
                     // todo this should never happen, do something?
                     return@PurchasesResponseListener
                 }
 
                 if (purchases.isEmpty()) {
-                    logMessage("No previous purchases, launching billing flow ...")
-                    launchBillingFlowUi(context)
+                    logMessage("No previous purchases, need to launch billing flow ...")
                     return@PurchasesResponseListener
                 }
 
@@ -155,8 +161,8 @@ class BillingClientImpl(
     fun launchBillingFlowUi(
         context: Context) {
 
-        // check if subscription already purchased
-        // if (isSubscriptionPurchased) { return }
+//        // check if subscription already purchased
+//         if (isSubscriptionPurchased) { return }
 
         // define subscription product
         val productList = listOf(
@@ -226,8 +232,6 @@ class BillingClientImpl(
 
             if (billingResult.responseCode != BillingResponseCode.OK) {
                 logMessage("Billing flow error: ${billingResult.debugMessage}")
-                logMessage("Relaunching billing flow ui ...")
-                launchBillingFlowUi(context)
             }
         }
 
