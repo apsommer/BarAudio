@@ -23,7 +23,7 @@ class TextToSpeechImpl(
     var speed by mutableStateOf(1f)
     var pitch by mutableStateOf(1f)
     var isQueueAdd by mutableStateOf(true)
-    var volume by mutableStateOf(1f)
+    var volume by mutableStateOf(0f)
 
     var isInitialized = false
     override fun onInit(status: Int) {

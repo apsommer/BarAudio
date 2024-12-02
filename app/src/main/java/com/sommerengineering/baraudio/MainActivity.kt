@@ -136,7 +136,7 @@ fun App() {
     val isDarkMode by remember { viewModel.isDarkMode }
 
     // initialize billing client
-    viewModel.initBillingClient(
+    viewModel.initBilling(
         koinInject<BillingClientImpl> { parametersOf(context) })
 
     KoinContext {

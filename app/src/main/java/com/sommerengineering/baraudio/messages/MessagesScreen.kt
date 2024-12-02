@@ -56,7 +56,9 @@ fun MessagesScreen(
 //        }
 
         // mute button, can't wait for tts init (as with other tts params) since icon needed for ui
-        viewModel.initMute(context)
+        viewModel.initMute(
+            context,
+            coroutine)
 
         // listen to database writes
         listenToDatabaseWrites(

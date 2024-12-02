@@ -19,6 +19,11 @@ import com.google.firebase.ktx.Firebase
 import com.sommerengineering.baraudio.login.BillingClientImpl
 import com.sommerengineering.baraudio.messages.tradingviewWhitelistIps
 import com.sommerengineering.baraudio.messages.trendspiderWhitelistIp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.forEach
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import org.json.JSONObject
 import kotlin.math.roundToInt
 
@@ -238,11 +243,42 @@ class MainViewModel(
         return "$displayName \u2022 Voice $romanNumeral"
     }
 
-    var isMute by mutableStateOf(false)
-    fun initMute(
-        context: Context) {
+    lateinit var billing: BillingClientImpl
 
-        tts.volume = readFromDataStore(context, volumeKey)?.toFloat() ?: 1f
+    fun initBilling(
+        billingClientImpl: BillingClientImpl) {
+
+        billing = billingClientImpl
+        billing.connect()
+    }
+
+    var isMute by mutableStateOf(true)
+
+    fun listenToBillingClient(
+        context: Context,
+        coroutine: CoroutineScope) {
+
+        coroutine.launch {
+            billing.isSubscriptionPurchased
+                .onEach {
+                    logMessage("isSubscriptionPurchased: $it")
+                    setMute(
+                        context = context,
+                        newMute = !it)
+                }
+                .collect()
+
+        }
+    }
+
+    fun initMute(
+        context: Context,
+        coroutine: CoroutineScope) {
+
+        logMessage("initMute")
+        listenToBillingClient(context, coroutine)
+
+        tts.volume = readFromDataStore(context, volumeKey)?.toFloat() ?: 0f
         isMute = tts.volume == 0f
     }
 
@@ -250,22 +286,13 @@ class MainViewModel(
         context: Context) =
             setMute(context, !isMute)
 
-    lateinit var billingClient: BillingClientImpl
-
-    fun initBillingClient(
-        billingClientImpl: BillingClientImpl) {
-
-        billingClient = billingClientImpl
-        billingClient.connect()
-    }
-
     fun setMute(
         context: Context,
         newMute: Boolean) {
 
         // ensure user has paid
-        if (!billingClient.isSubscriptionPurchased) {
-            billingClient.launchBillingFlowUi(context)
+        if (!billing.isSubscriptionPurchased.value) {
+            billing.launchBillingFlowUi(context)
             return
         }
 
