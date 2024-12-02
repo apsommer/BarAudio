@@ -47,6 +47,8 @@ def send_fcm(uid: str, timestamp: str, message: str):
 
     # get device token
     device_token = db.reference('users').get()[uid]
+    # todo must catch bad token, throws 500 here ... instead response with "Please sign-in ..."
+    #  500 also if correct token exits, but user has never signed-in before (fresh install)
 
     # set priority to high
     config = messaging.AndroidConfig(

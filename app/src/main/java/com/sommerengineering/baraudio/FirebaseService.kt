@@ -42,6 +42,9 @@ class FirebaseService: FirebaseMessagingService() {
             (tts.volume == 0f && !isAppForeground) // app muted and in background
 
         // note for different user, same device
+        // todo since subscription is per google play user, there is no
+        //  reason for this user id check, db can be simplified to just tokens holding
+        //  timestamp: message ... refactor?
         val note =
             if (uid != Firebase.auth.currentUser?.uid) {
                 isShowNotification = true

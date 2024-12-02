@@ -22,7 +22,7 @@ class TextToSpeechImpl(
     val voice by lazy { mutableStateOf(textToSpeech.voice) }
     var speed by mutableStateOf(1f)
     var pitch by mutableStateOf(1f)
-    var isQueueAdd by mutableStateOf(false)
+    var isQueueAdd by mutableStateOf(true)
     var volume by mutableStateOf(1f)
 
     var isInitialized = false

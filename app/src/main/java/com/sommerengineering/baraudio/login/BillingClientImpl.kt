@@ -259,5 +259,4 @@ class BillingClientImpl(
         val purchase = purchases.first()
         handlePurchase(purchase)
     }
-
 }
