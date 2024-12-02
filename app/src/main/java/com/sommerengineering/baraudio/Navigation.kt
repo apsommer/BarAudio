@@ -1,6 +1,6 @@
 package com.sommerengineering.baraudio
 
-import androidx.compose.foundation.isSystemInDarkTheme
+import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
@@ -10,6 +10,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.sommerengineering.baraudio.login.LoginScreen
 import com.sommerengineering.baraudio.messages.MessagesScreen
+import com.sommerengineering.baraudio.messages.dbListener
 import com.sommerengineering.baraudio.settings.SettingsScreen
 import org.koin.androidx.compose.koinViewModel
 
@@ -25,7 +26,6 @@ fun Navigation(
     // inject viewmodel
     val context = LocalContext.current
     val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
-    val isSystemInDarkTheme = isSystemInDarkTheme()
 
     NavHost(
         navController = controller,
@@ -34,39 +34,82 @@ fun Navigation(
             route = LoginScreenRoute) {
             LoginScreen(
                 onAuthentication = {
-                    viewModel.setUiMode(context, isSystemInDarkTheme)
-                    context.requestRealtimeNotificationPermission()
-                    validateToken()
-                    controller.navigate(MessagesScreenRoute) {
-                        popUpTo(LoginScreenRoute) { inclusive = true }
-                    }
-                })
+                    onAuthentication(
+                        controller = controller,
+                        viewModel = viewModel,
+                        context = context) })
         }
         composable(
             route = MessagesScreenRoute) {
             MessagesScreen(
-                onSettingsClick = { controller.navigate(SettingsScreenRoute) })
+                onSettingsClick = {
+                    controller.navigate(SettingsScreenRoute)
+                })
         }
         composable(
             route = SettingsScreenRoute) {
             SettingsScreen(
                 onBackClicked = { controller.navigateUp() },
                 onSignOut = {
-                    signOut()
-                    viewModel.setUiMode(context, isSystemInDarkTheme)
-                    controller.navigate(LoginScreenRoute) {
-                        popUpTo(MessagesScreenRoute) { inclusive = true }
-                    }
-                })
+                    onSignOut(
+                        controller = controller,
+                        viewModel = viewModel,
+                        context = context) })
         }
+    }
+}
+
+fun onAuthentication(
+    controller: NavHostController,
+    viewModel: MainViewModel,
+    context: Context) {
+
+    viewModel.setUiMode(context)
+
+    (context as MainActivity).requestRealtimeNotificationPermission()
+
+    validateToken()
+
+    // todo check billing status
+
+    controller.navigate(MessagesScreenRoute) {
+        popUpTo(LoginScreenRoute) { inclusive = true }
+    }
+}
+
+fun onSignOut(
+    controller: NavHostController,
+    viewModel: MainViewModel,
+    context: Context) {
+
+    // sign-out firebase
+    signOut()
+
+    // reset dark mode to system default
+    viewModel.setUiMode(context)
+
+    // clear local cache by detaching database listener
+    getDatabaseReference(messagesNode)
+        .removeEventListener(dbListener)
+
+    // navigate to login screen
+    controller.navigate(LoginScreenRoute) {
+        popUpTo(MessagesScreenRoute) { inclusive = true }
     }
 }
 
 // skip login screen if user already authenticated
 fun getStartDestination() =
+
     if (Firebase.auth.currentUser != null) {
-        logMessage("Sign-in skipped, user: ${Firebase.auth.currentUser?.uid}")
+        logMessage("Authentication skipped, user signed-in: ${Firebase.auth.currentUser?.uid}")
         MessagesScreenRoute }
     else LoginScreenRoute
+
+
+
+
+
+
 
 

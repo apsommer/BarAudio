@@ -30,25 +30,24 @@ import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.databaseUrl
+import com.sommerengineering.baraudio.logMessage
+import com.sommerengineering.baraudio.login.BillingClientImpl
 import com.sommerengineering.baraudio.login.buttonBorderSize
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 @Composable
 fun MessagesScreen(
     onSettingsClick: () -> Unit) {
 
     // init
+    val context = LocalContext.current
     val messages = remember { mutableStateListOf<Message>() }
     val listState = rememberLazyListState()
     val coroutine = rememberCoroutineScope()
-
-    // inject viewmodel
-    val context = LocalContext.current
     val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
 
-    // listen to database writes
-    LaunchedEffect(databaseUrl) {
+    LaunchedEffect(Unit) {
 
         // todo dev: launch to settings
 //        coroutine.launch {
@@ -56,9 +55,7 @@ fun MessagesScreen(
 //            onSettingsClick.invoke()
 //        }
 
-        // mute button, can't wait for tts init (as with other tts params) since icon needed for ui
-        viewModel.initMute(context)
-
+        // listen to database writes
         listenToDatabaseWrites(
             messages,
             viewModel,
@@ -68,25 +65,26 @@ fun MessagesScreen(
 
     Scaffold(
 
+        // top bar
         topBar = {
             MessagesTopBar(
                 onSettingsClick = onSettingsClick,
                 messages = messages)
         },
 
+        // mute button
         floatingActionButton = {
             FloatingActionButton (
                 modifier = Modifier
                     .size(buttonBorderSize)
                     .border(
                         border = BorderStroke(
-                            width = 1.dp, // if (viewModel.isMute) 2.dp else 1.dp,
+                            width = 1.dp,
                             color = viewModel.getFabIconColor()),
                         shape = CircleShape),
                 containerColor = viewModel.getFabBackgroundColor(),
                 shape = CircleShape,
                 onClick = { viewModel.toggleMute(context) }) {
-
                 Icon(
                     modifier = Modifier.size(buttonBorderSize / 2),
                     painter = painterResource(viewModel.getFabIconId()),
@@ -101,6 +99,8 @@ fun MessagesScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)) {
+
+            // background image
             Column(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)) {
@@ -108,11 +108,14 @@ fun MessagesScreen(
                     painter = painterResource(R.drawable.background),
                     contentDescription = null)
             }
+
+            // message list
             LazyColumn(
                 state = listState) {
                 items(
                     items = messages,
                     key = { it.timestamp }) { message ->
+
                     SwipeToDismissBox(
                         state = rememberSwipeToDismissBoxState(
                             confirmValueChange = {
@@ -123,6 +126,7 @@ fun MessagesScreen(
                             }),
                         modifier = Modifier.animateItem(),
                         backgroundContent = { }) {
+
                         MessageItem(
                             message = message)
                     }

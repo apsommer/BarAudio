@@ -133,7 +133,7 @@ fun SettingsScreen(
                         SliderImpl(
                             initPosition = viewModel.getSpeed(),
                             onValueChanged = { viewModel.setSpeed(context, it) },
-                            onValueChangeFinished = { viewModel.speakLastMessage(context) })
+                            onValueChangeFinished = { viewModel.speakLastMessage() })
                     }
             }
 
@@ -147,7 +147,7 @@ fun SettingsScreen(
                         SliderImpl(
                             initPosition = viewModel.getPitch(),
                             onValueChanged = { viewModel.setPitch(context, it) },
-                            onValueChangeFinished = { viewModel.speakLastMessage(context) })
+                            onValueChangeFinished = { viewModel.speakLastMessage() })
                         }
             }
 
@@ -214,6 +214,9 @@ fun SettingsScreen(
                     title = R.string.terms,
                     onClick = { uriHandler.openUri(termsUrl) })
             }
+
+            // todo manage subscription
+            //  https://developer.android.com/google/play/billing/subscriptions#link-specific
 
             // sign-out
             item {

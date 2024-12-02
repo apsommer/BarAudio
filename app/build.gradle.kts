@@ -1,11 +1,10 @@
 import java.util.Properties
 
 plugins {
+
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-
-    // firebase
-    id("com.google.gms.google-services")
+    id("com.google.gms.google-services") // firebase
 }
 
 android {
@@ -43,6 +42,14 @@ android {
         // debug keystore location
         // ~/.android/debug.keystore
 
+        // enable all variables in debugger break points
+        debug {
+            isMinifyEnabled = false
+            kotlinOptions {
+                freeCompilerArgs = listOf("-Xdebug")
+            }
+        }
+
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -51,20 +58,25 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+
     kotlinOptions {
         jvmTarget = "1.8"
     }
+
     buildFeatures {
         compose = true
         buildConfig = true
     }
+
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
     }
+
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -121,4 +133,8 @@ dependencies {
 
     // splash screen
     implementation(libs.androidx.core.splashscreen)
+
+    // billing
+    implementation(libs.billing)
+    implementation(libs.billing.ktx)
 }

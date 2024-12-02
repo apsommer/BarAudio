@@ -20,3 +20,4 @@ message =
 // alert on bar close
 if close > 0
     alert(message, alert.freq_once_per_bar)
+    

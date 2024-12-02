@@ -16,8 +16,14 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
+import com.sommerengineering.baraudio.login.BillingClientImpl
 import com.sommerengineering.baraudio.messages.tradingviewWhitelistIps
 import com.sommerengineering.baraudio.messages.trendspiderWhitelistIp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import org.json.JSONObject
 import kotlin.math.roundToInt
 
@@ -56,131 +62,7 @@ class MainViewModel(
         tts.voice.value = voice
         writeToDataStore(context, voiceKey, voice.name)
         voiceDescription.value = beautifyVoiceName(voice.name)
-        speakLastMessage(context)
-    }
-
-    fun getVoiceIndex() =
-        voices.indexOf(
-            voices.find {
-                it == tts.voice.value })
-
-    fun speakLastMessage(
-        context: Context) {
-
-        setMute(context, false)
-
-        dbRef.limitToLast(1).addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-
-                var lastMessage = defaultMessage
-
-                val children = snapshot.children
-                if (!children.none()) {
-
-                    // parse json
-                    val json = JSONObject(children.first().value.toString())
-                    val jsonMessage = json.getString(messageKey)
-                    if (jsonMessage.isNotEmpty()) lastMessage = jsonMessage
-                }
-
-                tts.speak("", lastMessage)
-            }
-
-            override fun onCancelled(error: DatabaseError) { }
-        })
-    }
-
-    // speed
-    fun getSpeed() =
-        tts.speed
-
-    val speedDescription by lazy {
-        mutableStateOf(
-            tts.speed.toString())
-    }
-
-    fun setSpeed(
-        context: Context,
-        rawSpeed: Float) {
-
-        // round to nearest tenth
-        val selectedSpeed = ((rawSpeed * 10).roundToInt()).toFloat() / 10
-
-        tts.speed = selectedSpeed
-        writeToDataStore(context, speedKey, selectedSpeed.toString())
-        speedDescription.value = selectedSpeed.toString()
-    }
-
-    // pitch
-    fun getPitch() =
-        tts.pitch
-
-    val pitchDescription by lazy {
-        mutableStateOf(
-            tts.pitch.toString())
-    }
-
-    fun setPitch(
-        context: Context,
-        rawPitch: Float) {
-
-        // round to nearest tenth
-        val selectedPitch = ((rawPitch * 10).roundToInt()).toFloat() / 10
-
-        tts.pitch = selectedPitch
-        writeToDataStore(context, pitchKey, selectedPitch.toString())
-        pitchDescription.value = selectedPitch.toString()
-    }
-
-    // queue behavior
-    fun isQueueAdd() =
-        tts.isQueueAdd
-
-    val queueBehaviorDescription by lazy {
-        mutableStateOf(
-            if (tts.isQueueAdd) queueBehaviorAddDescription
-            else queueBehaviorFlushDescription)
-    }
-
-    fun setIsQueueAdd(
-        context: Context,
-        isChecked: Boolean) {
-
-        tts.isQueueAdd = isChecked
-        writeToDataStore(context, isQueueFlushKey, isChecked.toString())
-
-        queueBehaviorDescription.value =
-            if (tts.isQueueAdd) queueBehaviorAddDescription
-            else queueBehaviorFlushDescription
-    }
-
-    val isDarkMode = mutableStateOf(true)
-
-    val uiModeDescription by lazy {
-        mutableStateOf(
-            if (isDarkMode.value) uiModeDarkDescription
-            else uiModeLightDescription)
-    }
-
-    fun setUiMode(
-        context: Context,
-        isSystemInDarkTheme: Boolean) {
-
-        isDarkMode.value =
-            if (Firebase.auth.currentUser == null) isSystemInDarkTheme
-            else readFromDataStore(context, isDarkModeKey)?.toBooleanStrictOrNull() ?: true
-    }
-
-    fun setIsDarkMode(
-        context: Context,
-        isChecked: Boolean) {
-
-        isDarkMode.value = isChecked
-        writeToDataStore(context, isDarkModeKey, isChecked.toString())
-
-        uiModeDescription.value =
-            if (isDarkMode.value) uiModeDarkDescription
-            else uiModeLightDescription
+        speakLastMessage()
     }
 
     fun beautifyVoiceName(
@@ -234,23 +116,176 @@ class MainViewModel(
         return "$displayName \u2022 Voice $romanNumeral"
     }
 
-    var isMute by mutableStateOf(false)
-    fun initMute(
-        context: Context) {
+    fun getVoiceIndex() =
+        voices.indexOf(
+            voices.find {
+                it == tts.voice.value })
 
-        tts.volume = readFromDataStore(context, volumeKey)?.toFloat() ?: 1f
-        isMute = tts.volume == 0f
+    // speed
+    fun getSpeed() =
+        tts.speed
+
+    val speedDescription by lazy {
+        mutableStateOf(
+            tts.speed.toString())
     }
 
-    fun toggleMute(
-        context: Context) =
-            setMute(context, !isMute)
+    fun setSpeed(
+        context: Context,
+        rawSpeed: Float) {
+
+        // round to nearest tenth
+        val selectedSpeed = ((rawSpeed * 10).roundToInt()).toFloat() / 10
+
+        tts.speed = selectedSpeed
+        writeToDataStore(context, speedKey, selectedSpeed.toString())
+        speedDescription.value = selectedSpeed.toString()
+    }
+
+    // pitch
+    fun getPitch() =
+        tts.pitch
+
+    val pitchDescription by lazy {
+        mutableStateOf(
+            tts.pitch.toString())
+    }
+
+    fun setPitch(
+        context: Context,
+        rawPitch: Float) {
+
+        // round to nearest tenth
+        val selectedPitch = ((rawPitch * 10).roundToInt()).toFloat() / 10
+
+        tts.pitch = selectedPitch
+        writeToDataStore(context, pitchKey, selectedPitch.toString())
+        pitchDescription.value = selectedPitch.toString()
+    }
+
+    fun speakLastMessage() {
+
+        getDatabaseReference(messagesNode)
+            .limitToLast(1)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+
+                override fun onDataChange(snapshot: DataSnapshot) {
+
+                    var lastMessage = defaultMessage
+
+                    val children = snapshot.children
+                    if (!children.none()) {
+
+                        // parse json
+                        val json = JSONObject(children.first().value.toString())
+                        val jsonMessage = json.getString(messageKey)
+                        if (jsonMessage.isNotEmpty()) lastMessage = jsonMessage
+                    }
+
+                    tts.speak(
+                        timestamp = "",
+                        message = lastMessage,
+                        isForceVolume = true)
+                }
+
+                override fun onCancelled(error: DatabaseError) { }
+            })
+    }
+
+    // queue behavior
+    fun isQueueAdd() =
+        tts.isQueueAdd
+
+    val queueBehaviorDescription by lazy {
+        mutableStateOf(
+            if (tts.isQueueAdd) queueBehaviorAddDescription
+            else queueBehaviorFlushDescription)
+    }
+
+    fun setIsQueueAdd(
+        context: Context,
+        isChecked: Boolean) {
+
+        tts.isQueueAdd = isChecked
+        writeToDataStore(context, isQueueFlushKey, isChecked.toString())
+
+        queueBehaviorDescription.value =
+            if (tts.isQueueAdd) queueBehaviorAddDescription
+            else queueBehaviorFlushDescription
+    }
+
+    // dark mode
+    val isDarkMode = mutableStateOf(true)
+    var isSystemInDarkTheme = false
+
+    val uiModeDescription by lazy {
+        mutableStateOf(
+            if (isDarkMode.value) uiModeDarkDescription
+            else uiModeLightDescription)
+    }
+
+    fun setUiMode(
+        context: Context) {
+
+        isDarkMode.value =
+            if (Firebase.auth.currentUser == null) isSystemInDarkTheme
+            else readFromDataStore(context, isDarkModeKey)?.toBooleanStrictOrNull() ?: true
+    }
+
+    fun setIsDarkMode(
+        context: Context,
+        isChecked: Boolean) {
+
+        isDarkMode.value = isChecked
+        writeToDataStore(context, isDarkModeKey, isChecked.toString())
+
+        uiModeDescription.value =
+            if (isDarkMode.value) uiModeDarkDescription
+            else uiModeLightDescription
+    }
+
+    // billing client, purchase subscription flow ui triggered by mute button
+    lateinit var billing: BillingClientImpl
+
+    fun initBilling(
+        billingClientImpl: BillingClientImpl) {
+
+        // initialize connection to google play
+        billing = billingClientImpl
+        billing.connect()
+
+        val context = billing.context
+
+        // listen to subscription status
+        CoroutineScope(Dispatchers.IO).launch {
+            billing.isSubscriptionPurchased
+                .onEach {
+                    if (it) {
+                        tts.volume = readFromDataStore(context, volumeKey)?.toFloat() ?: 1f
+                        isMute = tts.volume == 0f
+                    }
+                }
+                .collect()
+        }
+    }
+
+    // mute
+    var isMute by mutableStateOf(true)
+
+    fun toggleMute(context: Context) =
+        setMute(context, !isMute)
 
     fun setMute(
         context: Context,
-        newMute: Boolean) {
+        newIsMute: Boolean) {
 
-        isMute = newMute
+        // unmute only allowed for paid user
+        if (!newIsMute && !billing.isSubscriptionPurchased.value) {
+            billing.launchBillingFlowUi(context)
+            return
+        }
+
+        isMute = newIsMute
 
         if (isMute) { tts.volume = 0f }
         else { tts.volume = 1f }

@@ -23,6 +23,8 @@ const val TAG = "~"
 fun logMessage(msg: String?) = Log.v(TAG, "$msg")
 fun logException(e: Exception?) = Log.e(TAG, "handleException: ${e?.message}", e)
 
+// todo extract to strings.xml
+
 // firebase
 const val databaseUrl = "https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/"
 const val webhookBaseUrl = "https://baraudio-555667494303.us-central1.run.app/?uid="
@@ -30,19 +32,22 @@ const val howToUseUrl = "https://baraud.io/" // todo
 const val aboutUrl = "https://baraud.io/"
 const val privacyUrl = "https://baraud.io/privacy/"
 const val termsUrl = "https://baraud.io/terms/"
-const val users = "users"
-const val messages = "messages"
+const val usersNode = "users"
+const val messagesNode = "messages"
 const val unauthenticatedUser = "unauthenticatedUser"
+const val unauthenticatedToken = "unauthenticatedToken"
 const val gitHubProviderId = "github.com"
 const val messageMaxSize = 1000
 
 // notifications
 const val isLaunchFromNotification = "isLaunchFromNotification"
+const val uidKey = "uid"
 const val timestampKey = "timestamp"
 const val messageKey = "message"
 const val originKey = "origin"
 const val insomnia = "insomnia"
 const val defaultMessage = "Thank you for using BarAudio!"
+const val unauthenticatedTimestamp = ", please sign-in to hear message!"
 
 // datastore
 const val localCache = "localCache"
@@ -54,11 +59,15 @@ const val isQueueFlushKey = "isQueueFlush"
 const val isDarkModeKey = "isDarkMode"
 const val volumeKey = KEY_PARAM_VOLUME
 
-// settings todo extract to strings.xml
+// settings
 const val queueBehaviorFlushDescription = "Play new alerts immediately"
 const val queueBehaviorAddDescription = "Add new alerts to queue"
 const val uiModeDarkDescription = "Dark"
 const val uiModeLightDescription = "Light"
+
+// billing, configure in play store
+const val productId = "premium"
+const val freeTrial = "free-trial"
 
 fun beautifyTimestamp(timestamp: String): String {
 

@@ -17,12 +17,11 @@ def baraudio(req: https_fn.Request) -> https_fn.Response:
     # process webhook when request is properly formed
     if req.method == 'POST' and uid is not None and len(message) > 0:
 
-        device_token = db.reference('users').get()[uid]
         timestamp = str(round(time.time() * 1000))
         origin = get_origin(req)
 
-        write_to_database(device_token, timestamp, message, origin)
-        send_fcm(device_token, timestamp, message)
+        write_to_database(uid, timestamp, message, origin)
+        send_fcm(uid, timestamp, message)
 
     # respond with simple message
     return https_fn.Response('Thank you for using BarAudio! :)')
@@ -39,12 +38,17 @@ def get_origin(req: https_fn.Request) -> str:
 
     return origin
 
-def write_to_database(device_token: str, timestamp: str, message: str, origin: str):
+def write_to_database(uid: str, timestamp: str, message: str, origin: str):
 
     group_key = db.reference('messages')
-    group_key.child(device_token).child(timestamp).set('{ "message": "' + message + '", "origin": "' + origin + '" }')
+    group_key.child(uid).child(timestamp).set('{ "message": "' + message + '", "origin": "' + origin + '" }')
 
-def send_fcm(device_token: str, timestamp: str, message: str):
+def send_fcm(uid: str, timestamp: str, message: str):
+
+    # get device token
+    device_token = db.reference('users').get()[uid]
+    # todo must catch bad token, throws 500 here ... instead response with "Please sign-in ..."
+    #  500 also if correct token exits, but user has never signed-in before (fresh install)
 
     # set priority to high
     config = messaging.AndroidConfig(
@@ -55,6 +59,7 @@ def send_fcm(device_token: str, timestamp: str, message: str):
     # construct notification
     remote_message = messaging.Message(
         data = {
+            'uid': uid,
             'timestamp': timestamp,
             'message': message },
         android = config,

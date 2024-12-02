@@ -24,14 +24,16 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
+import com.sommerengineering.baraudio.login.BillingClientImpl
 import com.sommerengineering.baraudio.theme.AppTheme
 import org.koin.android.ext.android.get
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.KoinContext
+import org.koin.compose.koinInject
+import org.koin.core.parameter.parametersOf
 
-var isAppOpen = false
+var isAppBackground = false
 var isAppForeground = false
-var token = ""
 
 class MainActivity : ComponentActivity() {
 
@@ -89,8 +91,7 @@ class MainActivity : ComponentActivity() {
 
         // init
         get<TextToSpeechImpl>()
-        isAppOpen = true // true for background and foreground, false if closed
-        token = readFromDataStore(context, tokenKey) ?: unauthenticatedUser
+        token = readFromDataStore(context, tokenKey) ?: unauthenticatedToken
 
         // dismiss notifications after launch
         val isLaunchFromNotification = intent.extras?.getBoolean(isLaunchFromNotification) ?: false
@@ -98,6 +99,11 @@ class MainActivity : ComponentActivity() {
 
         enableEdgeToEdge()
         setContent { App() }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        isAppBackground = true
     }
 
     override fun onResume() {
@@ -110,6 +116,11 @@ class MainActivity : ComponentActivity() {
         super.onPause()
         isAppForeground = false
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        isAppBackground = false
+    }
 }
 
 @Composable
@@ -120,8 +131,13 @@ fun App() {
     val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
 
     // track ui mode
-    viewModel.setUiMode(context, isSystemInDarkTheme())
+    viewModel.isSystemInDarkTheme = isSystemInDarkTheme()
+    viewModel.setUiMode(context)
     val isDarkMode by remember { viewModel.isDarkMode }
+
+    // initialize billing client
+    viewModel.initBilling(
+        koinInject<BillingClientImpl> { parametersOf(context) })
 
     KoinContext {
         AppTheme(isDarkMode) {

@@ -2,19 +2,20 @@ package com.sommerengineering.baraudio
 
 import android.Manifest
 import android.app.PendingIntent
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.media.AudioManager
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import org.koin.android.ext.android.get
+
+var token = unauthenticatedToken
 
 class FirebaseService: FirebaseMessagingService() {
 
@@ -23,40 +24,42 @@ class FirebaseService: FirebaseMessagingService() {
     override fun onNewToken(newToken: String) {
 
         token = newToken
-
-        writeToDataStore(
-            applicationContext,
-            tokenKey,
-            newToken)
-
+        writeToDataStore(applicationContext, tokenKey, token)
         logMessage("New token: $token")
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
 
         // extract attributes
+        val uid = remoteMessage.data[uidKey] ?: return
         val timestamp = remoteMessage.data[timestampKey] ?: return
         val message = remoteMessage.data[messageKey] ?: return
 
         // either speak, or show notification
-        val isShowNotification =
-            Firebase.auth.currentUser == null ||
-            !isAppOpen ||
-            tts.volume == 0f ||
-            getSystemVolume() == 0
+        var isShowNotification =
+            Firebase.auth.currentUser == null || // user not signed-in
+            !isAppBackground || // app closed
+            (tts.volume == 0f && !isAppForeground) // app muted and in background
 
-        if (isShowNotification && !isAppForeground) { showNotification(timestamp, message) }
+        // note for different user, same device
+        // todo since subscription is per google play user, there is no
+        //  reason for this user id check, db can be simplified to just tokens holding
+        //  timestamp: message ... refactor?
+        val note =
+            if (uid != Firebase.auth.currentUser?.uid) {
+                isShowNotification = true
+                unauthenticatedTimestamp
+            } else { "" }
+
+        // either speak, or show notification
+        if (isShowNotification) { showNotification(timestamp, message, note) }
         else { tts.speak(timestamp, message) }
     }
 
     private fun showNotification(
         timestamp: String,
-        message: String) {
-
-        // todo check that notifications have appropriate settings:
-        //  importance, sound, etc at minimum levels, else show ui saying it's required
-        //  also put link to system settings somewhere appropriate
-        //  https://developer.android.com/develop/ui/views/notifications/channels#UpdateChannel
+        message: String,
+        note: String) {
 
         // confirm permission granted
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
@@ -68,14 +71,16 @@ class FirebaseService: FirebaseMessagingService() {
         val pendingIntent= PendingIntent
             .getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
-        // configure options
-        val beautifulTimestamp = beautifyTimestamp(timestamp)
+        // configure options todo update icon color, other styling?
+        val timestampWithNote =
+            beautifyTimestamp(timestamp) + note
+
         val builder = NotificationCompat.Builder(this, getString(R.string.notification_channel_id))
             .setSmallIcon(R.drawable.logo_square)
             .setContentTitle(message)
-            .setContentText(beautifulTimestamp)
+            .setContentText(timestampWithNote) // collapsed
             .setStyle(NotificationCompat.BigTextStyle()
-                .bigText(beautifulTimestamp))
+                .bigText(timestampWithNote)) // expanded
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
 
@@ -83,36 +88,47 @@ class FirebaseService: FirebaseMessagingService() {
         NotificationManagerCompat.from(this).notify(
             trimTimestamp(timestamp),
             builder.build())
+
+        // todo check that notifications have appropriate settings:
+        //  importance, sound, etc at minimum levels, else show ui saying it's required
+        //  also put link to system settings somewhere appropriate
+        //  https://developer.android.com/develop/ui/views/notifications/channels#UpdateChannel
     }
-
-    fun getSystemVolume() =
-        (applicationContext
-            .getSystemService(Context.AUDIO_SERVICE) as AudioManager)
-            .getStreamVolume(AudioManager.STREAM_MUSIC) // between 0-25
-}
-
-val dbRef by lazy {
-
-    // enable local cache
-    Firebase
-        .database(databaseUrl)
-        .setPersistenceEnabled(true)
-
-    Firebase
-        .database(databaseUrl)
-        .getReference(messages)
-        .child(token)
 }
 
 fun signOut() =
     Firebase.auth.signOut()
+
+var isDatabaseInitialized = false
+fun getDatabaseReference(
+    node: String)
+: DatabaseReference {
+
+    if (!isDatabaseInitialized) {
+
+        // enable local cache
+        Firebase
+            .database(databaseUrl)
+            .setPersistenceEnabled(true)
+
+        isDatabaseInitialized = true
+    }
+
+    val uid = Firebase.auth.currentUser?.uid ?: unauthenticatedUser
+
+    return Firebase
+        .database(databaseUrl)
+        .getReference(node)
+        .child(uid)
+}
 
 fun validateToken() {
 
     val user = Firebase.auth.currentUser ?: return
     logMessage("Sign-in success with user: ${user.uid}")
 
-    user.getIdToken(false)
+    user
+        .getIdToken(false)
         .addOnSuccessListener {
 
             // compare correct cached token with user token (potentially invalid)
@@ -121,12 +137,11 @@ fun validateToken() {
                 return@addOnSuccessListener
             }
 
-            // update database user:token association in database, if needed
-            Firebase.database(databaseUrl)
-                .getReference(users)
-                .child(user.uid)
-                .setValue(token)
+            logMessage("Writing user:token pair to database")
 
-            logMessage("New user: token pair written to database")
+            // write user:token pair to database
+            // no write operation occurs if correct token already exists
+            getDatabaseReference(usersNode)
+                .setValue(token)
         }
 }
