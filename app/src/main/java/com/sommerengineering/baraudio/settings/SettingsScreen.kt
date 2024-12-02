@@ -133,7 +133,7 @@ fun SettingsScreen(
                         SliderImpl(
                             initPosition = viewModel.getSpeed(),
                             onValueChanged = { viewModel.setSpeed(context, it) },
-                            onValueChangeFinished = { viewModel.speakLastMessage(context) })
+                            onValueChangeFinished = { viewModel.speakLastMessage() })
                     }
             }
 
@@ -147,7 +147,7 @@ fun SettingsScreen(
                         SliderImpl(
                             initPosition = viewModel.getPitch(),
                             onValueChanged = { viewModel.setPitch(context, it) },
-                            onValueChangeFinished = { viewModel.speakLastMessage(context) })
+                            onValueChangeFinished = { viewModel.speakLastMessage() })
                         }
             }
 

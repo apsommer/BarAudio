@@ -27,7 +27,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 class BillingClientImpl(
-    private val context: Context)
+    val context: Context)
     : BillingClientStateListener,
     PurchasesUpdatedListener {
 
@@ -52,66 +52,38 @@ class BillingClientImpl(
     override fun onBillingSetupFinished(result: BillingResult) {
 
         // unexpected error
-        if (result.responseCode != BillingResponseCode.OK) {
-
-            logMessage("Billing client failed to initialize")
-
-            // todo
-            // Try to restart the connection on the next request to
-            // Google Play by calling the startConnection() method.
-
-            return
-        }
-
-        logMessage("Billing client initialized")
-        checkPreviousPurchases()
+        if (result.responseCode != BillingResponseCode.OK) { return }
+        getPurchases()
     }
 
-    override fun onBillingServiceDisconnected() {
+    override fun onBillingServiceDisconnected() { }
 
-        // todo
-        // Try to restart the connection on the next request to
-        // Google Play by calling the startConnection() method.
-    }
+    private fun getPurchases() {
 
-    fun checkPreviousPurchases() {
-
-        // define purchase params
+        // define purchase
         val queryPurchasesParams =
             QueryPurchasesParams.newBuilder()
                 .setProductType(ProductType.SUBS)
                 .build()
 
-        // query previous purchases
+        // get previous purchases
         client
             .queryPurchasesAsync(
                 queryPurchasesParams,
                 PurchasesResponseListener { result, purchases ->
 
-            if (result.responseCode != BillingResponseCode.OK) {
-                logMessage("Error retrieving previous purchases: ${result.debugMessage}")
-                // todo this should never happen, do something?
-                return@PurchasesResponseListener
-            }
+            if (result.responseCode != BillingResponseCode.OK) { return@PurchasesResponseListener }
+            if (purchases.isEmpty()) { return@PurchasesResponseListener }
 
-            if (purchases.isEmpty()) {
-                logMessage("No previous purchases, need to launch billing flow ...")
-                return@PurchasesResponseListener
-            }
-
-            // todo can be more than one purchase here? .find() latest?
-            val purchase = purchases.first()
-            handlePurchase(purchase)
+            handlePurchase(purchases.first())
         })
     }
 
     fun handlePurchase(
         purchase: Purchase) {
 
-        // check for active subscription
+        // subscription active
         if (purchase.isAcknowledged) {
-
-            logMessage("Purchase already acknowledged")
             isSubscriptionPurchased.value = true
             return
         }
@@ -125,13 +97,8 @@ class BillingClientImpl(
                         .setPurchaseToken(purchase.purchaseToken)
                         .build())
 
-            if (acknowledgePurchaseResult.responseCode != BillingResponseCode.OK) {
-                logMessage("Error, purchase not acknowledged")
-                isSubscriptionPurchased.value = false
-                return@launch
-            }
+            if (acknowledgePurchaseResult.responseCode != BillingResponseCode.OK) { return@launch }
 
-            logMessage("Success, purchase acknowledged")
             isSubscriptionPurchased.value = true
         }
     }
@@ -141,88 +108,54 @@ class BillingClientImpl(
 
         CoroutineScope(Dispatchers.IO).launch {
 
-            // query play store for product
-            val productDetailsResult =
+            // retrieve product from play store
+            val result =
                 client.queryProductDetails(
                     QueryProductDetailsParams.newBuilder()
-                        .setProductList(
-                            listOf(
-                                Product.newBuilder()
-                                    .setProductId(productId)
-                                    .setProductType(ProductType.SUBS)
-                                    .build()))
-                        .build())
+                        .setProductList(listOf(
+                            Product.newBuilder()
+                                .setProductId(productId)
+                                .setProductType(ProductType.SUBS)
+                                .build())).build())
 
-            if (productDetailsResult.billingResult.responseCode != BillingResponseCode.OK) {
-
-                logMessage("Billing flow ui error: ${productDetailsResult.billingResult.debugMessage}")
-                // todo this should never happen, do something?
-                return@launch
-            }
+            if (result.billingResult.responseCode != BillingResponseCode.OK) { return@launch }
 
             // extract products from response
-            val productDetailsList = productDetailsResult.productDetailsList
-            if (productDetailsList == null) {
-
-                logMessage("productDetailsList is null")
-                // todo this should never happen, do something?
-                return@launch
-            }
+            val productDetailsList = result.productDetailsList ?: return@launch
 
             // build list of product details params
-            val subscription = productDetailsList.first()
-            val subscriptionOffers = subscription.subscriptionOfferDetails
+            val product = productDetailsList.first()
 
-            if (subscriptionOffers == null || subscriptionOffers.isEmpty()) {
+            val offers = product.subscriptionOfferDetails
+            if (offers.isNullOrEmpty()) { return@launch }
 
-                logMessage("Retrieved malformed subscription")
-                // todo this should never happen, do something?
-                return@launch
-            }
-
-            val offer = subscriptionOffers
-                .find { it.offerId == freeTrial } // free trial, only present if user eligible
-                ?: subscriptionOffers.first() // base plan
-
-            val billingFlowParams =
-                BillingFlowParams.newBuilder()
-                    .setProductDetailsParamsList(
-                        listOf(
-                            BillingFlowParams
-                                .ProductDetailsParams.newBuilder()
-                                .setProductDetails(subscription)
-                                .setOfferToken(offer.offerToken)
-                                .build()))
-                    .build()
+            // offer free trial, if eligible
+            val offer = offers
+                .find { it.offerId == freeTrial } ?:
+                offers.first()
 
             // launch the billing flow
-            val billingFlowResult = client
-                .launchBillingFlow(
-                    context as MainActivity,
-                    billingFlowParams)
+            client.launchBillingFlow(
+                context as MainActivity,
+                BillingFlowParams.newBuilder()
+                    .setProductDetailsParamsList(listOf(
+                        BillingFlowParams
+                            .ProductDetailsParams.newBuilder()
+                            .setProductDetails(product)
+                            .setOfferToken(offer.offerToken)
+                            .build())).build())
 
-            if (billingFlowResult.responseCode != BillingResponseCode.OK) {
-                logMessage("Billing flow error: ${billingFlowResult.debugMessage}")
-            }
+            // billing flow result delivered to onPurchaseUpdated
         }
-
-        // all good, result delivered to callback onPurchaseUpdated
     }
 
-    // listen for new purchases
     override fun onPurchasesUpdated(
         result: BillingResult,
         purchases: MutableList<Purchase>?) {
 
         // catch error: user canceled flow, card declined, ...
-        if (result.responseCode != BillingResponseCode.OK || purchases.isNullOrEmpty()) {
+        if (result.responseCode != BillingResponseCode.OK || purchases.isNullOrEmpty()) { return }
 
-            logMessage("Billing flow ui error: ${result.responseCode}")
-            return
-        }
-
-        // process new purchase
-        val purchase = purchases.first()
-        handlePurchase(purchase)
+        handlePurchase(purchases.first())
     }
 }

@@ -55,11 +55,6 @@ fun MessagesScreen(
 //            onSettingsClick.invoke()
 //        }
 
-        // mute button, can't wait for tts init (as with other tts params) since icon needed for ui
-        viewModel.initMute(
-            context,
-            coroutine)
-
         // listen to database writes
         listenToDatabaseWrites(
             messages,
@@ -90,7 +85,6 @@ fun MessagesScreen(
                 containerColor = viewModel.getFabBackgroundColor(),
                 shape = CircleShape,
                 onClick = { viewModel.toggleMute(context) }) {
-
                 Icon(
                     modifier = Modifier.size(buttonBorderSize / 2),
                     painter = painterResource(viewModel.getFabIconId()),

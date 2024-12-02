@@ -1,17 +1,12 @@
 package com.sommerengineering.baraudio
 
 import android.content.Context
-import android.provider.Settings.Global
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
-import android.speech.tts.Voice
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.core.app.NotificationManagerCompat
 import androidx.core.bundle.bundleOf
-import kotlinx.coroutines.flow.MutableStateFlow
 
 class TextToSpeechImpl(
     private val context: Context
@@ -61,7 +56,8 @@ class TextToSpeechImpl(
 
     fun speak(
         timestamp: String,
-        message: String) {
+        message: String,
+        isForceVolume: Boolean = false) {
 
         if (message.isBlank() || !isInitialized) return
 
@@ -69,7 +65,9 @@ class TextToSpeechImpl(
         textToSpeech.setVoice(voice.value)
         textToSpeech.setSpeechRate(speed)
         textToSpeech.setPitch(pitch)
-        val params = bundleOf(volumeKey to volume)
+        val params =
+            if (isForceVolume) bundleOf(volumeKey to 1f)
+            else bundleOf(volumeKey to volume)
 
         // speak message
         textToSpeech.speak(

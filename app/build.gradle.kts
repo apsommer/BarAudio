@@ -42,6 +42,7 @@ android {
         // debug keystore location
         // ~/.android/debug.keystore
 
+        // enable all variables in debugger break points
         debug {
             isMinifyEnabled = false
             kotlinOptions {
