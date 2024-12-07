@@ -27,6 +27,8 @@ fun Navigation(
     NavHost(
         navController = controller,
         startDestination = getStartDestination()) {
+
+        // login screen
         composable(
             route = LoginScreenRoute) {
             LoginScreen(
@@ -36,6 +38,8 @@ fun Navigation(
                         viewModel = viewModel,
                         context = context) })
         }
+
+        // messages screen
         composable(
             route = MessagesScreenRoute) {
             MessagesScreen(

@@ -3,15 +3,10 @@ package com.sommerengineering.baraudio.settings
 import android.content.Intent
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -21,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
@@ -31,42 +25,21 @@ import com.sommerengineering.baraudio.privacyUrl
 import com.sommerengineering.baraudio.termsUrl
 import org.koin.androidx.compose.koinViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    // onBackClicked: () -> Unit,
     onSignOut: () -> Unit) {
 
-    // init
     val context = LocalContext.current
     val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
     val uriHandler = LocalUriHandler.current
 
-    Scaffold(
-
-//        topBar = {
-//            TopAppBar(
-//                navigationIcon = {
-//                    IconButton(onClick = { onBackClicked() }) {
-//                        Icon(
-//                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-//                            contentDescription = null)
-//                }},
-//                title = {
-//                    Text(
-//                        text = stringResource(R.string.settings))
-//                })
-//        }
-
-    ) { padding ->
+    Scaffold { padding ->
 
         var isShowVoiceDialog by remember { mutableStateOf(false) }
 
         LazyColumn(
             modifier = Modifier
                 .padding(padding)) {
-
-            // todo add title
 
             // how to use
             item {
@@ -76,7 +49,7 @@ fun SettingsScreen(
                     onClick = { uriHandler.openUri(howToUseUrl) })
             }
 
-            // webhook
+            // webhook todo make entire item clickable
             item {
                 DialogSettingItem(
                     icon = R.drawable.webhook,

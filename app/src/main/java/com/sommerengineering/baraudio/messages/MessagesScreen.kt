@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SwipeToDismissBox
@@ -43,7 +44,6 @@ fun MessagesScreen(
     onSignOut: () -> Unit
 ) {
 
-    // init
     val context = LocalContext.current
     val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
     val messages = remember { mutableStateListOf<Message>() }
@@ -51,12 +51,12 @@ fun MessagesScreen(
     val listState = rememberLazyListState()
     val coroutine = rememberCoroutineScope()
 
-    // todo add little space from right edge
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            SettingsScreen(
-                onSignOut = onSignOut)
+            ModalDrawerSheet {
+                SettingsScreen(onSignOut = onSignOut)
+            }
         },
         gesturesEnabled = true) {
 
