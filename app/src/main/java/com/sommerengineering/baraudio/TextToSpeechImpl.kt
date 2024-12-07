@@ -36,7 +36,7 @@ class TextToSpeechImpl(
 
         speed = readFromDataStore(context, speedKey)?.toFloat() ?: 1f
         pitch = readFromDataStore(context, pitchKey)?.toFloat() ?: 1f
-        isQueueAdd = readFromDataStore(context, isQueueFlushKey).toBoolean()
+        isQueueAdd = readFromDataStore(context, isQueueFlushKey)?.toBooleanStrictOrNull() ?: true
 
         // attach progress listener to clear notifications
         textToSpeech.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
