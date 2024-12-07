@@ -77,6 +77,8 @@ fun beautifyTimestamp(timestamp: String): String {
     // todo relative timespan is interesting?
     //  DateUtils.getRelativeTimeSpanString(timestamp.toLong())
 
+    // todo improve appearance of "on ..."
+
     val isToday = DateUtils.isToday(timestamp.toLong())
 
     val pattern =

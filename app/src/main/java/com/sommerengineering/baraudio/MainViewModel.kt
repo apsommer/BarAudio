@@ -16,7 +16,6 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
-import com.sommerengineering.baraudio.login.BillingClientImpl
 import com.sommerengineering.baraudio.messages.tradingviewWhitelistIps
 import com.sommerengineering.baraudio.messages.trendspiderWhitelistIp
 import kotlinx.coroutines.CoroutineScope
@@ -248,7 +247,8 @@ class MainViewModel(
     lateinit var billing: BillingClientImpl
 
     fun initBilling(
-        billingClientImpl: BillingClientImpl) {
+        billingClientImpl: BillingClientImpl
+    ) {
 
         // initialize connection to google play
         billing = billingClientImpl
@@ -258,11 +258,17 @@ class MainViewModel(
 
         // listen to subscription status
         CoroutineScope(Dispatchers.IO).launch {
-            billing.isSubscriptionPurchased
+            billing.isUserPaid
                 .onEach {
-                    if (it) {
-                        tts.volume = readFromDataStore(context, volumeKey)?.toFloat() ?: 1f
-                        isMute = tts.volume == 0f
+                    when (it) {
+                        BillingState.Unsubscribed -> { }
+                        BillingState.NewSubscription -> {
+                            setMute(context, false)
+                        }
+                        BillingState.Subscribed -> {
+                            tts.volume = readFromDataStore(context, volumeKey)?.toFloat() ?: 1f
+                            isMute = tts.volume == 0f
+                        }
                     }
                 }
                 .collect()
@@ -277,15 +283,15 @@ class MainViewModel(
 
     fun setMute(
         context: Context,
-        newIsMute: Boolean) {
+        newMute: Boolean) {
 
         // unmute only allowed for paid user
-        if (!newIsMute && !billing.isSubscriptionPurchased.value) {
+        if (!newMute && billing.isUserPaid.value == BillingState.Unsubscribed) {
             billing.launchBillingFlowUi(context)
             return
         }
 
-        isMute = newIsMute
+        isMute = newMute
 
         if (isMute) { tts.volume = 0f }
         else { tts.volume = 1f }

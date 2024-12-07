@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.login
+package com.sommerengineering.baraudio
 
 import android.content.Context
 import com.android.billingclient.api.AcknowledgePurchaseParams
@@ -17,14 +17,16 @@ import com.android.billingclient.api.QueryProductDetailsParams.Product
 import com.android.billingclient.api.QueryPurchasesParams
 import com.android.billingclient.api.acknowledgePurchase
 import com.android.billingclient.api.queryProductDetails
-import com.sommerengineering.baraudio.MainActivity
-import com.sommerengineering.baraudio.freeTrial
-import com.sommerengineering.baraudio.logMessage
-import com.sommerengineering.baraudio.productId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+
+enum class BillingState {
+    Unsubscribed,
+    NewSubscription,
+    Subscribed
+}
 
 class BillingClientImpl(
     val context: Context)
@@ -34,7 +36,7 @@ class BillingClientImpl(
     // todo remove Google Developer API? seems for backend only
     //  https://developer.android.com/google/play/billing/getting-ready#dev-api
 
-    val isSubscriptionPurchased = MutableStateFlow(false)
+    val isUserPaid = MutableStateFlow(BillingState.Unsubscribed)
 
     // create billing client
     val client =
@@ -84,7 +86,7 @@ class BillingClientImpl(
 
         // subscription active
         if (purchase.isAcknowledged) {
-            isSubscriptionPurchased.value = true
+            isUserPaid.value = BillingState.Subscribed
             return
         }
 
@@ -99,7 +101,7 @@ class BillingClientImpl(
 
             if (acknowledgePurchaseResult.responseCode != BillingResponseCode.OK) { return@launch }
 
-            isSubscriptionPurchased.value = true
+            isUserPaid.value = BillingState.NewSubscription
         }
     }
 
