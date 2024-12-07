@@ -31,8 +31,7 @@ import org.koin.compose.KoinContext
 import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
 
-var isAppBackground = false
-var isAppForeground = false
+var isAppOpen = false
 
 class MainActivity : ComponentActivity() {
 
@@ -89,6 +88,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         // init
+        isAppOpen = true
         get<TextToSpeechImpl>()
         token = readFromDataStore(context, tokenKey) ?: unauthenticatedToken
 
@@ -98,27 +98,6 @@ class MainActivity : ComponentActivity() {
 
         enableEdgeToEdge()
         setContent { App() }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        isAppBackground = true
-    }
-
-    override fun onResume() {
-        super.onResume()
-        isAppForeground = true
-        cancelAllNotifications(context)
-    }
-
-    override fun onPause() {
-        super.onPause()
-        isAppForeground = false
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        isAppBackground = false
     }
 }
 

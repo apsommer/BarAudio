@@ -38,8 +38,7 @@ class FirebaseService: FirebaseMessagingService() {
         // either speak, or show notification
         var isShowNotification =
             Firebase.auth.currentUser == null || // user not signed-in
-            !isAppBackground || // app closed
-            (tts.volume == 0f && !isAppForeground) // app muted and in background
+            !isAppOpen // app closed
 
         // note for different user, same device
         // todo since subscription is per google play user, there is no

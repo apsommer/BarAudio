@@ -89,10 +89,11 @@ fun swipeToDelete(
     position: SwipeToDismissBoxValue
 ): Boolean {
 
-    val startToEnd = SwipeToDismissBoxValue.StartToEnd
-    val endToStart = SwipeToDismissBoxValue.EndToStart
-
-    if (position != startToEnd && position != endToStart) return false
+    // confirm item was swiped
+    if (position != SwipeToDismissBoxValue.StartToEnd
+        && position != SwipeToDismissBoxValue.EndToStart) {
+        return false
+    }
 
     deleteMessage(
         messages = messages,
