@@ -77,13 +77,11 @@ fun beautifyTimestamp(timestamp: String): String {
     // todo relative timespan is interesting?
     //  DateUtils.getRelativeTimeSpanString(timestamp.toLong())
 
-    // todo improve appearance of "on ..."
-
     val isToday = DateUtils.isToday(timestamp.toLong())
 
     val pattern =
         if (isToday) "h:mm:ss a" // 6:27:53 PM
-        else "h:mm:ss a 'on' MMMM dd, yyyy" // 6:27:53 PM on October 30, 2024
+        else "MMMM dd, yyyy 'at' h:mm:ss a" //  October 30, 2024 at 6:27:53 PM
 
     return SimpleDateFormat(
         pattern,
