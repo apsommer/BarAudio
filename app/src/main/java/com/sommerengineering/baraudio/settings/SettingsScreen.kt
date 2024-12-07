@@ -1,6 +1,7 @@
 package com.sommerengineering.baraudio.settings
 
 import android.content.Intent
+import android.widget.Toast
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Icon
@@ -63,8 +64,6 @@ fun SettingsScreen(
                             painter = painterResource(R.drawable.copy),
                             contentDescription = null)
                     }
-
-                    // todo toast for older api
                 }
             }
 
