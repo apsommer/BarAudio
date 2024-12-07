@@ -11,19 +11,16 @@ import com.google.firebase.ktx.Firebase
 import com.sommerengineering.baraudio.login.LoginScreen
 import com.sommerengineering.baraudio.messages.MessagesScreen
 import com.sommerengineering.baraudio.messages.dbListener
-import com.sommerengineering.baraudio.settings.SettingsScreen
 import org.koin.androidx.compose.koinViewModel
 
 // routes
 const val LoginScreenRoute = "LoginScreen"
-const val MessagesScreenRoute = "AlertScreen"
-const val SettingsScreenRoute = "SettingsScreen"
+const val MessagesScreenRoute = "MessagesScreen"
 
 @Composable
 fun Navigation(
     controller: NavHostController) {
 
-    // inject viewmodel
     val context = LocalContext.current
     val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
 
@@ -42,19 +39,12 @@ fun Navigation(
         composable(
             route = MessagesScreenRoute) {
             MessagesScreen(
-                onSettingsClick = {
-                    controller.navigate(SettingsScreenRoute)
-                })
-        }
-        composable(
-            route = SettingsScreenRoute) {
-            SettingsScreen(
-                onBackClicked = { controller.navigateUp() },
                 onSignOut = {
                     onSignOut(
                         controller = controller,
                         viewModel = viewModel,
-                        context = context) })
+                        context = context)
+                })
         }
     }
 }
@@ -64,14 +54,16 @@ fun onAuthentication(
     viewModel: MainViewModel,
     context: Context) {
 
+    // reset dark mode to previous preference, if available
     viewModel.setUiMode(context)
 
+    // request notification permission, does nothing if already granted
     (context as MainActivity).requestRealtimeNotificationPermission()
 
+    // write user:token pair to database, if needed
     validateToken()
 
-    // todo check billing status
-
+    // navigate to messages screen
     controller.navigate(MessagesScreenRoute) {
         popUpTo(LoginScreenRoute) { inclusive = true }
     }
@@ -105,11 +97,4 @@ fun getStartDestination() =
         logMessage("Authentication skipped, user signed-in: ${Firebase.auth.currentUser?.uid}")
         MessagesScreenRoute }
     else LoginScreenRoute
-
-
-
-
-
-
-
 

@@ -1,14 +1,11 @@
 package com.sommerengineering.baraudio.settings
 
 import android.content.Intent
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -25,13 +22,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.aboutUrl
 import com.sommerengineering.baraudio.howToUseUrl
-import com.sommerengineering.baraudio.messages.deleteAllMessages
 import com.sommerengineering.baraudio.privacyUrl
 import com.sommerengineering.baraudio.termsUrl
 import org.koin.androidx.compose.koinViewModel
@@ -39,35 +34,39 @@ import org.koin.androidx.compose.koinViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    onBackClicked: () -> Unit,
+    // onBackClicked: () -> Unit,
     onSignOut: () -> Unit) {
 
-    // inject viewmodel
+    // init
     val context = LocalContext.current
     val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
     val uriHandler = LocalUriHandler.current
 
     Scaffold(
 
-        topBar = {
-            TopAppBar(
-                navigationIcon = {
-                    IconButton(onClick = { onBackClicked() }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = null)
-                }},
-                title = {
-                    Text(
-                        text = stringResource(R.string.settings))
-                })
-        }) { padding ->
+//        topBar = {
+//            TopAppBar(
+//                navigationIcon = {
+//                    IconButton(onClick = { onBackClicked() }) {
+//                        Icon(
+//                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+//                            contentDescription = null)
+//                }},
+//                title = {
+//                    Text(
+//                        text = stringResource(R.string.settings))
+//                })
+//        }
+
+    ) { padding ->
 
         var isShowVoiceDialog by remember { mutableStateOf(false) }
 
         LazyColumn(
             modifier = Modifier
                 .padding(padding)) {
+
+            // todo add title
 
             // how to use
             item {

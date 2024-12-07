@@ -12,10 +12,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -30,105 +33,125 @@ import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.logMessage
-import com.sommerengineering.baraudio.login.BillingClientImpl
 import com.sommerengineering.baraudio.login.buttonBorderSize
+import com.sommerengineering.baraudio.settings.SettingsScreen
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
-import org.koin.compose.koinInject
 
 @Composable
 fun MessagesScreen(
-    onSettingsClick: () -> Unit) {
+    onSignOut: () -> Unit
+) {
 
     // init
     val context = LocalContext.current
+    val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
     val messages = remember { mutableStateListOf<Message>() }
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val listState = rememberLazyListState()
     val coroutine = rememberCoroutineScope()
-    val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
 
-    LaunchedEffect(Unit) {
+    // todo add little space from right edge
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            SettingsScreen(
+                onSignOut = onSignOut)
+        },
+        gesturesEnabled = true) {
 
-        // todo dev: launch to settings
+        LaunchedEffect(Unit) {
+
+            // todo dev: launch to settings
 //        coroutine.launch {
 //            delay(100)
 //            onSettingsClick.invoke()
 //        }
 
-        // listen to database writes
-        listenToDatabaseWrites(
-            messages,
-            viewModel,
-            listState,
-            coroutine)
-    }
-
-    Scaffold(
-
-        // top bar
-        topBar = {
-            MessagesTopBar(
-                onSettingsClick = onSettingsClick,
-                messages = messages)
-        },
-
-        // mute button
-        floatingActionButton = {
-            FloatingActionButton (
-                modifier = Modifier
-                    .size(buttonBorderSize)
-                    .border(
-                        border = BorderStroke(
-                            width = 1.dp,
-                            color = viewModel.getFabIconColor()),
-                        shape = CircleShape),
-                containerColor = viewModel.getFabBackgroundColor(),
-                shape = CircleShape,
-                onClick = { viewModel.toggleMute(context) }) {
-                Icon(
-                    modifier = Modifier.size(buttonBorderSize / 2),
-                    painter = painterResource(viewModel.getFabIconId()),
-                    tint = viewModel.getFabIconColor(),
-                    contentDescription = null)
-            }
+            // listen to database writes
+            listenToDatabaseWrites(
+                messages,
+                viewModel,
+                listState,
+                coroutine)
         }
 
-    ) { padding ->
+        Scaffold(
 
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)) {
+            // top bar
+            topBar = {
+                MessagesTopBar(
+                    onSettingsClick = {
 
-            // background image
-            Column(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)) {
-                Image(
-                    painter = painterResource(R.drawable.background),
-                    contentDescription = null)
+                        coroutine.launch {
+                            if (drawerState.isOpen) drawerState.close()
+                            else drawerState.open()
+                        }
+
+                    },
+                    messages = messages)
+            },
+
+            // mute button
+            floatingActionButton = {
+                FloatingActionButton (
+                    modifier = Modifier
+                        .size(buttonBorderSize)
+                        .border(
+                            border = BorderStroke(
+                                width = 1.dp,
+                                color = viewModel.getFabIconColor()
+                            ),
+                            shape = CircleShape
+                        ),
+                    containerColor = viewModel.getFabBackgroundColor(),
+                    shape = CircleShape,
+                    onClick = { viewModel.toggleMute(context) }) {
+                    Icon(
+                        modifier = Modifier.size(buttonBorderSize / 2),
+                        painter = painterResource(viewModel.getFabIconId()),
+                        tint = viewModel.getFabIconColor(),
+                        contentDescription = null)
+                }
             }
 
-            // message list
-            LazyColumn(
-                state = listState) {
-                items(
-                    items = messages,
-                    key = { it.timestamp }) { message ->
+        ) { padding ->
 
-                    SwipeToDismissBox(
-                        state = rememberSwipeToDismissBoxState(
-                            confirmValueChange = {
-                                swipeToDelete(
-                                    messages = messages,
-                                    message = message,
-                                    position = it)
-                            }),
-                        modifier = Modifier.animateItem(),
-                        backgroundContent = { }) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)) {
 
-                        MessageItem(
-                            message = message)
+                // background image
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)) {
+                    Image(
+                        painter = painterResource(R.drawable.background),
+                        contentDescription = null)
+                }
+
+                // message list
+                LazyColumn(
+                    state = listState) {
+                    items(
+                        items = messages,
+                        key = { it.timestamp }) { message ->
+
+                        SwipeToDismissBox(
+                            state = rememberSwipeToDismissBoxState(
+                                confirmValueChange = {
+                                    swipeToDelete(
+                                        messages = messages,
+                                        message = message,
+                                        position = it)
+                                }),
+                            modifier = Modifier.animateItem(),
+                            backgroundContent = { }) {
+
+                            MessageItem(
+                                message = message)
+                        }
                     }
                 }
             }
