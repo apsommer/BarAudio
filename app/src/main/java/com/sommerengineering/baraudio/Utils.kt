@@ -71,12 +71,6 @@ const val freeTrial = "free-trial"
 
 fun beautifyTimestamp(timestamp: String): String {
 
-    // todo handle local change in system system while app running
-    //  https://stackoverflow.com/a/23556454/9212084
-
-    // todo relative timespan is interesting?
-    //  DateUtils.getRelativeTimeSpanString(timestamp.toLong())
-
     val isToday = DateUtils.isToday(timestamp.toLong())
 
     val pattern =
