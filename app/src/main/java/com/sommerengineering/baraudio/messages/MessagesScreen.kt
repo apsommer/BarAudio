@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.DrawerDefaults
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -58,7 +59,9 @@ fun MessagesScreen(
                 SettingsScreen(onSignOut = onSignOut)
             }
         },
-        gesturesEnabled = true) {
+        gesturesEnabled = true,
+        scrimColor = DrawerDefaults.scrimColor.copy(
+            alpha = 0.5f)) {
 
         LaunchedEffect(Unit) {
 
