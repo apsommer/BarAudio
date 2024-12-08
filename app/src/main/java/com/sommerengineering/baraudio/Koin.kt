@@ -9,8 +9,7 @@ import org.koin.dsl.module
 // koin modules
 val appModule = module {
     single<TextToSpeechImpl> { TextToSpeechImpl(androidContext())}
-    single<Repository> { Repository() }
-    viewModel { MainViewModel(get(), get()) }
+    viewModel { MainViewModel(get()) }
     single<BillingClientImpl> { param -> BillingClientImpl(param.get<Context>()) }
 }
 

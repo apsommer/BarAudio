@@ -28,8 +28,7 @@ import org.json.JSONObject
 import kotlin.math.roundToInt
 
 class MainViewModel(
-    val tts: TextToSpeechImpl,
-    private val repository: Repository
+    val tts: TextToSpeechImpl
 ) : ViewModel() {
 
     // webhook

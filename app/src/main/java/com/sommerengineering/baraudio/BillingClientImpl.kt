@@ -28,8 +28,9 @@ enum class BillingState {
     Subscribed
 }
 
-class BillingClientImpl(val context: Context)
-    : BillingClientStateListener, PurchasesUpdatedListener {
+class BillingClientImpl(
+    val context: Context
+) : BillingClientStateListener, PurchasesUpdatedListener {
 
     // todo remove Google Developer API? seems for backend only
     //  https://developer.android.com/google/play/billing/getting-ready#dev-api
