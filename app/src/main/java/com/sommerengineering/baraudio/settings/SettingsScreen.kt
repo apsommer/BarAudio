@@ -80,7 +80,7 @@ fun SettingsScreen(
                 DialogSettingItem (
                     icon = R.drawable.voice,
                     title = R.string.voice,
-                    description = viewModel.voiceDescription.value,
+                    description = viewModel.voiceDescription,
                     onClick = { isShowVoiceDialog = true }) {
 
                     IconButton(
@@ -109,7 +109,7 @@ fun SettingsScreen(
                 SliderSettingItem(
                     icon = R.drawable.speed,
                     title = R.string.speed,
-                    description = viewModel.speedDescription.value) {
+                    description = viewModel.speedDescription) {
 
                         SliderImpl(
                             initPosition = viewModel.getSpeed(),
@@ -123,7 +123,7 @@ fun SettingsScreen(
                 SliderSettingItem(
                     icon = R.drawable.pitch,
                     title = R.string.pitch,
-                    description = viewModel.pitchDescription.value) {
+                    description = viewModel.pitchDescription) {
 
                         SliderImpl(
                             initPosition = viewModel.getPitch(),
@@ -137,7 +137,7 @@ fun SettingsScreen(
                 SwitchSettingItem(
                     icon = R.drawable.text_to_speech,
                     title = R.string.queue_behavior,
-                    description = viewModel.queueBehaviorDescription.value) {
+                    description = viewModel.queueDescription) {
 
                         Switch(
                             checked = viewModel.isQueueAdd(),

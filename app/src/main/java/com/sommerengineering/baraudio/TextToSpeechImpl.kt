@@ -7,6 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.bundle.bundleOf
+import kotlinx.coroutines.flow.MutableStateFlow
 
 class TextToSpeechImpl(
     private val context: Context
@@ -20,11 +21,12 @@ class TextToSpeechImpl(
     var isQueueAdd by mutableStateOf(true)
     var volume by mutableStateOf(0f)
 
-    var isInitialized = false
+    var isInit = MutableStateFlow(false)
+
     override fun onInit(status: Int) {
 
         if (status != TextToSpeech.SUCCESS) { return }
-        isInitialized = true
+        isInit.value = true
 
         voice.value =
             readFromDataStore(context, voiceKey)
@@ -59,7 +61,7 @@ class TextToSpeechImpl(
         message: String,
         isForceVolume: Boolean = false) {
 
-        if (message.isBlank() || !isInitialized) return
+        if (message.isBlank() || !isInit.value) return
 
         // config engine params
         textToSpeech.setVoice(voice.value)

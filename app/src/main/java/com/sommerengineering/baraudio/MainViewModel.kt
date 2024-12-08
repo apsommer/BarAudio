@@ -8,6 +8,7 @@ import android.speech.tts.Voice
 import android.widget.Toast
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -30,6 +31,42 @@ import kotlin.math.roundToInt
 class MainViewModel(
     val tts: TextToSpeechImpl
 ) : ViewModel() {
+    
+    init {
+        CoroutineScope(Dispatchers.Main).launch {
+            tts.isInit
+                .onEach { if (it) initTtsSettings() }
+                .collect()
+        }
+    }
+
+    lateinit var voices: List<Voice>
+    var voiceDescription by mutableStateOf("")
+    var speedDescription by mutableStateOf("")
+    var pitchDescription by mutableStateOf("")
+    var queueDescription by mutableStateOf("")
+    
+    private fun initTtsSettings() {
+
+        voices =
+            tts.getVoices()
+                .toList()
+                .sortedBy { it.locale.displayName }
+
+        voiceDescription =
+            beautifyVoiceName(
+                tts.voice.value.name)
+
+        speedDescription =
+            tts.speed.toString()
+
+        pitchDescription =
+            tts.pitch.toString()
+
+        queueDescription =
+            if (tts.isQueueAdd) queueBehaviorAddDescription
+            else queueBehaviorFlushDescription
+    }
 
     // webhook
     val webhookUrl by lazy { webhookBaseUrl + Firebase.auth.currentUser?.uid }
@@ -49,27 +86,15 @@ class MainViewModel(
                 .show()
         }
     }
-
+    
     // voice
-    val voices by lazy {
-        tts.getVoices()
-            .toList()
-            .sortedBy { it.locale.displayName }
-    }
-
-    val voiceDescription by lazy {
-        mutableStateOf(
-            beautifyVoiceName(
-                tts.voice.value.name))
-    }
-
     fun setVoice(
         context: Context,
         voice: Voice) {
 
         tts.voice.value = voice
         writeToDataStore(context, voiceKey, voice.name)
-        voiceDescription.value = beautifyVoiceName(voice.name)
+        voiceDescription = beautifyVoiceName(voice.name)
         speakLastMessage()
     }
 
@@ -132,12 +157,7 @@ class MainViewModel(
     // speed
     fun getSpeed() =
         tts.speed
-
-    val speedDescription by lazy {
-        mutableStateOf(
-            tts.speed.toString())
-    }
-
+    
     fun setSpeed(
         context: Context,
         rawSpeed: Float) {
@@ -147,18 +167,13 @@ class MainViewModel(
 
         tts.speed = selectedSpeed
         writeToDataStore(context, speedKey, selectedSpeed.toString())
-        speedDescription.value = selectedSpeed.toString()
+        speedDescription = selectedSpeed.toString()
     }
 
     // pitch
     fun getPitch() =
         tts.pitch
-
-    val pitchDescription by lazy {
-        mutableStateOf(
-            tts.pitch.toString())
-    }
-
+    
     fun setPitch(
         context: Context,
         rawPitch: Float) {
@@ -168,7 +183,7 @@ class MainViewModel(
 
         tts.pitch = selectedPitch
         writeToDataStore(context, pitchKey, selectedPitch.toString())
-        pitchDescription.value = selectedPitch.toString()
+        pitchDescription = selectedPitch.toString()
     }
 
     fun speakLastMessage() {
@@ -203,13 +218,7 @@ class MainViewModel(
     // queue behavior
     fun isQueueAdd() =
         tts.isQueueAdd
-
-    val queueBehaviorDescription by lazy {
-        mutableStateOf(
-            if (tts.isQueueAdd) queueBehaviorAddDescription
-            else queueBehaviorFlushDescription)
-    }
-
+    
     fun setIsQueueAdd(
         context: Context,
         isChecked: Boolean) {
@@ -217,7 +226,7 @@ class MainViewModel(
         tts.isQueueAdd = isChecked
         writeToDataStore(context, isQueueFlushKey, isChecked.toString())
 
-        queueBehaviorDescription.value =
+        queueDescription =
             if (tts.isQueueAdd) queueBehaviorAddDescription
             else queueBehaviorFlushDescription
     }
@@ -256,8 +265,7 @@ class MainViewModel(
     lateinit var billing: BillingClientImpl
 
     fun initBilling(
-        billingClientImpl: BillingClientImpl
-    ) {
+        billingClientImpl: BillingClientImpl) {
 
         // initialize connection to google play
         billing = billingClientImpl

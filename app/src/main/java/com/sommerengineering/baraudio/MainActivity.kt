@@ -119,9 +119,12 @@ fun App() {
 
     KoinContext {
         AppTheme(isDarkMode) {
-            Scaffold { padding ->
+            Scaffold(
+                topBar = {
+                    // todo internet connection banner
+                }) { padding ->
+                Modifier.padding(padding) // not used
                 Navigation(rememberNavController())
-                Modifier.padding(padding)
             }
         }
     }
