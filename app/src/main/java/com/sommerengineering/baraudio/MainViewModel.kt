@@ -121,7 +121,7 @@ class MainViewModel(
         if (number == 18) romanNumeral = "XIX"
         if (number == 19) romanNumeral = "XX"
 
-        return "$displayName \u2022 Voice $romanNumeral"
+        return "$displayName • Voice $romanNumeral"
     }
 
     fun getVoiceIndex() =
