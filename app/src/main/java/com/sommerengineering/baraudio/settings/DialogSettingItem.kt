@@ -27,17 +27,15 @@ fun DialogSettingItem(
     @DrawableRes icon: Int,
     @StringRes title: Int,
     description: String,
-    onClick: (() -> Unit)? = null,
+    onClick: () -> Unit,
     content: @Composable () -> Unit) {
 
-    Surface(
-        modifier =
-            if (onClick != null) Modifier.clickable { onClick() }
-            else Modifier) {
+    Surface {
         Column {
             Row(
                 modifier = Modifier
-                    .padding(end = 12.dp),
+                    .padding(end = 12.dp)
+                    .clickable { onClick() },
                 verticalAlignment = Alignment.CenterVertically) {
 
                 Row(

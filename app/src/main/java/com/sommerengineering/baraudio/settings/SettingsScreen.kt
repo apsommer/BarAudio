@@ -80,7 +80,8 @@ fun SettingsScreen(
                 DialogSettingItem (
                     icon = R.drawable.voice,
                     title = R.string.voice,
-                    description = viewModel.voiceDescription.value) {
+                    description = viewModel.voiceDescription.value,
+                    onClick = { isShowVoiceDialog = true }) {
 
                     IconButton(
                         onClick = { isShowVoiceDialog = true }) {
