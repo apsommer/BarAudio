@@ -297,6 +297,7 @@ class MainViewModel(
 
         // unmute only allowed for paid user
         if (!newMute && billing.isUserPaid.value == BillingState.Unsubscribed) {
+
             billing.launchBillingFlowUi(context)
             return
         }

@@ -28,10 +28,8 @@ enum class BillingState {
     Subscribed
 }
 
-class BillingClientImpl(
-    val context: Context)
-    : BillingClientStateListener,
-    PurchasesUpdatedListener {
+class BillingClientImpl(val context: Context)
+    : BillingClientStateListener, PurchasesUpdatedListener {
 
     // todo remove Google Developer API? seems for backend only
     //  https://developer.android.com/google/play/billing/getting-ready#dev-api
@@ -51,41 +49,38 @@ class BillingClientImpl(
     fun connect() =
         client.startConnection(this)
 
-    override fun onBillingSetupFinished(result: BillingResult) {
+    override fun onBillingServiceDisconnected() {
 
-        // unexpected error
-        if (result.responseCode != BillingResponseCode.OK) { return }
-        getPurchases()
+        isUserPaid.value = BillingState.Unsubscribed
+        connect()
     }
 
-    override fun onBillingServiceDisconnected() { }
+    override fun onBillingSetupFinished(
+        setupResult: BillingResult) {
 
-    private fun getPurchases() {
+        if (setupResult.responseCode != BillingResponseCode.OK) { return }
 
-        // define purchase
-        val queryPurchasesParams =
-            QueryPurchasesParams.newBuilder()
-                .setProductType(ProductType.SUBS)
-                .build()
-
-        // get previous purchases
+        // query previous purchases
         client
             .queryPurchasesAsync(
-                queryPurchasesParams,
+                QueryPurchasesParams
+                    .newBuilder()
+                    .setProductType(ProductType.SUBS)
+                    .build(),
                 PurchasesResponseListener { result, purchases ->
-
-            if (result.responseCode != BillingResponseCode.OK) { return@PurchasesResponseListener }
-            if (purchases.isEmpty()) { return@PurchasesResponseListener }
-
-            handlePurchase(purchases.first())
-        })
+                    if (result.responseCode != BillingResponseCode.OK || purchases.isEmpty()) {
+                        return@PurchasesResponseListener
+                    }
+                    processPurchase(purchases.first())
+                })
     }
 
-    fun handlePurchase(
+    private fun processPurchase(
         purchase: Purchase) {
 
-        // subscription active
+        // subscription active: previously processed purchase
         if (purchase.isAcknowledged) {
+
             isUserPaid.value = BillingState.Subscribed
             return
         }
@@ -95,7 +90,8 @@ class BillingClientImpl(
 
             val acknowledgePurchaseResult = client
                 .acknowledgePurchase(
-                    AcknowledgePurchaseParams.newBuilder()
+                    AcknowledgePurchaseParams
+                        .newBuilder()
                         .setPurchaseToken(purchase.purchaseToken)
                         .build())
 
@@ -110,44 +106,47 @@ class BillingClientImpl(
 
         CoroutineScope(Dispatchers.IO).launch {
 
-            // retrieve product from play store
+            // query products configured on play store
             val result =
                 client.queryProductDetails(
-                    QueryProductDetailsParams.newBuilder()
+                    QueryProductDetailsParams
+                        .newBuilder()
                         .setProductList(listOf(
-                            Product.newBuilder()
+                            Product
+                                .newBuilder()
                                 .setProductId(productId)
                                 .setProductType(ProductType.SUBS)
-                                .build())).build())
+                                .build()))
+                        .build())
 
             if (result.billingResult.responseCode != BillingResponseCode.OK) { return@launch }
 
-            // extract products from response
+            // extract product params from response
             val productDetailsList = result.productDetailsList ?: return@launch
-
-            // build list of product details params
             val product = productDetailsList.first()
-
             val offers = product.subscriptionOfferDetails
             if (offers.isNullOrEmpty()) { return@launch }
 
             // offer free trial, if eligible
             val offer = offers
-                .find { it.offerId == freeTrial } ?:
-                offers.first()
+                .find { it.offerId == freeTrial } ?: // free trial
+                    offers.first() // standard subscription
 
-            // launch the billing flow
+            // launch billing flow ui
             client.launchBillingFlow(
                 context as MainActivity,
-                BillingFlowParams.newBuilder()
+                BillingFlowParams
+                    .newBuilder()
                     .setProductDetailsParamsList(listOf(
                         BillingFlowParams
-                            .ProductDetailsParams.newBuilder()
+                            .ProductDetailsParams
+                            .newBuilder()
                             .setProductDetails(product)
                             .setOfferToken(offer.offerToken)
-                            .build())).build())
+                            .build()))
+                    .build())
 
-            // billing flow result delivered to onPurchaseUpdated
+            // billing flow ui result delivered to onPurchaseUpdated callback
         }
     }
 
@@ -155,9 +154,9 @@ class BillingClientImpl(
         result: BillingResult,
         purchases: MutableList<Purchase>?) {
 
-        // catch error: user canceled flow, card declined, ...
+        // catch ui errors: user canceled flow, card declined, ...
         if (result.responseCode != BillingResponseCode.OK || purchases.isNullOrEmpty()) { return }
 
-        handlePurchase(purchases.first())
+        processPurchase(purchases.first())
     }
 }
