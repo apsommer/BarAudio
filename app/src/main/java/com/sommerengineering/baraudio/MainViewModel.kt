@@ -8,7 +8,6 @@ import android.speech.tts.Voice
 import android.widget.Toast
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -52,6 +51,8 @@ class MainViewModel(
             tts.getVoices()
                 .toList()
                 .sortedBy { it.locale.displayName }
+
+        initBeautifulVoiceNames()
 
         voiceDescription =
             beautifyVoiceName(
@@ -98,26 +99,36 @@ class MainViewModel(
         speakLastMessage()
     }
 
-    fun beautifyVoiceName(
-        name: String): String {
+    private fun initBeautifulVoiceNames() {
 
-        val map = HashMap<String, String>()
-
-        // group voices by language/country
-        val grouped = voices
-            .groupBy { it.locale.displayName }
-
-        // iterate through groups, add roman numerals to display name
-        grouped.keys.forEach { languageCountry ->
-
-            val voices = grouped[languageCountry]
-            voices?.forEachIndexed { i, voice ->
-                map[voice.name] = enumerateVoices(voice, i)
+        // group voices by combined language/country
+        val groupedVoices = voices
+            .groupBy {
+                it.locale.displayName
             }
-        }
 
-        return map[name] ?: ""
+        // add roman numeral to display name
+        groupedVoices.keys
+            .forEach { languageCountryGroup ->
+
+                val voices =
+                    groupedVoices[languageCountryGroup]
+                        ?: return@forEach
+
+                voices
+                    .forEachIndexed { i, voice ->
+                        beautifulVoiceNames[voice.name] = enumerateVoices(voice, i)
+                    }
+            }
     }
+
+    private val beautifulVoiceNames =
+        hashMapOf<String, String>()
+
+    fun beautifyVoiceName(name: String) =
+        beautifulVoiceNames[name] ?: ""
+
+
 
     private fun enumerateVoices(
         voice: Voice,

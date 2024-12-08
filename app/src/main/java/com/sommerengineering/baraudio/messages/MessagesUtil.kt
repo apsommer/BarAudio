@@ -12,6 +12,7 @@ import com.sommerengineering.baraudio.messageKey
 import com.sommerengineering.baraudio.messageMaxSize
 import com.sommerengineering.baraudio.messagesNode
 import com.sommerengineering.baraudio.originKey
+import com.sommerengineering.baraudio.parsingError
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.json.JSONException
@@ -50,7 +51,7 @@ fun listenToDatabase(
             } catch (e: JSONException) {
 
                 logException(e)
-                message = "Error parsing message"
+                message = parsingError
                 origin = error
             }
 
