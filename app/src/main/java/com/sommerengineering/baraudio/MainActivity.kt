@@ -89,6 +89,7 @@ class MainActivity : ComponentActivity() {
 
         // init
         isAppOpen = true
+        checkAppVersion(context)
         get<TextToSpeechImpl>()
         token = readFromDataStore(context, tokenKey) ?: unauthenticatedToken
 
@@ -135,3 +136,15 @@ fun cancelAllNotifications(
         NotificationManagerCompat
             .from(context)
             .cancelAll()
+
+private fun checkAppVersion(
+    context: Context) {
+
+    val currentVersion = BuildConfig.VERSION_CODE
+    val previousVersion = readFromDataStore(context, versionKey)?.toInt() ?: 0
+
+    if (currentVersion != previousVersion) {
+        logMessage("App upgraded from $previousVersion to $currentVersion")
+        writeToDataStore(context, versionKey, currentVersion.toString())
+    }
+}

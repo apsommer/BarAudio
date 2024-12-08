@@ -52,6 +52,7 @@ const val parsingError = "Error parsing message"
 
 // datastore
 const val localCache = "localCache"
+const val versionKey = "version"
 const val tokenKey = "token"
 const val voiceKey = "voice"
 const val speedKey = "speed"
