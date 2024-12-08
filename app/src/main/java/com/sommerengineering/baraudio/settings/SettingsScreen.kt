@@ -25,6 +25,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.sommerengineering.baraudio.BuildConfig
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
@@ -213,7 +214,7 @@ fun SettingsScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(start = 24.dp, end = 24.dp, bottom = 24.dp),
-                    text = "2.0.071224", // todo get from build config
+                    text = BuildConfig.VERSION_NAME,
                     textAlign = TextAlign.End,
                     style = MaterialTheme.typography.bodySmall)
             }
