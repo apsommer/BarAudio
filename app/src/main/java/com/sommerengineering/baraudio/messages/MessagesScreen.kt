@@ -151,22 +151,10 @@ fun MessagesScreen(
                         items = messages,
                         key = { it.timestamp }) { message ->
 
-                        SwipeToDismissBox(
-                            state = rememberSwipeToDismissBoxState(
-                                confirmValueChange = {
-                                    swipeToDelete(
-                                        messages = messages,
-                                        message = message,
-                                        position = it
-                                    )
-                                }),
+                        MessageItem(
                             modifier = Modifier
                                 .animateItem(),
-                            backgroundContent = { }) {
-
-                            MessageItem(
-                                message = message)
-                        }
+                            message = message)
                     }
                 }
             }
