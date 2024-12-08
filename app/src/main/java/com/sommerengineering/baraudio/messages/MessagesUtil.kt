@@ -1,7 +1,6 @@
 package com.sommerengineering.baraudio.messages
 
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
@@ -18,10 +17,9 @@ import kotlinx.coroutines.launch
 import org.json.JSONException
 import org.json.JSONObject
 
-// todo clean up organization
 lateinit var dbListener: ChildEventListener
 
-fun listenToDatabaseWrites(
+fun listenToDatabase(
     messages: SnapshotStateList<Message>,
     viewModel: MainViewModel,
     listState: LazyListState,
@@ -81,25 +79,6 @@ fun listenToDatabaseWrites(
     // triggers once for every child on initial connection
     getDatabaseReference(messagesNode)
         .addChildEventListener(dbListener)
-}
-
-fun swipeToDelete(
-    messages: SnapshotStateList<Message>,
-    message: Message,
-    position: SwipeToDismissBoxValue
-): Boolean {
-
-    // confirm item was swiped
-    if (position != SwipeToDismissBoxValue.StartToEnd
-        && position != SwipeToDismissBoxValue.EndToStart) {
-        return false
-    }
-
-    deleteMessage(
-        messages = messages,
-        message = message)
-
-    return true
 }
 
 fun deleteMessage(

@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -25,6 +26,7 @@ import com.sommerengineering.baraudio.beautifyTimestamp
 
 @Composable
 fun MessageItem(
+    isRecent: Boolean,
     modifier: Modifier,
     message: Message) {
 
@@ -40,13 +42,19 @@ fun MessageItem(
             // container
             Row(
                 modifier = Modifier
-                    .background(
-                        color = MaterialTheme.colorScheme.surfaceContainer,)
+                    .clip(
+                        RoundedCornerShape(8.dp))
                     .border(
                         BorderStroke(
                             width = 1.dp,
-                            color = MaterialTheme.colorScheme.surfaceContainerHigh),
+                            color =
+                                if (isRecent) MaterialTheme.colorScheme.outlineVariant
+                                else MaterialTheme.colorScheme.surfaceContainerHigh),
                         shape = RoundedCornerShape(8.dp))
+                    .background(
+                        color =
+                            if (isRecent) MaterialTheme.colorScheme.surfaceBright
+                            else MaterialTheme.colorScheme.surfaceContainer)
                     .padding(
                         horizontal = 16.dp,
                         vertical = 12.dp),

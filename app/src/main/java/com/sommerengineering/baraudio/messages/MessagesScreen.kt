@@ -1,19 +1,8 @@
 package com.sommerengineering.baraudio.messages
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.FiniteAnimationSpec
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.expandIn
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.AnchoredDraggableState
-import androidx.compose.foundation.gestures.DraggableAnchors
-import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,20 +19,19 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SwipeToDismissBox
-import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
-import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
@@ -76,16 +64,9 @@ fun MessagesScreen(
         scrimColor = DrawerDefaults.scrimColor.copy(
             alpha = 0.5f)) {
 
+        // listen to database
         LaunchedEffect(Unit) {
-
-            // todo dev: launch to settings
-//        coroutine.launch {
-//            delay(100)
-//            onSettingsClick.invoke()
-//        }
-
-            // listen to database writes
-            listenToDatabaseWrites(
+            listenToDatabase(
                 messages,
                 viewModel,
                 listState,
@@ -151,7 +132,12 @@ fun MessagesScreen(
                         items = messages,
                         key = { it.timestamp }) { message ->
 
+                        // highlight recent messages
+                        var isRecent by remember { mutableStateOf(true) }
+                        isRecent  = 1000 * 60 > System.currentTimeMillis() - message.timestamp.toLong()
+
                         MessageItem(
+                            isRecent = isRecent,
                             modifier = Modifier
                                 .animateItem(),
                             message = message)
