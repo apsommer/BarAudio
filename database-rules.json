@@ -1,6 +1,17 @@
 {
   "rules": {
-    ".read": "auth.uid !== null",
-    ".write": "auth.uid !== null"
+    "messages": {
+      ".write": "auth.token.admin === true",
+      "$uid": {
+        ".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid"
+      }
+    },
+    "users": {
+      ".read": "auth.token.admin === true",
+      "$uid": {
+        ".write": "$uid === auth.uid"
+      }
+    }
   }
 }
