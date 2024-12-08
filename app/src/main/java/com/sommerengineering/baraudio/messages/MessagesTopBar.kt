@@ -8,6 +8,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.R
@@ -29,7 +30,9 @@ fun MessagesTopBar(
             IconButton(
                 onClick = { onSettingsClick() }) {
                 Icon(
-                    painter = painterResource(R.drawable.menu),
+                    modifier = Modifier
+                        .rotate(180f),
+                    painter = painterResource(R.drawable.menu_open),
                     contentDescription = null)
             }
         },
@@ -49,7 +52,7 @@ fun MessagesTopBar(
                 onClick = { deleteAllMessages(messages) },
                 enabled = !messages.isEmpty()) {
                 Icon(
-                    painter = painterResource(R.drawable.sweep),
+                    painter = painterResource(R.drawable.done_all),
                     contentDescription = null)
             }
         })
