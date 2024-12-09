@@ -62,7 +62,7 @@ fun onAuthentication(
     viewModel.setUiMode(context)
 
     // request notification permission, does nothing if already granted
-    (context as MainActivity).requestRealtimeNotificationPermission()
+    (context as MainActivity).requestNotificationPermission()
 
     // write user:token pair to database, if needed
     validateToken()

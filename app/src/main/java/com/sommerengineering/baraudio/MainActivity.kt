@@ -25,11 +25,9 @@ import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
+import com.google.android.play.core.appupdate.AppUpdateOptions
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.remoteconfig.ktx.remoteConfig
-import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
 import com.sommerengineering.baraudio.theme.AppTheme
 import org.koin.android.ext.android.get
 import org.koin.androidx.compose.koinViewModel
@@ -43,27 +41,90 @@ class MainActivity : ComponentActivity() {
 
     val context = this
 
-    // initialize system permission request ui
-    private val requestPermissionLauncher =
-        registerForActivityResult(
-            ActivityResultContracts.RequestPermission()) { isGranted ->
+    override fun onCreate(savedInstanceState: Bundle?) {
 
-            if (isGranted) { initNotificationChannel() }
-            else { /** todo ui that explains this permission is required to run app */ }
+        installSplashScreen()
+        super.onCreate(savedInstanceState)
+
+        // init
+        isAppOpen = true
+        checkAppVersion(context)
+        get<TextToSpeechImpl>()
+        token = readFromDataStore(context, tokenKey) ?: unauthenticatedToken
+
+        // dismiss notifications after launch
+        val isLaunchFromNotification = intent.extras?.getBoolean(isLaunchFromNotification) ?: false
+        if (isLaunchFromNotification) { cancelAllNotifications(context) }
+
+        enableEdgeToEdge()
+        setContent { App() }
+    }
+
+    private fun checkAppVersion(
+        context: Context) {
+
+        //
+        val appUpdateManager =
+            AppUpdateManagerFactory
+                .create(context)
+
+        appUpdateManager
+            .appUpdateInfo
+            .addOnSuccessListener { appUpdateInfo ->
+
+                logMessage("Update request successful")
+
+                // todo can also get .updatePriority(): 0 -> 5, but may not be necessary?
+                //  appears priority must be set with Play Developer API
+                if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE &&
+                    appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)) {
+
+                    // request update
+                    appUpdateManager.startUpdateFlowForResult(
+                        appUpdateInfo,
+                        requestAppUpdateLauncher,
+                        AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build()
+                    )
+                }
+            }
+            .addOnFailureListener { exception ->
+                logException(exception)
+            }
+    }
+
+    // todo in-line above
+    private val requestAppUpdateLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.StartIntentSenderForResult()) { result ->
+
+            if (result.resultCode != RESULT_OK) {
+                logMessage("Update flow failed with code: ${result.resultCode}")
+                return@registerForActivityResult
+            }
+
+            // since this update is immediate (not flexible) play updates and restarts app
+            // todo check for stalled update? https://developer.android.com/guide/playcore/in-app-updates/kotlin-java#immediate
         }
 
-    fun requestRealtimeNotificationPermission() {
+    fun requestNotificationPermission() {
 
-        // realtime permission only required if sdk >= 32
+        // realtime permission required if sdk >= 32
         if (Build.VERSION.SDK_INT < 33) return
 
         // permission already granted
-        if (ContextCompat.checkSelfPermission
-                (context, Manifest.permission.POST_NOTIFICATIONS)
-                    == PackageManager.PERMISSION_GRANTED) return
+        if (ContextCompat
+            .checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS)
+                    == PackageManager.PERMISSION_GRANTED)
+                        { return }
 
         // launch system permission request ui
-        requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        registerForActivityResult(
+            ActivityResultContracts.RequestPermission()) { isGranted ->
+                if (isGranted) { initNotificationChannel() }
+                else { /** todo ui that explains this permission is required to run app */ }
+            }.launch(Manifest.permission.POST_NOTIFICATIONS)
     }
 
     private fun initNotificationChannel() {
@@ -86,25 +147,6 @@ class MainActivity : ComponentActivity() {
         notificationManager.createNotificationChannel(channel)
 
         logMessage("Notification channel registered")
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-
-        installSplashScreen()
-        super.onCreate(savedInstanceState)
-
-        // init
-        isAppOpen = true
-        checkAppVersion(context)
-        get<TextToSpeechImpl>()
-        token = readFromDataStore(context, tokenKey) ?: unauthenticatedToken
-
-        // dismiss notifications after launch
-        val isLaunchFromNotification = intent.extras?.getBoolean(isLaunchFromNotification) ?: false
-        if (isLaunchFromNotification) { cancelAllNotifications(context) }
-
-        enableEdgeToEdge()
-        setContent { App() }
     }
 }
 
@@ -142,20 +184,3 @@ fun cancelAllNotifications(
         NotificationManagerCompat
             .from(context)
             .cancelAll()
-
-private fun checkAppVersion(
-    context: Context) {
-
-    //
-    val appUpdateManager = AppUpdateManagerFactory.create(context)
-    val appUpdateInfoTask = appUpdateManager.appUpdateInfo
-
-    appUpdateInfoTask.addOnSuccessListener {
-        if (it.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE &&
-            it.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)) {
-
-            // todo request update
-        }
-    }
-    
-}
