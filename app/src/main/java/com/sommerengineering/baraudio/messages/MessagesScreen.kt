@@ -125,10 +125,8 @@ fun MessagesScreen(
                     modifier = Modifier
                         .padding(horizontal = 24.dp)
                         .align(Alignment.Center),
-                        // .fillMaxHeight(),
                     painter = painterResource(R.drawable.logo_bars),
                     alpha = 0.5f,
-                    // contentScale = ContentScale.FillHeight,
                     contentDescription = null)
 
                 // message list
@@ -143,6 +141,7 @@ fun MessagesScreen(
                         isRecent  = 1000 * 60 > System.currentTimeMillis() - message.timestamp.toLong()
 
                         MessageItem(
+                            viewModel = viewModel,
                             isRecent = isRecent,
                             modifier = Modifier
                                 .animateItem(),

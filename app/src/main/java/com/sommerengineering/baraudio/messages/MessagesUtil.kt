@@ -55,10 +55,8 @@ fun listenToDatabase(
                 origin = error
             }
 
-            val imageId = viewModel.getOriginImageId(origin)
-
             // todo observe a State<LinkedList> to reverse order efficiently
-            messages.add(0, Message(timestamp, message, imageId))
+            messages.add(0, Message(timestamp, message, origin))
             coroutine.launch { listState.scrollToItem(0) }
 
             // limit size

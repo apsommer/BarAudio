@@ -22,10 +22,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.beautifyTimestamp
 
 @Composable
 fun MessageItem(
+    viewModel: MainViewModel,
     isRecent: Boolean,
     modifier: Modifier,
     message: Message) {
@@ -86,7 +88,8 @@ fun MessageItem(
                         .padding(24.dp))
 
                 // origin
-                message.originImageId?.let {
+                viewModel
+                    .getOriginImageId(message.origin)?.let {
                     Image(
                         modifier = Modifier
                             .size(24.dp),
