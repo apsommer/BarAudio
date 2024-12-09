@@ -143,22 +143,5 @@ fun cancelAllNotifications(
 private fun checkAppVersion(
     context: Context) {
 
-    val currentVersion = BuildConfig.VERSION_CODE
-    val previousVersion = readFromDataStore(context, versionKey)?.toInt() ?: 0
-
-    if (currentVersion != previousVersion) {
-        logMessage("App upgraded from $previousVersion to $currentVersion")
-        writeToDataStore(context, versionKey, currentVersion.toString())
-    }
-
-
-    val remoteConfig = Firebase.remoteConfig
-    val configSettings = remoteConfigSettings {
-        minimumFetchIntervalInSeconds = 3600 // 60 min
-    }
-    remoteConfig.setConfigSettingsAsync(configSettings)
-
-
-
-
+    // todo in-app updates
 }

@@ -138,6 +138,5 @@ dependencies {
     implementation(libs.billing)
     implementation(libs.billing.ktx)
 
-    // remote config
-    implementation(libs.firebase.config)
+    // todo play in-app update
 }
