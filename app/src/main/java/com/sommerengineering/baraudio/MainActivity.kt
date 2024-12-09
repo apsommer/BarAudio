@@ -24,6 +24,9 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory
+import com.google.android.play.core.install.model.AppUpdateType
+import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
@@ -143,5 +146,16 @@ fun cancelAllNotifications(
 private fun checkAppVersion(
     context: Context) {
 
-    // todo in-app updates
+    //
+    val appUpdateManager = AppUpdateManagerFactory.create(context)
+    val appUpdateInfoTask = appUpdateManager.appUpdateInfo
+
+    appUpdateInfoTask.addOnSuccessListener {
+        if (it.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE &&
+            it.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)) {
+
+            // todo request update
+        }
+    }
+    
 }
