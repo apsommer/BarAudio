@@ -23,9 +23,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 enum class BillingState {
+    Loading,
     Unsubscribed,
     NewSubscription,
-    Subscribed
+    Subscribed,
+    Error
 }
 
 class BillingClientImpl(
@@ -35,10 +37,11 @@ class BillingClientImpl(
     // todo remove Google Developer API? seems for backend only
     //  https://developer.android.com/google/play/billing/getting-ready#dev-api
 
-    val isUserPaid = MutableStateFlow(BillingState.Unsubscribed)
+    // flow billing state
+    val billingState = MutableStateFlow(BillingState.Unsubscribed)
 
     // create billing client
-    val client =
+    private val client =
         BillingClient.newBuilder(context)
             .setListener(this)
             .enablePendingPurchases(
@@ -52,14 +55,16 @@ class BillingClientImpl(
 
     override fun onBillingServiceDisconnected() {
 
-        isUserPaid.value = BillingState.Unsubscribed
+        billingState.value = BillingState.Unsubscribed
         connect()
     }
 
     override fun onBillingSetupFinished(
         setupResult: BillingResult) {
 
-        if (setupResult.responseCode != BillingResponseCode.OK) { return }
+        if (setupResult.responseCode != BillingResponseCode.OK) {
+            return handleError(setupResult.responseCode)
+        }
 
         // query previous purchases
         client
@@ -69,9 +74,16 @@ class BillingClientImpl(
                     .setProductType(ProductType.SUBS)
                     .build(),
                 PurchasesResponseListener { result, purchases ->
-                    if (result.responseCode != BillingResponseCode.OK || purchases.isEmpty()) {
+
+                    if (result.responseCode != BillingResponseCode.OK) {
+                        return@PurchasesResponseListener handleError(result.responseCode)
+                    }
+
+                    // user has no purchases, remains unsubscribed
+                    if (purchases.isEmpty()) {
                         return@PurchasesResponseListener
                     }
+
                     processPurchase(purchases.first())
                 })
     }
@@ -82,28 +94,32 @@ class BillingClientImpl(
         // subscription active: previously processed purchase
         if (purchase.isAcknowledged) {
 
-            isUserPaid.value = BillingState.Subscribed
+            billingState.value = BillingState.Subscribed
             return
         }
 
         // acknowledge new purchase
         CoroutineScope(Dispatchers.IO).launch {
 
-            val acknowledgePurchaseResult = client
+            val result = client
                 .acknowledgePurchase(
                     AcknowledgePurchaseParams
                         .newBuilder()
                         .setPurchaseToken(purchase.purchaseToken)
                         .build())
 
-            if (acknowledgePurchaseResult.responseCode != BillingResponseCode.OK) { return@launch }
+            if (result.responseCode != BillingResponseCode.OK) {
+                return@launch handleError(result.responseCode)
+            }
 
-            isUserPaid.value = BillingState.NewSubscription
+            billingState.value = BillingState.NewSubscription
         }
     }
 
     fun launchBillingFlowUi(
         context: Context) {
+
+        billingState.value = BillingState.Loading
 
         CoroutineScope(Dispatchers.IO).launch {
 
@@ -120,13 +136,17 @@ class BillingClientImpl(
                                 .build()))
                         .build())
 
-            if (result.billingResult.responseCode != BillingResponseCode.OK) { return@launch }
+            if (result.billingResult.responseCode != BillingResponseCode.OK) {
+                return@launch handleError(result.billingResult.responseCode)
+            }
 
             // extract product params from response
             val productDetailsList = result.productDetailsList ?: return@launch
             val product = productDetailsList.first()
             val offers = product.subscriptionOfferDetails
-            if (offers.isNullOrEmpty()) { return@launch }
+            if (offers.isNullOrEmpty()) {
+                return@launch handleError(42)
+            }
 
             // offer free trial, if eligible
             val offer = offers
@@ -156,8 +176,33 @@ class BillingClientImpl(
         purchases: MutableList<Purchase>?) {
 
         // catch ui errors: user canceled flow, card declined, ...
-        if (result.responseCode != BillingResponseCode.OK || purchases.isNullOrEmpty()) { return }
+        if (result.responseCode != BillingResponseCode.OK || purchases.isNullOrEmpty()) {
+            return handleError(result.responseCode)
+        }
 
         processPurchase(purchases.first())
+    }
+
+    private fun handleError(responseCode: Int) {
+
+        billingState.value = BillingState.Error
+
+        val errorMap = hashMapOf(
+            -3 to "Service timeout",
+            -2 to "Feature not supported",
+            -1 to "Service disconnected",
+            0 to "Ok",
+            1 to "User canceled",
+            2 to "Service unavailable",
+            3 to "Billing unavailable",
+            4 to "Item unavailable",
+            5 to "Developer error",
+            6 to "Error",
+            7 to "Item already owned",
+            8 to "Item not owned",
+            12 to "Network error",
+            42 to "No offers associated with retrieved produce")
+
+        logMessage("Billing error, code $responseCode: ${errorMap[responseCode]}")
     }
 }

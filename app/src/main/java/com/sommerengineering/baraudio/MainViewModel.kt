@@ -285,18 +285,31 @@ class MainViewModel(
         val context = billing.context
 
         // listen to subscription status
-        CoroutineScope(Dispatchers.IO).launch {
-            billing.isUserPaid
+        CoroutineScope(Dispatchers.Main).launch {
+            billing.billingState
                 .onEach {
                     when (it) {
-                        BillingState.Unsubscribed -> { }
+
+                        // show spinner
+                        BillingState.Loading -> {
+                            shouldShowSpinner = true
+                        }
+
                         BillingState.NewSubscription -> {
                             setMute(context, false)
                         }
+
                         BillingState.Subscribed -> {
                             tts.volume = readFromDataStore(context, volumeKey)?.toFloat() ?: 1f
                             isMute = tts.volume == 0f
                         }
+
+                        BillingState.Unsubscribed, BillingState.Error -> { }
+                    }
+
+                    // hide spinner
+                    if (it != BillingState.Loading) {
+                        shouldShowSpinner = false
                     }
                 }
                 .collect()
@@ -304,21 +317,29 @@ class MainViewModel(
     }
 
     // mute
+    var shouldShowSpinner by mutableStateOf(false)
     var isMute by mutableStateOf(true)
 
-    fun toggleMute(context: Context) =
-        setMute(context, !isMute)
-
-    fun setMute(
-        context: Context,
-        newMute: Boolean) {
+    fun toggleMute(
+        context: Context) {
 
         // unmute only allowed for paid user
-        if (!newMute && billing.isUserPaid.value == BillingState.Unsubscribed) {
+        val isUserPaid =
+            billing.billingState.value == BillingState.NewSubscription ||
+            billing.billingState.value == BillingState.Subscribed
+
+        if (isMute && !isUserPaid) {
 
             billing.launchBillingFlowUi(context)
             return
         }
+
+        setMute(context, !isMute)
+    }
+
+    private fun setMute(
+        context: Context,
+        newMute: Boolean) {
 
         isMute = newMute
 

@@ -4,8 +4,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -13,6 +11,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerDefaults
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.FloatingActionButton
@@ -31,9 +30,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.ColorMatrix
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -90,7 +86,7 @@ fun MessagesScreen(
                     messages = messages)
             },
 
-            // mute button
+            // fab, mute button
             floatingActionButton = {
                 FloatingActionButton (
                     modifier = Modifier
@@ -100,16 +96,21 @@ fun MessagesScreen(
                                 width = 1.dp,
                                 color = viewModel.getFabIconColor()
                             ),
-                            shape = CircleShape
-                        ),
+                            shape = CircleShape),
                     containerColor = viewModel.getFabBackgroundColor(),
                     shape = CircleShape,
                     onClick = { viewModel.toggleMute(context) }) {
-                    Icon(
-                        modifier = Modifier.size(buttonBorderSize / 2),
-                        painter = painterResource(viewModel.getFabIconId()),
-                        tint = viewModel.getFabIconColor(),
-                        contentDescription = null)
+
+                        if (viewModel.shouldShowSpinner) {
+                            CircularProgressIndicator()
+                            return@FloatingActionButton
+                        }
+
+                        Icon(
+                            modifier = Modifier.size(buttonBorderSize / 2),
+                            painter = painterResource(viewModel.getFabIconId()),
+                            tint = viewModel.getFabIconColor(),
+                            contentDescription = null)
                 }
             }
 
