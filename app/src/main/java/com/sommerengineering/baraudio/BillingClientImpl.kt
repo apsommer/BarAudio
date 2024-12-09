@@ -31,8 +31,8 @@ enum class BillingState {
 }
 
 class BillingClientImpl(
-    val context: Context
-) : BillingClientStateListener, PurchasesUpdatedListener {
+    val context: Context)
+: BillingClientStateListener, PurchasesUpdatedListener {
 
     // todo remove Google Developer API? seems for backend only
     //  https://developer.android.com/google/play/billing/getting-ready#dev-api
@@ -55,6 +55,7 @@ class BillingClientImpl(
 
     override fun onBillingServiceDisconnected() {
 
+        handleError(43)
         billingState.value = BillingState.Unsubscribed
         connect()
     }
@@ -201,7 +202,10 @@ class BillingClientImpl(
             7 to "Item already owned",
             8 to "Item not owned",
             12 to "Network error",
-            42 to "No offers associated with retrieved produce")
+
+            // customize
+            42 to "No offers associated with retrieved produce",
+            43 to "Client disconnected")
 
         logMessage("Billing error, code $responseCode: ${errorMap[responseCode]}")
     }

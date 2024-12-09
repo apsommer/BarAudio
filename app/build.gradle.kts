@@ -137,4 +137,7 @@ dependencies {
     // billing
     implementation(libs.billing)
     implementation(libs.billing.ktx)
+
+    // remote config
+    implementation(libs.firebase.config)
 }
