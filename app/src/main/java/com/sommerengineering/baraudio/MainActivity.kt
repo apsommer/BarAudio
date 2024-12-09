@@ -24,6 +24,9 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.remoteconfig.ktx.remoteConfig
+import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
 import com.sommerengineering.baraudio.theme.AppTheme
 import org.koin.android.ext.android.get
 import org.koin.androidx.compose.koinViewModel
@@ -147,4 +150,15 @@ private fun checkAppVersion(
         logMessage("App upgraded from $previousVersion to $currentVersion")
         writeToDataStore(context, versionKey, currentVersion.toString())
     }
+
+
+    val remoteConfig = Firebase.remoteConfig
+    val configSettings = remoteConfigSettings {
+        minimumFetchIntervalInSeconds = 3600 // 60 min
+    }
+    remoteConfig.setConfigSettingsAsync(configSettings)
+
+
+
+
 }
