@@ -138,5 +138,7 @@ dependencies {
     implementation(libs.billing)
     implementation(libs.billing.ktx)
 
-    // todo play in-app update
+    // play in-app update
+    implementation(libs.app.update)
+    implementation(libs.app.update.ktx)
 }
