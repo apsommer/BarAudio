@@ -352,6 +352,7 @@ class MainViewModel(
 
     // images //////////////////////////////////////////////////////////////////////////////////////
 
+    // todo simplify
     fun getGoogleImageId() =
         if (isDarkMode.value) R.drawable.google_dark
         else R.drawable.google_light
@@ -363,6 +364,10 @@ class MainViewModel(
     fun getFabIconId() =
         if (isMute) R.drawable.volume_off
         else R.drawable.volume_on
+
+    fun getBackgroundId() =
+        if (isDarkMode.value) R.drawable.background_skyline_dark
+        else R.drawable.background_desk
 
     fun getOriginImageId(
         origin: String): Int? =

@@ -43,8 +43,7 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun MessagesScreen(
-    onSignOut: () -> Unit
-) {
+    onSignOut: () -> Unit) {
 
     val context = LocalContext.current
     val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
@@ -124,10 +123,12 @@ fun MessagesScreen(
                 // background image
                 Image(
                     modifier = Modifier
-                        .padding(horizontal = 24.dp)
+                        .padding(start = 24.dp, end = 24.dp, bottom = 64.dp)
                         .align(Alignment.Center),
-                    painter = painterResource(R.drawable.logo_bars),
-                    alpha = 0.5f,
+                    painter = painterResource(viewModel.getBackgroundId()),
+                    alpha =
+                        if (messages.isEmpty()) { 1f }
+                        else { (1 - 0.2 * messages.size).toFloat() }, // invisible after 5 messages
                     contentDescription = null)
 
                 // message list

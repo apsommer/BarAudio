@@ -92,7 +92,6 @@ class MainActivity : ComponentActivity() {
             }
     }
 
-    // todo in-line above
     private val requestAppUpdateLauncher =
         registerForActivityResult(
             ActivityResultContracts.StartIntentSenderForResult()) { result ->
@@ -120,12 +119,16 @@ class MainActivity : ComponentActivity() {
                         { return }
 
         // launch system permission request ui
+        requestPermissionLauncher
+            .launch(Manifest.permission.POST_NOTIFICATIONS)
+    }
+
+    private val requestPermissionLauncher =
         registerForActivityResult(
             ActivityResultContracts.RequestPermission()) { isGranted ->
                 if (isGranted) { initNotificationChannel() }
                 else { /** todo ui that explains this permission is required to run app */ }
-            }.launch(Manifest.permission.POST_NOTIFICATIONS)
-    }
+            }
 
     private fun initNotificationChannel() {
 
