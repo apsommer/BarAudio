@@ -367,7 +367,7 @@ class MainViewModel(
 
     fun getBackgroundId() =
         if (isDarkMode.value) R.drawable.background_skyline_dark
-        else R.drawable.background_desk
+        else R.drawable.background_skyline
 
     fun getOriginImageId(
         origin: String): Int? =

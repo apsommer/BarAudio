@@ -126,9 +126,11 @@ fun MessagesScreen(
                         .padding(start = 24.dp, end = 24.dp, bottom = 64.dp)
                         .align(Alignment.Center),
                     painter = painterResource(viewModel.getBackgroundId()),
+
+                    // fade to invisible after 5 messages
                     alpha =
                         if (messages.isEmpty()) { 1f }
-                        else { (1 - 0.2 * messages.size).toFloat() }, // invisible after 5 messages
+                        else { (1 - 0.2 * messages.size).toFloat() },
                     contentDescription = null)
 
                 // message list

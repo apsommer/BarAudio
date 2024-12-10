@@ -120,6 +120,9 @@ class BillingClientImpl(
     fun launchBillingFlowUi(
         context: Context) {
 
+        // debounce, only need to launch once
+        if (billingState.value == BillingState.Loading) { return }
+
         billingState.value = BillingState.Loading
 
         CoroutineScope(Dispatchers.IO).launch {
