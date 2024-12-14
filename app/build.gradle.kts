@@ -1,3 +1,4 @@
+import java.io.FileInputStream
 import java.util.Properties
 
 plugins {
@@ -7,7 +8,24 @@ plugins {
     id("com.google.gms.google-services") // firebase
 }
 
+// import release upload signing keystore
+val keystoreProperties = Properties()
+keystoreProperties.load(
+    FileInputStream(
+        rootProject.file(
+            rootProject.projectDir.absolutePath + "/upload/keystore.properties")))
+
 android {
+
+    signingConfigs {
+        create("release") {
+            storeFile = file(keystoreProperties["storeFile"] as String)
+            storePassword = keystoreProperties["storePassword"] as String
+            keyAlias = keystoreProperties["keyAlias"] as String
+            keyPassword = keystoreProperties["keyPassword"] as String
+        }
+    }
+
     namespace = "com.sommerengineering.baraudio"
     compileSdk = 34
 
