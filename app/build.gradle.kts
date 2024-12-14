@@ -33,7 +33,7 @@ android {
         applicationId = "com.sommerengineering.baraudio"
         minSdk = 28
         targetSdk = 34
-        versionCode = 23 // increment for each release
+        versionCode = 24 // increment for each release
         versionName = "2.0.141224" // major.minor.date
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -74,6 +74,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 
