@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
+import com.sommerengineering.baraudio.isUpdateRequired
 import org.koin.androidx.compose.koinViewModel
 
 // todo collect and move to utils?
@@ -60,8 +61,6 @@ fun LoginScreen (
                     contentDescription = null)
             }
 
-            // HorizontalDivider()
-
             // google
             Column(
                 modifier = Modifier
@@ -73,6 +72,12 @@ fun LoginScreen (
                         .size(buttonBorderSize)
                         .clip(CircleShape)
                         .clickable {
+
+                            if (isUpdateRequired) {
+                                context.forceUpdate()
+                                return@clickable
+                            }
+
                             signInWithGoogle(
                                 context = context,
                                 onAuthentication = onAuthentication)
@@ -81,8 +86,7 @@ fun LoginScreen (
                             border = BorderStroke(
                                 width = 1.dp,
                                 color = MaterialTheme.colorScheme.onSurface),
-                            shape = CircleShape
-                        )) {
+                            shape = CircleShape)) {
 
                     Image(
                         modifier = Modifier
@@ -101,6 +105,12 @@ fun LoginScreen (
                         .size(buttonBorderSize)
                         .clip(CircleShape)
                         .clickable {
+
+                            if (isUpdateRequired) {
+                                context.forceUpdate()
+                                return@clickable
+                            }
+
                             signInWithGitHub(
                                 context = context,
                                 onAuthentication = onAuthentication)
@@ -109,8 +119,7 @@ fun LoginScreen (
                             border = BorderStroke(
                                 width = 1.dp,
                                 color = MaterialTheme.colorScheme.onSurface),
-                            shape = CircleShape
-                        )) {
+                            shape = CircleShape)) {
 
                     Box(
                         modifier = Modifier

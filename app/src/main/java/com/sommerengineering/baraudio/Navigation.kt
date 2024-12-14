@@ -24,6 +24,16 @@ fun Navigation(
     val context = LocalContext.current
     val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
 
+//    if (isUpdateRequired) {
+//
+//        onSignOut(
+//            controller = controller,
+//            viewModel = viewModel,
+//            context = context)
+//
+//        return
+//    }
+
     NavHost(
         navController = controller,
         startDestination = getStartDestination()) {

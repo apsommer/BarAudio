@@ -36,6 +36,7 @@ import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
 
 var isAppOpen = false
+var isUpdateRequired = false
 
 class MainActivity : ComponentActivity() {
 
@@ -61,31 +62,33 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        checkAppVersion()
+        forceUpdate()
     }
 
-    private fun checkAppVersion() {
+    fun forceUpdate() {
 
         val updateManager =
             AppUpdateManagerFactory
                 .create(context)
 
-        // check if update available
+        // request update from play store
         updateManager
             .appUpdateInfo
             .addOnSuccessListener { appUpdateInfo ->
 
-                logMessage("Update availability request successful")
-
-                // todo can also get .updatePriority(): 0 -> 5, but may not be necessary?
-                //  appears priority must be set with Play Developer API
+                // todo need to check priority level with .updatePriority(): 0 -> 5
+                //  most updates will not be forced
+                //  priority must be set with Play Developer API?
 
                 if (appUpdateInfo.updateAvailability() != UpdateAvailability.UPDATE_AVAILABLE ||
                     !appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)) {
 
-                    logMessage("Update result malformed")
+                    logMessage("Update not available")
                     return@addOnSuccessListener
                 }
+
+                // todo sign-out firebase ...
+                isUpdateRequired = true
 
                 // launch update flow ui
                 updateManager.startUpdateFlowForResult(
@@ -107,10 +110,11 @@ class MainActivity : ComponentActivity() {
 
                 logMessage("Update flow failed with code: ${result.resultCode}")
                 // todo dialog that states update is required, then
-                checkAppVersion()
                 return@registerForActivityResult
             }
 
+            isUpdateRequired = false
+            logMessage("Update finished, does play restart app?")
             // since this update is immediate (not flexible) play updates then restarts app
             // todo check for stalled update? https://developer.android.com/guide/playcore/in-app-updates/kotlin-java#immediate
         }
