@@ -11,3 +11,4 @@ local.properties
 firebase-debug.log
 ui-debug.log
 database-debug.log
+/upload

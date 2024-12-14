@@ -48,7 +48,6 @@ class MainActivity : ComponentActivity() {
 
         // init
         isAppOpen = true
-        checkAppVersion()
         get<TextToSpeechImpl>()
         token = readFromDataStore(context, tokenKey) ?: unauthenticatedToken
 
@@ -58,6 +57,11 @@ class MainActivity : ComponentActivity() {
 
         enableEdgeToEdge()
         setContent { App() }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        checkAppVersion()
     }
 
     private fun checkAppVersion() {
@@ -102,6 +106,8 @@ class MainActivity : ComponentActivity() {
             if (result.resultCode != RESULT_OK) {
 
                 logMessage("Update flow failed with code: ${result.resultCode}")
+                // todo dialog that states update is required, then
+                checkAppVersion()
                 return@registerForActivityResult
             }
 
@@ -109,12 +115,6 @@ class MainActivity : ComponentActivity() {
             // todo check for stalled update? https://developer.android.com/guide/playcore/in-app-updates/kotlin-java#immediate
         }
 
-
-
-
-
-
-    
     fun requestNotificationPermission() {
 
         // realtime permission required if sdk >= 32
@@ -163,6 +163,14 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+fun cancelAllNotifications(
+    context: Context) =
+    NotificationManagerCompat
+        .from(context)
+        .cancelAll()
+
+// entry point /////////////////////////////////////////////////////////////////////////////////////
+
 @Composable
 fun App() {
 
@@ -191,9 +199,3 @@ fun App() {
         }
     }
 }
-
-fun cancelAllNotifications(
-    context: Context) =
-        NotificationManagerCompat
-            .from(context)
-            .cancelAll()
