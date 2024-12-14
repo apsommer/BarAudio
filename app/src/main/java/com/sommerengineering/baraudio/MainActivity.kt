@@ -48,7 +48,7 @@ class MainActivity : ComponentActivity() {
 
         // init
         isAppOpen = true
-        checkAppVersion(context)
+        checkAppVersion()
         get<TextToSpeechImpl>()
         token = readFromDataStore(context, tokenKey) ?: unauthenticatedToken
 
@@ -60,51 +60,61 @@ class MainActivity : ComponentActivity() {
         setContent { App() }
     }
 
-    private fun checkAppVersion(
-        context: Context) {
+    private fun checkAppVersion() {
 
-        //
-        val appUpdateManager =
+        val updateManager =
             AppUpdateManagerFactory
                 .create(context)
 
-        appUpdateManager
+        // check if update available
+        updateManager
             .appUpdateInfo
             .addOnSuccessListener { appUpdateInfo ->
 
-                logMessage("Update request successful")
+                logMessage("Update availability request successful")
 
                 // todo can also get .updatePriority(): 0 -> 5, but may not be necessary?
                 //  appears priority must be set with Play Developer API
-                if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE &&
-                    appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)) {
 
-                    // request update
-                    appUpdateManager.startUpdateFlowForResult(
-                        appUpdateInfo,
-                        requestAppUpdateLauncher,
-                        AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build()
-                    )
+                if (appUpdateInfo.updateAvailability() != UpdateAvailability.UPDATE_AVAILABLE ||
+                    !appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)) {
+
+                    logMessage("Update result malformed")
+                    return@addOnSuccessListener
                 }
+
+                // launch update flow ui
+                updateManager.startUpdateFlowForResult(
+                    appUpdateInfo,
+                    updateLauncher,
+                    AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build())
             }
-            .addOnFailureListener { exception ->
-                logException(exception)
+            .addOnFailureListener {
+                logException(it)
             }
     }
 
-    private val requestAppUpdateLauncher =
+    private val updateLauncher =
+
         registerForActivityResult(
             ActivityResultContracts.StartIntentSenderForResult()) { result ->
 
             if (result.resultCode != RESULT_OK) {
+
                 logMessage("Update flow failed with code: ${result.resultCode}")
                 return@registerForActivityResult
             }
 
-            // since this update is immediate (not flexible) play updates and restarts app
+            // since this update is immediate (not flexible) play updates then restarts app
             // todo check for stalled update? https://developer.android.com/guide/playcore/in-app-updates/kotlin-java#immediate
         }
 
+
+
+
+
+
+    
     fun requestNotificationPermission() {
 
         // realtime permission required if sdk >= 32
