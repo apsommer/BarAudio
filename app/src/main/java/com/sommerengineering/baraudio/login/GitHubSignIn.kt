@@ -6,10 +6,18 @@ import com.google.firebase.auth.OAuthProvider
 import com.google.firebase.auth.auth
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.gitHubProviderId
+import com.sommerengineering.baraudio.isUpdateRequired
 
 fun signInWithGitHub (
     context: Context,
-    onAuthentication: () -> Unit) {
+    onAuthentication: () -> Unit,
+    onForceUpdate: () -> Unit) {
+
+    // block sign-in if app update required
+    if (isUpdateRequired) {
+        onForceUpdate()
+        return
+    }
 
     // launches web browser and backgrounds app
     Firebase.auth

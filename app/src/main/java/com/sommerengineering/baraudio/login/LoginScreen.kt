@@ -73,15 +73,10 @@ fun LoginScreen (
                         .size(buttonBorderSize)
                         .clip(CircleShape)
                         .clickable {
-
-                            if (isUpdateRequired) {
-                                onForceUpdate()
-                                return@clickable
-                            }
-
                             signInWithGoogle(
                                 context = context,
-                                onAuthentication = onAuthentication)
+                                onAuthentication = onAuthentication,
+                                onForceUpdate = onForceUpdate)
                         }
                         .border(
                             border = BorderStroke(
@@ -106,15 +101,10 @@ fun LoginScreen (
                         .size(buttonBorderSize)
                         .clip(CircleShape)
                         .clickable {
-
-                            if (isUpdateRequired) {
-                                onForceUpdate()
-                                return@clickable
-                            }
-
                             signInWithGitHub(
                                 context = context,
-                                onAuthentication = onAuthentication)
+                                onAuthentication = onAuthentication,
+                                onForceUpdate = onForceUpdate)
                         }
                         .border(
                             border = BorderStroke(

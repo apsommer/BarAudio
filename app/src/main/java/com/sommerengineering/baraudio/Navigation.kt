@@ -74,6 +74,16 @@ fun Navigation(
     }
 }
 
+// skip login screen if user already authenticated
+fun getStartDestination() =
+
+    if (Firebase.auth.currentUser != null) {
+        logMessage("Authentication skipped, user already signed-in")
+        logMessage("    uid: ${Firebase.auth.currentUser?.uid}")
+        logMessage("  token: $token")
+        MessagesScreenRoute }
+    else LoginScreenRoute
+
 fun onAuthentication(
     context: Context,
     viewModel: MainViewModel,
@@ -162,14 +172,4 @@ fun onForceUpdate(
             logException(it)
         }
 }
-
-// skip login screen if user already authenticated
-fun getStartDestination() =
-
-    if (Firebase.auth.currentUser != null) {
-        logMessage("Authentication skipped, user already signed-in")
-        logMessage("    uid: ${Firebase.auth.currentUser?.uid}")
-        logMessage("  token: $token")
-        MessagesScreenRoute }
-    else LoginScreenRoute
 

@@ -10,13 +10,21 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.sommerengineering.baraudio.BuildConfig
 import com.sommerengineering.baraudio.isInternetConnected
+import com.sommerengineering.baraudio.isUpdateRequired
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 fun signInWithGoogle (
     context: Context,
-    onAuthentication: () -> Unit) {
+    onAuthentication: () -> Unit,
+    onForceUpdate: () -> Unit) {
+
+    // block sign-in if app update required
+    if (isUpdateRequired) {
+        onForceUpdate()
+        return
+    }
 
     // todo use this bottom ui in production?
     // display ui with bottom sheet and progress bar
