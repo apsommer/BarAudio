@@ -127,6 +127,7 @@ fun onSignOut(
     }
 }
 
+// todo refactor updateManager out of listener, should be attached only once
 fun onForceUpdate(
     context: Context,
     viewModel: MainViewModel,
@@ -139,18 +140,20 @@ fun onForceUpdate(
     // request update from play store
     updateManager
         .appUpdateInfo
-        .addOnSuccessListener { appUpdateInfo ->
+        .addOnSuccessListener { updateInfo ->
 
-            // todo need to check priority level with .updatePriority(): 0 -> 5
-            //  most updates will not be forced
-            //  priority must be set with Play Developer API?
-
-            if (appUpdateInfo.updateAvailability() != UpdateAvailability.UPDATE_AVAILABLE ||
-                !appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)) {
-
-                logMessage("Update not available")
-                return@addOnSuccessListener
+            // check if update available
+            val availability = updateInfo.updateAvailability()
+            if (availability == UpdateAvailability.UNKNOWN ||
+                availability == UpdateAvailability.UPDATE_NOT_AVAILABLE) {
+                    logMessage("Update not available")
+                    return@addOnSuccessListener
             }
+
+            // todo configure fastlane to set priority
+            val priority = updateInfo.updatePriority()
+            logMessage("Update priority: $priority")
+            if (priority != 5) { return@addOnSuccessListener }
 
             isUpdateRequired = true
 
@@ -164,7 +167,7 @@ fun onForceUpdate(
 
             // launch update flow ui
             updateManager.startUpdateFlowForResult(
-                appUpdateInfo,
+                updateInfo,
                 (context as MainActivity).updateLauncher,
                 AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build())
         }

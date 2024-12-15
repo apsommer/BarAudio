@@ -68,14 +68,10 @@ class MainActivity : ComponentActivity() {
             if (result.resultCode != RESULT_OK) {
 
                 logMessage("Update flow failed with code: ${result.resultCode}")
-                // todo dialog that states update is required, then
                 return@registerForActivityResult
             }
 
-            isUpdateRequired = false
-            logMessage("Update finished, does play restart app?")
-            // since this update is immediate (not flexible) play updates then restarts app
-            // todo check for stalled update? https://developer.android.com/guide/playcore/in-app-updates/kotlin-java#immediate
+            // since update is immediate (not flexible) play updates and restarts app
         }
 
     fun requestNotificationPermission() {
