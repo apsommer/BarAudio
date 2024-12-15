@@ -34,6 +34,7 @@ val buttonBorderSize = 96.dp
 @Composable
 fun LoginScreen (
     onAuthentication: () -> Unit,
+    onForceUpdate: () -> Unit,
     modifier: Modifier = Modifier) {
 
     // inject viewmodel
@@ -74,7 +75,7 @@ fun LoginScreen (
                         .clickable {
 
                             if (isUpdateRequired) {
-                                context.forceUpdate()
+                                onForceUpdate()
                                 return@clickable
                             }
 
@@ -107,7 +108,7 @@ fun LoginScreen (
                         .clickable {
 
                             if (isUpdateRequired) {
-                                context.forceUpdate()
+                                onForceUpdate()
                                 return@clickable
                             }
 

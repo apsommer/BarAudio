@@ -60,48 +60,7 @@ class MainActivity : ComponentActivity() {
         setContent { App() }
     }
 
-    override fun onResume() {
-        super.onResume()
-        forceUpdate()
-    }
-
-    fun forceUpdate() {
-
-        val updateManager =
-            AppUpdateManagerFactory
-                .create(context)
-
-        // request update from play store
-        updateManager
-            .appUpdateInfo
-            .addOnSuccessListener { appUpdateInfo ->
-
-                // todo need to check priority level with .updatePriority(): 0 -> 5
-                //  most updates will not be forced
-                //  priority must be set with Play Developer API?
-
-                if (appUpdateInfo.updateAvailability() != UpdateAvailability.UPDATE_AVAILABLE ||
-                    !appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)) {
-
-                    logMessage("Update not available")
-                    return@addOnSuccessListener
-                }
-
-                // todo sign-out firebase ...
-                isUpdateRequired = true
-
-                // launch update flow ui
-                updateManager.startUpdateFlowForResult(
-                    appUpdateInfo,
-                    updateLauncher,
-                    AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build())
-            }
-            .addOnFailureListener {
-                logException(it)
-            }
-    }
-
-    private val updateLauncher =
+    val updateLauncher =
 
         registerForActivityResult(
             ActivityResultContracts.StartIntentSenderForResult()) { result ->
@@ -169,11 +128,9 @@ class MainActivity : ComponentActivity() {
 
 fun cancelAllNotifications(
     context: Context) =
-    NotificationManagerCompat
-        .from(context)
-        .cancelAll()
-
-// entry point /////////////////////////////////////////////////////////////////////////////////////
+        NotificationManagerCompat
+            .from(context)
+            .cancelAll()
 
 @Composable
 fun App() {

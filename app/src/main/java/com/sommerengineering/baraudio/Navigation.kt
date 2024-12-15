@@ -2,10 +2,15 @@ package com.sommerengineering.baraudio
 
 import android.content.Context
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory
+import com.google.android.play.core.appupdate.AppUpdateOptions
+import com.google.android.play.core.install.model.AppUpdateType
+import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.sommerengineering.baraudio.login.LoginScreen
@@ -24,15 +29,13 @@ fun Navigation(
     val context = LocalContext.current
     val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
 
-//    if (isUpdateRequired) {
-//
-//        onSignOut(
-//            controller = controller,
-//            viewModel = viewModel,
-//            context = context)
-//
-//        return
-//    }
+    // force update, if needed
+    LaunchedEffect(Unit){
+        onForceUpdate(
+            context,
+            viewModel,
+            controller)
+    }
 
     NavHost(
         navController = controller,
@@ -44,9 +47,17 @@ fun Navigation(
             LoginScreen(
                 onAuthentication = {
                     onAuthentication(
-                        controller = controller,
+                        context = context,
                         viewModel = viewModel,
-                        context = context) })
+                        controller = controller)
+                },
+                onForceUpdate = {
+                    onForceUpdate(
+                        context = context,
+                        viewModel = viewModel,
+                        controller = controller)
+                }
+            )
         }
 
         // messages screen
@@ -64,9 +75,9 @@ fun Navigation(
 }
 
 fun onAuthentication(
-    controller: NavHostController,
+    context: Context,
     viewModel: MainViewModel,
-    context: Context) {
+    controller: NavHostController) {
 
     // reset dark mode to previous preference, if available
     viewModel.setUiMode(context)
@@ -95,6 +106,8 @@ fun onSignOut(
     viewModel.setUiMode(context)
 
     // clear local cache by detaching database listener
+    // todo can remove this if webhook has token instead of uid
+    //  then can simplify further in force update by removing currentUser != null conditional
     getDatabaseReference(messagesNode)
         .removeEventListener(dbListener)
 
@@ -102,6 +115,52 @@ fun onSignOut(
     controller.navigate(LoginScreenRoute) {
         popUpTo(MessagesScreenRoute) { inclusive = true }
     }
+}
+
+fun onForceUpdate(
+    context: Context,
+    viewModel: MainViewModel,
+    controller: NavHostController) {
+
+    val updateManager =
+        AppUpdateManagerFactory
+            .create(context)
+
+    // request update from play store
+    updateManager
+        .appUpdateInfo
+        .addOnSuccessListener { appUpdateInfo ->
+
+            // todo need to check priority level with .updatePriority(): 0 -> 5
+            //  most updates will not be forced
+            //  priority must be set with Play Developer API?
+
+            if (appUpdateInfo.updateAvailability() != UpdateAvailability.UPDATE_AVAILABLE ||
+                !appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)) {
+
+                logMessage("Update not available")
+                return@addOnSuccessListener
+            }
+
+            isUpdateRequired = true
+
+            // sign out, if needed
+            if (Firebase.auth.currentUser != null) {
+                onSignOut(
+                    controller,
+                    viewModel,
+                    context)
+            }
+
+            // launch update flow ui
+            updateManager.startUpdateFlowForResult(
+                appUpdateInfo,
+                (context as MainActivity).updateLauncher,
+                AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build())
+        }
+        .addOnFailureListener {
+            logException(it)
+        }
 }
 
 // skip login screen if user already authenticated

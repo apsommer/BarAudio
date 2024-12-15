@@ -22,7 +22,6 @@ lateinit var dbListener: ChildEventListener
 
 fun listenToDatabase(
     messages: SnapshotStateList<Message>,
-    viewModel: MainViewModel,
     listState: LazyListState,
     coroutine: CoroutineScope) {
 

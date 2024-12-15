@@ -103,6 +103,7 @@ fun getDatabaseReference(
     node: String)
 : DatabaseReference {
 
+    // singleton, enable local persistence can only be set once
     if (!isDatabaseInitialized) {
 
         // enable local cache
@@ -124,19 +125,22 @@ fun getDatabaseReference(
 fun validateToken() {
 
     val user = Firebase.auth.currentUser ?: return
-    logMessage("Sign-in success with user: ${user.uid}")
+    logMessage("Sign-in success")
+    logMessage("    uid: ${user.uid}")
+    logMessage("  token: $token")
 
     user
         .getIdToken(false)
         .addOnSuccessListener {
 
             // compare correct cached token with user token (potentially invalid)
+            // todo not necessary, remove?
             if (it.token == token) {
                 logMessage("Token already in cache, skipping database write")
                 return@addOnSuccessListener
             }
 
-            logMessage("Writing user:token pair to database")
+            logMessage("Writing new user:token pair to database")
 
             // write user:token pair to database
             // no write operation occurs if correct token already exists
