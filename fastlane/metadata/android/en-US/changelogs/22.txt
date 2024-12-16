@@ -1,0 +1,1 @@
+Refresh app style and base features for Android 14
