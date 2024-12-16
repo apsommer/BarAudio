@@ -33,8 +33,8 @@ android {
         applicationId = "com.sommerengineering.baraudio"
         minSdk = 28
         targetSdk = 34
-        versionCode = 37 // increment for each release
-        versionName = "2.0.161224g" // major.minor.date
+        versionCode = 38 // increment for each release
+        versionName = "2.0.161224h" // major.minor.date
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

@@ -150,10 +150,12 @@ fun onForceUpdate(
                     return@addOnSuccessListener
             }
 
-            // todo configure fastlane to set priority
             val priority = updateInfo.updatePriority()
             logMessage("Update priority: $priority")
-            if (priority != 5) { return@addOnSuccessListener }
+            if (priority < 5) {
+                logMessage("Update available with priority: $priority, no breaking changes update not forced")
+                return@addOnSuccessListener
+            }
 
             isUpdateRequired = true
 
