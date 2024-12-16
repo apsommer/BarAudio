@@ -297,6 +297,7 @@ class MainViewModel(
 
                         BillingState.NewSubscription -> {
                             setMute(context, false)
+                            this@MainViewModel.speakLastMessage()
                         }
 
                         BillingState.Subscribed -> {
@@ -345,6 +346,7 @@ class MainViewModel(
 
         if (isMute) { tts.volume = 0f }
         else { tts.volume = 1f }
+
         if (isMute && tts.isSpeaking()) { tts.stop() }
 
         writeToDataStore(context, volumeKey, tts.volume.toString())
