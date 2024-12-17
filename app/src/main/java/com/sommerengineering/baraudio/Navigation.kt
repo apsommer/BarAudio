@@ -151,12 +151,13 @@ fun onForceUpdate(
             }
 
             val priority = updateInfo.updatePriority()
-            logMessage("Update priority: $priority")
+            logMessage("Update available with priority: $priority")
             if (priority < 5) {
-                logMessage("Update available with priority: $priority, no breaking changes update not forced")
+                logMessage("  Not forced, continue normal app behavior ...")
                 return@addOnSuccessListener
             }
 
+            logMessage("  Force update, blocking app until update installed")
             isUpdateRequired = true
 
             // sign out, if needed
