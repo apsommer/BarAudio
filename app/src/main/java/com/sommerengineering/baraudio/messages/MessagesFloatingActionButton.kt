@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
@@ -58,9 +59,9 @@ fun MessagesFloatingActionButton(
         AnimatedContent (
             targetState = isMute,
             transitionSpec = {
-                fadeIn(spring(stiffness = Spring.StiffnessLow))
+                fadeIn(spring(stiffness = Spring.StiffnessVeryLow))
                     .togetherWith(
-                        fadeOut(spring(stiffness = Spring.StiffnessLow)))
+                        fadeOut(spring(stiffness = Spring.StiffnessVeryLow)))
             },
             label = ""
 
