@@ -2,6 +2,7 @@ package com.sommerengineering.baraudio.messages
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -51,10 +52,10 @@ fun MessagesTopBar(
 
         // logo
         title = {
-            Icon(
+            Image(
                 modifier = Modifier
                     .padding(8.dp),
-                painter = painterResource(R.drawable.logo_banner),
+                painter = painterResource(R.drawable.logo_banner_color),
                 contentDescription = null)
         },
 
