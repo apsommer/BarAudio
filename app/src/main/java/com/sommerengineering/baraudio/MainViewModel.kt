@@ -363,10 +363,6 @@ class MainViewModel(
         if (isDarkMode.value) R.drawable.github_light
         else R.drawable.github_dark
 
-    fun getFabIconId() =
-        if (isMute) R.drawable.volume_off
-        else R.drawable.volume_on
-
     fun getBackgroundId() =
         if (isDarkMode.value) R.drawable.background_skyline_dark
         else R.drawable.background_skyline
