@@ -61,8 +61,7 @@ fun MessagesFloatingActionButton(
                 fadeIn(spring(stiffness = Spring.StiffnessVeryLow))
                     .togetherWith(
                         fadeOut(spring(stiffness = Spring.StiffnessVeryLow)))
-            },
-            label = ""
+            }
 
         ) { targetState ->
 
