@@ -30,7 +30,8 @@ fun animateColor(target: Color) =
     animateColorAsState(
         targetValue = target,
         animationSpec = tween(
-            durationMillis = uiModeFadeTimeMillis))
+            durationMillis = uiModeFadeTimeMillis),
+        label = "")
         .value
 
 @Composable

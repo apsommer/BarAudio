@@ -1,7 +1,9 @@
 package com.sommerengineering.baraudio.messages
 
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.settings.SettingsScreen
+import com.sommerengineering.baraudio.theme.uiModeFadeTimeMillis
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
@@ -98,12 +101,17 @@ fun MessagesScreen(
                         .padding(start = 24.dp, end = 24.dp, bottom = 64.dp)
                         .align(Alignment.Center),
                     painter = painterResource(viewModel.getBackgroundId()),
+                    contentDescription = null,
 
                     // fade to invisible after 5 messages
-                    alpha =
-                        if (messages.isEmpty()) { 1f }
-                        else { (1 - 0.2 * messages.size).toFloat() },
-                    contentDescription = null)
+                    alpha = animateFloatAsState(
+                        targetValue =
+                            if (messages.isEmpty()) { 1f }
+                            else { (1 - 0.2 * messages.size).toFloat() },
+                        animationSpec = tween(
+                            durationMillis = uiModeFadeTimeMillis),
+                        label = "")
+                        .value)
 
                 // message list
                 LazyColumn(
