@@ -1,7 +1,13 @@
 package com.sommerengineering.baraudio.messages
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -37,6 +43,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
+import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.login.buttonBorderSize
 import com.sommerengineering.baraudio.settings.SettingsScreen
 import kotlinx.coroutines.launch
@@ -105,11 +112,35 @@ fun MessagesScreen(
                             return@FloatingActionButton
                         }
 
-                        Icon(
-                            modifier = Modifier.size(buttonBorderSize / 2),
-                            painter = painterResource(viewModel.getFabIconId()),
-                            tint = viewModel.getFabIconColor(),
-                            contentDescription = null)
+                        var isMute by remember { mutableStateOf(true) }
+                        isMute = viewModel.isMute
+
+                        AnimatedContent (
+                            targetState = isMute,
+                            transitionSpec = {
+                                fadeIn(spring(stiffness = Spring.StiffnessLow))
+                                    .togetherWith(fadeOut(spring(stiffness = Spring.StiffnessLow)))
+                            }) { targetState ->
+
+                            // mute
+                            if (targetState) {
+                                Icon(
+                                    modifier = Modifier
+                                        .size(buttonBorderSize / 2),
+                                    painter = painterResource(R.drawable.volume_off),
+                                    tint = viewModel.getFabIconColor(),
+                                    contentDescription = null)
+                                return@AnimatedContent
+                            }
+
+                            // unmute
+                            Icon(
+                                modifier = Modifier
+                                    .size(buttonBorderSize / 2),
+                                painter = painterResource(R.drawable.volume_on),
+                                tint = viewModel.getFabIconColor(),
+                                contentDescription = null)
+                        }
                 }
             }
 
