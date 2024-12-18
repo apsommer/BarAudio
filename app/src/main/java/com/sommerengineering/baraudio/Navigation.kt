@@ -1,6 +1,13 @@
 package com.sommerengineering.baraudio
 
 import android.content.Context
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideIn
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
@@ -29,6 +36,10 @@ fun Navigation(
     val context = LocalContext.current
     val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
 
+    // animate screen transitions
+    val fadeIn = fadeIn(spring(stiffness = 10f))
+    val fadeOut = fadeOut(spring(stiffness = 10f))
+
     // force update, if needed
     LaunchedEffect(Unit){
         onForceUpdate(
@@ -43,8 +54,11 @@ fun Navigation(
 
         // login screen
         composable(
-            route = LoginScreenRoute) {
-            LoginScreen(
+            route = LoginScreenRoute,
+            enterTransition = { fadeIn },
+            exitTransition = { fadeOut }) {
+
+        LoginScreen(
                 onAuthentication = {
                     onAuthentication(
                         context = context,
@@ -62,7 +76,10 @@ fun Navigation(
 
         // messages screen
         composable(
-            route = MessagesScreenRoute) {
+            route = MessagesScreenRoute,
+            enterTransition = { fadeIn },
+            exitTransition = { fadeOut }) {
+
             MessagesScreen(
                 onSignOut = {
                     onSignOut(
@@ -157,7 +174,7 @@ fun onForceUpdate(
                 return@addOnSuccessListener
             }
 
-            logMessage("  Force update, blocking app until update installed")
+            logMessage("  Force update, block app until update installed")
             isUpdateRequired = true
 
             // sign out, if needed
