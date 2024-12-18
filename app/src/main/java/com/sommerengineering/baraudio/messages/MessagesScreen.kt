@@ -94,54 +94,9 @@ fun MessagesScreen(
 
             // fab, mute button
             floatingActionButton = {
-                FloatingActionButton (
-                    modifier = Modifier
-                        .size(buttonBorderSize)
-                        .border(
-                            border = BorderStroke(
-                                width = 1.dp,
-                                color = viewModel.getFabIconColor()
-                            ),
-                            shape = CircleShape),
-                    containerColor = viewModel.getFabBackgroundColor(),
-                    shape = CircleShape,
-                    onClick = { viewModel.toggleMute(context) }) {
-
-                        if (viewModel.shouldShowSpinner) {
-                            CircularProgressIndicator()
-                            return@FloatingActionButton
-                        }
-
-                        var isMute by remember { mutableStateOf(true) }
-                        isMute = viewModel.isMute
-
-                        AnimatedContent (
-                            targetState = isMute,
-                            transitionSpec = {
-                                fadeIn(spring(stiffness = Spring.StiffnessLow))
-                                    .togetherWith(fadeOut(spring(stiffness = Spring.StiffnessLow)))
-                            }) { targetState ->
-
-                            // mute
-                            if (targetState) {
-                                Icon(
-                                    modifier = Modifier
-                                        .size(buttonBorderSize / 2),
-                                    painter = painterResource(R.drawable.volume_off),
-                                    tint = viewModel.getFabIconColor(),
-                                    contentDescription = null)
-                                return@AnimatedContent
-                            }
-
-                            // unmute
-                            Icon(
-                                modifier = Modifier
-                                    .size(buttonBorderSize / 2),
-                                painter = painterResource(R.drawable.volume_on),
-                                tint = viewModel.getFabIconColor(),
-                                contentDescription = null)
-                        }
-                }
+                MessagesFloatingActionButton(
+                    context = context,
+                    viewModel = viewModel)
             }
 
         ) { padding ->
