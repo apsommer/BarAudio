@@ -4,7 +4,11 @@
 /fastlane/service_account.json
 /fastlane/README.md
 /fastlane/report.xml
+/functions/__pycache__
+/functions/venv
+/functions/.idea
 /functions/admin.json
+/functions/ui-debug.log
 /gradle
 /upload
 /.gradle
