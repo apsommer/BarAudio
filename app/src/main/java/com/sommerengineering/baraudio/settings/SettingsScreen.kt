@@ -1,9 +1,6 @@
 package com.sommerengineering.baraudio.settings
 
 import android.content.Intent
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,7 +15,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
@@ -59,7 +55,7 @@ fun SettingsScreen(
                     onClick = { uriHandler.openUri(howToUseUrl) })
             }
 
-            // webhook todo make entire item clickable
+            // webhook
             item {
                 DialogSettingItem(
                     icon = R.drawable.webhook,
