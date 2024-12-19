@@ -116,7 +116,7 @@ class MainActivity : ComponentActivity() {
         // assign group
         val groupId = getString(R.string.notification_channel_group_id)
         channel.group = groupId
-        
+
         // register with system
         val notificationManager =
             getSystemService(Service.NOTIFICATION_SERVICE) as NotificationManager
@@ -156,10 +156,7 @@ fun App() {
 
     KoinContext {
         AppTheme(isDarkMode) {
-            Scaffold(
-                topBar = {
-                    // todo internet connection banner
-                }) { padding ->
+            Scaffold { padding ->
                 Modifier.padding(padding) // not used
                 Navigation(rememberNavController())
             }
