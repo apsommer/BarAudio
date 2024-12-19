@@ -37,7 +37,6 @@ def get_origin(req: https_fn.Request) -> str:
         origin = "insomnia"
 
     return origin
-
 def write_to_database(uid: str, timestamp: str, message: str, origin: str):
 
     group_key = db.reference('messages')

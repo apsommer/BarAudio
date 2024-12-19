@@ -108,17 +108,3 @@ fun writeToDataStore(
                 it[stringPreferencesKey(key)] = value
             }
         }
-
-// todo observe to connection status app-wide
-//  https://medium.com/scalereal/observing-live-connectivity-status-in-jetpack-compose-way-f849ce8431c7
-fun isInternetConnected(
-    context: Context
-): Boolean {
-
-    val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-    val capabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
-
-    val isConnected = (capabilities != null && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET))
-    if (!isConnected) logMessage("Not connected to internet!")
-    return isConnected
-}
