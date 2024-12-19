@@ -45,7 +45,7 @@ const val messageKey = "message"
 const val originKey = "origin"
 const val insomnia = "insomnia"
 const val defaultMessage = "Thank you for using BarAudio!"
-const val unauthenticatedTimestamp = ", please sign-in to hear message!"
+const val unauthenticatedTimestampNote = ", sign-in to hear message!"
 const val parsingError = "Error parsing message"
 
 // datastore

@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
@@ -46,12 +47,21 @@ class FirebaseService: FirebaseMessagingService() {
         val note =
             if (uid != Firebase.auth.currentUser?.uid) {
                 isShowNotification = true
-                unauthenticatedTimestamp
+                unauthenticatedTimestampNote
             } else { "" }
 
         // either speak, or show notification
-        if (isShowNotification) { showNotification(timestamp, message, note) }
-        else { tts.speak(timestamp, message) }
+        if (isShowNotification) {
+            showNotification(
+                timestamp,
+                message,
+                note)
+
+        } else {
+            tts.speak(
+                timestamp,
+                message)
+        }
     }
 
     private fun showNotification(
@@ -69,16 +79,16 @@ class FirebaseService: FirebaseMessagingService() {
         val pendingIntent= PendingIntent
             .getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
-        // configure options todo update icon color, other styling?
+        // configure options
         val timestampWithNote =
             beautifyTimestamp(timestamp) + note
 
         val builder = NotificationCompat.Builder(this, getString(R.string.notification_channel_id))
             .setSmallIcon(R.drawable.logo_square)
+            .setColor(ContextCompat.getColor(this, R.color.logo_blue))
             .setContentTitle(message)
             .setContentText(timestampWithNote) // collapsed
-            .setStyle(NotificationCompat.BigTextStyle()
-                .bigText(timestampWithNote)) // expanded
+            .setStyle(NotificationCompat.BigTextStyle().bigText(timestampWithNote)) // expanded
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
 
