@@ -51,7 +51,7 @@ fun MessagesFloatingActionButton(
             return@FloatingActionButton
         }
 
-        // toggle icon
+        // animate toggle icon
         var isMute by remember { mutableStateOf(true) }
         isMute = viewModel.isMute
 

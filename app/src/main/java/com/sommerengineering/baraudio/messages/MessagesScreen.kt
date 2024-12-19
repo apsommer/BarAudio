@@ -109,7 +109,8 @@ fun MessagesScreen(
                             if (messages.isEmpty()) { 1f }
                             else { (1 - 0.2 * messages.size).toFloat() },
                         animationSpec =
-                            tween(uiModeFadeTimeMillis))
+                            tween(uiModeFadeTimeMillis),
+                        label = "")
                         .value)
 
                 // message list
