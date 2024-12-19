@@ -1,13 +1,9 @@
 package com.sommerengineering.baraudio
 
 import android.content.Context
-import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideIn
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
@@ -112,7 +108,7 @@ fun onAuthentication(
     (context as MainActivity).requestNotificationPermission()
 
     // write user:token pair to database, if needed
-    validateToken()
+    writeTokenToDatabase()
 
     // navigate to messages screen
     controller.navigate(MessagesScreenRoute) {

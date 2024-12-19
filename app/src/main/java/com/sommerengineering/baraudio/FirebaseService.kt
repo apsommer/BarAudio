@@ -86,11 +86,6 @@ class FirebaseService: FirebaseMessagingService() {
         NotificationManagerCompat.from(this).notify(
             trimTimestamp(timestamp),
             builder.build())
-
-        // todo check that notifications have appropriate settings:
-        //  importance, sound, etc at minimum levels, else show ui saying it's required
-        //  also put link to system settings somewhere appropriate
-        //  https://developer.android.com/develop/ui/views/notifications/channels#UpdateChannel
     }
 }
 
@@ -121,29 +116,14 @@ fun getDatabaseReference(
         .child(uid)
 }
 
-fun validateToken() {
+fun writeTokenToDatabase() {
 
     val user = Firebase.auth.currentUser ?: return
     logMessage("Sign-in success")
     logMessage("    uid: ${user.uid}")
     logMessage("  token: $token")
 
-    user
-        .getIdToken(false)
-        .addOnSuccessListener {
-
-            // compare correct cached token with user token (potentially invalid)
-            // todo not necessary, remove?
-            if (it.token == token) {
-                logMessage("Token already in cache, skipping database write")
-                return@addOnSuccessListener
-            }
-
-            logMessage("Writing new user:token pair to database")
-
-            // write user:token pair to database
-            // no write operation occurs if correct token already exists
-            getDatabaseReference(usersNode)
-                .setValue(token)
-        }
+    // write user:token pair to database, no write occurs if correct token already present
+    getDatabaseReference(usersNode)
+        .setValue(token)
 }
