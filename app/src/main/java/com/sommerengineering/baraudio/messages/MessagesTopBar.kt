@@ -20,8 +20,8 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.R
+import com.sommerengineering.baraudio.deleteAllFadeDurationMillis
 
-// todo do this without experimental optin?
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MessagesTopBar(
@@ -70,7 +70,7 @@ fun MessagesTopBar(
                         targetValue =
                             if (isEmpty) IconButtonDefaults.iconButtonColors().disabledContentColor
                             else IconButtonDefaults.iconButtonColors().contentColor,
-                        animationSpec = tween(1000), // todo align all these to one spot in utils?
+                        animationSpec = tween(deleteAllFadeDurationMillis),
                         label = ""
                     ).value,
                     contentDescription = null)

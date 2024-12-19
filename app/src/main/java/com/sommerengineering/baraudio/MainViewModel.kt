@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
@@ -391,3 +392,7 @@ class MainViewModel(
         if (isMute) MaterialTheme.colorScheme.surfaceVariant
         else MaterialTheme.colorScheme.primaryContainer
 }
+
+const val deleteAllFadeDurationMillis = 1000
+
+val buttonBorderSize = 96.dp

@@ -25,11 +25,9 @@ import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
+import com.sommerengineering.baraudio.buttonBorderSize
 import com.sommerengineering.baraudio.isUpdateRequired
 import org.koin.androidx.compose.koinViewModel
-
-// todo collect and move to utils?
-val buttonBorderSize = 96.dp
 
 @Composable
 fun LoginScreen (

@@ -50,7 +50,7 @@ fun MessageItem(
                         BorderStroke(
                             width = 1.dp,
                             color =
-                                if (isRecent) MaterialTheme.colorScheme.outlineVariant // todo align these colors to fab
+                                if (isRecent) MaterialTheme.colorScheme.outlineVariant
                                 else MaterialTheme.colorScheme.surfaceContainerHigh),
                         shape = RoundedCornerShape(8.dp))
                     .background(
