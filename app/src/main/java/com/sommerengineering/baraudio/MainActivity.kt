@@ -116,10 +116,7 @@ class MainActivity : ComponentActivity() {
         // assign group
         val groupId = getString(R.string.notification_channel_group_id)
         channel.group = groupId
-
-        // todo set system-wide category for do not disturb visibility
-        //  https://developer.android.com/develop/ui/views/notifications/build-notification#system-category
-
+        
         // register with system
         val notificationManager =
             getSystemService(Service.NOTIFICATION_SERVICE) as NotificationManager
