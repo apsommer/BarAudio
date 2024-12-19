@@ -84,7 +84,7 @@ fun LoginScreen (
                     Image(
                         modifier = Modifier
                             .size(circularButtonSize),
-                        painter = painterResource(viewModel.getGoogleImageId()),
+                        painter = painterResource(R.drawable.google),
                         contentDescription = null)
                 }
 

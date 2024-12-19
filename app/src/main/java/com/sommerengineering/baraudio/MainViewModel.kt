@@ -355,11 +355,6 @@ class MainViewModel(
 
     // images //////////////////////////////////////////////////////////////////////////////////////
 
-    // todo simplify
-    fun getGoogleImageId() =
-        if (isDarkMode.value) R.drawable.google_dark
-        else R.drawable.google_light
-
     fun getGitHubImageId() =
         if (isDarkMode.value) R.drawable.github_light
         else R.drawable.github_dark
