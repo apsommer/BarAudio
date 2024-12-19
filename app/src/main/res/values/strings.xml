@@ -18,5 +18,6 @@
     <string name="about">About</string>
     <string name="privacy">Privacy Policy</string>
     <string name="terms">Terms and Conditions</string>
+    <string name="manage_subscription">Manage subscription</string>
     <string name="sign_out">Sign-out</string>
 </resources>

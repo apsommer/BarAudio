@@ -28,6 +28,7 @@ import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.aboutUrl
 import com.sommerengineering.baraudio.howToUseUrl
 import com.sommerengineering.baraudio.privacyUrl
+import com.sommerengineering.baraudio.subscriptionUrl
 import com.sommerengineering.baraudio.termsUrl
 import org.koin.androidx.compose.koinViewModel
 
@@ -193,8 +194,13 @@ fun SettingsScreen(
                     onClick = { uriHandler.openUri(termsUrl) })
             }
 
-            // todo manage subscription
-            //  https://developer.android.com/google/play/billing/subscriptions#link-specific
+            // manage subscription
+            item {
+                LinkSettingItem(
+                    icon = R.drawable.credit_card_gear,
+                    title = R.string.manage_subscription,
+                    onClick = { uriHandler.openUri(subscriptionUrl) })
+            }
 
             // sign-out
             item {

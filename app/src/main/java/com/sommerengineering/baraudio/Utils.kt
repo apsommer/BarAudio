@@ -1,8 +1,6 @@
 package com.sommerengineering.baraudio
 
 import android.content.Context
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import android.speech.tts.TextToSpeech.Engine.KEY_PARAM_VOLUME
 import android.text.format.DateUtils
 import android.util.Log
@@ -52,7 +50,6 @@ const val parsingError = "Error parsing message"
 
 // datastore
 const val localCache = "localCache"
-const val versionKey = "version"
 const val tokenKey = "token"
 const val voiceKey = "voice"
 const val speedKey = "speed"
@@ -70,6 +67,7 @@ const val uiModeLightDescription = "Light"
 // billing, configure in play store
 const val productId = "premium"
 const val freeTrial = "free-trial"
+const val subscriptionUrl = "https://play.google.com/store/account/subscriptions?sku=" + productId + "&package=" + BuildConfig.APPLICATION_ID
 
 fun beautifyTimestamp(timestamp: String): String {
 

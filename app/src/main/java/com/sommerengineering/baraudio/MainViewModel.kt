@@ -393,6 +393,8 @@ class MainViewModel(
         else MaterialTheme.colorScheme.primaryContainer
 }
 
+// animations
 const val deleteAllFadeDurationMillis = 1000
 
-val buttonBorderSize = 96.dp
+// size
+val circularButtonSize = 96.dp
