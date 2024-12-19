@@ -2,6 +2,7 @@ package com.sommerengineering.baraudio
 
 import android.Manifest
 import android.app.NotificationChannel
+import android.app.NotificationChannelGroup
 import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
@@ -28,6 +29,8 @@ import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.appupdate.AppUpdateOptions
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.sommerengineering.baraudio.theme.AppTheme
 import org.koin.android.ext.android.get
 import org.koin.androidx.compose.koinViewModel
@@ -96,27 +99,37 @@ class MainActivity : ComponentActivity() {
         registerForActivityResult(
             ActivityResultContracts.RequestPermission()) { isGranted ->
                 if (isGranted) { initNotificationChannel() }
-                else { /** todo ui that explains this permission is required to run app */ }
+                else { /** ui that explains this permission is required to run app */ }
             }
 
     private fun initNotificationChannel() {
 
-        // build channel
-        val id = getString(R.string.notification_channel_id)
-        val name = getString(R.string.notification_channel_name)
-        val description = getString(R.string.notification_channel_description)
-        val importance = NotificationManager.IMPORTANCE_DEFAULT // >= DEFAULT to show in status bar
-        val channel = NotificationChannel(id, name, importance)
-        channel.description = description
+        // create channel
+        val channel = NotificationChannel(
+            getString(R.string.notification_channel_id),
+            getString(R.string.notification_channel_name),
+            NotificationManager.IMPORTANCE_DEFAULT) // >= DEFAULT to show in status bar
 
-        // todo channel group shown as "other" in settings, change this to something better
+        channel.description =
+            getString(R.string.notification_channel_description)
+
+        // assign group
+        val groupId = getString(R.string.notification_channel_group_id)
+        channel.group = groupId
 
         // todo set system-wide category for do not disturb visibility
         //  https://developer.android.com/develop/ui/views/notifications/build-notification#system-category
 
-        // register channel with system
-        val notificationManager = getSystemService(Service.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.createNotificationChannel(channel)
+        // register with system
+        val notificationManager =
+            getSystemService(Service.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager
+            .createNotificationChannelGroup(
+                NotificationChannelGroup(
+                    groupId,
+                    getString(R.string.notification_channel_group_name)))
+        notificationManager
+            .createNotificationChannel(channel)
 
         logMessage("Notification channel registered")
     }
