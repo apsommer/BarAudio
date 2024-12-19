@@ -34,9 +34,6 @@ class BillingClientImpl(
     val context: Context)
 : BillingClientStateListener, PurchasesUpdatedListener {
 
-    // todo remove Google Developer API? seems for backend only
-    //  https://developer.android.com/google/play/billing/getting-ready#dev-api
-
     // flow billing state
     val billingState = MutableStateFlow(BillingState.Unsubscribed)
 

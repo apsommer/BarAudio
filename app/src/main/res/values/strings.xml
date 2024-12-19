@@ -14,6 +14,7 @@
     <string name="pitch">Pitch</string>
     <string name="ui_mode">Theme</string>
     <string name="system_tts">TTS system settings</string>
+    <string name="system_notification_settings">Notifications</string>
     <string name="how_to_use">How to use</string>
     <string name="about">About</string>
     <string name="privacy">Privacy Policy</string>

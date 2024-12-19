@@ -58,7 +58,7 @@ fun Navigation(
             enterTransition = { fadeIn },
             exitTransition = { fadeOut }) {
 
-        LoginScreen(
+            LoginScreen(
                 onAuthentication = {
                     onAuthentication(
                         context = context,
@@ -70,8 +70,7 @@ fun Navigation(
                         context = context,
                         viewModel = viewModel,
                         controller = controller)
-                }
-            )
+                })
         }
 
         // messages screen

@@ -1,6 +1,7 @@
 package com.sommerengineering.baraudio.settings
 
 import android.content.Intent
+import android.provider.Settings
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -170,6 +171,21 @@ fun SettingsScreen(
                     })
             }
 
+            // notification settings
+            item {
+                LinkSettingItem(
+                    icon = R.drawable.notifications,
+                    title = R.string.system_notification_settings,
+                    onClick = {
+                        with(context) {
+                            startActivity(
+                                Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
+                                    .putExtra(Settings.EXTRA_APP_PACKAGE, BuildConfig.APPLICATION_ID)
+                                    .putExtra(Settings.EXTRA_CHANNEL_ID, getString(R.string.notification_channel_id)))
+                        }
+                    })
+            }
+
             // about
             item {
                 LinkSettingItem(
@@ -197,7 +213,7 @@ fun SettingsScreen(
             // manage subscription
             item {
                 LinkSettingItem(
-                    icon = R.drawable.credit_card_gear,
+                    icon = R.drawable.credit_card,
                     title = R.string.manage_subscription,
                     onClick = { uriHandler.openUri(subscriptionUrl) })
             }

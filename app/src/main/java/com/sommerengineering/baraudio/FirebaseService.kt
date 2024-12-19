@@ -41,9 +41,8 @@ class FirebaseService: FirebaseMessagingService() {
             !isAppOpen // app closed
 
         // note for different user, same device
-        // todo since subscription is per google play user, there is no
-        //  reason for this user id check, db can be simplified to just tokens holding
-        //  timestamp: message ... refactor?
+        // since subscription is per google play user, db could be simplified to just one node of
+        // tokens -> timestamp: message ... leave for now 191224
         val note =
             if (uid != Firebase.auth.currentUser?.uid) {
                 isShowNotification = true

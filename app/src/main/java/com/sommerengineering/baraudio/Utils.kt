@@ -67,7 +67,9 @@ const val uiModeLightDescription = "Light"
 // billing, configure in play store
 const val productId = "premium"
 const val freeTrial = "free-trial"
-const val subscriptionUrl = "https://play.google.com/store/account/subscriptions?sku=" + productId + "&package=" + BuildConfig.APPLICATION_ID
+const val subscriptionUrl =
+    "https://play.google.com/store/account/subscriptions?sku=" +
+    productId + "&package=" + BuildConfig.APPLICATION_ID
 
 fun beautifyTimestamp(timestamp: String): String {
 
