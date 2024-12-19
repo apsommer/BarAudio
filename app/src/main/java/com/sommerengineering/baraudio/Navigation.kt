@@ -117,9 +117,9 @@ fun onAuthentication(
 }
 
 fun onSignOut(
-    controller: NavHostController,
+    context: Context,
     viewModel: MainViewModel,
-    context: Context) {
+    controller: NavHostController) {
 
     // sign-out firebase
     signOut()
@@ -128,8 +128,6 @@ fun onSignOut(
     viewModel.setUiMode(context)
 
     // clear local cache by detaching database listener
-    // todo can remove this if webhook has token instead of uid
-    //  then can simplify further in force update by removing currentUser != null conditional
     getDatabaseReference(messagesNode)
         .removeEventListener(dbListener)
 
@@ -139,7 +137,6 @@ fun onSignOut(
     }
 }
 
-// todo refactor updateManager out of listener, should be attached only once
 fun onForceUpdate(
     context: Context,
     viewModel: MainViewModel,
@@ -175,9 +172,9 @@ fun onForceUpdate(
             // sign out, if needed
             if (Firebase.auth.currentUser != null) {
                 onSignOut(
-                    controller,
-                    viewModel,
-                    context)
+                    context = context,
+                    viewModel = viewModel,
+                    controller = controller)
             }
 
             // launch update flow ui
@@ -186,7 +183,13 @@ fun onForceUpdate(
                 (context as MainActivity).updateLauncher,
                 AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build())
         }
+
         .addOnFailureListener {
+
+            // skip exception log for debug build
+            if (it.message
+                ?.contains("The app is not owned") == true)
+                    { return@addOnFailureListener }
             logException(it)
         }
 }

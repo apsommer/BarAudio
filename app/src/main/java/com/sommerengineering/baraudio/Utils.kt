@@ -21,7 +21,7 @@ const val TAG = "~"
 fun logMessage(msg: String?) = Log.v(TAG, "$msg")
 fun logException(e: Exception?) = Log.e(TAG, "handleException: ${e?.message}", e)
 
-// todo extract to strings.xml
+// todo reconcile with strings.xml
 
 // firebase
 const val databaseUrl = "https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/"
