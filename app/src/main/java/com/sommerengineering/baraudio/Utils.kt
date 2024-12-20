@@ -18,15 +18,20 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+// logs
 const val TAG = "~"
-fun logMessage(msg: String?) = Log.v(TAG, "$msg")
+
+fun logMessage(msg: String?) =
+    Log.v(TAG, "$msg")
+
 fun logException(e: Exception) {
-    
     Log.e(TAG, "handleException: ${e.message}", e)
     Firebase.crashlytics.recordException(e)
 }
 
-fun beautifyTimestamp(timestamp: String): String {
+fun beautifyTimestamp(
+    timestamp: String
+): String {
 
     val isToday = DateUtils.isToday(timestamp.toLong())
 
