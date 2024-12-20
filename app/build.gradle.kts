@@ -5,7 +5,8 @@ plugins {
 
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    id("com.google.gms.google-services") // firebase
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.crashlytics)
 }
 
 // import release upload signing keystore
