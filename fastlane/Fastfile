@@ -1,0 +1,18 @@
+
+update_fastlane
+
+lane :deploy do
+  gradle(
+    task: "bundle",
+    build_type: "release"
+  )
+  upload_to_play_store(
+    track: "alpha",
+    in_app_update_priority: 2, # 5 to force update, else not forced
+    skip_upload_apk: true,
+    skip_upload_metadata: true,
+    skip_upload_changelogs: true,
+    skip_upload_images: true,
+    skip_upload_screenshots: true
+  )
+end

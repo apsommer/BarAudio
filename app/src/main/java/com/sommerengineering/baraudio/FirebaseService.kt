@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
@@ -38,22 +39,29 @@ class FirebaseService: FirebaseMessagingService() {
         // either speak, or show notification
         var isShowNotification =
             Firebase.auth.currentUser == null || // user not signed-in
-            !isAppBackground || // app closed
-            (tts.volume == 0f && !isAppForeground) // app muted and in background
+            !isAppOpen // app closed
 
         // note for different user, same device
-        // todo since subscription is per google play user, there is no
-        //  reason for this user id check, db can be simplified to just tokens holding
-        //  timestamp: message ... refactor?
+        // since subscription is per google play user, db could be simplified to just one node of
+        // tokens -> timestamp: message ... leave for now 191224
         val note =
             if (uid != Firebase.auth.currentUser?.uid) {
                 isShowNotification = true
-                unauthenticatedTimestamp
+                unauthenticatedTimestampNote
             } else { "" }
 
         // either speak, or show notification
-        if (isShowNotification) { showNotification(timestamp, message, note) }
-        else { tts.speak(timestamp, message) }
+        if (isShowNotification) {
+            showNotification(
+                timestamp,
+                message,
+                note)
+
+        } else {
+            tts.speak(
+                timestamp,
+                message)
+        }
     }
 
     private fun showNotification(
@@ -71,16 +79,16 @@ class FirebaseService: FirebaseMessagingService() {
         val pendingIntent= PendingIntent
             .getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
-        // configure options todo update icon color, other styling?
+        // configure options
         val timestampWithNote =
             beautifyTimestamp(timestamp) + note
 
-        val builder = NotificationCompat.Builder(this, getString(R.string.notification_channel_id))
+        val builder = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.drawable.logo_square)
+            .setColor(ContextCompat.getColor(this, R.color.logo_blue))
             .setContentTitle(message)
             .setContentText(timestampWithNote) // collapsed
-            .setStyle(NotificationCompat.BigTextStyle()
-                .bigText(timestampWithNote)) // expanded
+            .setStyle(NotificationCompat.BigTextStyle().bigText(timestampWithNote)) // expanded
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
 
@@ -88,12 +96,12 @@ class FirebaseService: FirebaseMessagingService() {
         NotificationManagerCompat.from(this).notify(
             trimTimestamp(timestamp),
             builder.build())
-
-        // todo check that notifications have appropriate settings:
-        //  importance, sound, etc at minimum levels, else show ui saying it's required
-        //  also put link to system settings somewhere appropriate
-        //  https://developer.android.com/develop/ui/views/notifications/channels#UpdateChannel
     }
+
+    private fun trimTimestamp(timestamp: String) =
+        timestamp
+            .substring(timestamp.length - 9, timestamp.length)
+            .toInt()
 }
 
 fun signOut() =
@@ -104,6 +112,7 @@ fun getDatabaseReference(
     node: String)
 : DatabaseReference {
 
+    // singleton, enable local persistence can only be set once
     if (!isDatabaseInitialized) {
 
         // enable local cache
@@ -122,26 +131,15 @@ fun getDatabaseReference(
         .child(uid)
 }
 
-fun validateToken() {
+fun writeTokenToDatabase() {
 
     val user = Firebase.auth.currentUser ?: return
-    logMessage("Sign-in success with user: ${user.uid}")
+    logMessage("Sign-in success")
+    logMessage("    uid: ${user.uid}")
+    logMessage("  token: $token")
 
-    user
-        .getIdToken(false)
-        .addOnSuccessListener {
-
-            // compare correct cached token with user token (potentially invalid)
-            if (it.token == token) {
-                logMessage("Token already in cache, skipping database write")
-                return@addOnSuccessListener
-            }
-
-            logMessage("Writing user:token pair to database")
-
-            // write user:token pair to database
-            // no write operation occurs if correct token already exists
-            getDatabaseReference(usersNode)
-                .setValue(token)
-        }
+    // write user:token pair to database, no write occurs if correct token already present
+    getDatabaseReference(usersNode)
+        .setValue(token)
 }
+

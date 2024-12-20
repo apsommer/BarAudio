@@ -1,5 +1,0 @@
-*.local
-/venv
-/__pycache__
-/.idea
-admin.json

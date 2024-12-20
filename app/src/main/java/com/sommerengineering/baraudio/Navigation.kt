@@ -1,86 +1,125 @@
 package com.sommerengineering.baraudio
 
 import android.content.Context
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory
+import com.google.android.play.core.appupdate.AppUpdateOptions
+import com.google.android.play.core.install.model.AppUpdateType
+import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.sommerengineering.baraudio.login.LoginScreen
 import com.sommerengineering.baraudio.messages.MessagesScreen
 import com.sommerengineering.baraudio.messages.dbListener
-import com.sommerengineering.baraudio.settings.SettingsScreen
 import org.koin.androidx.compose.koinViewModel
 
 // routes
 const val LoginScreenRoute = "LoginScreen"
-const val MessagesScreenRoute = "AlertScreen"
-const val SettingsScreenRoute = "SettingsScreen"
+const val MessagesScreenRoute = "MessagesScreen"
 
 @Composable
 fun Navigation(
     controller: NavHostController) {
 
-    // inject viewmodel
     val context = LocalContext.current
     val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
+
+    // animate screen transitions
+    val fadeIn = fadeIn(spring(stiffness = 10f))
+    val fadeOut = fadeOut(spring(stiffness = 10f))
+
+    // force update, if needed
+    LaunchedEffect(Unit){
+        onForceUpdate(
+            context,
+            viewModel,
+            controller)
+    }
 
     NavHost(
         navController = controller,
         startDestination = getStartDestination()) {
+
+        // login screen
         composable(
-            route = LoginScreenRoute) {
+            route = LoginScreenRoute,
+            enterTransition = { fadeIn },
+            exitTransition = { fadeOut }) {
+
             LoginScreen(
                 onAuthentication = {
                     onAuthentication(
-                        controller = controller,
+                        context = context,
                         viewModel = viewModel,
-                        context = context) })
-        }
-        composable(
-            route = MessagesScreenRoute) {
-            MessagesScreen(
-                onSettingsClick = {
-                    controller.navigate(SettingsScreenRoute)
+                        controller = controller)
+                },
+                onForceUpdate = {
+                    onForceUpdate(
+                        context = context,
+                        viewModel = viewModel,
+                        controller = controller)
                 })
         }
+
+        // messages screen
         composable(
-            route = SettingsScreenRoute) {
-            SettingsScreen(
-                onBackClicked = { controller.navigateUp() },
+            route = MessagesScreenRoute,
+            enterTransition = { fadeIn },
+            exitTransition = { fadeOut }) {
+
+            MessagesScreen(
                 onSignOut = {
                     onSignOut(
                         controller = controller,
                         viewModel = viewModel,
-                        context = context) })
+                        context = context)
+                })
         }
     }
 }
 
-fun onAuthentication(
-    controller: NavHostController,
-    viewModel: MainViewModel,
-    context: Context) {
+// skip login screen if user already authenticated
+fun getStartDestination() =
 
+    if (Firebase.auth.currentUser != null) {
+        logMessage("Authentication skipped, user already signed-in")
+        logMessage("    uid: ${Firebase.auth.currentUser?.uid}")
+        logMessage("  token: $token")
+        MessagesScreenRoute }
+    else LoginScreenRoute
+
+fun onAuthentication(
+    context: Context,
+    viewModel: MainViewModel,
+    controller: NavHostController) {
+
+    // reset dark mode to previous preference, if available
     viewModel.setUiMode(context)
 
-    (context as MainActivity).requestRealtimeNotificationPermission()
+    // request notification permission, does nothing if already granted
+    (context as MainActivity).requestNotificationPermission()
 
-    validateToken()
+    // write user:token pair to database, if needed
+    writeTokenToDatabase()
 
-    // todo check billing status
-
+    // navigate to messages screen
     controller.navigate(MessagesScreenRoute) {
         popUpTo(LoginScreenRoute) { inclusive = true }
     }
 }
 
 fun onSignOut(
-    controller: NavHostController,
+    context: Context,
     viewModel: MainViewModel,
-    context: Context) {
+    controller: NavHostController) {
 
     // sign-out firebase
     signOut()
@@ -98,18 +137,60 @@ fun onSignOut(
     }
 }
 
-// skip login screen if user already authenticated
-fun getStartDestination() =
+fun onForceUpdate(
+    context: Context,
+    viewModel: MainViewModel,
+    controller: NavHostController) {
 
-    if (Firebase.auth.currentUser != null) {
-        logMessage("Authentication skipped, user signed-in: ${Firebase.auth.currentUser?.uid}")
-        MessagesScreenRoute }
-    else LoginScreenRoute
+    val updateManager =
+        AppUpdateManagerFactory
+            .create(context)
 
+    // request update from play store
+    updateManager
+        .appUpdateInfo
+        .addOnSuccessListener { updateInfo ->
 
+            // check if update available
+            val availability = updateInfo.updateAvailability()
+            if (availability == UpdateAvailability.UNKNOWN ||
+                availability == UpdateAvailability.UPDATE_NOT_AVAILABLE) {
+                    logMessage("Update not available")
+                    return@addOnSuccessListener
+            }
 
+            val priority = updateInfo.updatePriority()
+            logMessage("Update available with priority: $priority")
+            if (priority < 5) {
+                logMessage("  Not forced, continue normal app behavior ...")
+                return@addOnSuccessListener
+            }
 
+            logMessage("  Force update, block app until update installed")
+            isUpdateRequired = true
 
+            // sign out, if needed
+            if (Firebase.auth.currentUser != null) {
+                onSignOut(
+                    context = context,
+                    viewModel = viewModel,
+                    controller = controller)
+            }
 
+            // launch update flow ui
+            updateManager.startUpdateFlowForResult(
+                updateInfo,
+                (context as MainActivity).updateLauncher,
+                AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build())
+        }
 
+        .addOnFailureListener {
+
+            // skip exception log for debug build
+            if (it.message
+                ?.contains("The app is not owned") == true)
+                    { return@addOnFailureListener }
+            logException(it)
+        }
+}
 

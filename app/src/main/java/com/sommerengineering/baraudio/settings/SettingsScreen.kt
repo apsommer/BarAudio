@@ -1,20 +1,16 @@
 package com.sommerengineering.baraudio.settings
 
 import android.content.Intent
-import androidx.compose.foundation.clickable
+import android.provider.Settings
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,44 +20,44 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.sommerengineering.baraudio.BuildConfig
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
+import com.sommerengineering.baraudio.aboutTitle
 import com.sommerengineering.baraudio.aboutUrl
+import com.sommerengineering.baraudio.channelId
+import com.sommerengineering.baraudio.howToUseTitle
 import com.sommerengineering.baraudio.howToUseUrl
-import com.sommerengineering.baraudio.messages.deleteAllMessages
+import com.sommerengineering.baraudio.manageSubscriptionTitle
+import com.sommerengineering.baraudio.notificationsTitle
+import com.sommerengineering.baraudio.pitchTitle
+import com.sommerengineering.baraudio.privacyTitle
 import com.sommerengineering.baraudio.privacyUrl
+import com.sommerengineering.baraudio.queueBehaviorTitle
+import com.sommerengineering.baraudio.signOutTitle
+import com.sommerengineering.baraudio.speedTitle
+import com.sommerengineering.baraudio.subscriptionUrl
+import com.sommerengineering.baraudio.systemTtsPackageName
+import com.sommerengineering.baraudio.systemTtsTitle
+import com.sommerengineering.baraudio.termsTitle
 import com.sommerengineering.baraudio.termsUrl
+import com.sommerengineering.baraudio.uiModeTitle
+import com.sommerengineering.baraudio.voiceTitle
+import com.sommerengineering.baraudio.webhookTitle
 import org.koin.androidx.compose.koinViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    onBackClicked: () -> Unit,
     onSignOut: () -> Unit) {
 
-    // inject viewmodel
     val context = LocalContext.current
     val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
     val uriHandler = LocalUriHandler.current
 
-    Scaffold(
-
-        topBar = {
-            TopAppBar(
-                navigationIcon = {
-                    IconButton(onClick = { onBackClicked() }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = null)
-                }},
-                title = {
-                    Text(
-                        text = stringResource(R.string.settings))
-                })
-        }) { padding ->
+    Scaffold { padding ->
 
         var isShowVoiceDialog by remember { mutableStateOf(false) }
 
@@ -73,7 +69,7 @@ fun SettingsScreen(
             item {
                 LinkSettingItem(
                     icon = R.drawable.browser,
-                    title = R.string.how_to_use,
+                    title = howToUseTitle,
                     onClick = { uriHandler.openUri(howToUseUrl) })
             }
 
@@ -81,8 +77,9 @@ fun SettingsScreen(
             item {
                 DialogSettingItem(
                     icon = R.drawable.webhook,
-                    title = R.string.webhook,
-                    description = viewModel.webhookUrl) {
+                    title = webhookTitle,
+                    description = viewModel.webhookUrl,
+                    onClick = { viewModel.saveToWebhookClipboard(context) }) {
 
                     IconButton(
                         onClick = { viewModel.saveToWebhookClipboard(context) }) {
@@ -90,8 +87,6 @@ fun SettingsScreen(
                             painter = painterResource(R.drawable.copy),
                             contentDescription = null)
                     }
-
-                    // todo toast for older api
                 }
             }
 
@@ -99,8 +94,9 @@ fun SettingsScreen(
             item {
                 DialogSettingItem (
                     icon = R.drawable.voice,
-                    title = R.string.voice,
-                    description = viewModel.voiceDescription.value) {
+                    title = voiceTitle,
+                    description = viewModel.voiceDescription,
+                    onClick = { isShowVoiceDialog = true }) {
 
                     IconButton(
                         onClick = { isShowVoiceDialog = true }) {
@@ -127,8 +123,8 @@ fun SettingsScreen(
             item {
                 SliderSettingItem(
                     icon = R.drawable.speed,
-                    title = R.string.speed,
-                    description = viewModel.speedDescription.value) {
+                    title = speedTitle,
+                    description = viewModel.speedDescription) {
 
                         SliderImpl(
                             initPosition = viewModel.getSpeed(),
@@ -141,8 +137,8 @@ fun SettingsScreen(
             item {
                 SliderSettingItem(
                     icon = R.drawable.pitch,
-                    title = R.string.pitch,
-                    description = viewModel.pitchDescription.value) {
+                    title = pitchTitle,
+                    description = viewModel.pitchDescription) {
 
                         SliderImpl(
                             initPosition = viewModel.getPitch(),
@@ -155,8 +151,8 @@ fun SettingsScreen(
             item {
                 SwitchSettingItem(
                     icon = R.drawable.text_to_speech,
-                    title = R.string.queue_behavior,
-                    description = viewModel.queueBehaviorDescription.value) {
+                    title = queueBehaviorTitle,
+                    description = viewModel.queueDescription) {
 
                         Switch(
                             checked = viewModel.isQueueAdd(),
@@ -168,7 +164,7 @@ fun SettingsScreen(
             item {
                 SwitchSettingItem(
                     icon = R.drawable.contrast,
-                    title = R.string.ui_mode,
+                    title = uiModeTitle,
                     description = viewModel.uiModeDescription.value) {
 
                         Switch(
@@ -181,12 +177,27 @@ fun SettingsScreen(
             item {
                 LinkSettingItem(
                     icon = R.drawable.settings,
-                    title = R.string.system_tts,
+                    title = systemTtsTitle,
                     onClick = {
                         with(context) {
                             startActivity(
-                                Intent(getString(R.string.system_tts_settings_package_name))
+                                Intent(systemTtsPackageName)
                                     .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                        }
+                    })
+            }
+
+            // notification settings
+            item {
+                LinkSettingItem(
+                    icon = R.drawable.notifications_active,
+                    title = notificationsTitle,
+                    onClick = {
+                        with(context) {
+                            startActivity(
+                                Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
+                                    .putExtra(Settings.EXTRA_APP_PACKAGE, BuildConfig.APPLICATION_ID)
+                                    .putExtra(Settings.EXTRA_CHANNEL_ID, channelId))
                         }
                     })
             }
@@ -195,7 +206,7 @@ fun SettingsScreen(
             item {
                 LinkSettingItem(
                     icon = R.drawable.browser,
-                    title = R.string.about,
+                    title = aboutTitle,
                     onClick = { uriHandler.openUri(aboutUrl) })
             }
 
@@ -203,7 +214,7 @@ fun SettingsScreen(
             item {
                 LinkSettingItem(
                     icon = R.drawable.browser,
-                    title = R.string.privacy,
+                    title = privacyTitle,
                     onClick = { uriHandler.openUri(privacyUrl) })
             }
 
@@ -211,19 +222,35 @@ fun SettingsScreen(
             item {
                 LinkSettingItem(
                     icon = R.drawable.browser,
-                    title = R.string.terms,
+                    title = termsTitle,
                     onClick = { uriHandler.openUri(termsUrl) })
             }
 
-            // todo manage subscription
-            //  https://developer.android.com/google/play/billing/subscriptions#link-specific
+            // manage subscription
+            item {
+                LinkSettingItem(
+                    icon = R.drawable.credit_card_gear,
+                    title = manageSubscriptionTitle,
+                    onClick = { uriHandler.openUri(subscriptionUrl) })
+            }
 
             // sign-out
             item {
                 LinkSettingItem(
                     icon = R.drawable.sign_out,
-                    title = R.string.sign_out,
+                    title = signOutTitle,
                     onClick = { onSignOut() })
+            }
+
+            // version code
+            item {
+                Text(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(start = 24.dp, end = 24.dp, bottom = 24.dp),
+                    text = BuildConfig.VERSION_NAME,
+                    textAlign = TextAlign.End,
+                    style = MaterialTheme.typography.bodySmall)
             }
         }
     }

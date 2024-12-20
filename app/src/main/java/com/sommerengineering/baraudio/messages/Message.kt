@@ -3,7 +3,7 @@ package com.sommerengineering.baraudio.messages
 data class Message(
     var timestamp: String,
     var message: String,
-    var originImageId: Int?
+    var origin: String
 )
 
 // https://www.tradingview.com/support/solutions/43000529348-about-webhooks/

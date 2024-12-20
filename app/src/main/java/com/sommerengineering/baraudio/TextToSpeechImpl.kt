@@ -3,10 +3,13 @@ package com.sommerengineering.baraudio
 import android.content.Context
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
+import android.speech.tts.Voice
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.bundle.bundleOf
+import kotlinx.coroutines.flow.MutableStateFlow
 
 class TextToSpeechImpl(
     private val context: Context
@@ -15,16 +18,17 @@ class TextToSpeechImpl(
     private val textToSpeech = TextToSpeech(context, this)
 
     val voice by lazy { mutableStateOf(textToSpeech.voice) }
-    var speed by mutableStateOf(1f)
-    var pitch by mutableStateOf(1f)
+    var speed by mutableFloatStateOf(1f)
+    var pitch by mutableFloatStateOf(1f)
     var isQueueAdd by mutableStateOf(true)
-    var volume by mutableStateOf(0f)
+    var volume by mutableFloatStateOf(0f)
 
-    var isInitialized = false
+    var isInit = MutableStateFlow(false)
+
     override fun onInit(status: Int) {
 
         if (status != TextToSpeech.SUCCESS) { return }
-        isInitialized = true
+        isInit.value = true
 
         voice.value =
             readFromDataStore(context, voiceKey)
@@ -36,7 +40,7 @@ class TextToSpeechImpl(
 
         speed = readFromDataStore(context, speedKey)?.toFloat() ?: 1f
         pitch = readFromDataStore(context, pitchKey)?.toFloat() ?: 1f
-        isQueueAdd = readFromDataStore(context, isQueueFlushKey).toBoolean()
+        isQueueAdd = readFromDataStore(context, isQueueFlushKey)?.toBooleanStrictOrNull() ?: true
 
         // attach progress listener to clear notifications
         textToSpeech.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
@@ -51,7 +55,7 @@ class TextToSpeechImpl(
         })
     }
 
-    fun getVoices() =
+    fun getVoices(): Set<Voice> =
         textToSpeech.voices
 
     fun speak(
@@ -59,7 +63,7 @@ class TextToSpeechImpl(
         message: String,
         isForceVolume: Boolean = false) {
 
-        if (message.isBlank() || !isInitialized) return
+        if (message.isBlank() || !isInit.value) return
 
         // config engine params
         textToSpeech.setVoice(voice.value)

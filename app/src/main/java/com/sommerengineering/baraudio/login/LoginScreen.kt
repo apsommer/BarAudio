@@ -25,14 +25,13 @@ import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
+import com.sommerengineering.baraudio.circularButtonSize
 import org.koin.androidx.compose.koinViewModel
-
-// todo collect and move to utils?
-val buttonBorderSize = 96.dp
 
 @Composable
 fun LoginScreen (
     onAuthentication: () -> Unit,
+    onForceUpdate: () -> Unit,
     modifier: Modifier = Modifier) {
 
     // inject viewmodel
@@ -60,8 +59,6 @@ fun LoginScreen (
                     contentDescription = null)
             }
 
-            // HorizontalDivider()
-
             // google
             Column(
                 modifier = Modifier
@@ -70,47 +67,47 @@ fun LoginScreen (
 
                 Box(
                     modifier = Modifier
-                        .size(buttonBorderSize)
+                        .size(circularButtonSize)
                         .clip(CircleShape)
                         .clickable {
                             signInWithGoogle(
                                 context = context,
-                                onAuthentication = onAuthentication)
+                                onAuthentication = onAuthentication,
+                                onForceUpdate = onForceUpdate)
                         }
                         .border(
                             border = BorderStroke(
                                 width = 1.dp,
                                 color = MaterialTheme.colorScheme.onSurface),
-                            shape = CircleShape
-                        )) {
+                            shape = CircleShape)) {
 
                     Image(
                         modifier = Modifier
-                            .size(buttonBorderSize),
-                        painter = painterResource(viewModel.getGoogleImageId()),
+                            .size(circularButtonSize),
+                        painter = painterResource(R.drawable.google),
                         contentDescription = null)
                 }
 
                 Spacer(
                     modifier = Modifier
-                        .height(buttonBorderSize / 2))
+                        .height(circularButtonSize / 2))
 
                 // github
                 Box(
                     modifier = Modifier
-                        .size(buttonBorderSize)
+                        .size(circularButtonSize)
                         .clip(CircleShape)
                         .clickable {
                             signInWithGitHub(
                                 context = context,
-                                onAuthentication = onAuthentication)
+                                onAuthentication = onAuthentication,
+                                onForceUpdate = onForceUpdate)
                         }
                         .border(
                             border = BorderStroke(
                                 width = 1.dp,
                                 color = MaterialTheme.colorScheme.onSurface),
-                            shape = CircleShape
-                        )) {
+                            shape = CircleShape)) {
 
                     Box(
                         modifier = Modifier

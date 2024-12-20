@@ -1,3 +1,4 @@
+import java.io.FileInputStream
 import java.util.Properties
 
 plugins {
@@ -7,16 +8,33 @@ plugins {
     id("com.google.gms.google-services") // firebase
 }
 
+// import release upload signing keystore
+val keystoreProperties = Properties()
+keystoreProperties.load(
+    FileInputStream(
+        rootProject.file(
+            rootProject.projectDir.absolutePath + "/upload/keystore.properties")))
+
 android {
+
+    signingConfigs {
+        create("release") {
+            storeFile = file(keystoreProperties["storeFile"] as String)
+            storePassword = keystoreProperties["storePassword"] as String
+            keyAlias = keystoreProperties["keyAlias"] as String
+            keyPassword = keystoreProperties["keyPassword"] as String
+        }
+    }
+
     namespace = "com.sommerengineering.baraudio"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.sommerengineering.baraudio"
         minSdk = 28
-        targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        targetSdk = 35
+        versionCode = 41 // increment for each release
+        versionName = "2.0.181224a" // major.minor.date
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -33,8 +51,7 @@ android {
         buildConfigField(
             type = "String",
             name = "googleSignInWebClientId",
-            value = googleSignInWebClientId
-        )
+            value = googleSignInWebClientId)
     }
 
     buildTypes {
@@ -56,6 +73,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 
@@ -114,7 +132,6 @@ dependencies {
 
     // koin
     implementation(libs.koin.androidx.compose)
-    // implementation(libs.koin.androidx.compose.navigation) // todo remove, not necessary?
 
     // firebase
     implementation(platform(libs.firebase.bom))
@@ -127,14 +144,14 @@ dependencies {
     // preferences datastore
     implementation(libs.androidx.datastore.preferences)
 
-    // coil todo can remove if choose sweep feature instead?
-    implementation(libs.coil.compose)
-    implementation(libs.coil.network.okhttp)
-
     // splash screen
     implementation(libs.androidx.core.splashscreen)
 
     // billing
     implementation(libs.billing)
     implementation(libs.billing.ktx)
+
+    // play in-app update
+    implementation(libs.app.update)
+    implementation(libs.app.update.ktx)
 }

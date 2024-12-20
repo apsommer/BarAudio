@@ -5,18 +5,19 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
 import android.speech.tts.Voice
+import android.widget.Toast
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
-import com.sommerengineering.baraudio.login.BillingClientImpl
 import com.sommerengineering.baraudio.messages.tradingviewWhitelistIps
 import com.sommerengineering.baraudio.messages.trendspiderWhitelistIp
 import kotlinx.coroutines.CoroutineScope
@@ -28,9 +29,46 @@ import org.json.JSONObject
 import kotlin.math.roundToInt
 
 class MainViewModel(
-    val tts: TextToSpeechImpl,
-    private val repository: Repository
+    val tts: TextToSpeechImpl
 ) : ViewModel() {
+    
+    init {
+        CoroutineScope(Dispatchers.Main).launch {
+            tts.isInit
+                .onEach { if (it) initTtsSettings() }
+                .collect()
+        }
+    }
+
+    lateinit var voices: List<Voice>
+    var voiceDescription by mutableStateOf("")
+    var speedDescription by mutableStateOf("")
+    var pitchDescription by mutableStateOf("")
+    var queueDescription by mutableStateOf("")
+    
+    private fun initTtsSettings() {
+
+        voices =
+            tts.getVoices()
+                .toList()
+                .sortedBy { it.locale.displayName }
+
+        initBeautifulVoiceNames()
+
+        voiceDescription =
+            beautifyVoiceName(
+                tts.voice.value.name)
+
+        speedDescription =
+            tts.speed.toString()
+
+        pitchDescription =
+            tts.pitch.toString()
+
+        queueDescription =
+            if (tts.isQueueAdd) queueBehaviorAddDescription
+            else queueBehaviorFlushDescription
+    }
 
     // webhook
     val webhookUrl by lazy { webhookBaseUrl + Firebase.auth.currentUser?.uid }
@@ -40,51 +78,58 @@ class MainViewModel(
         val clipboardManager = context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
         val clip = ClipData.newPlainText("", webhookUrl)
         clipboardManager.setPrimaryClip(clip)
-    }
 
+        // toast for older api
+        if (31 > android.os.Build.VERSION.SDK_INT) {
+            Toast.makeText(
+                context,
+                webhookUrl,
+                Toast.LENGTH_SHORT)
+                .show()
+        }
+    }
+    
     // voice
-    val voices by lazy {
-        tts.getVoices()
-            .toList()
-            .sortedBy { it.locale.displayName }
-    }
-
-    val voiceDescription by lazy {
-        mutableStateOf(
-            beautifyVoiceName(
-                tts.voice.value.name))
-    }
-
     fun setVoice(
         context: Context,
         voice: Voice) {
 
         tts.voice.value = voice
         writeToDataStore(context, voiceKey, voice.name)
-        voiceDescription.value = beautifyVoiceName(voice.name)
+        voiceDescription = beautifyVoiceName(voice.name)
         speakLastMessage()
     }
 
-    fun beautifyVoiceName(
-        name: String): String {
+    private fun initBeautifulVoiceNames() {
 
-        val map = HashMap<String, String>()
-
-        // group voices by language/country
-        val grouped = voices
-            .groupBy { it.locale.displayName }
-
-        // iterate through groups, add roman numerals to display name
-        grouped.keys.forEach { languageCountry ->
-
-            val voices = grouped[languageCountry]
-            voices?.forEachIndexed { i, voice ->
-                map[voice.name] = enumerateVoices(voice, i)
+        // group voices by combined language/country
+        val groupedVoices = voices
+            .groupBy {
+                it.locale.displayName
             }
-        }
 
-        return map[name] ?: ""
+        // add roman numeral to display name
+        groupedVoices.keys
+            .forEach { languageCountryGroup ->
+
+                val voices =
+                    groupedVoices[languageCountryGroup]
+                        ?: return@forEach
+
+                voices
+                    .forEachIndexed { i, voice ->
+                        beautifulVoiceNames[voice.name] = enumerateVoices(voice, i)
+                    }
+            }
     }
+
+    private val beautifulVoiceNames =
+        hashMapOf<String, String>()
+
+    fun beautifyVoiceName(name: String) =
+        beautifulVoiceNames[name] ?: ""
+
+
 
     private fun enumerateVoices(
         voice: Voice,
@@ -113,7 +158,7 @@ class MainViewModel(
         if (number == 18) romanNumeral = "XIX"
         if (number == 19) romanNumeral = "XX"
 
-        return "$displayName \u2022 Voice $romanNumeral"
+        return "$displayName • Voice $romanNumeral"
     }
 
     fun getVoiceIndex() =
@@ -124,12 +169,7 @@ class MainViewModel(
     // speed
     fun getSpeed() =
         tts.speed
-
-    val speedDescription by lazy {
-        mutableStateOf(
-            tts.speed.toString())
-    }
-
+    
     fun setSpeed(
         context: Context,
         rawSpeed: Float) {
@@ -139,18 +179,13 @@ class MainViewModel(
 
         tts.speed = selectedSpeed
         writeToDataStore(context, speedKey, selectedSpeed.toString())
-        speedDescription.value = selectedSpeed.toString()
+        speedDescription = selectedSpeed.toString()
     }
 
     // pitch
     fun getPitch() =
         tts.pitch
-
-    val pitchDescription by lazy {
-        mutableStateOf(
-            tts.pitch.toString())
-    }
-
+    
     fun setPitch(
         context: Context,
         rawPitch: Float) {
@@ -160,7 +195,7 @@ class MainViewModel(
 
         tts.pitch = selectedPitch
         writeToDataStore(context, pitchKey, selectedPitch.toString())
-        pitchDescription.value = selectedPitch.toString()
+        pitchDescription = selectedPitch.toString()
     }
 
     fun speakLastMessage() {
@@ -195,13 +230,7 @@ class MainViewModel(
     // queue behavior
     fun isQueueAdd() =
         tts.isQueueAdd
-
-    val queueBehaviorDescription by lazy {
-        mutableStateOf(
-            if (tts.isQueueAdd) queueBehaviorAddDescription
-            else queueBehaviorFlushDescription)
-    }
-
+    
     fun setIsQueueAdd(
         context: Context,
         isChecked: Boolean) {
@@ -209,7 +238,7 @@ class MainViewModel(
         tts.isQueueAdd = isChecked
         writeToDataStore(context, isQueueFlushKey, isChecked.toString())
 
-        queueBehaviorDescription.value =
+        queueDescription =
             if (tts.isQueueAdd) queueBehaviorAddDescription
             else queueBehaviorFlushDescription
     }
@@ -245,7 +274,7 @@ class MainViewModel(
     }
 
     // billing client, purchase subscription flow ui triggered by mute button
-    lateinit var billing: BillingClientImpl
+    private lateinit var billing: BillingClientImpl
 
     fun initBilling(
         billingClientImpl: BillingClientImpl) {
@@ -257,12 +286,32 @@ class MainViewModel(
         val context = billing.context
 
         // listen to subscription status
-        CoroutineScope(Dispatchers.IO).launch {
-            billing.isSubscriptionPurchased
+        CoroutineScope(Dispatchers.Main).launch {
+            billing.billingState
                 .onEach {
-                    if (it) {
-                        tts.volume = readFromDataStore(context, volumeKey)?.toFloat() ?: 1f
-                        isMute = tts.volume == 0f
+                    when (it) {
+
+                        // show spinner
+                        BillingState.Loading -> {
+                            shouldShowSpinner = true
+                        }
+
+                        BillingState.NewSubscription -> {
+                            setMute(context, false)
+                            this@MainViewModel.speakLastMessage()
+                        }
+
+                        BillingState.Subscribed -> {
+                            tts.volume = readFromDataStore(context, volumeKey)?.toFloat() ?: 1f
+                            isMute = tts.volume == 0f
+                        }
+
+                        BillingState.Unsubscribed, BillingState.Error -> { }
+                    }
+
+                    // hide spinner
+                    if (it != BillingState.Loading) {
+                        shouldShowSpinner = false
                     }
                 }
                 .collect()
@@ -270,25 +319,35 @@ class MainViewModel(
     }
 
     // mute
+    var shouldShowSpinner by mutableStateOf(false)
     var isMute by mutableStateOf(true)
 
-    fun toggleMute(context: Context) =
-        setMute(context, !isMute)
-
-    fun setMute(
-        context: Context,
-        newIsMute: Boolean) {
+    fun toggleMute(
+        context: Context) {
 
         // unmute only allowed for paid user
-        if (!newIsMute && !billing.isSubscriptionPurchased.value) {
+        val isUserPaid =
+            billing.billingState.value == BillingState.NewSubscription ||
+            billing.billingState.value == BillingState.Subscribed
+
+        if (isMute && !isUserPaid) {
+
             billing.launchBillingFlowUi(context)
             return
         }
 
-        isMute = newIsMute
+        setMute(context, !isMute)
+    }
+
+    private fun setMute(
+        context: Context,
+        newMute: Boolean) {
+
+        isMute = newMute
 
         if (isMute) { tts.volume = 0f }
         else { tts.volume = 1f }
+
         if (isMute && tts.isSpeaking()) { tts.stop() }
 
         writeToDataStore(context, volumeKey, tts.volume.toString())
@@ -296,17 +355,13 @@ class MainViewModel(
 
     // images //////////////////////////////////////////////////////////////////////////////////////
 
-    fun getGoogleImageId() =
-        if (isDarkMode.value) R.drawable.google_dark
-        else R.drawable.google_light
-
     fun getGitHubImageId() =
         if (isDarkMode.value) R.drawable.github_light
         else R.drawable.github_dark
 
-    fun getFabIconId() =
-        if (isMute) R.drawable.volume_off
-        else R.drawable.volume_on
+    fun getBackgroundId() =
+        if (isDarkMode.value) R.drawable.background_skyline_dark
+        else R.drawable.background_skyline
 
     fun getOriginImageId(
         origin: String): Int? =
@@ -332,3 +387,9 @@ class MainViewModel(
         if (isMute) MaterialTheme.colorScheme.surfaceVariant
         else MaterialTheme.colorScheme.primaryContainer
 }
+
+// animations
+const val deleteAllFadeDurationMillis = 1000
+
+// size
+val circularButtonSize = 96.dp

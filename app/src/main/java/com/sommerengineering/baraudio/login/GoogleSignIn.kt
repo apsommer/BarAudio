@@ -9,22 +9,21 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.sommerengineering.baraudio.BuildConfig
-import com.sommerengineering.baraudio.isInternetConnected
+import com.sommerengineering.baraudio.isUpdateRequired
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 fun signInWithGoogle (
     context: Context,
-    onAuthentication: () -> Unit) {
+    onAuthentication: () -> Unit,
+    onForceUpdate: () -> Unit) {
 
-    // todo use this bottom ui in production?
-    // display ui with bottom sheet and progress bar
-//    val signInOptions = GetGoogleIdOption.Builder()
-//        .setFilterByAuthorizedAccounts(true) // false to initiate sign-up flow
-//        .setServerClientId(BuildConfig.googleSignInWebClientId)
-//        .setAutoSelectEnabled(true)
-//        .build()
+    // block sign-in if app update required
+    if (isUpdateRequired) {
+        onForceUpdate()
+        return
+    }
 
     // display ui with modal dialog
     val signInOptions = GetSignInWithGoogleOption
@@ -40,11 +39,7 @@ fun signInWithGoogle (
         .addCredentialOption(signInOptions)
         .build()
 
-    // todo refactor to LaunchedEffect
     coroutine.launch {
-
-        // todo observe to connection status app-wide
-        if (!isInternetConnected(context)) return@launch
 
         // request credential
         val credential = credentialManager

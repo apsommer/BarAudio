@@ -1,27 +1,30 @@
 package com.sommerengineering.baraudio.messages
 
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
+import androidx.compose.material3.DrawerDefaults
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SwipeToDismissBox
-import androidx.compose.material3.rememberSwipeToDismissBoxState
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -29,105 +32,106 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
-import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.logMessage
-import com.sommerengineering.baraudio.login.BillingClientImpl
-import com.sommerengineering.baraudio.login.buttonBorderSize
+import com.sommerengineering.baraudio.settings.SettingsScreen
+import com.sommerengineering.baraudio.theme.uiModeFadeTimeMillis
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
-import org.koin.compose.koinInject
 
 @Composable
 fun MessagesScreen(
-    onSettingsClick: () -> Unit) {
+    onSignOut: () -> Unit) {
 
-    // init
     val context = LocalContext.current
+    val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
     val messages = remember { mutableStateListOf<Message>() }
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val listState = rememberLazyListState()
     val coroutine = rememberCoroutineScope()
-    val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
 
-    LaunchedEffect(Unit) {
-
-        // todo dev: launch to settings
-//        coroutine.launch {
-//            delay(100)
-//            onSettingsClick.invoke()
-//        }
-
-        // listen to database writes
-        listenToDatabaseWrites(
-            messages,
-            viewModel,
-            listState,
-            coroutine)
-    }
-
-    Scaffold(
-
-        // top bar
-        topBar = {
-            MessagesTopBar(
-                onSettingsClick = onSettingsClick,
-                messages = messages)
-        },
-
-        // mute button
-        floatingActionButton = {
-            FloatingActionButton (
-                modifier = Modifier
-                    .size(buttonBorderSize)
-                    .border(
-                        border = BorderStroke(
-                            width = 1.dp,
-                            color = viewModel.getFabIconColor()),
-                        shape = CircleShape),
-                containerColor = viewModel.getFabBackgroundColor(),
-                shape = CircleShape,
-                onClick = { viewModel.toggleMute(context) }) {
-                Icon(
-                    modifier = Modifier.size(buttonBorderSize / 2),
-                    painter = painterResource(viewModel.getFabIconId()),
-                    tint = viewModel.getFabIconColor(),
-                    contentDescription = null)
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet {
+                SettingsScreen(
+                    onSignOut = onSignOut)
             }
+        },
+        gesturesEnabled = true,
+        scrimColor = DrawerDefaults.scrimColor.copy(
+            alpha = 0.5f)) {
+
+        // listen to database
+        LaunchedEffect(Unit) {
+            listenToDatabase(
+                messages,
+                listState,
+                coroutine)
         }
 
-    ) { padding ->
+        Scaffold(
 
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)) {
+            // top bar
+            topBar = {
+                MessagesTopBar(
+                    onSettingsClick = {
+                        coroutine.launch {
+                            drawerState.open()
+                        }
+                    },
+                    messages = messages)
+            },
 
-            // background image
-            Column(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)) {
-                Image(
-                    painter = painterResource(R.drawable.background),
-                    contentDescription = null)
+            // fab, mute button
+            floatingActionButton = {
+                MessagesFloatingActionButton(
+                    context = context,
+                    viewModel = viewModel)
             }
 
-            // message list
-            LazyColumn(
-                state = listState) {
-                items(
-                    items = messages,
-                    key = { it.timestamp }) { message ->
+        ) { padding ->
 
-                    SwipeToDismissBox(
-                        state = rememberSwipeToDismissBoxState(
-                            confirmValueChange = {
-                                swipeToDelete(
-                                    messages = messages,
-                                    message = message,
-                                    position = it)
-                            }),
-                        modifier = Modifier.animateItem(),
-                        backgroundContent = { }) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)) {
+
+                // background image
+                Image(
+                    modifier = Modifier
+                        .padding(start = 24.dp, end = 24.dp, bottom = 64.dp)
+                        .align(Alignment.Center),
+                    painter = painterResource(viewModel.getBackgroundId()),
+                    contentDescription = null,
+
+                    // fade to invisible after 5 messages
+                    alpha = animateFloatAsState(
+                        targetValue =
+                            if (messages.isEmpty()) { 1f }
+                            else { (1 - 0.2 * messages.size).toFloat() },
+                        animationSpec =
+                            tween(uiModeFadeTimeMillis),
+                        label = "")
+                        .value)
+
+                // message list
+                LazyColumn(
+                    state = listState) {
+                    items(
+                        items = messages,
+                        key = { it.timestamp }) { message ->
+
+                        // highlight recent messages
+                        var isRecent by remember { mutableStateOf(true) }
+                        isRecent  = 1000 * 60 > System.currentTimeMillis() - message.timestamp.toLong()
 
                         MessageItem(
+                            viewModel = viewModel,
+                            isRecent = isRecent,
+                            modifier = Modifier
+                                .animateItem(
+                                    fadeInSpec = spring(stiffness = Spring.StiffnessVeryLow),
+                                    fadeOutSpec = spring(stiffness = Spring.StiffnessVeryLow),
+                                    placementSpec = spring(stiffness = Spring.StiffnessVeryLow)),
                             message = message)
                     }
                 }
