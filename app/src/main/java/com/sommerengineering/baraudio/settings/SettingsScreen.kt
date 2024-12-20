@@ -229,7 +229,7 @@ fun SettingsScreen(
             // manage subscription
             item {
                 LinkSettingItem(
-                    icon = R.drawable.credit_card,
+                    icon = R.drawable.credit_card_gear,
                     title = manageSubscriptionTitle,
                     onClick = { uriHandler.openUri(subscriptionUrl) })
             }
