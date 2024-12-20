@@ -4,6 +4,7 @@ import android.content.Context
 import android.speech.tts.TextToSpeech.Engine.KEY_PARAM_VOLUME
 import android.text.format.DateUtils
 import android.util.Log
+import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.CoroutineScope
@@ -21,8 +22,6 @@ const val TAG = "~"
 fun logMessage(msg: String?) = Log.v(TAG, "$msg")
 fun logException(e: Exception?) = Log.e(TAG, "handleException: ${e?.message}", e)
 
-// todo reconcile with strings.xml
-
 // firebase
 const val databaseUrl = "https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/"
 const val webhookBaseUrl = "https://us-central1-com-sommerengineering-baraudio.cloudfunctions.net/baraudio?uid="
@@ -38,6 +37,11 @@ const val gitHubProviderId = "github.com"
 const val messageMaxSize = 1000
 
 // notifications
+const val channelId = "42"
+const val channelName = "Webhook"
+const val channelDescription = "Push notifications for incoming webhook"
+const val channelGroupId = "42"
+const val channelGroupName = "Alerts"
 const val isLaunchFromNotification = "isLaunchFromNotification"
 const val uidKey = "uid"
 const val timestampKey = "timestamp"
@@ -58,18 +62,40 @@ const val isQueueFlushKey = "isQueueFlush"
 const val isDarkModeKey = "isDarkMode"
 const val volumeKey = KEY_PARAM_VOLUME
 
-// settings
-const val queueBehaviorFlushDescription = "Play new alerts immediately"
-const val queueBehaviorAddDescription = "Add new alerts to queue"
-const val uiModeDarkDescription = "Dark"
-const val uiModeLightDescription = "Light"
-
 // billing, configure in play store
 const val productId = "premium"
 const val freeTrial = "free-trial"
 const val subscriptionUrl =
     "https://play.google.com/store/account/subscriptions?sku=" +
     productId + "&package=" + BuildConfig.APPLICATION_ID
+
+// settings
+const val systemTtsPackageName = "com.android.settings.TTS_SETTINGS"
+const val howToUseTitle = "How to use"
+const val webhookTitle = "Webhook"
+const val voiceTitle = "Voice"
+const val speedTitle = "Speed"
+const val pitchTitle = "Pitch"
+const val queueBehaviorTitle = "Queue behavior"
+const val uiModeTitle = "Theme"
+const val systemTtsTitle = "TTS system settings"
+const val notificationsTitle = "Notifications"
+const val aboutTitle = "About"
+const val privacyTitle = "Privacy policy"
+const val termsTitle = "Terms and conditions"
+const val manageSubscriptionTitle = "Manage subscription"
+const val signOutTitle = "Sign-out"
+const val queueBehaviorFlushDescription = "Play new alerts immediately"
+const val queueBehaviorAddDescription = "Add new alerts to queue"
+const val uiModeDarkDescription = "Dark"
+const val uiModeLightDescription = "Light"
+
+
+
+
+
+
+
 
 fun beautifyTimestamp(timestamp: String): String {
 
@@ -85,10 +111,7 @@ fun beautifyTimestamp(timestamp: String): String {
         .format(Date(timestamp.toLong()))
 }
 
-fun trimTimestamp(timestamp: String) =
-    timestamp
-        .substring(timestamp.length - 9, timestamp.length)
-        .toInt()
+
 
 fun readFromDataStore(
     context: Context,

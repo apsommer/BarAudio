@@ -26,11 +26,27 @@ import com.sommerengineering.baraudio.BuildConfig
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
+import com.sommerengineering.baraudio.aboutTitle
 import com.sommerengineering.baraudio.aboutUrl
+import com.sommerengineering.baraudio.channelId
+import com.sommerengineering.baraudio.howToUseTitle
 import com.sommerengineering.baraudio.howToUseUrl
+import com.sommerengineering.baraudio.manageSubscriptionTitle
+import com.sommerengineering.baraudio.notificationsTitle
+import com.sommerengineering.baraudio.pitchTitle
+import com.sommerengineering.baraudio.privacyTitle
 import com.sommerengineering.baraudio.privacyUrl
+import com.sommerengineering.baraudio.queueBehaviorTitle
+import com.sommerengineering.baraudio.signOutTitle
+import com.sommerengineering.baraudio.speedTitle
 import com.sommerengineering.baraudio.subscriptionUrl
+import com.sommerengineering.baraudio.systemTtsPackageName
+import com.sommerengineering.baraudio.systemTtsTitle
+import com.sommerengineering.baraudio.termsTitle
 import com.sommerengineering.baraudio.termsUrl
+import com.sommerengineering.baraudio.uiModeTitle
+import com.sommerengineering.baraudio.voiceTitle
+import com.sommerengineering.baraudio.webhookTitle
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -53,7 +69,7 @@ fun SettingsScreen(
             item {
                 LinkSettingItem(
                     icon = R.drawable.browser,
-                    title = R.string.how_to_use,
+                    title = howToUseTitle,
                     onClick = { uriHandler.openUri(howToUseUrl) })
             }
 
@@ -61,7 +77,7 @@ fun SettingsScreen(
             item {
                 DialogSettingItem(
                     icon = R.drawable.webhook,
-                    title = R.string.webhook,
+                    title = webhookTitle,
                     description = viewModel.webhookUrl,
                     onClick = { viewModel.saveToWebhookClipboard(context) }) {
 
@@ -78,7 +94,7 @@ fun SettingsScreen(
             item {
                 DialogSettingItem (
                     icon = R.drawable.voice,
-                    title = R.string.voice,
+                    title = voiceTitle,
                     description = viewModel.voiceDescription,
                     onClick = { isShowVoiceDialog = true }) {
 
@@ -107,7 +123,7 @@ fun SettingsScreen(
             item {
                 SliderSettingItem(
                     icon = R.drawable.speed,
-                    title = R.string.speed,
+                    title = speedTitle,
                     description = viewModel.speedDescription) {
 
                         SliderImpl(
@@ -121,7 +137,7 @@ fun SettingsScreen(
             item {
                 SliderSettingItem(
                     icon = R.drawable.pitch,
-                    title = R.string.pitch,
+                    title = pitchTitle,
                     description = viewModel.pitchDescription) {
 
                         SliderImpl(
@@ -135,7 +151,7 @@ fun SettingsScreen(
             item {
                 SwitchSettingItem(
                     icon = R.drawable.text_to_speech,
-                    title = R.string.queue_behavior,
+                    title = queueBehaviorTitle,
                     description = viewModel.queueDescription) {
 
                         Switch(
@@ -148,7 +164,7 @@ fun SettingsScreen(
             item {
                 SwitchSettingItem(
                     icon = R.drawable.contrast,
-                    title = R.string.ui_mode,
+                    title = uiModeTitle,
                     description = viewModel.uiModeDescription.value) {
 
                         Switch(
@@ -161,11 +177,11 @@ fun SettingsScreen(
             item {
                 LinkSettingItem(
                     icon = R.drawable.settings,
-                    title = R.string.system_tts,
+                    title = systemTtsTitle,
                     onClick = {
                         with(context) {
                             startActivity(
-                                Intent(getString(R.string.system_tts_settings_package_name))
+                                Intent(systemTtsPackageName)
                                     .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
                         }
                     })
@@ -174,14 +190,14 @@ fun SettingsScreen(
             // notification settings
             item {
                 LinkSettingItem(
-                    icon = R.drawable.notifications,
-                    title = R.string.system_notification_settings,
+                    icon = R.drawable.notifications_active,
+                    title = notificationsTitle,
                     onClick = {
                         with(context) {
                             startActivity(
                                 Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
                                     .putExtra(Settings.EXTRA_APP_PACKAGE, BuildConfig.APPLICATION_ID)
-                                    .putExtra(Settings.EXTRA_CHANNEL_ID, getString(R.string.notification_channel_id)))
+                                    .putExtra(Settings.EXTRA_CHANNEL_ID, channelId))
                         }
                     })
             }
@@ -190,7 +206,7 @@ fun SettingsScreen(
             item {
                 LinkSettingItem(
                     icon = R.drawable.browser,
-                    title = R.string.about,
+                    title = aboutTitle,
                     onClick = { uriHandler.openUri(aboutUrl) })
             }
 
@@ -198,7 +214,7 @@ fun SettingsScreen(
             item {
                 LinkSettingItem(
                     icon = R.drawable.browser,
-                    title = R.string.privacy,
+                    title = privacyTitle,
                     onClick = { uriHandler.openUri(privacyUrl) })
             }
 
@@ -206,7 +222,7 @@ fun SettingsScreen(
             item {
                 LinkSettingItem(
                     icon = R.drawable.browser,
-                    title = R.string.terms,
+                    title = termsTitle,
                     onClick = { uriHandler.openUri(termsUrl) })
             }
 
@@ -214,7 +230,7 @@ fun SettingsScreen(
             item {
                 LinkSettingItem(
                     icon = R.drawable.credit_card,
-                    title = R.string.manage_subscription,
+                    title = manageSubscriptionTitle,
                     onClick = { uriHandler.openUri(subscriptionUrl) })
             }
 
@@ -222,7 +238,7 @@ fun SettingsScreen(
             item {
                 LinkSettingItem(
                     icon = R.drawable.sign_out,
-                    title = R.string.sign_out,
+                    title = signOutTitle,
                     onClick = { onSignOut() })
             }
 

@@ -1,9 +1,6 @@
 package com.sommerengineering.baraudio.settings
 
 import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,27 +13,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.theme.uiModeFadeTimeMillis
-import kotlinx.coroutines.delay
-
-const val howToUseFadeTimeMillis = 500
 
 @Composable
 fun LinkSettingItem(
     @DrawableRes icon: Int,
-    @StringRes title: Int,
+    title: String,
     onClick: () -> Unit) {
 
     Surface {
@@ -57,7 +42,7 @@ fun LinkSettingItem(
 
             Column {
                 Text(
-                    text = stringResource(title),
+                    text = title,
                     style = MaterialTheme.typography.titleMedium)
             }
         }

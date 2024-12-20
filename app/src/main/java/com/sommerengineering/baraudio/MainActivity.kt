@@ -106,16 +106,12 @@ class MainActivity : ComponentActivity() {
 
         // create channel
         val channel = NotificationChannel(
-            getString(R.string.notification_channel_id),
-            getString(R.string.notification_channel_name),
+            channelId,
+            channelName,
             NotificationManager.IMPORTANCE_DEFAULT) // >= DEFAULT to show in status bar
 
-        channel.description =
-            getString(R.string.notification_channel_description)
-
-        // assign group
-        val groupId = getString(R.string.notification_channel_group_id)
-        channel.group = groupId
+        channel.description = channelDescription
+        channel.group = channelGroupId
 
         // register with system
         val notificationManager =
@@ -123,8 +119,8 @@ class MainActivity : ComponentActivity() {
         notificationManager
             .createNotificationChannelGroup(
                 NotificationChannelGroup(
-                    groupId,
-                    getString(R.string.notification_channel_group_name)))
+                    channelGroupId,
+                    channelGroupName))
         notificationManager
             .createNotificationChannel(channel)
 

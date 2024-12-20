@@ -83,7 +83,7 @@ class FirebaseService: FirebaseMessagingService() {
         val timestampWithNote =
             beautifyTimestamp(timestamp) + note
 
-        val builder = NotificationCompat.Builder(this, getString(R.string.notification_channel_id))
+        val builder = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.drawable.logo_square)
             .setColor(ContextCompat.getColor(this, R.color.logo_blue))
             .setContentTitle(message)
@@ -97,6 +97,11 @@ class FirebaseService: FirebaseMessagingService() {
             trimTimestamp(timestamp),
             builder.build())
     }
+
+    private fun trimTimestamp(timestamp: String) =
+        timestamp
+            .substring(timestamp.length - 9, timestamp.length)
+            .toInt()
 }
 
 fun signOut() =
@@ -137,3 +142,4 @@ fun writeTokenToDatabase() {
     getDatabaseReference(usersNode)
         .setValue(token)
 }
+
