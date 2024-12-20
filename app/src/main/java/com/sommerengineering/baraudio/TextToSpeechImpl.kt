@@ -3,7 +3,9 @@ package com.sommerengineering.baraudio
 import android.content.Context
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
+import android.speech.tts.Voice
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.bundle.bundleOf
@@ -16,10 +18,10 @@ class TextToSpeechImpl(
     private val textToSpeech = TextToSpeech(context, this)
 
     val voice by lazy { mutableStateOf(textToSpeech.voice) }
-    var speed by mutableStateOf(1f)
-    var pitch by mutableStateOf(1f)
+    var speed by mutableFloatStateOf(1f)
+    var pitch by mutableFloatStateOf(1f)
     var isQueueAdd by mutableStateOf(true)
-    var volume by mutableStateOf(0f)
+    var volume by mutableFloatStateOf(0f)
 
     var isInit = MutableStateFlow(false)
 
@@ -53,7 +55,7 @@ class TextToSpeechImpl(
         })
     }
 
-    fun getVoices() =
+    fun getVoices(): Set<Voice> =
         textToSpeech.voices
 
     fun speak(

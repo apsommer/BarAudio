@@ -1,7 +1,5 @@
 package com.sommerengineering.baraudio
 
-import android.speech.tts.TextToSpeech.Engine.KEY_PARAM_VOLUME
-
 // firebase
 const val databaseUrl = "https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/"
 const val webhookBaseUrl = "https://us-central1-com-sommerengineering-baraudio.cloudfunctions.net/baraudio?uid="
@@ -40,14 +38,13 @@ const val speedKey = "speed"
 const val pitchKey = "pitch"
 const val isQueueFlushKey = "isQueueFlush"
 const val isDarkModeKey = "isDarkMode"
-const val volumeKey = KEY_PARAM_VOLUME
+const val volumeKey = android.speech.tts.TextToSpeech.Engine.KEY_PARAM_VOLUME
 
 // billing, configure in play store
 const val productId = "premium"
 const val freeTrial = "free-trial"
-const val subscriptionUrl =
-    "https://play.google.com/store/account/subscriptions?sku=" +
-            productId + "&package=" + BuildConfig.APPLICATION_ID
+const val subscriptionUrl = "https://play.google.com/store/account/subscriptions?sku=" +
+    productId + "&package=" + BuildConfig.APPLICATION_ID
 
 // settings
 const val systemTtsPackageName = "com.android.settings.TTS_SETTINGS"

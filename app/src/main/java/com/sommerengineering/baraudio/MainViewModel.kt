@@ -274,7 +274,7 @@ class MainViewModel(
     }
 
     // billing client, purchase subscription flow ui triggered by mute button
-    lateinit var billing: BillingClientImpl
+    private lateinit var billing: BillingClientImpl
 
     fun initBilling(
         billingClientImpl: BillingClientImpl) {
