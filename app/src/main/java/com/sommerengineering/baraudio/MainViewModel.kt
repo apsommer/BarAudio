@@ -18,6 +18,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
+import com.sommerengineering.baraudio.messages.insomniaIps
 import com.sommerengineering.baraudio.messages.tradingviewWhitelistIps
 import com.sommerengineering.baraudio.messages.trendspiderWhitelistIp
 import kotlinx.coroutines.CoroutineScope
@@ -364,18 +365,20 @@ class MainViewModel(
         else R.drawable.background_skyline
 
     fun getOriginImageId(
-        origin: String): Int? =
+        origin: String): Int? {
 
-        when (origin) {
-            insomnia -> R.drawable.insomnia
+        return when (origin) {
+            in insomniaIps -> R.drawable.insomnia
             in tradingviewWhitelistIps -> {
                 if (isDarkMode.value) R.drawable.tradingview_light
                 else R.drawable.tradingview_dark
             }
+
             trendspiderWhitelistIp -> R.drawable.trendspider
             com.sommerengineering.baraudio.messages.error -> R.drawable.error
             else -> null
         }
+    }
 
     @Composable
     fun getFabIconColor() =
