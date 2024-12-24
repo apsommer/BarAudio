@@ -8,6 +8,7 @@
 /functions/venv
 /functions/.idea
 /functions/admin.json
+/functions/firebase-debug.log
 /functions/ui-debug.log
 /upload
 /.gradle

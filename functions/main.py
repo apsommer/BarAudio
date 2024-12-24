@@ -18,7 +18,7 @@ def baraudio(req: https_fn.Request) -> https_fn.Response:
     if req.method == 'POST' and uid is not None and len(message) > 0:
 
         timestamp = str(round(time.time() * 1000))
-        origin = get_origin(req)
+        origin = str(req.headers.get('X-Forwarded-For'))
 
         write_to_database(uid, timestamp, message, origin)
         send_fcm(uid, timestamp, message)
@@ -30,13 +30,8 @@ def get_origin(req: https_fn.Request) -> str:
 
     # extract origin of webhook: tradingview, trendspider, ...
     origin = str(req.headers.get('X-Forwarded-For'))
-
-    # todo detect insomnia calls, can remove in production
-    agent = req.user_agent.string
-    if "insomnia" in agent:
-        origin = "insomnia"
-
     return origin
+
 def write_to_database(uid: str, timestamp: str, message: str, origin: str):
 
     group_key = db.reference('messages')
@@ -52,8 +47,7 @@ def send_fcm(uid: str, timestamp: str, message: str):
     # set priority to high
     config = messaging.AndroidConfig(
         priority = "high", # "normal" is default, "high" attempts to wake device in doze mode
-        ttl = 0 # ttl is "time to live", 0 means "now or never" and fcm discards if can't be delivered immediately
-    )
+        ttl = 0) # ttl is "time to live", 0 means "now or never" and fcm discards if can't be delivered immediately
 
     # construct notification
     remote_message = messaging.Message(
