@@ -387,9 +387,3 @@ class MainViewModel(
         }
     }
 }
-
-// animations
-const val deleteAllFadeDurationMillis = 1000
-
-// size
-val circularButtonSize = 96.dp

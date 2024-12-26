@@ -1,12 +1,16 @@
 package com.sommerengineering.baraudio
 
-// firebase
-const val databaseUrl = "https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/"
-const val webhookBaseUrl = "https://us-central1-com-sommerengineering-baraudio.cloudfunctions.net/baraudio?uid="
+import androidx.compose.ui.unit.dp
+
+// baraudio urls
 const val howToUseUrl = "https://baraud.io/" // todo
 const val aboutUrl = "https://baraud.io/"
 const val privacyUrl = "https://baraud.io/privacy/"
 const val termsUrl = "https://baraud.io/terms/"
+
+// firebase
+const val databaseUrl = "https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/"
+const val webhookBaseUrl = "https://us-central1-com-sommerengineering-baraudio.cloudfunctions.net/baraudio?uid="
 const val usersNode = "users"
 const val messagesNode = "messages"
 const val unauthenticatedUser = "unauthenticatedUser"
@@ -65,3 +69,7 @@ const val queueBehaviorFlushDescription = "Play new alerts immediately"
 const val queueBehaviorAddDescription = "Add new alerts to queue"
 const val uiModeDarkDescription = "Dark"
 const val uiModeLightDescription = "Light"
+
+// animation
+const val deleteAllFadeDurationMillis = 1000
+val circularButtonSize = 96.dp // login, fab, ...

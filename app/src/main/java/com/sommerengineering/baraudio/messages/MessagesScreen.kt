@@ -73,12 +73,13 @@ fun MessagesScreen(
             // top bar
             topBar = {
                 MessagesTopBar(
+                    viewModel = viewModel,
+                    messages = messages,
                     onSettingsClick = {
                         coroutine.launch {
                             drawerState.open()
                         }
-                    },
-                    messages = messages)
+                    })
             },
 
             // fab, mute button
