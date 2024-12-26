@@ -26,7 +26,6 @@ import com.sommerengineering.baraudio.deleteAllFadeDurationMillis
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MessagesTopBar(
-    viewModel: MainViewModel,
     messages: SnapshotStateList<Message>,
     onSettingsClick: () -> Unit) {
 
