@@ -363,6 +363,16 @@ class MainViewModel(
         if (isDarkMode.value) R.drawable.background_skyline_dark
         else R.drawable.background_skyline
 
+    @Composable
+    fun getFabIconColor() =
+        if (isMute) MaterialTheme.colorScheme.outline
+        else MaterialTheme.colorScheme.onPrimaryContainer
+
+    @Composable
+    fun getFabBackgroundColor() =
+        if (isMute) MaterialTheme.colorScheme.surfaceVariant
+        else MaterialTheme.colorScheme.primaryContainer
+
     fun getOriginImageId(
         origin: String): Int? {
 
@@ -376,16 +386,6 @@ class MainViewModel(
             else -> R.drawable.insomnia // todo null to hide icon, for production
         }
     }
-
-    @Composable
-    fun getFabIconColor() =
-        if (isMute) MaterialTheme.colorScheme.outline
-        else MaterialTheme.colorScheme.onPrimaryContainer
-
-    @Composable
-    fun getFabBackgroundColor() =
-        if (isMute) MaterialTheme.colorScheme.surfaceVariant
-        else MaterialTheme.colorScheme.primaryContainer
 }
 
 // animations
