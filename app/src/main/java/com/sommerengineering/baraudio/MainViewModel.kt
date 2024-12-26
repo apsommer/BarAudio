@@ -373,7 +373,7 @@ class MainViewModel(
             }
             trendspiderWhitelistIp -> R.drawable.trendspider
             com.sommerengineering.baraudio.messages.error -> R.drawable.error
-            else -> R.drawable.insomnia // null to hide icon
+            else -> R.drawable.insomnia // todo null to hide icon, for production
         }
     }
 

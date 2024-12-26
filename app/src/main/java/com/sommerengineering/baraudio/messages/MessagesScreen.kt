@@ -117,7 +117,7 @@ fun MessagesScreen(
                 LazyColumn(
                     state = listState) {
                     items(
-                        items = messages,
+                        items = messages.reversed(),
                         key = { it.timestamp }) { message ->
 
                         // highlight recent messages
