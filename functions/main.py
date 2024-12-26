@@ -21,16 +21,33 @@ def baraudio(req: https_fn.Request) -> https_fn.Response:
         origin = str(req.headers.get('X-Forwarded-For'))
 
         write_to_database(uid, timestamp, message, origin)
-        send_fcm(uid, timestamp, message)
+        # send_fcm(uid, timestamp, message)
+
+        # get device token
+        try:
+            device_token = db.reference('users').get()[uid]
+        except TypeError:
+            return https_fn.Response('Thank you for using BarAudio, sign-in to hear message! :)')
+
+        # set priority to high
+        config = messaging.AndroidConfig(
+            priority="high",  # "normal" is default, "high" attempts to wake device in doze mode
+            ttl=0)  # ttl is "time to live", 0 means "now or never" and fcm discards if can't be delivered immediately
+
+        # construct notification
+        remote_message = messaging.Message(
+            data={
+                'uid': uid,
+                'timestamp': timestamp,
+                'message': message},
+            android=config,
+            token=device_token)
+
+        # send notification to device
+        messaging.send(remote_message)
 
     # respond with simple message
     return https_fn.Response('Thank you for using BarAudio! :)')
-
-def get_origin(req: https_fn.Request) -> str:
-
-    # extract origin of webhook: tradingview, trendspider, ...
-    origin = str(req.headers.get('X-Forwarded-For'))
-    return origin
 
 def write_to_database(uid: str, timestamp: str, message: str, origin: str):
 
