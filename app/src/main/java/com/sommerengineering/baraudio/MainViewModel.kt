@@ -382,7 +382,10 @@ class MainViewModel(
             }
             trendspiderWhitelistIp -> R.drawable.trendspider
             com.sommerengineering.baraudio.messages.error -> R.drawable.error
-            else -> R.drawable.insomnia // todo null to hide icon, for production
+            else -> {
+                if (BuildConfig.BUILD_TYPE == buildTypeDebug) R.drawable.insomnia
+                else null
+            }
         }
     }
 }

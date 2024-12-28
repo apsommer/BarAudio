@@ -3,7 +3,7 @@ package com.sommerengineering.baraudio
 import androidx.compose.ui.unit.dp
 
 // baraudio urls
-const val howToUseUrl = "https://baraud.io/" // todo
+const val howToUseUrl = "https://baraud.io/how-to-use"
 const val aboutUrl = "https://baraud.io/"
 const val privacyUrl = "https://baraud.io/privacy/"
 const val termsUrl = "https://baraud.io/terms/"
@@ -32,6 +32,7 @@ const val originKey = "origin"
 const val defaultMessage = "Thank you for using BarAudio!"
 const val unauthenticatedTimestampNote = ", sign-in to hear message!"
 const val parsingError = "Error parsing message"
+const val buildTypeDebug = "debug"
 
 // datastore
 const val localCache = "localCache"
