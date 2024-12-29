@@ -25,9 +25,8 @@ import com.sommerengineering.baraudio.deleteAllFadeDurationMillis
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MessagesTopBar(
-    onSettingsClick: () -> Unit,
-    messages: SnapshotStateList<Message>
-) {
+    messages: SnapshotStateList<Message>,
+    onSettingsClick: () -> Unit) {
 
     // animate color of "delete all" button
     var isEmpty by remember { mutableStateOf(true) }
@@ -55,7 +54,7 @@ fun MessagesTopBar(
             Image(
                 modifier = Modifier
                     .padding(8.dp),
-                painter = painterResource(R.drawable.logo_banner_color),
+                painter = painterResource(R.drawable.logo_banner),
                 contentDescription = null)
         },
 

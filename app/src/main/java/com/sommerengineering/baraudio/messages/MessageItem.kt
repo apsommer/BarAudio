@@ -51,7 +51,7 @@ fun MessageItem(
                             width = 1.dp,
                             color =
                                 if (isRecent) MaterialTheme.colorScheme.outlineVariant
-                                else MaterialTheme.colorScheme.surfaceContainerHigh),
+                                else MaterialTheme.colorScheme.outlineVariant),
                         shape = RoundedCornerShape(8.dp))
                     .background(
                         color =

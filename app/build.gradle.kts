@@ -5,7 +5,8 @@ plugins {
 
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    id("com.google.gms.google-services") // firebase
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.crashlytics)
 }
 
 // import release upload signing keystore
@@ -33,8 +34,8 @@ android {
         applicationId = "com.sommerengineering.baraudio"
         minSdk = 28
         targetSdk = 35
-        versionCode = 41 // increment for each release
-        versionName = "2.0.181224a" // major.minor.date
+        versionCode = 43 // increment for each release
+        versionName = "2.0.291224a" // major.minor.date.letter
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -140,6 +141,7 @@ dependencies {
     implementation(libs.play.services.auth)
     implementation(libs.firebase.messaging)
     implementation(libs.firebase.database)
+    implementation(libs.firebase.crashlytics)
 
     // preferences datastore
     implementation(libs.androidx.datastore.preferences)

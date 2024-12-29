@@ -1,7 +1,7 @@
 plugins {
+
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.kotlin.android) apply false
-
-    // firebase
-    id("com.google.gms.google-services") version "4.4.2" apply false
+    alias(libs.plugins.google.services) apply false
+    alias(libs.plugins.crashlytics) apply false
 }

@@ -184,13 +184,13 @@ fun onForceUpdate(
                 AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build())
         }
 
-        .addOnFailureListener {
+        .addOnFailureListener { exception ->
 
             // skip exception log for debug build
-            if (it.message
+            if (exception.message
                 ?.contains("The app is not owned") == true)
                     { return@addOnFailureListener }
-            logException(it)
+            logException(exception)
         }
 }
 

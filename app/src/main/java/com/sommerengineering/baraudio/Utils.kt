@@ -5,6 +5,8 @@ import android.text.format.DateUtils
 import android.util.Log
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -15,11 +17,20 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+// logs
 const val TAG = "~"
-fun logMessage(msg: String?) = Log.v(TAG, "$msg")
-fun logException(e: Exception?) = Log.e(TAG, "handleException: ${e?.message}", e)
 
-fun beautifyTimestamp(timestamp: String): String {
+fun logMessage(msg: String?) =
+    Log.v(TAG, "$msg")
+
+fun logException(e: Exception) {
+    Log.e(TAG, "handleException: ${e.message}", e)
+    Firebase.crashlytics.recordException(e)
+}
+
+fun beautifyTimestamp(
+    timestamp: String
+): String {
 
     val isToday = DateUtils.isToday(timestamp.toLong())
 

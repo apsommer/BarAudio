@@ -11,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
@@ -71,7 +70,7 @@ class MainViewModel(
     }
 
     // webhook
-    val webhookUrl by lazy { webhookBaseUrl + Firebase.auth.currentUser?.uid }
+    val webhookUrl by lazy { webhookBaseUrl + Firebase.auth.currentUser?.uid } // todo update on sign-out, sign-in
     fun saveToWebhookClipboard(context: Context) {
 
         // save url to clipboard
@@ -363,20 +362,6 @@ class MainViewModel(
         if (isDarkMode.value) R.drawable.background_skyline_dark
         else R.drawable.background_skyline
 
-    fun getOriginImageId(
-        origin: String): Int? =
-
-        when (origin) {
-            insomnia -> R.drawable.insomnia
-            in tradingviewWhitelistIps -> {
-                if (isDarkMode.value) R.drawable.tradingview_light
-                else R.drawable.tradingview_dark
-            }
-            trendspiderWhitelistIp -> R.drawable.trendspider
-            com.sommerengineering.baraudio.messages.error -> R.drawable.error
-            else -> null
-        }
-
     @Composable
     fun getFabIconColor() =
         if (isMute) MaterialTheme.colorScheme.outline
@@ -386,10 +371,21 @@ class MainViewModel(
     fun getFabBackgroundColor() =
         if (isMute) MaterialTheme.colorScheme.surfaceVariant
         else MaterialTheme.colorScheme.primaryContainer
+
+    fun getOriginImageId(
+        origin: String): Int? {
+
+        return when (origin) {
+            in tradingviewWhitelistIps -> {
+                if (isDarkMode.value) R.drawable.tradingview_light
+                else R.drawable.tradingview_dark
+            }
+            trendspiderWhitelistIp -> R.drawable.trendspider
+            com.sommerengineering.baraudio.messages.error -> R.drawable.error
+            else -> {
+                if (BuildConfig.BUILD_TYPE == buildTypeDebug) R.drawable.insomnia
+                else null
+            }
+        }
+    }
 }
-
-// animations
-const val deleteAllFadeDurationMillis = 1000
-
-// size
-val circularButtonSize = 96.dp

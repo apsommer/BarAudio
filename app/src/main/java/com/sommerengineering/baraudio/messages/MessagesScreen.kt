@@ -73,12 +73,12 @@ fun MessagesScreen(
             // top bar
             topBar = {
                 MessagesTopBar(
+                    messages = messages,
                     onSettingsClick = {
                         coroutine.launch {
                             drawerState.open()
                         }
-                    },
-                    messages = messages)
+                    })
             },
 
             // fab, mute button
@@ -117,7 +117,7 @@ fun MessagesScreen(
                 LazyColumn(
                     state = listState) {
                     items(
-                        items = messages,
+                        items = messages.reversed(),
                         key = { it.timestamp }) { message ->
 
                         // highlight recent messages

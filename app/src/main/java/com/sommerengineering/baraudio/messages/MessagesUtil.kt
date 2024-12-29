@@ -53,9 +53,16 @@ fun listenToDatabase(
                 origin = error
             }
 
-            // todo observe a State<LinkedList> to reverse order efficiently
-            messages.add(0, Message(timestamp, message, origin))
-            coroutine.launch { listState.scrollToItem(0) }
+            // add message to list
+            messages.add(
+                Message(
+                    timestamp = timestamp,
+                    message = message,
+                    origin = origin))
+
+            coroutine.launch {
+                listState.scrollToItem(0)
+            }
 
             // limit size
             if (messages.size > messageMaxSize) {
