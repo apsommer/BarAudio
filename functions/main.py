@@ -1,5 +1,5 @@
 from firebase_admin import initialize_app, credentials, db, messaging
-from firebase_functions import https_fn, logger
+from firebase_functions import https_fn
 import time
 
 # initialize admin sdk
@@ -20,8 +20,9 @@ def baraudio(req: https_fn.Request) -> https_fn.Response:
         timestamp = str(round(time.time() * 1000))
         origin = str(req.headers.get('X-Forwarded-For'))
 
-        write_to_database(uid, timestamp, message, origin)
-        # send_fcm(uid, timestamp, message)
+        # wrote to database
+        group_key = db.reference('messages')
+        group_key.child(uid).child(timestamp).set('{ "message": "' + message + '", "origin": "' + origin + '" }')
 
         # get device token
         try:
@@ -48,32 +49,3 @@ def baraudio(req: https_fn.Request) -> https_fn.Response:
 
     # respond with simple message
     return https_fn.Response('Thank you for using BarAudio! :)')
-
-def write_to_database(uid: str, timestamp: str, message: str, origin: str):
-
-    group_key = db.reference('messages')
-    group_key.child(uid).child(timestamp).set('{ "message": "' + message + '", "origin": "' + origin + '" }')
-
-def send_fcm(uid: str, timestamp: str, message: str):
-
-    # get device token
-    device_token = db.reference('users').get()[uid]
-    # todo must catch bad token, throws 500 here ... instead response with "Please sign-in ..."
-    #  500 also if correct token exits, but user has never signed-in before (fresh install)
-
-    # set priority to high
-    config = messaging.AndroidConfig(
-        priority = "high", # "normal" is default, "high" attempts to wake device in doze mode
-        ttl = 0) # ttl is "time to live", 0 means "now or never" and fcm discards if can't be delivered immediately
-
-    # construct notification
-    remote_message = messaging.Message(
-        data = {
-            'uid': uid,
-            'timestamp': timestamp,
-            'message': message },
-        android = config,
-        token = device_token)
-
-    # send notification to device
-    messaging.send(remote_message)
