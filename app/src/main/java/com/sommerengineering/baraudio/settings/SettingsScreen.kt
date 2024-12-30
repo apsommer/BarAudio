@@ -22,6 +22,8 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.sommerengineering.baraudio.BuildConfig
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
@@ -46,6 +48,7 @@ import com.sommerengineering.baraudio.termsTitle
 import com.sommerengineering.baraudio.termsUrl
 import com.sommerengineering.baraudio.uiModeTitle
 import com.sommerengineering.baraudio.voiceTitle
+import com.sommerengineering.baraudio.webhookBaseUrl
 import com.sommerengineering.baraudio.webhookTitle
 import org.koin.androidx.compose.koinViewModel
 
@@ -56,6 +59,8 @@ fun SettingsScreen(
     val context = LocalContext.current
     val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
     val uriHandler = LocalUriHandler.current
+
+
 
     Scaffold { padding ->
 
@@ -75,14 +80,24 @@ fun SettingsScreen(
 
             // webhook
             item {
+
+                // set webhook url
+                val webhookUrl = webhookBaseUrl + Firebase.auth.currentUser?.uid
+
                 DialogSettingItem(
                     icon = R.drawable.webhook,
                     title = webhookTitle,
-                    description = viewModel.webhookUrl,
-                    onClick = { viewModel.saveToWebhookClipboard(context) }) {
+                    description = webhookUrl,
+                    onClick = {
+                        viewModel.saveToWebhookClipboard(
+                            context = context,
+                            webhookUrl = webhookUrl) }) {
 
                     IconButton(
-                        onClick = { viewModel.saveToWebhookClipboard(context) }) {
+                        onClick = {
+                            viewModel.saveToWebhookClipboard(
+                                context = context,
+                                webhookUrl = webhookUrl) }) {
                         Icon(
                             painter = painterResource(R.drawable.copy),
                             contentDescription = null)

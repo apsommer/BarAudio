@@ -70,8 +70,9 @@ class MainViewModel(
     }
 
     // webhook
-    val webhookUrl by lazy { webhookBaseUrl + Firebase.auth.currentUser?.uid } // todo update on sign-out, sign-in
-    fun saveToWebhookClipboard(context: Context) {
+    fun saveToWebhookClipboard(
+        context: Context,
+        webhookUrl: String) {
 
         // save url to clipboard
         val clipboardManager = context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager

@@ -15,4 +15,5 @@ val tradingviewWhitelistIps = listOf(
 
 // https://help.trendspider.com/kb/alerts/webhooks
 const val trendspiderWhitelistIp = "3.12.143.24"
+
 const val error = "error"
