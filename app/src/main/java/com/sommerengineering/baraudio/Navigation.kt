@@ -90,10 +90,14 @@ fun Navigation(
 fun getStartDestination() =
 
     if (Firebase.auth.currentUser != null) {
+
+        // log for development
         logMessage("Authentication skipped, user already signed-in")
         logMessage("    uid: ${Firebase.auth.currentUser?.uid}")
         logMessage("  token: $token")
+
         MessagesScreenRoute }
+
     else LoginScreenRoute
 
 fun onAuthentication(
