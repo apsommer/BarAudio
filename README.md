@@ -2,41 +2,37 @@
 
 ### Overview
 
-[BarAudio](https://baraud.io/) is currently released on the [Play Store](https://play.google.com/store/apps/details?id=com.sommerengineering.baraudio) as a paid subscription, written in Java.
+[BarAudio](https://baraud.io/) is on the [Play Store](https://play.google.com/store/apps/details?id=com.sommerengineering.baraudio) as a paid subscription, written in Kotlin. It leverages Compose with Material Design 3, updated for API 35, Android 15.
 
-BarAudio is a mobile application that provides audible notifications to stock day traders. While the market is active, stock price and associated parameters are released from the various exchanges once per minute in realtime. To effectively trade on this time scale an investor must continuously monitor updating digital charts throughout the day. Audio alerts from a mobile device provide an alternative, allowing traders to step away from their screens with confidence.
+BarAudio provides audible market notifications to financial day traders. Product price, volume, and associated parameters are emitted from various exchanges once per minute in realtime. To effectively trade on this time scale, the investor must visually monitor digital charts continuously throughout the day. Audio alerts from a mobile device provide an alternative, allowing traders to step away from their screens with confidence.
 
 ### Intended User
 
-The intended user of this app is a securities day trader. This person is buying and selling stocks, forex, commodities, or other financial instruments over short time intervals encapsulated within a single day. This can be a casual investor with sporadic investments, or a professional day trader whose primary income source derives from the market cycle.
+The intended user of this app is a securities day trader. This person is buying and selling stocks, forex, commodities, or other financial instruments over short time intervals within a single day. This can be a casual investor with sporadic investments, or a professional trader with primary income source derived from the market cycle.
 
 ### Primary Features
 
-- NYSE, NASDAQ, and IEX stock exchange data in real-time
-- Customizable audio notifications for indicator sets, or continuous updates
-- UX adhering the Material Design specification
-- Google, Facebook, and GitHub login authentication using Firebase
+- All stock exchange data in reatime
+- Customizable audio notifications for indicators, or continuous updates
+- UX using Compose and Material Design 3
+- Google and GitHub federated authentication providers
+- Webhook endpoint using Google Cloud Functions
+- Firebase realtime database persists user alert messages
 
 ### Monetization
 
-One of the guiding principles of this app is to avoid the use of ads. A one week free trial is offered, followed by a monthly subscription of $6.99 USD per month. 10 symbols and 10 indicators are allowed as a reasonable bound for edge cases. The primary utility of the app as an audio notification tool loses efficacy in excess of 100 parameters.
+This app does use advertisements. Instead, a one week free trial is offered, followed by a rolling subscription of $5.99 USD per month. The subscription unlocks unlimited webhook requests and unlimited storage.
 
 ### Technical Notes
 
-- User authentication and profile customization using Firebase from Google Cloud Platform.
-- Google and Facebook sign-in providers
-- Firestore database ORM.
-- Text-to-speech processing of realtime stock data from RESTful API’s.
-- A foreground service complements the modern and Material Design UX/UI, for API > 21.
+- ...
 
 ### User Experience
 <br/><br/>
-[![](demo/UX.gif)](https://www.youtube.com/watch?v=fMMpsd_z_Cg)
+![](readme/1r.png)
 <br/><br/>
-![](demo/port_login.png)
+![](readme/2r.png)
 <br/><br/>
-![](demo/port_master.png)
+![](readme/3r.png)
 <br/><br/>
-![](demo/port_configure.png)
-<br/><br/>
-![](demo/land_exchanges.png)
+![](readme/4r.png)
