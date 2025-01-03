@@ -93,8 +93,7 @@ fun deleteMessage(
         .child(message.timestamp)
         .removeValue()
 
-    messages
-        .remove(message)
+    messages.remove(message)
 }
 
 fun deleteAllMessages(
@@ -103,6 +102,5 @@ fun deleteAllMessages(
     getDatabaseReference(messagesNode)
         .removeValue()
 
-    messages
-        .clear()
+    messages.clear()
 }
