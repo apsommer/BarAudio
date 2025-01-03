@@ -13,9 +13,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.DrawerDefaults
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -32,11 +37,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
+import com.sommerengineering.baraudio.getDatabaseReference
+import com.sommerengineering.baraudio.messagesNode
 import com.sommerengineering.baraudio.settings.SettingsScreen
 import com.sommerengineering.baraudio.theme.uiModeFadeTimeMillis
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MessagesScreen(
     onSignOut: () -> Unit) {
@@ -90,6 +99,7 @@ fun MessagesScreen(
 
         ) { padding ->
 
+            // screen container
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -113,26 +123,69 @@ fun MessagesScreen(
                         label = "")
                         .value)
 
-                // message list
-                LazyColumn(
-                    state = listState) {
-                    items(
-                        items = messages.reversed(),
-                        key = { it.timestamp }) { message ->
+                var isRefreshing by remember { mutableStateOf(false) }
+                val pullToRefreshState = rememberPullToRefreshState()
 
-                        // highlight recent messages
-                        var isRecent by remember { mutableStateOf(true) }
-                        isRecent  = 1000 * 60 > System.currentTimeMillis() - message.timestamp.toLong()
+                // pull to refresh
+                PullToRefreshBox(
+                    isRefreshing = isRefreshing,
+                    state = pullToRefreshState,
+                    onRefresh = {
 
-                        MessageItem(
-                            viewModel = viewModel,
-                            isRecent = isRecent,
+                        // start spinner
+                        isRefreshing = true
+
+                        // remove listener
+                        getDatabaseReference(messagesNode)
+                            .removeEventListener(dbListener)
+
+                        // clear list
+                        messages.clear()
+
+                        // reattach listener
+                        listenToDatabase(
+                            messages,
+                            listState,
+                            coroutine)
+
+                        // dismiss indicator
+                        coroutine.launch {
+                            delay(1000)
+                            isRefreshing = false
+                        }
+                    },
+                    indicator = {
+                        Indicator(
                             modifier = Modifier
-                                .animateItem(
-                                    fadeInSpec = spring(stiffness = Spring.StiffnessVeryLow),
-                                    fadeOutSpec = spring(stiffness = Spring.StiffnessVeryLow),
-                                    placementSpec = spring(stiffness = Spring.StiffnessVeryLow)),
-                            message = message)
+                                .align(Alignment.TopCenter),
+                            isRefreshing = isRefreshing,
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            state = pullToRefreshState)
+                    }) {
+
+                    // message list
+                    LazyColumn(
+                        state = listState) {
+                        items(
+                            items = messages.reversed(),
+                            key = { it.timestamp }) { message ->
+
+                            // highlight recent messages
+                            var isRecent by remember { mutableStateOf(true) }
+                            isRecent =
+                                1000 * 60 > System.currentTimeMillis() - message.timestamp.toLong()
+
+                            MessageItem(
+                                viewModel = viewModel,
+                                isRecent = isRecent,
+                                modifier = Modifier
+                                    .animateItem(
+                                        fadeInSpec = spring(stiffness = Spring.StiffnessVeryLow),
+                                        fadeOutSpec = spring(stiffness = Spring.StiffnessVeryLow),
+                                        placementSpec = spring(stiffness = Spring.StiffnessVeryLow)),
+                                message = message)
+                        }
                     }
                 }
             }
