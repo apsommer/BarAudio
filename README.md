@@ -8,7 +8,7 @@ The app provides audible notifications to day traders in the financial sector. P
 
 ### Intended User
 
-The intended user of this app is a securities day trader. This person is buying and selling stocks, forex, commodities, or other financial instruments over a short time interval within a single day. This can be a casual trader with sporadic participation, or a professional investor whose primary income source derives from market cycles.
+The intended user of this app is a securities day trader. This person is buying and selling stocks, forex, commodities, or other financial instruments over a short time interval within a single day. This can be a casual trader with sporadic participation, or a professional investor whose primary income derives from market cycles.
 
 ### Primary Features
 
