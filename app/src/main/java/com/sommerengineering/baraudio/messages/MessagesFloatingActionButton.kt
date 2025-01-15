@@ -41,9 +41,7 @@ fun MessagesFloatingActionButton(
                 shape = CircleShape),
         containerColor = viewModel.getFabBackgroundColor(),
         shape = CircleShape,
-        onClick = { viewModel.toggleMute(context) }
-
-    ) {
+        onClick = { viewModel.toggleMute(context) }) {
 
         // progress wheel
         if (viewModel.shouldShowSpinner) {
