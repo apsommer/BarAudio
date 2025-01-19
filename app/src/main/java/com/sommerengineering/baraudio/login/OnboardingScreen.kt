@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.onboarding
+package com.sommerengineering.baraudio.login
 
 import androidx.compose.runtime.Composable
 
