@@ -32,6 +32,7 @@ import org.koin.compose.KoinContext
 import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
 
+var isOnboardingComplete = false
 var isAppOpen = false
 var isUpdateRequired = false
 

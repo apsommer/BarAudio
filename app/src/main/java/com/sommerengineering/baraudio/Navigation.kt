@@ -22,6 +22,7 @@ import com.sommerengineering.baraudio.messages.dbListener
 import org.koin.androidx.compose.koinViewModel
 
 // routes
+const val OnboardingScreenRoute = "OnboardingScreen"
 const val LoginScreenRoute = "LoginScreen"
 const val MessagesScreenRoute = "MessagesScreen"
 
@@ -61,6 +62,8 @@ fun Navigation(
                         viewModel = viewModel,
                         controller = controller)
                 },
+
+                // todo can remove this? previous launchedeffect handles all cases
                 onForceUpdate = {
                     onForceUpdate(
                         context = context,
@@ -87,18 +90,20 @@ fun Navigation(
 }
 
 // skip login screen if user already authenticated
-fun getStartDestination() =
+fun getStartDestination(): String {
 
-    if (Firebase.auth.currentUser != null) {
+    if (Firebase.auth.currentUser == null) {
+        return if (isOnboardingComplete) OnboardingScreenRoute
+        else LoginScreenRoute
+    }
 
-        // log for development
-        logMessage("Authentication skipped, user already signed-in")
-        logMessage("    uid: ${Firebase.auth.currentUser?.uid}")
-        logMessage("  token: $token")
+    // log for development
+    logMessage("Authentication skipped, user already signed-in")
+    logMessage("    uid: ${Firebase.auth.currentUser?.uid}")
+    logMessage("  token: $token")
 
-        MessagesScreenRoute }
-
-    else LoginScreenRoute
+    return MessagesScreenRoute
+}
 
 fun onAuthentication(
     context: Context,
