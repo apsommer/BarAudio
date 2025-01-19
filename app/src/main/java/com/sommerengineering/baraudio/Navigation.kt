@@ -17,13 +17,16 @@ import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.sommerengineering.baraudio.login.LoginScreen
+import com.sommerengineering.baraudio.login.OnboardingTextToSpeechScreen
 import com.sommerengineering.baraudio.messages.MessagesScreen
 import com.sommerengineering.baraudio.messages.dbListener
 import org.koin.androidx.compose.koinViewModel
 
 // routes
-const val OnboardingScreenRoute = "OnboardingScreen"
 const val LoginScreenRoute = "LoginScreen"
+const val OnboardingTextToSpeechScreenRoute = "OnboardingTextToSpeechScreen"
+const val OnboardingNotificationsScreenRoute = "OnboardingNotificationsScreen"
+const val OnboardingWebhookScreenRoute = "OnboardingWebhookScreen"
 const val MessagesScreenRoute = "MessagesScreen"
 
 @Composable
@@ -48,6 +51,21 @@ fun Navigation(
     NavHost(
         navController = controller,
         startDestination = getStartDestination()) {
+
+        // onboarding text-to-speech screen
+        composable(
+            route = OnboardingTextToSpeechScreenRoute,
+            enterTransition = { fadeIn },
+            exitTransition = { fadeOut }) {
+
+            OnboardingTextToSpeechScreen(
+                context = context,
+                viewModel = viewModel,
+                onNextClick = {
+
+                }
+            )
+        }
 
         // login screen
         composable(
@@ -93,7 +111,7 @@ fun Navigation(
 fun getStartDestination(): String {
 
     if (Firebase.auth.currentUser == null) {
-        return if (isOnboardingComplete) OnboardingScreenRoute
+        return if (isOnboardingComplete) OnboardingTextToSpeechScreenRoute
         else LoginScreenRoute
     }
 

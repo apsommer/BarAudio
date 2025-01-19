@@ -389,4 +389,8 @@ class MainViewModel(
             }
         }
     }
+
+    fun getOnboardingTtsImageId() =
+        if (tts.isInit.value) R.drawable.check_circle
+        else R.drawable.cancel_circle
 }
