@@ -60,8 +60,6 @@ fun SettingsScreen(
     val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
     val uriHandler = LocalUriHandler.current
 
-
-
     Scaffold { padding ->
 
         var isShowVoiceDialog by remember { mutableStateOf(false) }

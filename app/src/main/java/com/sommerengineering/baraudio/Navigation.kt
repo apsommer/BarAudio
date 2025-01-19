@@ -59,10 +59,9 @@ fun Navigation(
             exitTransition = { fadeOut }) {
 
             OnboardingTextToSpeechScreen(
-                context = context,
                 viewModel = viewModel,
                 onNextClick = {
-
+                    logMessage("Next click ...")
                 }
             )
         }
@@ -111,8 +110,11 @@ fun Navigation(
 fun getStartDestination(): String {
 
     if (Firebase.auth.currentUser == null) {
-        return if (isOnboardingComplete) OnboardingTextToSpeechScreenRoute
-        else LoginScreenRoute
+        return LoginScreenRoute
+    }
+
+    if (!isOnboardingComplete) {
+        return OnboardingTextToSpeechScreenRoute
     }
 
     // log for development
