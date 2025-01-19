@@ -49,6 +49,7 @@ class MainActivity : ComponentActivity() {
         isAppOpen = true
         get<TextToSpeechImpl>()
         token = readFromDataStore(context, tokenKey) ?: unauthenticatedToken
+        isOnboardingComplete = readFromDataStore(context, onboardingKey).toBoolean()
 
         // dismiss notifications after launch
         val isLaunchFromNotification = intent.extras?.getBoolean(isLaunchFromNotification) ?: false

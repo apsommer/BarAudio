@@ -36,6 +36,7 @@ const val buildTypeDebug = "debug"
 
 // datastore
 const val localCache = "localCache"
+const val onboardingKey = "onboarding"
 const val tokenKey = "token"
 const val voiceKey = "voice"
 const val speedKey = "speed"
