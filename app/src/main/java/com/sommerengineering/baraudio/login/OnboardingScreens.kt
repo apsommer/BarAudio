@@ -12,6 +12,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -37,6 +42,15 @@ fun OnboardingTextToSpeechScreen(
     viewModel: MainViewModel,
     onNextClick: () -> Unit) {
 
+    val isInit = viewModel.tts.isInit.collectAsState()
+
+    val text =
+        if (isInit.value) "BarAudio requires text-to-speech, which is already installed."
+        else "BarAudio requires text-to-speech, please install it to continue."
+
+    val imageId =
+
+
     Surface {
 
         Column(
@@ -51,7 +65,7 @@ fun OnboardingTextToSpeechScreen(
                     .weight(1f),
                 verticalArrangement = Arrangement.Center) {
                 Text(
-                    text = viewModel.getOnboardingTtsText(),
+                    text = text,
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.titleLarge)
             }
@@ -73,6 +87,8 @@ fun OnboardingTextToSpeechScreen(
                 horizontalAlignment = Alignment.End) {
 
                 Button(
+                    modifier = Modifier
+                        .padding(bottom = edgePadding),
                     onClick = onNextClick) {
                     Text(
                         text = "Next")

@@ -319,6 +319,7 @@ class MainViewModel(
     }
 
     // mute
+    // todo duplication of mutableStates through VM, use .collectAsState in composables per docs
     var shouldShowSpinner by mutableStateOf(false)
     var isMute by mutableStateOf(true)
 
@@ -390,9 +391,10 @@ class MainViewModel(
         }
     }
 
-    fun getOnboardingTtsText() =
+    var onboardingTtsText by mutableStateOf (
         if (tts.isInit.value) "BarAudio requires text-to-speech, which is already installed."
         else "BarAudio requires text-to-speech, please install it to continue."
+    )
 
     fun getOnboardingTtsImageId() =
         if (tts.isInit.value) R.drawable.check_circle
