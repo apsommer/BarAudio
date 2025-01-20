@@ -391,8 +391,8 @@ class MainViewModel(
     }
 
     fun getOnboardingTtsText() =
-        if (tts.isInit.value) "BarAudio uses text-to-speech, which is already installed."
-        else "BarAudio uses text-to-speech, please install it before continuing."
+        if (tts.isInit.value) "BarAudio requires text-to-speech, which is already installed."
+        else "BarAudio requires text-to-speech, please install it to continue."
 
     fun getOnboardingTtsImageId() =
         if (tts.isInit.value) R.drawable.check_circle

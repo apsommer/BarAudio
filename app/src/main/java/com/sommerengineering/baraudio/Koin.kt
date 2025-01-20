@@ -9,7 +9,7 @@ import org.koin.dsl.module
 // koin modules
 val appModule = module {
     single<TextToSpeechImpl> { TextToSpeechImpl(androidContext())}
-    viewModel { MainViewModel(get()) }
+    viewModel { MainViewModel(get()) } // todo decouple this, why dependency here? need separation for previews
     single<BillingClientImpl> { param -> BillingClientImpl(param.get<Context>()) }
 }
 

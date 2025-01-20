@@ -62,8 +62,7 @@ fun Navigation(
                 viewModel = viewModel,
                 onNextClick = {
                     logMessage("Next click ...")
-                }
-            )
+                })
         }
 
         // login screen
