@@ -390,13 +390,4 @@ class MainViewModel(
             }
         }
     }
-
-    var onboardingTtsText by mutableStateOf (
-        if (tts.isInit.value) "BarAudio requires text-to-speech, which is already installed."
-        else "BarAudio requires text-to-speech, please install it to continue."
-    )
-
-    fun getOnboardingTtsImageId() =
-        if (tts.isInit.value) R.drawable.check_circle
-        else R.drawable.cancel_circle
 }

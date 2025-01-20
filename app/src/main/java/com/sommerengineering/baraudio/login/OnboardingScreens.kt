@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.times
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainApplication
 import com.sommerengineering.baraudio.MainViewModel
+import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.appModule
 import com.sommerengineering.baraudio.circularButtonSize
 import com.sommerengineering.baraudio.edgePadding
@@ -42,6 +43,8 @@ fun OnboardingTextToSpeechScreen(
     viewModel: MainViewModel,
     onNextClick: () -> Unit) {
 
+    // todo hoist up, generify onboarding screens
+
     val isInit = viewModel.tts.isInit.collectAsState()
 
     val text =
@@ -49,7 +52,8 @@ fun OnboardingTextToSpeechScreen(
         else "BarAudio requires text-to-speech, please install it to continue."
 
     val imageId =
-
+        if (isInit.value) R.drawable.check_circle
+        else R.drawable.cancel_circle
 
     Surface {
 
@@ -75,7 +79,7 @@ fun OnboardingTextToSpeechScreen(
                 modifier = Modifier
                     .size(2 * circularButtonSize)
                     .align(alignment = Alignment.CenterHorizontally),
-                painter = painterResource(viewModel.getOnboardingTtsImageId()),
+                painter = painterResource(imageId),
                 contentDescription = null)
 
             // next button
