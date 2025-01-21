@@ -79,7 +79,7 @@ fun Navigation(
                         controller = controller)
                 },
 
-                // todo can remove this? previous launchedeffect handles all cases
+                // block login attempt if update required
                 onForceUpdate = {
                     onForceUpdate(
                         context = context,
@@ -149,6 +149,9 @@ fun onSignOut(
     viewModel: MainViewModel,
     controller: NavHostController) {
 
+    // user already signed-out
+    if (Firebase.auth.currentUser == null) { return }
+
     // sign-out firebase
     signOut()
 
@@ -169,6 +172,12 @@ fun onForceUpdate(
     context: Context,
     viewModel: MainViewModel,
     controller: NavHostController) {
+
+    // sign out, if needed
+    onSignOut(
+        context = context,
+        viewModel = viewModel,
+        controller = controller)
 
     val updateManager =
         AppUpdateManagerFactory
@@ -196,14 +205,6 @@ fun onForceUpdate(
 
             logMessage("  Force update, block app until update installed")
             isUpdateRequired = true
-
-            // sign out, if needed
-            if (Firebase.auth.currentUser != null) {
-                onSignOut(
-                    context = context,
-                    viewModel = viewModel,
-                    controller = controller)
-            }
 
             // launch update flow ui
             updateManager.startUpdateFlowForResult(
