@@ -2,12 +2,16 @@ package com.sommerengineering.baraudio.login
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -48,7 +52,7 @@ fun OnboardingTextToSpeechScreen(
     val isInit = viewModel.tts.isInit.collectAsState()
 
     val text =
-        if (isInit.value) "BarAudio requires text-to-speech, which is already installed."
+        if (isInit.value) "BarAudio uses text-to-speech to announce alerts."
         else "BarAudio requires text-to-speech, please install it to continue."
 
     val imageId =
@@ -82,21 +86,53 @@ fun OnboardingTextToSpeechScreen(
                 painter = painterResource(imageId),
                 contentDescription = null)
 
-            // next button
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth(),
-                verticalArrangement = Arrangement.Bottom,
-                horizontalAlignment = Alignment.End) {
+                verticalArrangement = Arrangement.Bottom) {
 
-                Button(
-                    modifier = Modifier
-                        .padding(bottom = edgePadding),
-                    onClick = onNextClick) {
-                    Text(
-                        text = "Next")
-                }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = edgePadding)) {
+
+                        // page indicator
+                        Row(
+                            modifier = Modifier
+                                .align(alignment = Alignment.Center)) {
+                            Icon(
+                                modifier = Modifier
+                                    .padding(6.dp)
+                                    .size(12.dp),
+                                tint = MaterialTheme.colorScheme.outline,
+                                painter = painterResource(R.drawable.indicator_filled),
+                                contentDescription = null)
+                            Icon(
+                                modifier = Modifier
+                                    .padding(6.dp)
+                                    .size(12.dp),
+                                tint = MaterialTheme.colorScheme.outline,
+                                painter = painterResource(R.drawable.indicator_open),
+                                contentDescription = null)
+                            Icon(
+                                modifier = Modifier
+                                    .padding(6.dp)
+                                    .size(12.dp),
+                                tint = MaterialTheme.colorScheme.outline,
+                                painter = painterResource(R.drawable.indicator_open),
+                                contentDescription = null)
+                        }
+
+                        // next button
+                        Button(
+                            modifier = Modifier
+                                .align(alignment = Alignment.BottomEnd),
+                            onClick = onNextClick) {
+                            Text(
+                                text = "Next")
+                        }
+                    }
             }
         }
     }
