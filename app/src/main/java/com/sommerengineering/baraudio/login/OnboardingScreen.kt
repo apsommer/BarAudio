@@ -15,7 +15,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -33,17 +32,8 @@ fun OnboardingScreen(
     pageNumber: Int,
     onNextClick: () -> Unit) {
 
-    // todo hoist up, generify onboarding screens
-
-    val isInit = viewModel.tts.isInit.collectAsState()
-
-    val text =
-        if (isInit.value) "BarAudio uses text-to-speech to announce alerts."
-        else "BarAudio requires text-to-speech, please install it to continue."
-
-    val imageId =
-        if (isInit.value) R.drawable.check_circle
-        else R.drawable.cancel_circle
+    val text = viewModel.getOnboardingText(pageNumber)
+    val imageId = viewModel.getOnboardingImageId(pageNumber)
 
     Surface {
 
@@ -78,48 +68,55 @@ fun OnboardingScreen(
                     .fillMaxWidth(),
                 verticalArrangement = Arrangement.Bottom) {
 
-                    Box(
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = edgePadding)) {
+
+                    // page indicator
+                    PageIndicator(
+                        pageNumber = pageNumber,
+                        totalPages = 3, // todo extract or hoist
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = edgePadding)) {
+                            .align(alignment = Alignment.Center))
 
-                        // page indicator
-                        Row(
-                            modifier = Modifier
-                                .align(alignment = Alignment.Center)) {
-                            Icon(
-                                modifier = Modifier
-                                    .padding(6.dp)
-                                    .size(12.dp),
-                                tint = MaterialTheme.colorScheme.outline,
-                                painter = painterResource(R.drawable.indicator_filled),
-                                contentDescription = null)
-                            Icon(
-                                modifier = Modifier
-                                    .padding(6.dp)
-                                    .size(12.dp),
-                                tint = MaterialTheme.colorScheme.outline,
-                                painter = painterResource(R.drawable.indicator_open),
-                                contentDescription = null)
-                            Icon(
-                                modifier = Modifier
-                                    .padding(6.dp)
-                                    .size(12.dp),
-                                tint = MaterialTheme.colorScheme.outline,
-                                painter = painterResource(R.drawable.indicator_open),
-                                contentDescription = null)
-                        }
-
-                        // next button
-                        Button(
-                            modifier = Modifier
-                                .align(alignment = Alignment.BottomEnd),
-                            onClick = onNextClick) {
-                            Text(
-                                text = "Next")
-                        }
+                    // next button
+                    Button(
+                        modifier = Modifier
+                            .align(alignment = Alignment.BottomEnd),
+                        onClick = onNextClick) {
+                        Text(
+                            text = "Next")
                     }
+                }
             }
+        }
+    }
+}
+
+@Composable
+fun PageIndicator(
+    pageNumber: Int,
+    totalPages: Int,
+    modifier: Modifier) {
+
+    // page indicator
+    Row(
+        modifier = modifier) {
+
+        for (i in 0..totalPages-1) {
+
+            val imageId =
+                if (i == pageNumber) R.drawable.indicator_filled
+                else R.drawable.indicator_open
+
+            Icon(
+                modifier = Modifier
+                    .padding(6.dp)
+                    .size(12.dp),
+                tint = MaterialTheme.colorScheme.outline,
+                painter = painterResource(imageId),
+                contentDescription = null)
         }
     }
 }

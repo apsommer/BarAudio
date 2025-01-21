@@ -8,9 +8,11 @@ import android.speech.tts.Voice
 import android.widget.Toast
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
@@ -388,6 +390,40 @@ class MainViewModel(
                 if (BuildConfig.BUILD_TYPE == buildTypeDebug) R.drawable.insomnia
                 else null
             }
+        }
+    }
+
+    @Composable
+    fun getOnboardingText(
+        pageNumber: Int
+    ): String {
+
+        return when (pageNumber) {
+            0 -> {
+                val isTtsInit by (tts.isInit.collectAsState())
+                if (isTtsInit) "BarAudio uses text-to-speech to announce alerts."
+                else "BarAudio requires text-to-speech, please install it to continue."
+            }
+            1 -> {
+                "BarAudio uses push notifications for realtime alerts. Please select 'Allow' on the following screen."
+            }
+            else -> ""
+        }
+    }
+
+    @Composable
+    fun getOnboardingImageId(
+        pageNumber: Int
+    ): Int {
+
+        return when (pageNumber) {
+            0 -> {
+                val isTtsInit by (tts.isInit.collectAsState())
+                return if (isTtsInit) R.drawable.check_circle
+                else R.drawable.cancel_circle
+            }
+            1 -> { R.drawable.insomnia }
+            else -> 42
         }
     }
 }

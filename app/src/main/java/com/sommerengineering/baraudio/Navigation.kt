@@ -62,6 +62,7 @@ fun Navigation(
                 viewModel = viewModel,
                 pageNumber = 0,
                 onNextClick = {
+                    logMessage("Next click ...")
                     controller.navigate(OnboardingNotificationsScreenRoute)
                         // todo popUpTo inclusive?
                 })
@@ -80,7 +81,7 @@ fun Navigation(
                     logMessage("Next click ...")
                 })
         }
-        
+
         // login screen
         composable(
             route = LoginScreenRoute,
@@ -124,9 +125,9 @@ fun Navigation(
 // skip login screen if user already authenticated
 fun getStartDestination(): String {
 
-    if (Firebase.auth.currentUser == null) {
-        return LoginScreenRoute
-    }
+//    if (Firebase.auth.currentUser == null) {
+//        return LoginScreenRoute
+//    }
 
     if (!isOnboardingComplete) {
         return OnboardingTextToSpeechScreenRoute
