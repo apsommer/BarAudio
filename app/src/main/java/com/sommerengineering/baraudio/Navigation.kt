@@ -61,11 +61,7 @@ fun Navigation(
             OnboardingScreen(
                 viewModel = viewModel,
                 pageNumber = 0,
-                onNextClick = {
-                    logMessage("Next click ...")
-                    controller.navigate(OnboardingNotificationsScreenRoute)
-                        // todo popUpTo inclusive?
-                })
+                onNextClick = { controller.navigate(OnboardingNotificationsScreenRoute) })
         }
 
         // onboarding screen: notifications
@@ -78,7 +74,23 @@ fun Navigation(
                 viewModel = viewModel,
                 pageNumber = 1,
                 onNextClick = {
+                    // todo pop system notification permission request, on accept
+                    controller.navigate(OnboardingWebhookScreenRoute)
+                })
+        }
+
+        // onboarding screen: webhook
+        composable(
+            route = OnboardingWebhookScreenRoute,
+            enterTransition = { fadeIn },
+            exitTransition = { fadeOut }) {
+
+            OnboardingScreen(
+                viewModel = viewModel,
+                pageNumber = 2,
+                onNextClick = {
                     logMessage("Next click ...")
+                    // todo persist isOnboardingComplete true
                 })
         }
 

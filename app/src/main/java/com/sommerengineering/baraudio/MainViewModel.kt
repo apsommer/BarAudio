@@ -404,9 +404,8 @@ class MainViewModel(
                 if (isTtsInit) "BarAudio uses text-to-speech to announce alerts."
                 else "BarAudio requires text-to-speech, please install it to continue."
             }
-            1 -> {
-                "BarAudio uses push notifications for realtime alerts. Please select 'Allow' on the following screen."
-            }
+            1 -> { "BarAudio uses push notifications for realtime alerts. Please select \"Allow\" on the following screen." }
+            2 -> { "BarAudio uses a webhook. It's simple to setup, just a copy and paste. Please consider this video and instructions." }
             else -> ""
         }
     }
@@ -422,7 +421,8 @@ class MainViewModel(
                 return if (isTtsInit) R.drawable.check_circle
                 else R.drawable.cancel_circle
             }
-            1 -> { R.drawable.insomnia }
+            1 -> { R.drawable.notifications_active }
+            2 -> { R.drawable.webhook}
             else -> 42
         }
     }
