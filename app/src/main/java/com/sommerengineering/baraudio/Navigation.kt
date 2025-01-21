@@ -17,7 +17,7 @@ import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.sommerengineering.baraudio.login.LoginScreen
-import com.sommerengineering.baraudio.login.OnboardingTextToSpeechScreen
+import com.sommerengineering.baraudio.login.OnboardingScreen
 import com.sommerengineering.baraudio.messages.MessagesScreen
 import com.sommerengineering.baraudio.messages.dbListener
 import org.koin.androidx.compose.koinViewModel
@@ -52,19 +52,35 @@ fun Navigation(
         navController = controller,
         startDestination = getStartDestination()) {
 
-        // onboarding text-to-speech screen
+        // onboarding screen: text-to-speech
         composable(
             route = OnboardingTextToSpeechScreenRoute,
             enterTransition = { fadeIn },
             exitTransition = { fadeOut }) {
 
-            OnboardingTextToSpeechScreen(
+            OnboardingScreen(
                 viewModel = viewModel,
+                pageNumber = 0,
+                onNextClick = {
+                    controller.navigate(OnboardingNotificationsScreenRoute)
+                        // todo popUpTo inclusive?
+                })
+        }
+
+        // onboarding screen: notifications
+        composable(
+            route = OnboardingNotificationsScreenRoute,
+            enterTransition = { fadeIn },
+            exitTransition = { fadeOut }) {
+
+            OnboardingScreen(
+                viewModel = viewModel,
+                pageNumber = 1,
                 onNextClick = {
                     logMessage("Next click ...")
                 })
         }
-
+        
         // login screen
         composable(
             route = LoginScreenRoute,

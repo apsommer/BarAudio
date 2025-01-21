@@ -28,8 +28,9 @@ import com.sommerengineering.baraudio.circularButtonSize
 import com.sommerengineering.baraudio.edgePadding
 
 @Composable
-fun OnboardingTextToSpeechScreen(
+fun OnboardingScreen(
     viewModel: MainViewModel,
+    pageNumber: Int,
     onNextClick: () -> Unit) {
 
     // todo hoist up, generify onboarding screens
