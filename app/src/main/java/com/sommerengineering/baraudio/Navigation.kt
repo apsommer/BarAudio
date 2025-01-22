@@ -52,6 +52,29 @@ fun Navigation(
         navController = controller,
         startDestination = getStartDestination()) {
 
+        // login screen
+        composable(
+            route = LoginScreenRoute,
+            enterTransition = { fadeIn },
+            exitTransition = { fadeOut }) {
+
+            LoginScreen(
+                onAuthentication = {
+                    onAuthentication(
+                        context = context,
+                        viewModel = viewModel,
+                        controller = controller)
+                },
+
+                // block login attempt if update required
+                onForceUpdate = {
+                    onForceUpdate(
+                        context = context,
+                        viewModel = viewModel,
+                        controller = controller)
+                })
+        }
+
         // onboarding screen: text-to-speech
         composable(
             route = OnboardingTextToSpeechScreenRoute,
@@ -61,7 +84,9 @@ fun Navigation(
             OnboardingScreen(
                 viewModel = viewModel,
                 pageNumber = 0,
-                onNextClick = { controller.navigate(OnboardingNotificationsScreenRoute) })
+                onNextClick = {
+                    controller.navigate(OnboardingNotificationsScreenRoute)
+                })
         }
 
         // onboarding screen: notifications
@@ -89,31 +114,10 @@ fun Navigation(
                 viewModel = viewModel,
                 pageNumber = 2,
                 onNextClick = {
-                    logMessage("Next click ...")
-                    // todo persist isOnboardingComplete true
-                })
-        }
-
-        // login screen
-        composable(
-            route = LoginScreenRoute,
-            enterTransition = { fadeIn },
-            exitTransition = { fadeOut }) {
-
-            LoginScreen(
-                onAuthentication = {
-                    onAuthentication(
-                        context = context,
-                        viewModel = viewModel,
-                        controller = controller)
-                },
-
-                // block login attempt if update required
-                onForceUpdate = {
-                    onForceUpdate(
-                        context = context,
-                        viewModel = viewModel,
-                        controller = controller)
+                    // todo persist isOnboardingComplete true, then
+                    controller.navigate(MessagesScreenRoute) {
+                        popUpTo(OnboardingTextToSpeechScreenRoute) { inclusive = true }
+                    }
                 })
         }
 
@@ -137,9 +141,9 @@ fun Navigation(
 // skip login screen if user already authenticated
 fun getStartDestination(): String {
 
-//    if (Firebase.auth.currentUser == null) {
-//        return LoginScreenRoute
-//    }
+    if (Firebase.auth.currentUser == null) {
+        return LoginScreenRoute
+    }
 
     if (!isOnboardingComplete) {
         return OnboardingTextToSpeechScreenRoute
@@ -167,8 +171,12 @@ fun onAuthentication(
     // write user:token pair to database, if needed
     writeTokenToDatabase()
 
-    // navigate to messages screen
-    controller.navigate(MessagesScreenRoute) {
+    // navigate to next destination
+    val nextDestination =
+        if (isOnboardingComplete) { MessagesScreenRoute }
+        else OnboardingTextToSpeechScreenRoute
+
+    controller.navigate(nextDestination) {
         popUpTo(LoginScreenRoute) { inclusive = true }
     }
 }
