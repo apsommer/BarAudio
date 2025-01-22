@@ -335,9 +335,9 @@ class MainViewModel(
         context: Context) {
 
         // unmute only allowed for paid user
-        val isUserPaid = true // todo disable billing flow 150125, uncomment following two lines to enable
-//            billing.billingState.value == BillingState.NewSubscription ||
-//            billing.billingState.value == BillingState.Subscribed
+        val isUserPaid =
+            billing.billingState.value == BillingState.NewSubscription ||
+            billing.billingState.value == BillingState.Subscribed
 
         if (isMute && !isUserPaid) {
 
