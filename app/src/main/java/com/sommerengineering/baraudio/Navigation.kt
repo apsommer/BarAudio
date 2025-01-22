@@ -6,6 +6,9 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -100,8 +103,12 @@ fun Navigation(
                 pageNumber = 1,
                 onNextClick = {
 
-                    // request notification permission, does nothing if already granted
-                    context.requestNotificationPermission()
+                    // request notification permission, if needed
+                    if (!isNotificationPermissionGranted) {
+                        context.requestNotificationPermission()
+                        return@OnboardingScreen
+                    }
+
                     controller.navigate(OnboardingWebhookScreenRoute)
                 })
         }
@@ -116,7 +123,7 @@ fun Navigation(
                 viewModel = viewModel,
                 pageNumber = 2,
                 onNextClick = {
-                    // todo persist isOnboardingComplete true, then
+                    writeToDataStore(context, onboardingKey, "true")
                     controller.navigate(MessagesScreenRoute) {
                         popUpTo(OnboardingTextToSpeechScreenRoute) { inclusive = true }
                     }

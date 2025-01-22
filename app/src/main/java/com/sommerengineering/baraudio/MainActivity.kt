@@ -1,6 +1,7 @@
 package com.sommerengineering.baraudio
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationChannelGroup
 import android.app.NotificationManager
@@ -17,8 +18,11 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.NotificationManagerCompat
@@ -35,6 +39,7 @@ import org.koin.core.parameter.parametersOf
 var isAppOpen = false
 var isUpdateRequired = false
 var isOnboardingComplete = false
+var isNotificationPermissionGranted by mutableStateOf(false)
 
 class MainActivity : ComponentActivity() {
 
@@ -50,6 +55,11 @@ class MainActivity : ComponentActivity() {
         get<TextToSpeechImpl>() // todo remove? instantiated in viewmodel creation
         token = readFromDataStore(context, tokenKey) ?: unauthenticatedToken
         isOnboardingComplete = readFromDataStore(context, onboardingKey).toBoolean()
+        isNotificationPermissionGranted =
+            Build.VERSION.SDK_INT < 33 || // realtime permission required if sdk >= 32
+                ContextCompat.checkSelfPermission( // permission already granted
+                    context,
+                    Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
 
         // dismiss notifications after launch
         val isLaunchFromNotification = intent.extras?.getBoolean(isLaunchFromNotification) ?: false
@@ -73,18 +83,10 @@ class MainActivity : ComponentActivity() {
             // since update is immediate (not flexible) play updates and restarts app
         }
 
+    @SuppressLint("InlinedApi")
     fun requestNotificationPermission() {
 
-        // realtime permission required if sdk >= 32
-        if (Build.VERSION.SDK_INT < 33) return
-
-        // permission already granted
-        if (ContextCompat
-            .checkSelfPermission(
-                context,
-                Manifest.permission.POST_NOTIFICATIONS)
-                    == PackageManager.PERMISSION_GRANTED)
-                        { return }
+        if (isNotificationPermissionGranted) return
 
         // launch system permission request ui
         requestPermissionLauncher
@@ -94,8 +96,10 @@ class MainActivity : ComponentActivity() {
     private val requestPermissionLauncher =
         registerForActivityResult(
             ActivityResultContracts.RequestPermission()) { isGranted ->
-                if (isGranted) { initNotificationChannel() }
-                else { /** todo ui that explains this permission is required to run app */ }
+                if (isGranted) {
+                    isNotificationPermissionGranted = true
+                    initNotificationChannel()
+                }
             }
 
     private fun initNotificationChannel() {
