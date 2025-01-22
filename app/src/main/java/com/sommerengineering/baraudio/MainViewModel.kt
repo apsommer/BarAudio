@@ -139,8 +139,6 @@ class MainViewModel(
     fun beautifyVoiceName(name: String) =
         beautifulVoiceNames[name] ?: ""
 
-
-
     private fun enumerateVoices(
         voice: Voice,
         number: Int): String {

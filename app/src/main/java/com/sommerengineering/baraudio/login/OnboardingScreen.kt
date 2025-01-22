@@ -107,11 +107,11 @@ fun OnboardingText(
         }
 
         1 -> {
-            "BarAudio uses push notifications for realtime triggers. Please select \"Allow\" in the following dialog."
+            "BarAudio uses push notifications for realtime triggers. Please select \"Allow\" in the following request."
         }
 
         2 -> {
-            "BarAudio uses a webhook. The setup is simple, just a copy and paste. Please consider this video."
+            "BarAudio uses a webhook. The setup is simple, just copy and paste your unique identifier. Please consider this video."
         }
 
         else -> ""

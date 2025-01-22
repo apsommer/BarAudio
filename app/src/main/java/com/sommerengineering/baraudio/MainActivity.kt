@@ -30,6 +30,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
 import com.sommerengineering.baraudio.theme.AppTheme
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.koin.android.ext.android.get
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.KoinContext
@@ -39,7 +40,7 @@ import org.koin.core.parameter.parametersOf
 var isAppOpen = false
 var isUpdateRequired = false
 var isOnboardingComplete = false
-var isNotificationPermissionGranted by mutableStateOf(false)
+var isNotificationPermissionGranted = MutableStateFlow(false)
 
 class MainActivity : ComponentActivity() {
 
@@ -55,7 +56,7 @@ class MainActivity : ComponentActivity() {
         get<TextToSpeechImpl>() // todo remove? instantiated in viewmodel creation
         token = readFromDataStore(context, tokenKey) ?: unauthenticatedToken
         isOnboardingComplete = readFromDataStore(context, onboardingKey).toBoolean()
-        isNotificationPermissionGranted =
+        isNotificationPermissionGranted.value =
             Build.VERSION.SDK_INT < 33 || // realtime permission required if sdk >= 32
                 ContextCompat.checkSelfPermission( // permission already granted
                     context,
@@ -86,7 +87,7 @@ class MainActivity : ComponentActivity() {
     @SuppressLint("InlinedApi")
     fun requestNotificationPermission() {
 
-        if (isNotificationPermissionGranted) return
+        if (isNotificationPermissionGranted.value) return
 
         // launch system permission request ui
         requestPermissionLauncher
@@ -97,7 +98,7 @@ class MainActivity : ComponentActivity() {
         registerForActivityResult(
             ActivityResultContracts.RequestPermission()) { isGranted ->
                 if (isGranted) {
-                    isNotificationPermissionGranted = true
+                    isNotificationPermissionGranted.value = true
                     initNotificationChannel()
                 }
             }

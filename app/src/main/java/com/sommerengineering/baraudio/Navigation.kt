@@ -23,6 +23,12 @@ import com.sommerengineering.baraudio.login.LoginScreen
 import com.sommerengineering.baraudio.login.OnboardingScreen
 import com.sommerengineering.baraudio.messages.MessagesScreen
 import com.sommerengineering.baraudio.messages.dbListener
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.forEach
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 // routes
@@ -98,13 +104,24 @@ fun Navigation(
             enterTransition = { fadeIn },
             exitTransition = { fadeOut }) {
 
+            // listen to permission request
+            LaunchedEffect(Unit) {
+                isNotificationPermissionGranted
+                    .onEach {
+                        if (it) {
+                            controller.navigate(OnboardingWebhookScreenRoute)
+                        }
+                    }
+                    .collect()
+            }
+
             OnboardingScreen(
                 viewModel = viewModel,
                 pageNumber = 1,
                 onNextClick = {
 
                     // request notification permission, if needed
-                    if (!isNotificationPermissionGranted) {
+                    if (!isNotificationPermissionGranted.value) {
                         context.requestNotificationPermission()
                         return@OnboardingScreen
                     }
