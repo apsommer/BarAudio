@@ -5,6 +5,7 @@ billing = "7.1.1"
 coreSplashScreen = "1.0.1"
 credentials = "1.3.0"
 datastorePreferences = "1.1.1"
+dotlottieAndroid = "0.4.1"
 firebaseBom = "33.7.0"
 googleid = "1.1.1"
 koin = "4.0.0"
@@ -32,6 +33,7 @@ app-update = { module = "com.google.android.play:app-update", version.ref = "app
 app-update-ktx = { module = "com.google.android.play:app-update-ktx", version.ref = "appUpdate" }
 billing = { module = "com.android.billingclient:billing", version.ref = "billing" }
 billing-ktx = { module = "com.android.billingclient:billing-ktx", version.ref = "billing" }
+dotlottie-android = { module = "com.github.LottieFiles:dotlottie-android", version.ref = "dotlottieAndroid" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-auth = { module = "com.google.firebase:firebase-auth" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }

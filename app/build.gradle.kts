@@ -156,4 +156,7 @@ dependencies {
     // play in-app update
     implementation(libs.app.update)
     implementation(libs.app.update.ktx)
+
+    // lottie animations
+    implementation(libs.dotlottie.android)
 }

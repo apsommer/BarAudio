@@ -157,6 +157,8 @@ fun ColumnScope.OnboardingImage(
                     color = colorResource(R.color.logo_blue)
                 ),
                 contentDescription = null)
+
+
         }
 
         2 -> {
@@ -201,3 +203,4 @@ fun PageIndicator(
         }
     }
 }
+
