@@ -26,6 +26,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
+import com.dotlottie.dlplayer.Mode
 import com.lottiefiles.dotlottie.core.compose.ui.DotLottieAnimation
 import com.lottiefiles.dotlottie.core.util.DotLottieSource
 import com.sommerengineering.baraudio.MainViewModel
@@ -140,29 +141,36 @@ fun ColumnScope.OnboardingImage(
                 if (isTtsInit) R.drawable.check_circle
                 else R.drawable.cancel_circle
 
-            Image(
-                modifier = Modifier
-                    .size(2 * circularButtonSize)
-                    .align(alignment = Alignment.CenterHorizontally),
-                painter = painterResource(imageId),
-                contentDescription = null)
-        }
-
-        // show system permission request dialog as "image"
-        1 -> {
 //            Image(
 //                modifier = Modifier
 //                    .size(2 * circularButtonSize)
 //                    .align(alignment = Alignment.CenterHorizontally),
-//                painter = painterResource(R.drawable.notifications_circle),
-//                colorFilter = ColorFilter.tint(
-//                    color = colorResource(R.color.logo_blue)
-//                ),
+//                painter = painterResource(imageId),
 //                contentDescription = null)
 
             DotLottieAnimation(
-                source = DotLottieSource.Asset("check.json")
-            )
+                modifier = Modifier
+                    .size(2 * circularButtonSize)
+                    .align(alignment = Alignment.CenterHorizontally),
+                source = DotLottieSource.Asset("check.json"),
+                autoplay = true,
+                loop = true,
+                speed = 1f,
+                useFrameInterpolation = false,
+                playMode = Mode.FORWARD)
+        }
+
+        // show system permission request dialog as "image"
+        1 -> {
+            Image(
+                modifier = Modifier
+                    .size(2 * circularButtonSize)
+                    .align(alignment = Alignment.CenterHorizontally),
+                painter = painterResource(R.drawable.notifications_circle),
+                colorFilter = ColorFilter.tint(
+                    color = colorResource(R.color.logo_blue)
+                ),
+                contentDescription = null)
         }
 
         2 -> {
