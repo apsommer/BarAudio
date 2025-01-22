@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +16,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -32,9 +35,6 @@ fun OnboardingScreen(
     pageNumber: Int,
     onNextClick: () -> Unit) {
 
-    val text = viewModel.getOnboardingText(pageNumber)
-    val imageId = viewModel.getOnboardingImageId(pageNumber)
-
     Surface {
 
         Column(
@@ -48,19 +48,15 @@ fun OnboardingScreen(
                 modifier = Modifier
                     .weight(1f),
                 verticalArrangement = Arrangement.Center) {
-                Text(
-                    text = text,
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleLarge)
+                OnboardingText(
+                    viewModel = viewModel,
+                    pageNumber = pageNumber)
             }
 
             // image
-            Image(
-                modifier = Modifier
-                    .size(2 * circularButtonSize)
-                    .align(alignment = Alignment.CenterHorizontally),
-                painter = painterResource(imageId),
-                contentDescription = null)
+            OnboardingImage(
+                viewModel = viewModel,
+                pageNumber = pageNumber)
 
             Column(
                 modifier = Modifier
@@ -91,6 +87,77 @@ fun OnboardingScreen(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun OnboardingText(
+    viewModel: MainViewModel,
+    pageNumber: Int) {
+
+    val text = when (pageNumber) {
+
+        0 -> {
+            if (viewModel.tts.isInit.collectAsState().value) "BarAudio uses text-to-speech to announce alerts."
+            else "BarAudio requires text-to-speech, please install it to continue."
+        }
+
+        1 -> {
+            "BarAudio uses push notifications for realtime triggers. Please select \"Allow\" on the following screen."
+        }
+
+        2 -> {
+            "BarAudio uses a webhook connection. The setup is simple, just copy and paste. Please consider this video and instructions."
+        }
+
+        else -> ""
+    }
+
+    Text(
+        text = text,
+        textAlign = TextAlign.Center,
+        style = MaterialTheme.typography.titleLarge)
+
+}
+
+@Composable
+fun ColumnScope.OnboardingImage(
+    viewModel: MainViewModel,
+    pageNumber: Int) {
+
+    when (pageNumber) {
+
+        0 -> {
+            val imageId =
+                if (viewModel.tts.isInit.collectAsState().value) R.drawable.check_circle
+                else R.drawable.cancel_circle
+            Image(
+                modifier = Modifier
+                    .size(2 * circularButtonSize)
+                    .align(alignment = Alignment.CenterHorizontally),
+                painter = painterResource(imageId),
+                contentDescription = null)
+        }
+
+        1 -> {
+            Image(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(alignment = Alignment.CenterHorizontally),
+                painter = painterResource(R.drawable.permission_dark),
+                contentDescription = null)
+        }
+
+        2 -> {
+            Image(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(alignment = Alignment.CenterHorizontally),
+                painter = painterResource(R.drawable.option_alpha),
+                contentDescription = null)
+        }
+
+        else -> { }
     }
 }
 

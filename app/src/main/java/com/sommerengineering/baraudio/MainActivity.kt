@@ -47,7 +47,7 @@ class MainActivity : ComponentActivity() {
 
         // init
         isAppOpen = true
-        get<TextToSpeechImpl>() // todo remove? instatiated in viewmodel creation
+        get<TextToSpeechImpl>() // todo remove? instantiated in viewmodel creation
         token = readFromDataStore(context, tokenKey) ?: unauthenticatedToken
         isOnboardingComplete = readFromDataStore(context, onboardingKey).toBoolean()
 

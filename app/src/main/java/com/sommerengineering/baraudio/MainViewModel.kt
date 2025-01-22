@@ -6,13 +6,21 @@ import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
 import android.speech.tts.Voice
 import android.widget.Toast
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.times
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
@@ -390,40 +398,6 @@ class MainViewModel(
                 if (BuildConfig.BUILD_TYPE == buildTypeDebug) R.drawable.insomnia
                 else null
             }
-        }
-    }
-
-    @Composable
-    fun getOnboardingText(
-        pageNumber: Int
-    ): String {
-
-        return when (pageNumber) {
-            0 -> {
-                val isTtsInit by (tts.isInit.collectAsState())
-                if (isTtsInit) "BarAudio uses text-to-speech to announce alerts."
-                else "BarAudio requires text-to-speech, please install it to continue."
-            }
-            1 -> { "BarAudio uses push notifications for realtime alerts. Please select \"Allow\" on the following screen." }
-            2 -> { "BarAudio uses a webhook. It's simple to setup, just a copy and paste. Please consider this video and instructions." }
-            else -> ""
-        }
-    }
-
-    @Composable
-    fun getOnboardingImageId(
-        pageNumber: Int
-    ): Int {
-
-        return when (pageNumber) {
-            0 -> {
-                val isTtsInit by (tts.isInit.collectAsState())
-                return if (isTtsInit) R.drawable.check_circle
-                else R.drawable.cancel_circle
-            }
-            1 -> { R.drawable.notifications_active }
-            2 -> { R.drawable.webhook}
-            else -> 42
         }
     }
 }

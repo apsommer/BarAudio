@@ -210,12 +210,6 @@ fun onForceUpdate(
     viewModel: MainViewModel,
     controller: NavHostController) {
 
-    // sign out, if needed
-    onSignOut(
-        context = context,
-        viewModel = viewModel,
-        controller = controller)
-
     val updateManager =
         AppUpdateManagerFactory
             .create(context)
@@ -242,6 +236,12 @@ fun onForceUpdate(
 
             logMessage("  Force update, block app until update installed")
             isUpdateRequired = true
+
+            // sign out, if needed
+            onSignOut(
+                context = context,
+                viewModel = viewModel,
+                controller = controller)
 
             // launch update flow ui
             updateManager.startUpdateFlowForResult(
