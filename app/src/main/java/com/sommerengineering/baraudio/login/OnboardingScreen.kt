@@ -117,7 +117,6 @@ fun OnboardingText(
         text = text,
         textAlign = TextAlign.Center,
         style = MaterialTheme.typography.titleLarge)
-
 }
 
 @Composable
@@ -128,9 +127,11 @@ fun ColumnScope.OnboardingImage(
     when (pageNumber) {
 
         0 -> {
+
             val imageId =
                 if (viewModel.tts.isInit.collectAsState().value) R.drawable.check_circle
                 else R.drawable.cancel_circle
+
             Image(
                 modifier = Modifier
                     .size(2 * circularButtonSize)
@@ -151,9 +152,9 @@ fun ColumnScope.OnboardingImage(
         2 -> {
             Image(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .size(2 * circularButtonSize)
                     .align(alignment = Alignment.CenterHorizontally),
-                painter = painterResource(R.drawable.option_alpha),
+                painter = painterResource(R.drawable.webhook),
                 contentDescription = null)
         }
 
