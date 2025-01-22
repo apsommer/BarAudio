@@ -26,6 +26,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
+import com.lottiefiles.dotlottie.core.compose.ui.DotLottieAnimation
+import com.lottiefiles.dotlottie.core.util.DotLottieSource
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.circularButtonSize
@@ -148,17 +150,19 @@ fun ColumnScope.OnboardingImage(
 
         // show system permission request dialog as "image"
         1 -> {
-            Image(
-                modifier = Modifier
-                    .size(2 * circularButtonSize)
-                    .align(alignment = Alignment.CenterHorizontally),
-                painter = painterResource(R.drawable.notifications_circle),
-                colorFilter = ColorFilter.tint(
-                    color = colorResource(R.color.logo_blue)
-                ),
-                contentDescription = null)
+//            Image(
+//                modifier = Modifier
+//                    .size(2 * circularButtonSize)
+//                    .align(alignment = Alignment.CenterHorizontally),
+//                painter = painterResource(R.drawable.notifications_circle),
+//                colorFilter = ColorFilter.tint(
+//                    color = colorResource(R.color.logo_blue)
+//                ),
+//                contentDescription = null)
 
-
+            DotLottieAnimation(
+                source = DotLottieSource.Asset("check.json")
+            )
         }
 
         2 -> {
