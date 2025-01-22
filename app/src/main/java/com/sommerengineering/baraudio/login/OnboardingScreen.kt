@@ -114,7 +114,7 @@ fun OnboardingText(
         }
 
         2 -> {
-            "BarAudio uses a webhook. The setup is simple, just copy and paste your unique identifier. Please consider this video."
+            "BarAudio uses a webhook for market connection. Setup is simple, just copy and paste your unique ID as shown **here**."
         }
 
         else -> ""
@@ -162,27 +162,47 @@ fun ColumnScope.OnboardingImage(
 
         // show system permission request dialog as "image"
         1 -> {
-            Image(
+//            Image(
+//                modifier = Modifier
+//                    .size(2 * circularButtonSize)
+//                    .align(alignment = Alignment.CenterHorizontally),
+//                painter = painterResource(R.drawable.notifications_circle),
+//                colorFilter = ColorFilter.tint(
+//                    color = colorResource(R.color.logo_blue)
+//                ),
+//                contentDescription = null)
+            DotLottieAnimation(
                 modifier = Modifier
                     .size(2 * circularButtonSize)
                     .align(alignment = Alignment.CenterHorizontally),
-                painter = painterResource(R.drawable.notifications_circle),
-                colorFilter = ColorFilter.tint(
-                    color = colorResource(R.color.logo_blue)
-                ),
-                contentDescription = null)
+                source = DotLottieSource.Asset("notification.json"),
+                autoplay = true,
+                loop = true,
+                speed = 1f,
+                useFrameInterpolation = false,
+                playMode = Mode.FORWARD)
         }
 
         2 -> {
-            Image(
+//            Image(
+//                modifier = Modifier
+//                    .size(2 * circularButtonSize)
+//                    .align(alignment = Alignment.CenterHorizontally),
+//                painter = painterResource(R.drawable.webhook),
+//                colorFilter = ColorFilter.tint(
+//                    color = colorResource(R.color.logo_blue)
+//                ),
+//                contentDescription = null)
+            DotLottieAnimation(
                 modifier = Modifier
                     .size(2 * circularButtonSize)
                     .align(alignment = Alignment.CenterHorizontally),
-                painter = painterResource(R.drawable.webhook),
-                colorFilter = ColorFilter.tint(
-                    color = colorResource(R.color.logo_blue)
-                ),
-                contentDescription = null)
+                source = DotLottieSource.Asset("link.json"),
+                autoplay = true,
+                loop = true,
+                speed = 1f,
+                useFrameInterpolation = false,
+                playMode = Mode.FORWARD)
         }
 
         else -> { }
