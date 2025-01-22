@@ -99,7 +99,9 @@ fun Navigation(
                 viewModel = viewModel,
                 pageNumber = 1,
                 onNextClick = {
-                    // todo pop system notification permission request, on accept
+
+                    // request notification permission, does nothing if already granted
+                    context.requestNotificationPermission()
                     controller.navigate(OnboardingWebhookScreenRoute)
                 })
         }
@@ -164,9 +166,6 @@ fun onAuthentication(
 
     // reset dark mode to previous preference, if available
     viewModel.setUiMode(context)
-
-    // request notification permission, does nothing if already granted
-    (context as MainActivity).requestNotificationPermission()
 
     // write user:token pair to database, if needed
     writeTokenToDatabase()

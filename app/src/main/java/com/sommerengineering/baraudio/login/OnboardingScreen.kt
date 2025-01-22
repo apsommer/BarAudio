@@ -20,6 +20,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -95,6 +97,8 @@ fun OnboardingText(
     viewModel: MainViewModel,
     pageNumber: Int) {
 
+    // todo extract
+
     val text = when (pageNumber) {
 
         0 -> {
@@ -103,11 +107,11 @@ fun OnboardingText(
         }
 
         1 -> {
-            "BarAudio uses push notifications for realtime triggers. Please select \"Allow\" on the following screen."
+            "BarAudio uses push notifications for realtime triggers. Please select \"Allow\" in the following dialog."
         }
 
         2 -> {
-            "BarAudio uses a webhook connection. The setup is simple, just copy and paste. Please consider this video and instructions."
+            "BarAudio uses a webhook. The setup is simple, just a copy and paste. Please consider this video."
         }
 
         else -> ""
@@ -128,8 +132,10 @@ fun ColumnScope.OnboardingImage(
 
         0 -> {
 
+            val isTtsInit by viewModel.tts.isInit.collectAsState()
+
             val imageId =
-                if (viewModel.tts.isInit.collectAsState().value) R.drawable.check_circle
+                if (isTtsInit) R.drawable.check_circle
                 else R.drawable.cancel_circle
 
             Image(
@@ -140,12 +146,16 @@ fun ColumnScope.OnboardingImage(
                 contentDescription = null)
         }
 
+        // show system permission request dialog as "image"
         1 -> {
             Image(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .size(2 * circularButtonSize)
                     .align(alignment = Alignment.CenterHorizontally),
-                painter = painterResource(R.drawable.permission_dark),
+                painter = painterResource(R.drawable.notifications_circle),
+                colorFilter = ColorFilter.tint(
+                    color = colorResource(R.color.logo_blue)
+                ),
                 contentDescription = null)
         }
 
@@ -155,6 +165,9 @@ fun ColumnScope.OnboardingImage(
                     .size(2 * circularButtonSize)
                     .align(alignment = Alignment.CenterHorizontally),
                 painter = painterResource(R.drawable.webhook),
+                colorFilter = ColorFilter.tint(
+                    color = colorResource(R.color.logo_blue)
+                ),
                 contentDescription = null)
         }
 

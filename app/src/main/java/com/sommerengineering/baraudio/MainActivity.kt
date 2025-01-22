@@ -32,9 +32,9 @@ import org.koin.compose.KoinContext
 import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
 
-var isOnboardingComplete = false
 var isAppOpen = false
 var isUpdateRequired = false
+var isOnboardingComplete = false
 
 class MainActivity : ComponentActivity() {
 
@@ -95,7 +95,7 @@ class MainActivity : ComponentActivity() {
         registerForActivityResult(
             ActivityResultContracts.RequestPermission()) { isGranted ->
                 if (isGranted) { initNotificationChannel() }
-                else { /** ui that explains this permission is required to run app */ }
+                else { /** todo ui that explains this permission is required to run app */ }
             }
 
     private fun initNotificationChannel() {
