@@ -114,7 +114,7 @@ fun OnboardingText(
         }
 
         2 -> {
-            "BarAudio uses a webhook for market connection. Setup is simple, just copy and paste your unique ID as shown **here**."
+            "BarAudio uses webhooks for market connection. Setup is simple, just copy and paste your unique ID as shown **here**."
         }
 
         else -> ""
