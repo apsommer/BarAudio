@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -19,8 +20,18 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withLink
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import com.dotlottie.dlplayer.Mode
@@ -100,28 +111,44 @@ fun OnboardingText(
 
     // todo extract
 
-    val text = when (pageNumber) {
+    val annotatedString =
+        buildAnnotatedString { when (pageNumber) {
 
-        0 -> {
-            if (viewModel.tts.isInit.collectAsState().value) "BarAudio uses text-to-speech to announce alerts."
-            else "BarAudio requires text-to-speech, please install it to continue."
+            0 -> {
+                val text =
+                    if (viewModel.tts.isInit.collectAsState().value) "BarAudio uses text-to-speech to announce alerts."
+                    else "BarAudio requires text-to-speech, please install it to continue."
+                append(text)
+            }
+
+            1 -> {
+                append("BarAudio sends notifications for realtime events.")
+            }
+
+            2 -> {
+                append("BarAudio connects to your unique webhook with a simple ")
+                withLink(
+                    link = LinkAnnotation.Url(
+                        url = "https://baraud.io/how-to-use",
+                        styles = TextLinkStyles(
+                            style = SpanStyle(
+                                textDecoration = TextDecoration.Underline,
+                                color = MaterialTheme.colorScheme.primary)))) {
+                    append("setup")
+                }
+                append(".")
+            }
+
+            else -> append("")
         }
 
-        1 -> {
-            "Please **Allow** BarAudio to send notifications for realtime events."
-        }
-
-        2 -> {
-            "BarAudio connects to a webhook with a **simple setup**."
-        }
-
-        else -> ""
     }
 
     Text(
-        text = text,
+        text = annotatedString,
         textAlign = TextAlign.Center,
         style = MaterialTheme.typography.titleLarge)
+
 }
 
 @Composable
@@ -129,57 +156,29 @@ fun ColumnScope.OnboardingImage(
     viewModel: MainViewModel,
     pageNumber: Int) {
 
-    when (pageNumber) {
+    val source = when (pageNumber) {
 
         0 -> {
-
-            val isTtsInit by viewModel.tts.isInit.collectAsState()
-
-            val imageId =
-                if (isTtsInit) R.drawable.check_circle
-                else R.drawable.cancel_circle
-
-            DotLottieAnimation(
-                modifier = Modifier
-                    .size(3 * circularButtonSize)
-                    .align(alignment = Alignment.CenterHorizontally),
-                source = DotLottieSource.Asset("check.json"),
-                autoplay = true,
-                loop = true,
-                speed = 1f,
-                useFrameInterpolation = false,
-                playMode = Mode.FORWARD)
+            if (viewModel.tts.isInit.collectAsState().value) "check.json"
+            else "link.json"
         }
 
-        // show system permission request dialog as "image"
-        1 -> {
-            DotLottieAnimation(
-                modifier = Modifier
-                    .size(3 * circularButtonSize)
-                    .align(alignment = Alignment.CenterHorizontally),
-                source = DotLottieSource.Asset("notification.json"),
-                autoplay = true,
-                loop = true,
-                speed = 1f,
-                useFrameInterpolation = false,
-                playMode = Mode.FORWARD)
-        }
+        1 -> { "notification.json" }
+        2 -> { "link.json" }
 
-        2 -> {
-            DotLottieAnimation(
-                modifier = Modifier
-                    .size(3 * circularButtonSize)
-                    .align(alignment = Alignment.CenterHorizontally),
-                source = DotLottieSource.Asset("link.json"),
-                autoplay = true,
-                loop = true,
-                speed = 1f,
-                useFrameInterpolation = false,
-                playMode = Mode.FORWARD)
-        }
-
-        else -> { }
+        else -> { "" }
     }
+
+    DotLottieAnimation(
+        modifier = Modifier
+            .size(3 * circularButtonSize)
+            .align(alignment = Alignment.CenterHorizontally),
+        source = DotLottieSource.Asset(source),
+        autoplay = true,
+        loop = true,
+        speed = 1f,
+        useFrameInterpolation = false,
+        playMode = Mode.FORWARD)
 }
 
 @Composable

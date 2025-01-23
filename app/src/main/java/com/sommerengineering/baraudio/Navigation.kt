@@ -156,8 +156,8 @@ fun getStartDestination(): String {
         return LoginScreenRoute
     }
 
-    if (onboardingProgress != "complete") {
-        return onboardingProgress
+    if (onboardingProgressRoute != "complete") {
+        return onboardingProgressRoute
     }
 
     // log for development
@@ -181,7 +181,7 @@ fun onAuthentication(
 
     // navigate to next destination
     val nextDestination =
-        if (onboardingProgress != "complete") { onboardingProgress }
+        if (onboardingProgressRoute != "complete") { onboardingProgressRoute }
         else OnboardingTextToSpeechScreenRoute
 
     controller.navigate(nextDestination) {

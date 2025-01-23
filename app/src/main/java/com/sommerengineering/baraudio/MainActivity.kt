@@ -36,7 +36,7 @@ import org.koin.core.parameter.parametersOf
 
 var isAppOpen = false
 var isUpdateRequired = false
-lateinit var onboardingProgress: String // todo refactor onboardings to VM?
+lateinit var onboardingProgressRoute: String // todo refactor onboardings to VM?
 var isNotificationPermissionGranted = MutableStateFlow(false)
 
 class MainActivity : ComponentActivity() {
@@ -52,7 +52,7 @@ class MainActivity : ComponentActivity() {
         isAppOpen = true
         get<TextToSpeechImpl>() // todo remove? instantiated in viewmodel creation
         token = readFromDataStore(context, tokenKey) ?: unauthenticatedToken
-        onboardingProgress = readFromDataStore(context, onboardingKey) ?: OnboardingTextToSpeechScreenRoute
+        onboardingProgressRoute = readFromDataStore(context, onboardingKey) ?: OnboardingTextToSpeechScreenRoute
         isNotificationPermissionGranted.value =
             Build.VERSION.SDK_INT < 33 || // realtime permission required if sdk >= 32
                 ContextCompat.checkSelfPermission( // permission already granted
