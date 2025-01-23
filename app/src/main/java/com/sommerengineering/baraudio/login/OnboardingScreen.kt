@@ -108,11 +108,11 @@ fun OnboardingText(
         }
 
         1 -> {
-            "BarAudio uses push notifications for realtime triggers. Please select \"Allow\" in the following request."
+            "Please **Allow** BarAudio to send notifications for realtime events."
         }
 
         2 -> {
-            "BarAudio uses webhooks for market connection. Setup is simple, just copy and paste your unique ID as shown **here**."
+            "BarAudio connects to a webhook with a **simple setup**."
         }
 
         else -> ""
@@ -139,16 +139,9 @@ fun ColumnScope.OnboardingImage(
                 if (isTtsInit) R.drawable.check_circle
                 else R.drawable.cancel_circle
 
-//            Image(
-//                modifier = Modifier
-//                    .size(2 * circularButtonSize)
-//                    .align(alignment = Alignment.CenterHorizontally),
-//                painter = painterResource(imageId),
-//                contentDescription = null)
-
             DotLottieAnimation(
                 modifier = Modifier
-                    .size(2 * circularButtonSize)
+                    .size(3 * circularButtonSize)
                     .align(alignment = Alignment.CenterHorizontally),
                 source = DotLottieSource.Asset("check.json"),
                 autoplay = true,
@@ -160,18 +153,9 @@ fun ColumnScope.OnboardingImage(
 
         // show system permission request dialog as "image"
         1 -> {
-//            Image(
-//                modifier = Modifier
-//                    .size(2 * circularButtonSize)
-//                    .align(alignment = Alignment.CenterHorizontally),
-//                painter = painterResource(R.drawable.notifications_circle),
-//                colorFilter = ColorFilter.tint(
-//                    color = colorResource(R.color.logo_blue)
-//                ),
-//                contentDescription = null)
             DotLottieAnimation(
                 modifier = Modifier
-                    .size(2 * circularButtonSize)
+                    .size(3 * circularButtonSize)
                     .align(alignment = Alignment.CenterHorizontally),
                 source = DotLottieSource.Asset("notification.json"),
                 autoplay = true,
@@ -182,18 +166,9 @@ fun ColumnScope.OnboardingImage(
         }
 
         2 -> {
-//            Image(
-//                modifier = Modifier
-//                    .size(2 * circularButtonSize)
-//                    .align(alignment = Alignment.CenterHorizontally),
-//                painter = painterResource(R.drawable.webhook),
-//                colorFilter = ColorFilter.tint(
-//                    color = colorResource(R.color.logo_blue)
-//                ),
-//                contentDescription = null)
             DotLottieAnimation(
                 modifier = Modifier
-                    .size(2 * circularButtonSize)
+                    .size(3 * circularButtonSize)
                     .align(alignment = Alignment.CenterHorizontally),
                 source = DotLottieSource.Asset("link.json"),
                 autoplay = true,

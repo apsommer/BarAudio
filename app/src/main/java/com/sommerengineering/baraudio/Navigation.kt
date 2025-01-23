@@ -6,9 +6,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -23,12 +20,8 @@ import com.sommerengineering.baraudio.login.LoginScreen
 import com.sommerengineering.baraudio.login.OnboardingScreen
 import com.sommerengineering.baraudio.messages.MessagesScreen
 import com.sommerengineering.baraudio.messages.dbListener
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 // routes
@@ -94,6 +87,7 @@ fun Navigation(
                 viewModel = viewModel,
                 pageNumber = 0,
                 onNextClick = {
+                    writeToDataStore(context, onboardingKey, OnboardingNotificationsScreenRoute)
                     controller.navigate(OnboardingNotificationsScreenRoute)
                 })
         }
@@ -104,13 +98,10 @@ fun Navigation(
             enterTransition = { fadeIn },
             exitTransition = { fadeOut }) {
 
-            // listen to permission request
             LaunchedEffect(Unit) {
                 isNotificationPermissionGranted
                     .onEach {
-                        if (it) {
-                            controller.navigate(OnboardingWebhookScreenRoute)
-                        }
+                        if (it) controller.navigate(OnboardingWebhookScreenRoute)
                     }
                     .collect()
             }
@@ -119,14 +110,8 @@ fun Navigation(
                 viewModel = viewModel,
                 pageNumber = 1,
                 onNextClick = {
-
-                    // request notification permission, if needed
-                    if (!isNotificationPermissionGranted.value) {
-                        context.requestNotificationPermission()
-                        return@OnboardingScreen
-                    }
-
-                    controller.navigate(OnboardingWebhookScreenRoute)
+                    writeToDataStore(context, onboardingKey, OnboardingWebhookScreenRoute)
+                    context.requestNotificationPermission()
                 })
         }
 
@@ -140,7 +125,7 @@ fun Navigation(
                 viewModel = viewModel,
                 pageNumber = 2,
                 onNextClick = {
-                    writeToDataStore(context, onboardingKey, "true")
+                    writeToDataStore(context, onboardingKey, "complete")
                     controller.navigate(MessagesScreenRoute) {
                         popUpTo(OnboardingTextToSpeechScreenRoute) { inclusive = true }
                     }
@@ -171,8 +156,8 @@ fun getStartDestination(): String {
         return LoginScreenRoute
     }
 
-    if (!isOnboardingComplete) {
-        return OnboardingTextToSpeechScreenRoute
+    if (onboardingProgress != "complete") {
+        return onboardingProgress
     }
 
     // log for development
@@ -196,7 +181,7 @@ fun onAuthentication(
 
     // navigate to next destination
     val nextDestination =
-        if (isOnboardingComplete) { MessagesScreenRoute }
+        if (onboardingProgress != "complete") { onboardingProgress }
         else OnboardingTextToSpeechScreenRoute
 
     controller.navigate(nextDestination) {

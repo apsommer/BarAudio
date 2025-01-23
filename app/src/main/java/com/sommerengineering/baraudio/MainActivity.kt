@@ -18,11 +18,8 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.NotificationManagerCompat
@@ -39,7 +36,7 @@ import org.koin.core.parameter.parametersOf
 
 var isAppOpen = false
 var isUpdateRequired = false
-var isOnboardingComplete = false
+lateinit var onboardingProgress: String // todo refactor onboardings to VM?
 var isNotificationPermissionGranted = MutableStateFlow(false)
 
 class MainActivity : ComponentActivity() {
@@ -55,7 +52,7 @@ class MainActivity : ComponentActivity() {
         isAppOpen = true
         get<TextToSpeechImpl>() // todo remove? instantiated in viewmodel creation
         token = readFromDataStore(context, tokenKey) ?: unauthenticatedToken
-        isOnboardingComplete = readFromDataStore(context, onboardingKey).toBoolean()
+        onboardingProgress = readFromDataStore(context, onboardingKey) ?: OnboardingTextToSpeechScreenRoute
         isNotificationPermissionGranted.value =
             Build.VERSION.SDK_INT < 33 || // realtime permission required if sdk >= 32
                 ContextCompat.checkSelfPermission( // permission already granted
@@ -71,17 +68,13 @@ class MainActivity : ComponentActivity() {
     }
 
     val updateLauncher =
-
         registerForActivityResult(
             ActivityResultContracts.StartIntentSenderForResult()) { result ->
-
-            if (result.resultCode != RESULT_OK) {
-
-                logMessage("Update flow failed with code: ${result.resultCode}")
-                return@registerForActivityResult
-            }
-
-            // since update is immediate (not flexible) play updates and restarts app
+                if (result.resultCode != RESULT_OK) {
+                    logMessage("Update flow failed with code: ${result.resultCode}")
+                    return@registerForActivityResult
+                }
+                // since update is immediate (not flexible) play updates and restarts app
         }
 
     @SuppressLint("InlinedApi")
@@ -101,7 +94,7 @@ class MainActivity : ComponentActivity() {
                     isNotificationPermissionGranted.value = true
                     initNotificationChannel()
                 }
-            }
+        }
 
     private fun initNotificationChannel() {
 
