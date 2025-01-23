@@ -1,6 +1,5 @@
 package com.sommerengineering.baraudio.login
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,8 +19,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -85,6 +82,7 @@ fun OnboardingScreen(
                     Button(
                         modifier = Modifier
                             .align(alignment = Alignment.BottomEnd),
+                        enabled = viewModel.tts.isInit.collectAsState().value,
                         onClick = onNextClick) {
                         Text(
                             text = "Next")
