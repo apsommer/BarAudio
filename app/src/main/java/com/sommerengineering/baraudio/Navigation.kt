@@ -127,7 +127,8 @@ fun Navigation(
                 viewModel = viewModel,
                 pageNumber = 2,
                 onNextClick = {
-                    writeToDataStore(context, onboardingKey, "complete")
+                    onboardingProgressRoute = "complete"
+                    writeToDataStore(context, onboardingKey, onboardingProgressRoute) // todo extract
                     controller.navigate(MessagesScreenRoute) {
                         popUpTo(OnboardingTextToSpeechScreenRoute) { inclusive = true }
                     }
