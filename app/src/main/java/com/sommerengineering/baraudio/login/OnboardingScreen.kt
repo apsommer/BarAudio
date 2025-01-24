@@ -170,8 +170,8 @@ fun ColumnScope.OnboardingImage(
 
     DotLottieAnimation(
         modifier = Modifier
-            .size(3 * circularButtonSize)
-            .align(alignment = Alignment.CenterHorizontally),
+            .fillMaxWidth()
+            .weight(1f),
         source = DotLottieSource.Asset(source),
         autoplay = true,
         loop = true,

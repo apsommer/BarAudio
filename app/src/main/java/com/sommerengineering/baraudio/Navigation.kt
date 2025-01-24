@@ -100,8 +100,11 @@ fun Navigation(
 
             LaunchedEffect(Unit) {
                 isNotificationPermissionGranted
-                    .onEach {
-                        if (it) controller.navigate(OnboardingWebhookScreenRoute)
+                    .onEach { isGranted ->
+                        if (isGranted) {
+                            writeToDataStore(context, onboardingKey, OnboardingWebhookScreenRoute)
+                            controller.navigate(OnboardingWebhookScreenRoute)
+                        }
                     }
                     .collect()
             }
@@ -110,7 +113,6 @@ fun Navigation(
                 viewModel = viewModel,
                 pageNumber = 1,
                 onNextClick = {
-                    writeToDataStore(context, onboardingKey, OnboardingWebhookScreenRoute)
                     context.requestNotificationPermission()
                 })
         }
