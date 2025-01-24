@@ -3,6 +3,7 @@ package com.sommerengineering.baraudio.login
 import android.content.Context
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.auth.GoogleAuthProvider
@@ -27,8 +28,15 @@ fun signInWithGoogle (
     }
 
     // display ui with modal dialog
-    val signInOptions = GetSignInWithGoogleOption
-        .Builder(BuildConfig.googleSignInWebClientId)
+//    val signInOptions = GetSignInWithGoogleOption
+//        .Builder(BuildConfig.googleSignInWebClientId)
+//        .build()
+
+    // display ui with bottom sheet and progress bar
+    val signInOptions = GetGoogleIdOption.Builder()
+        .setFilterByAuthorizedAccounts(true) // false to initiate sign-up flow
+        .setServerClientId(BuildConfig.googleSignInWebClientId)
+        .setAutoSelectEnabled(true)
         .build()
 
     // create credential manager and coroutine
