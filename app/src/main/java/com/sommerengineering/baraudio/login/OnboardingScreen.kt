@@ -126,7 +126,7 @@ fun OnboardingText(
             }
 
             2 -> {
-                append("BarAudio connects to your new webhook with a simple ")
+                append("BarAudio connects to your unique webhook with a simple ")
                 withLink(
                     link = LinkAnnotation.Url(
                         url = "https://baraud.io/how-to-use",
@@ -158,7 +158,7 @@ fun ColumnScope.OnboardingImage(
     val source = when (pageNumber) {
 
         0 -> {
-            if (viewModel.tts.isInit.collectAsState().value) "sound_wave.lottie" // "check.json"
+            if (viewModel.tts.isInit.collectAsState().value) "sound.json" // "check.json"
             else "link.json"
         }
 
