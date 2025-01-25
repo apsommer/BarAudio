@@ -3,7 +3,7 @@ package com.sommerengineering.baraudio
 import androidx.compose.ui.unit.dp
 
 // baraudio urls
-const val howToUseUrl = "https://baraud.io/how-to-use"
+const val setupUrl = "https://baraud.io/setup"
 const val aboutUrl = "https://baraud.io/"
 const val privacyUrl = "https://baraud.io/privacy/"
 const val termsUrl = "https://baraud.io/terms/"

@@ -41,6 +41,7 @@ import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.circularButtonSize
 import com.sommerengineering.baraudio.edgePadding
+import com.sommerengineering.baraudio.setupUrl
 
 @Composable
 fun OnboardingScreen(
@@ -129,7 +130,7 @@ fun OnboardingText(
                 append("BarAudio connects to your unique webhook with a simple ")
                 withLink(
                     link = LinkAnnotation.Url(
-                        url = "https://baraud.io/how-to-use",
+                        url = setupUrl,
                         styles = TextLinkStyles(
                             style = SpanStyle(
                                 textDecoration = TextDecoration.Underline,

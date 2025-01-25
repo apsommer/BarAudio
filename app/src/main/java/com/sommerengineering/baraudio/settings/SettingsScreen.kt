@@ -32,7 +32,7 @@ import com.sommerengineering.baraudio.aboutTitle
 import com.sommerengineering.baraudio.aboutUrl
 import com.sommerengineering.baraudio.channelId
 import com.sommerengineering.baraudio.howToUseTitle
-import com.sommerengineering.baraudio.howToUseUrl
+import com.sommerengineering.baraudio.setupUrl
 import com.sommerengineering.baraudio.manageSubscriptionTitle
 import com.sommerengineering.baraudio.notificationsTitle
 import com.sommerengineering.baraudio.pitchTitle
@@ -73,7 +73,7 @@ fun SettingsScreen(
                 LinkSettingItem(
                     icon = R.drawable.browser,
                     title = howToUseTitle,
-                    onClick = { uriHandler.openUri(howToUseUrl) })
+                    onClick = { uriHandler.openUri(setupUrl) })
             }
 
             // webhook
