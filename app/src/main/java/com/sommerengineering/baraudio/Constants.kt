@@ -21,7 +21,7 @@ const val messageMaxSize = 1000
 // notifications
 const val channelId = "42"
 const val channelName = "Webhook"
-const val channelDescription = "Push notifications for incoming webhook"
+const val channelDescription = "Notifications for incoming webhook"
 const val channelGroupId = "42"
 const val channelGroupName = "Alerts"
 const val isLaunchFromNotification = "isLaunchFromNotification"

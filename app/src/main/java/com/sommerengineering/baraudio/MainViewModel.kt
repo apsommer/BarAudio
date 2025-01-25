@@ -206,6 +206,7 @@ class MainViewModel(
         pitchDescription = selectedPitch.toString()
     }
 
+    // todo why db reference? already available in local "messages"
     fun speakLastMessage() {
 
         getDatabaseReference(messagesNode)
