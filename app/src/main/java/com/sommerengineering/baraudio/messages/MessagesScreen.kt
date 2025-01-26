@@ -53,7 +53,7 @@ fun MessagesScreen(
 
     val context = LocalContext.current
     val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
-    val messages = remember { mutableStateListOf<Message>() }
+    val messages = remember { viewModel.messages }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val listState = rememberLazyListState()
     val coroutine = rememberCoroutineScope()
@@ -73,6 +73,7 @@ fun MessagesScreen(
         // listen to database
         LaunchedEffect(Unit) {
             listenToDatabase(
+                viewModel,
                 messages,
                 listState,
                 coroutine)
@@ -145,6 +146,7 @@ fun MessagesScreen(
 
                         // reattach listener
                         listenToDatabase(
+                            viewModel,
                             messages,
                             listState,
                             coroutine)

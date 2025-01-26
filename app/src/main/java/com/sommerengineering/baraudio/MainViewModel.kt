@@ -14,8 +14,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -27,6 +29,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
+import com.sommerengineering.baraudio.messages.Message
 import com.sommerengineering.baraudio.messages.tradingviewWhitelistIps
 import com.sommerengineering.baraudio.messages.trendspiderWhitelistIp
 import kotlinx.coroutines.CoroutineScope
@@ -206,34 +209,17 @@ class MainViewModel(
         pitchDescription = selectedPitch.toString()
     }
 
-    // todo why db reference? already available in local "messages"
+    val messages = mutableStateListOf<Message>()
     fun speakLastMessage() {
 
-        getDatabaseReference(messagesNode)
-            .limitToLast(1)
-            .addListenerForSingleValueEvent(object : ValueEventListener {
+        val lastMessage =
+            if (messages.isEmpty()) defaultMessage
+            else messages.last().message
 
-                override fun onDataChange(snapshot: DataSnapshot) {
-
-                    var lastMessage = defaultMessage
-
-                    val children = snapshot.children
-                    if (!children.none()) {
-
-                        // parse json
-                        val json = JSONObject(children.first().value.toString())
-                        val jsonMessage = json.getString(messageKey)
-                        if (jsonMessage.isNotEmpty()) lastMessage = jsonMessage
-                    }
-
-                    tts.speak(
-                        timestamp = "",
-                        message = lastMessage,
-                        isForceVolume = true)
-                }
-
-                override fun onCancelled(error: DatabaseError) { }
-            })
+        tts.speak(
+            timestamp = "",
+            message = lastMessage,
+            isForceVolume = true)
     }
 
     // queue behavior
