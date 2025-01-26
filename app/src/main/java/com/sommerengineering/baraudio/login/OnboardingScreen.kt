@@ -32,10 +32,19 @@ import com.lottiefiles.dotlottie.core.compose.ui.DotLottieAnimation
 import com.lottiefiles.dotlottie.core.util.DotLottieSource
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
+import com.sommerengineering.baraudio.allowNotificationsTitle
 import com.sommerengineering.baraudio.edgePadding
-import com.sommerengineering.baraudio.nextButtonText
+import com.sommerengineering.baraudio.linkAnimation
+import com.sommerengineering.baraudio.next
+import com.sommerengineering.baraudio.notificationAnimation
+import com.sommerengineering.baraudio.ttsInstalled
+import com.sommerengineering.baraudio.ttsNotInstalled
 import com.sommerengineering.baraudio.onboardingTotalPages
+import com.sommerengineering.baraudio.period
 import com.sommerengineering.baraudio.setupUrl
+import com.sommerengineering.baraudio.soundAnimation
+import com.sommerengineering.baraudio.webhookEndTitle
+import com.sommerengineering.baraudio.webhookStartTitle
 
 @Composable
 fun OnboardingScreen(
@@ -63,7 +72,6 @@ fun OnboardingScreen(
 
             // image
             OnboardingImage(
-                viewModel = viewModel,
                 pageNumber = pageNumber)
 
             Column(
@@ -91,7 +99,7 @@ fun OnboardingScreen(
                         enabled = viewModel.tts.isInit.collectAsState().value,
                         onClick = onNextClick) {
                         Text(
-                            text = nextButtonText)
+                            text = next)
                     }
                 }
             }
@@ -104,24 +112,22 @@ fun OnboardingText(
     viewModel: MainViewModel,
     pageNumber: Int) {
 
-    // todo extract
-
     val annotatedString =
         buildAnnotatedString { when (pageNumber) {
 
             0 -> {
                 val text =
-                    if (viewModel.tts.isInit.collectAsState().value) "BarAudio uses text-to-speech to announce alerts."
-                    else "BarAudio requires text-to-speech, please install it to continue."
+                    if (viewModel.tts.isInit.collectAsState().value) ttsInstalled
+                    else ttsNotInstalled
                 append(text)
             }
 
             1 -> {
-                append("Please allow notifications for realtime events.")
+                append(allowNotificationsTitle)
             }
 
             2 -> {
-                append("BarAudio connects to your unique webhook with a simple ")
+                append(webhookStartTitle)
                 withLink(
                     link = LinkAnnotation.Url(
                         url = setupUrl,
@@ -129,14 +135,13 @@ fun OnboardingText(
                             style = SpanStyle(
                                 textDecoration = TextDecoration.Underline,
                                 color = MaterialTheme.colorScheme.primary)))) {
-                    append("setup")
+                    append(webhookEndTitle)
                 }
-                append(".")
+                append(period)
             }
 
             else -> append("")
         }
-
     }
 
     Text(
@@ -147,20 +152,13 @@ fun OnboardingText(
 
 @Composable
 fun ColumnScope.OnboardingImage(
-    viewModel: MainViewModel,
     pageNumber: Int) {
 
     val source = when (pageNumber) {
-
-        0 -> {
-            if (viewModel.tts.isInit.collectAsState().value) "sound.json" // "check.json"
-            else "link.json"
-        }
-
-        1 -> { "notification.json" }
-        2 -> { "link.json" }
-
-        else -> { "" }
+        0 -> soundAnimation
+        1 -> notificationAnimation
+        2 -> linkAnimation
+        else -> ""
     }
 
     DotLottieAnimation(
@@ -185,7 +183,7 @@ fun PageIndicator(
     Row(
         modifier = modifier) {
 
-        for (i in 0..totalPages-1) {
+        for (i in 0..< totalPages) {
 
             val imageId =
                 if (i == pageNumber) R.drawable.indicator_filled
