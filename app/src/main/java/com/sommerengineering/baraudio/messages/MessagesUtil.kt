@@ -82,7 +82,7 @@ fun listenToDatabase(
 
     // triggers once for every child on initial connection
     getDatabaseReference(messagesNode)
-        .limitToLast(100) // todo ensures retrieval is fast, how to clean up backend on excessive nodes?
+        .limitToLast(100)
         .addChildEventListener(dbListener)
 }
 

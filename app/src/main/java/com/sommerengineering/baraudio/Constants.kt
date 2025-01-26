@@ -72,10 +72,11 @@ const val queueBehaviorAddDescription = "Add new alerts to queue"
 const val uiModeDarkDescription = "Dark"
 const val uiModeLightDescription = "Light"
 
-// animations
+// images
 const val deleteAllFadeDurationMillis = 1000
 val circularButtonSize = 96.dp // login, fab, ...
-val edgePadding = 24.dp // all screens, todo extract ...
+val edgePadding = 24.dp
+val settingsIconSize = edgePadding
 
 // onboarding
 const val onboardingTotalPages = 3

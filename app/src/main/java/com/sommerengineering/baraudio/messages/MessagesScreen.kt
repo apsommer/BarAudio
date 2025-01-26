@@ -37,6 +37,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
+import com.sommerengineering.baraudio.edgePadding
 import com.sommerengineering.baraudio.getDatabaseReference
 import com.sommerengineering.baraudio.messagesNode
 import com.sommerengineering.baraudio.settings.SettingsScreen
@@ -108,7 +109,7 @@ fun MessagesScreen(
                 // background image
                 Image(
                     modifier = Modifier
-                        .padding(start = 24.dp, end = 24.dp, bottom = 64.dp)
+                        .padding(start = edgePadding, end = edgePadding, bottom = 64.dp)
                         .align(Alignment.Center),
                     painter = painterResource(viewModel.getBackgroundId()),
                     contentDescription = null,

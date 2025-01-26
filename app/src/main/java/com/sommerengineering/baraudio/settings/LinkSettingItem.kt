@@ -17,6 +17,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.sommerengineering.baraudio.edgePadding
+import com.sommerengineering.baraudio.settingsIconSize
 
 @Composable
 fun LinkSettingItem(
@@ -32,10 +34,10 @@ fun LinkSettingItem(
             verticalAlignment = Alignment.CenterVertically) {
 
             Box(
-                modifier = Modifier.padding(24.dp)) {
+                modifier = Modifier.padding(edgePadding)) {
                 Icon(
                     modifier = Modifier
-                        .size(24.dp),
+                        .size(settingsIconSize),
                     painter = painterResource(icon),
                     contentDescription = null)
             }

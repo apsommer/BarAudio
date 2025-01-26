@@ -31,6 +31,7 @@ import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.aboutTitle
 import com.sommerengineering.baraudio.aboutUrl
 import com.sommerengineering.baraudio.channelId
+import com.sommerengineering.baraudio.edgePadding
 import com.sommerengineering.baraudio.howToUseTitle
 import com.sommerengineering.baraudio.setupUrl
 import com.sommerengineering.baraudio.manageSubscriptionTitle
@@ -260,7 +261,7 @@ fun SettingsScreen(
                 Text(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(start = 24.dp, end = 24.dp, bottom = 24.dp),
+                        .padding(start = edgePadding, end = edgePadding, bottom = edgePadding),
                     text = BuildConfig.VERSION_NAME,
                     textAlign = TextAlign.End,
                     style = MaterialTheme.typography.bodySmall)
