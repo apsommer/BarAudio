@@ -34,6 +34,14 @@ const val unauthenticatedTimestampNote = ", sign-in to hear message!"
 const val parsingError = "Error parsing message"
 const val buildTypeDebug = "debug"
 
+// navigation
+const val LoginScreenRoute = "LoginScreen"
+const val OnboardingTextToSpeechScreenRoute = "OnboardingTextToSpeechScreen"
+const val OnboardingNotificationsScreenRoute = "OnboardingNotificationsScreen"
+const val OnboardingWebhookScreenRoute = "OnboardingWebhookScreen"
+const val OnboardingCompleteRoute = "complete"
+const val MessagesScreenRoute = "MessagesScreen"
+
 // datastore
 const val localCache = "localCache"
 const val onboardingKey = "onboarding"

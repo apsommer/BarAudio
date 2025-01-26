@@ -24,13 +24,6 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import org.koin.androidx.compose.koinViewModel
 
-// routes
-const val LoginScreenRoute = "LoginScreen"
-const val OnboardingTextToSpeechScreenRoute = "OnboardingTextToSpeechScreen"
-const val OnboardingNotificationsScreenRoute = "OnboardingNotificationsScreen"
-const val OnboardingWebhookScreenRoute = "OnboardingWebhookScreen"
-const val MessagesScreenRoute = "MessagesScreen"
-
 @Composable
 fun Navigation(
     controller: NavHostController) {
@@ -127,8 +120,8 @@ fun Navigation(
                 viewModel = viewModel,
                 pageNumber = 2,
                 onNextClick = {
-                    onboardingProgressRoute = "complete"
-                    writeToDataStore(context, onboardingKey, onboardingProgressRoute) // todo extract
+                    onboardingProgressRoute = OnboardingCompleteRoute
+                    writeToDataStore(context, onboardingKey, onboardingProgressRoute)
                     controller.navigate(MessagesScreenRoute) {
                         popUpTo(OnboardingTextToSpeechScreenRoute) { inclusive = true }
                     }
@@ -159,7 +152,7 @@ fun getStartDestination(): String {
         return LoginScreenRoute
     }
 
-    if (onboardingProgressRoute != "complete") {
+    if (onboardingProgressRoute != OnboardingCompleteRoute) {
         return onboardingProgressRoute
     }
 
@@ -184,7 +177,7 @@ fun onAuthentication(
 
     // navigate to next destination
     val nextDestination =
-        if (onboardingProgressRoute != "complete") { onboardingProgressRoute }
+        if (onboardingProgressRoute != OnboardingCompleteRoute) { onboardingProgressRoute }
         else OnboardingTextToSpeechScreenRoute
 
     controller.navigate(nextDestination) {
