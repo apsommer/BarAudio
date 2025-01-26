@@ -37,8 +37,8 @@ import com.sommerengineering.baraudio.edgePadding
 import com.sommerengineering.baraudio.linkAnimation
 import com.sommerengineering.baraudio.next
 import com.sommerengineering.baraudio.notificationAnimation
-import com.sommerengineering.baraudio.ttsInstalled
-import com.sommerengineering.baraudio.ttsNotInstalled
+import com.sommerengineering.baraudio.ttsInstalledTitle
+import com.sommerengineering.baraudio.ttsNotInstalledTitle
 import com.sommerengineering.baraudio.onboardingTotalPages
 import com.sommerengineering.baraudio.period
 import com.sommerengineering.baraudio.setupUrl
@@ -117,8 +117,8 @@ fun OnboardingText(
 
             0 -> {
                 val text =
-                    if (viewModel.tts.isInit.collectAsState().value) ttsInstalled
-                    else ttsNotInstalled
+                    if (viewModel.tts.isInit.collectAsState().value) ttsInstalledTitle
+                    else ttsNotInstalledTitle
                 append(text)
             }
 
@@ -199,4 +199,3 @@ fun PageIndicator(
         }
     }
 }
-

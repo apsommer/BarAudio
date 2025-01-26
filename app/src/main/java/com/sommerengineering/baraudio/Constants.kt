@@ -80,8 +80,8 @@ val edgePadding = 24.dp // all screens, todo extract ...
 // onboarding
 const val onboardingTotalPages = 3
 const val next = "Next"
-const val ttsInstalled = "BarAudio uses text-to-speech to announce alerts."
-const val ttsNotInstalled = "BarAudio requires text-to-speech, please install it to continue."
+const val ttsInstalledTitle = "BarAudio uses text-to-speech to announce alerts."
+const val ttsNotInstalledTitle = "BarAudio requires text-to-speech, please install it to continue."
 const val allowNotificationsTitle = "Please allow notifications for realtime events."
 const val webhookStartTitle = "BarAudio connects to your unique webhook with a simple "
 const val webhookEndTitle = "setup"
