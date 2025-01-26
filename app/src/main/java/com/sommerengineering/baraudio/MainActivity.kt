@@ -26,6 +26,8 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import com.sommerengineering.baraudio.theme.AppTheme
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.koin.android.ext.android.get
@@ -48,23 +50,27 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         super.onCreate(savedInstanceState)
 
-        // init
+        init()
+        enableEdgeToEdge()
+        setContent { App() }
+    }
+
+    private fun init() {
+
         isAppOpen = true
         get<TextToSpeechImpl>() // todo remove? instantiated in viewmodel creation
         token = readFromDataStore(context, tokenKey) ?: unauthenticatedToken
         onboardingProgressRoute = readFromDataStore(context, onboardingKey) ?: OnboardingTextToSpeechScreenRoute
+
         isNotificationPermissionGranted.value =
             Build.VERSION.SDK_INT < 33 || // realtime permission required if sdk >= 32
-                ContextCompat.checkSelfPermission( // permission already granted
-                    context,
-                    Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+                    ContextCompat.checkSelfPermission( // permission already granted
+                        context,
+                        Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
 
-        // dismiss notifications after launch
+        // dismiss notifications on launch
         val isLaunchFromNotification = intent.extras?.getBoolean(isLaunchFromNotification) ?: false
         if (isLaunchFromNotification) { cancelAllNotifications(context) }
-
-        enableEdgeToEdge()
-        setContent { App() }
     }
 
     val updateLauncher =

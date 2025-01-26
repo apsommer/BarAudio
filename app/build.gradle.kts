@@ -141,7 +141,7 @@ dependencies {
     implementation(libs.play.services.auth)
     implementation(libs.firebase.messaging)
     implementation(libs.firebase.database)
-    releaseImplementation(libs.firebase.crashlytics)
+    implementation(libs.firebase.crashlytics)
 
     // preferences datastore
     implementation(libs.androidx.datastore.preferences)
