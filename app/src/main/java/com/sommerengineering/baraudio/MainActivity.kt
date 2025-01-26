@@ -1,6 +1,7 @@
 package com.sommerengineering.baraudio
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationChannelGroup
 import android.app.NotificationManager
@@ -25,7 +26,10 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import com.sommerengineering.baraudio.theme.AppTheme
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.koin.android.ext.android.get
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.KoinContext
@@ -34,6 +38,8 @@ import org.koin.core.parameter.parametersOf
 
 var isAppOpen = false
 var isUpdateRequired = false
+lateinit var onboardingProgressRoute: String
+var isNotificationPermissionGranted = MutableStateFlow(false)
 
 class MainActivity : ComponentActivity() {
 
@@ -44,45 +50,42 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         super.onCreate(savedInstanceState)
 
-        // init
-        isAppOpen = true
-        get<TextToSpeechImpl>()
-        token = readFromDataStore(context, tokenKey) ?: unauthenticatedToken
-
-        // dismiss notifications after launch
-        val isLaunchFromNotification = intent.extras?.getBoolean(isLaunchFromNotification) ?: false
-        if (isLaunchFromNotification) { cancelAllNotifications(context) }
-
+        init()
         enableEdgeToEdge()
         setContent { App() }
     }
 
-    val updateLauncher =
+    private fun init() {
 
+        isAppOpen = true
+        token = readFromDataStore(context, tokenKey) ?: unauthenticatedToken
+        onboardingProgressRoute = readFromDataStore(context, onboardingKey) ?: OnboardingTextToSpeechScreenRoute
+
+        isNotificationPermissionGranted.value =
+            Build.VERSION.SDK_INT < 33 || // realtime permission required if sdk >= 32
+                    ContextCompat.checkSelfPermission( // permission already granted
+                        context,
+                        Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+
+        // dismiss notifications on launch
+        val isLaunchFromNotification = intent.extras?.getBoolean(isLaunchFromNotification) ?: false
+        if (isLaunchFromNotification) { cancelAllNotifications(context) }
+    }
+
+    val updateLauncher =
         registerForActivityResult(
             ActivityResultContracts.StartIntentSenderForResult()) { result ->
-
-            if (result.resultCode != RESULT_OK) {
-
-                logMessage("Update flow failed with code: ${result.resultCode}")
-                return@registerForActivityResult
-            }
-
-            // since update is immediate (not flexible) play updates and restarts app
+                if (result.resultCode != RESULT_OK) {
+                    logMessage("Update flow failed with code: ${result.resultCode}")
+                    return@registerForActivityResult
+                }
+                // since update is immediate (not flexible) play updates and restarts app
         }
 
+    @SuppressLint("InlinedApi")
     fun requestNotificationPermission() {
 
-        // realtime permission required if sdk >= 32
-        if (Build.VERSION.SDK_INT < 33) return
-
-        // permission already granted
-        if (ContextCompat
-            .checkSelfPermission(
-                context,
-                Manifest.permission.POST_NOTIFICATIONS)
-                    == PackageManager.PERMISSION_GRANTED)
-                        { return }
+        if (isNotificationPermissionGranted.value) return
 
         // launch system permission request ui
         requestPermissionLauncher
@@ -92,9 +95,11 @@ class MainActivity : ComponentActivity() {
     private val requestPermissionLauncher =
         registerForActivityResult(
             ActivityResultContracts.RequestPermission()) { isGranted ->
-                if (isGranted) { initNotificationChannel() }
-                else { /** ui that explains this permission is required to run app */ }
-            }
+                if (isGranted) {
+                    isNotificationPermissionGranted.value = true
+                    initNotificationChannel()
+                }
+        }
 
     private fun initNotificationChannel() {
 
@@ -138,14 +143,13 @@ fun App() {
     // track ui mode
     viewModel.isSystemInDarkTheme = isSystemInDarkTheme()
     viewModel.setUiMode(context)
-    val isDarkMode by remember { viewModel.isDarkMode }
 
     // initialize billing client
     viewModel.initBilling(
         koinInject<BillingClientImpl> { parametersOf(context) })
 
     KoinContext {
-        AppTheme(isDarkMode) {
+        AppTheme(viewModel.isDarkMode) {
             Scaffold { padding ->
                 Modifier.padding(padding) // not used
                 Navigation(rememberNavController())

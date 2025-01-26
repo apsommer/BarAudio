@@ -37,6 +37,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
+import com.sommerengineering.baraudio.edgePadding
 import com.sommerengineering.baraudio.getDatabaseReference
 import com.sommerengineering.baraudio.messagesNode
 import com.sommerengineering.baraudio.settings.SettingsScreen
@@ -52,7 +53,7 @@ fun MessagesScreen(
 
     val context = LocalContext.current
     val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
-    val messages = remember { mutableStateListOf<Message>() }
+    val messages = remember { viewModel.messages }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val listState = rememberLazyListState()
     val coroutine = rememberCoroutineScope()
@@ -71,10 +72,7 @@ fun MessagesScreen(
 
         // listen to database
         LaunchedEffect(Unit) {
-            listenToDatabase(
-                messages,
-                listState,
-                coroutine)
+            listenToDatabase(messages, listState, coroutine)
         }
 
         Scaffold(
@@ -108,7 +106,7 @@ fun MessagesScreen(
                 // background image
                 Image(
                     modifier = Modifier
-                        .padding(start = 24.dp, end = 24.dp, bottom = 64.dp)
+                        .padding(start = edgePadding, end = edgePadding, bottom = 64.dp)
                         .align(Alignment.Center),
                     painter = painterResource(viewModel.getBackgroundId()),
                     contentDescription = null,
@@ -143,10 +141,7 @@ fun MessagesScreen(
                         messages.clear()
 
                         // reattach listener
-                        listenToDatabase(
-                            messages,
-                            listState,
-                            coroutine)
+                        listenToDatabase(messages, listState, coroutine)
 
                         // dismiss indicator
                         coroutine.launch {

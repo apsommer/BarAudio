@@ -3,7 +3,7 @@ package com.sommerengineering.baraudio
 import androidx.compose.ui.unit.dp
 
 // baraudio urls
-const val howToUseUrl = "https://baraud.io/how-to-use"
+const val setupUrl = "https://baraud.io/setup"
 const val aboutUrl = "https://baraud.io/"
 const val privacyUrl = "https://baraud.io/privacy/"
 const val termsUrl = "https://baraud.io/terms/"
@@ -21,7 +21,7 @@ const val messageMaxSize = 1000
 // notifications
 const val channelId = "42"
 const val channelName = "Webhook"
-const val channelDescription = "Push notifications for incoming webhook"
+const val channelDescription = "Notifications for incoming webhook"
 const val channelGroupId = "42"
 const val channelGroupName = "Alerts"
 const val isLaunchFromNotification = "isLaunchFromNotification"
@@ -34,8 +34,17 @@ const val unauthenticatedTimestampNote = ", sign-in to hear message!"
 const val parsingError = "Error parsing message"
 const val buildTypeDebug = "debug"
 
+// navigation
+const val LoginScreenRoute = "LoginScreen"
+const val OnboardingTextToSpeechScreenRoute = "OnboardingTextToSpeechScreen"
+const val OnboardingNotificationsScreenRoute = "OnboardingNotificationsScreen"
+const val OnboardingWebhookScreenRoute = "OnboardingWebhookScreen"
+const val OnboardingCompleteRoute = "complete"
+const val MessagesScreenRoute = "MessagesScreen"
+
 // datastore
 const val localCache = "localCache"
+const val onboardingKey = "onboarding"
 const val tokenKey = "token"
 const val voiceKey = "voice"
 const val speedKey = "speed"
@@ -44,9 +53,9 @@ const val isQueueFlushKey = "isQueueFlush"
 const val isDarkModeKey = "isDarkMode"
 const val volumeKey = android.speech.tts.TextToSpeech.Engine.KEY_PARAM_VOLUME
 
-// billing, configure in play store
-const val productId = "premium"
-const val freeTrial = "free-trial"
+// billing
+const val productId = "subscription" // config in play store
+const val freeTrial = "free-trial" // config in play store
 const val subscriptionUrl = "https://play.google.com/store/account/subscriptions?sku=" +
     productId + "&package=" + BuildConfig.APPLICATION_ID
 
@@ -71,6 +80,21 @@ const val queueBehaviorAddDescription = "Add new alerts to queue"
 const val uiModeDarkDescription = "Dark"
 const val uiModeLightDescription = "Light"
 
-// animation
+// images
 const val deleteAllFadeDurationMillis = 1000
 val circularButtonSize = 96.dp // login, fab, ...
+val edgePadding = 24.dp
+val settingsIconSize = edgePadding
+
+// onboarding
+const val onboardingTotalPages = 3
+const val next = "Next"
+const val ttsInstalledTitle = "BarAudio uses text-to-speech to announce alerts."
+const val ttsNotInstalledTitle = "BarAudio requires text-to-speech, please install it to continue."
+const val allowNotificationsTitle = "Please allow notifications for realtime events."
+const val webhookStartTitle = "BarAudio connects to your unique webhook with a simple "
+const val webhookEndTitle = "setup"
+const val period = "."
+const val soundAnimation = "sound.json"
+const val notificationAnimation = "notification.json"
+const val linkAnimation = "link.json"

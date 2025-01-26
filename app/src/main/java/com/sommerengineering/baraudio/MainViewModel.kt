@@ -6,17 +6,30 @@ import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
 import android.speech.tts.Voice
 import android.widget.Toast
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.times
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
+import com.sommerengineering.baraudio.messages.Message
 import com.sommerengineering.baraudio.messages.tradingviewWhitelistIps
 import com.sommerengineering.baraudio.messages.trendspiderWhitelistIp
 import kotlinx.coroutines.CoroutineScope
@@ -39,11 +52,11 @@ class MainViewModel(
         }
     }
 
-    lateinit var voices: List<Voice>
-    var voiceDescription by mutableStateOf("")
-    var speedDescription by mutableStateOf("")
-    var pitchDescription by mutableStateOf("")
-    var queueDescription by mutableStateOf("")
+
+
+
+
+
     
     private fun initTtsSettings() {
 
@@ -90,6 +103,10 @@ class MainViewModel(
     }
     
     // voice
+    lateinit var voices: List<Voice>
+    var voiceDescription by mutableStateOf("")
+    private val beautifulVoiceNames = hashMapOf<String, String>()
+
     fun setVoice(
         context: Context,
         voice: Voice) {
@@ -123,13 +140,8 @@ class MainViewModel(
             }
     }
 
-    private val beautifulVoiceNames =
-        hashMapOf<String, String>()
-
     fun beautifyVoiceName(name: String) =
         beautifulVoiceNames[name] ?: ""
-
-
 
     private fun enumerateVoices(
         voice: Voice,
@@ -167,6 +179,8 @@ class MainViewModel(
                 it == tts.voice.value })
 
     // speed
+    var speedDescription by mutableStateOf("")
+
     fun getSpeed() =
         tts.speed
     
@@ -183,6 +197,8 @@ class MainViewModel(
     }
 
     // pitch
+    var pitchDescription by mutableStateOf("")
+
     fun getPitch() =
         tts.pitch
     
@@ -198,36 +214,9 @@ class MainViewModel(
         pitchDescription = selectedPitch.toString()
     }
 
-    fun speakLastMessage() {
-
-        getDatabaseReference(messagesNode)
-            .limitToLast(1)
-            .addListenerForSingleValueEvent(object : ValueEventListener {
-
-                override fun onDataChange(snapshot: DataSnapshot) {
-
-                    var lastMessage = defaultMessage
-
-                    val children = snapshot.children
-                    if (!children.none()) {
-
-                        // parse json
-                        val json = JSONObject(children.first().value.toString())
-                        val jsonMessage = json.getString(messageKey)
-                        if (jsonMessage.isNotEmpty()) lastMessage = jsonMessage
-                    }
-
-                    tts.speak(
-                        timestamp = "",
-                        message = lastMessage,
-                        isForceVolume = true)
-                }
-
-                override fun onCancelled(error: DatabaseError) { }
-            })
-    }
-
     // queue behavior
+    var queueDescription by mutableStateOf("")
+
     fun isQueueAdd() =
         tts.isQueueAdd
     
@@ -244,32 +233,31 @@ class MainViewModel(
     }
 
     // dark mode
-    val isDarkMode = mutableStateOf(true)
+    var isDarkMode by mutableStateOf(true)
     var isSystemInDarkTheme = false
-
-    val uiModeDescription by lazy {
-        mutableStateOf(
-            if (isDarkMode.value) uiModeDarkDescription
-            else uiModeLightDescription)
-    }
+    var uiModeDescription by mutableStateOf("")
 
     fun setUiMode(
         context: Context) {
 
-        isDarkMode.value =
+        isDarkMode =
             if (Firebase.auth.currentUser == null) isSystemInDarkTheme
             else readFromDataStore(context, isDarkModeKey)?.toBooleanStrictOrNull() ?: true
+
+        uiModeDescription =
+            if (isDarkMode) uiModeDarkDescription
+            else uiModeLightDescription
     }
 
     fun setIsDarkMode(
         context: Context,
         isChecked: Boolean) {
 
-        isDarkMode.value = isChecked
+        isDarkMode = isChecked
         writeToDataStore(context, isDarkModeKey, isChecked.toString())
 
-        uiModeDescription.value =
-            if (isDarkMode.value) uiModeDarkDescription
+        uiModeDescription =
+            if (isDarkMode) uiModeDarkDescription
             else uiModeLightDescription
     }
 
@@ -353,14 +341,27 @@ class MainViewModel(
         writeToDataStore(context, volumeKey, tts.volume.toString())
     }
 
+    val messages = mutableStateListOf<Message>()
+    fun speakLastMessage() {
+
+        val lastMessage =
+            if (messages.isEmpty()) defaultMessage
+            else messages.last().message
+
+        tts.speak(
+            timestamp = "",
+            message = lastMessage,
+            isForceVolume = true)
+    }
+
     // images //////////////////////////////////////////////////////////////////////////////////////
 
     fun getGitHubImageId() =
-        if (isDarkMode.value) R.drawable.github_light
+        if (isDarkMode) R.drawable.github_light
         else R.drawable.github_dark
 
     fun getBackgroundId() =
-        if (isDarkMode.value) R.drawable.background_skyline_dark
+        if (isDarkMode) R.drawable.background_skyline_dark
         else R.drawable.background_skyline
 
     @Composable
@@ -378,7 +379,7 @@ class MainViewModel(
 
         return when (origin) {
             in tradingviewWhitelistIps -> {
-                if (isDarkMode.value) R.drawable.tradingview_light
+                if (isDarkMode) R.drawable.tradingview_light
                 else R.drawable.tradingview_dark
             }
             trendspiderWhitelistIp -> R.drawable.trendspider

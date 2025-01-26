@@ -36,7 +36,7 @@ fun beautifyTimestamp(
 
     val pattern =
         if (isToday) "h:mm:ss a" // 6:27:53 PM
-        else "MMMM dd, yyyy • h:mm:ss a" //  October 30, 2024 • 6:27:53 PM
+        else "h:mm:ss a • MMMM dd, yyyy" //  6:27:53 PM • October 30, 2024
 
     return SimpleDateFormat(
         pattern,

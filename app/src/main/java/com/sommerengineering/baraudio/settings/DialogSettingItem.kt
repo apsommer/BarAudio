@@ -19,6 +19,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.sommerengineering.baraudio.edgePadding
+import com.sommerengineering.baraudio.settingsIconSize
 
 @Composable
 fun DialogSettingItem(
@@ -43,10 +45,10 @@ fun DialogSettingItem(
 
                     Box(
                         modifier = Modifier
-                            .padding(24.dp)) {
+                            .padding(edgePadding)) {
                         Icon(
                             modifier = Modifier
-                                .size(24.dp),
+                                .size(settingsIconSize),
                             painter = painterResource(icon),
                             contentDescription = null)
                     }
@@ -67,7 +69,7 @@ fun DialogSettingItem(
 
                 Spacer(
                     modifier = Modifier
-                        .width(24.dp))
+                        .width(edgePadding))
 
                 content()
             }

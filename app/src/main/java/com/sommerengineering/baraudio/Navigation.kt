@@ -17,13 +17,12 @@ import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.sommerengineering.baraudio.login.LoginScreen
+import com.sommerengineering.baraudio.login.OnboardingScreen
 import com.sommerengineering.baraudio.messages.MessagesScreen
 import com.sommerengineering.baraudio.messages.dbListener
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
 import org.koin.androidx.compose.koinViewModel
-
-// routes
-const val LoginScreenRoute = "LoginScreen"
-const val MessagesScreenRoute = "MessagesScreen"
 
 @Composable
 fun Navigation(
@@ -61,11 +60,71 @@ fun Navigation(
                         viewModel = viewModel,
                         controller = controller)
                 },
+
+                // block login attempt if update required
                 onForceUpdate = {
                     onForceUpdate(
                         context = context,
                         viewModel = viewModel,
                         controller = controller)
+                })
+        }
+
+        // onboarding screen: text-to-speech
+        composable(
+            route = OnboardingTextToSpeechScreenRoute,
+            enterTransition = { fadeIn },
+            exitTransition = { fadeOut }) {
+
+            OnboardingScreen(
+                viewModel = viewModel,
+                pageNumber = 0,
+                onNextClick = {
+                    writeToDataStore(context, onboardingKey, OnboardingNotificationsScreenRoute)
+                    controller.navigate(OnboardingNotificationsScreenRoute)
+                })
+        }
+
+        // onboarding screen: notifications
+        composable(
+            route = OnboardingNotificationsScreenRoute,
+            enterTransition = { fadeIn },
+            exitTransition = { fadeOut }) {
+
+            LaunchedEffect(Unit) {
+                isNotificationPermissionGranted
+                    .onEach { isGranted ->
+                        if (isGranted) {
+                            writeToDataStore(context, onboardingKey, OnboardingWebhookScreenRoute)
+                            controller.navigate(OnboardingWebhookScreenRoute)
+                        }
+                    }
+                    .collect()
+            }
+
+            OnboardingScreen(
+                viewModel = viewModel,
+                pageNumber = 1,
+                onNextClick = {
+                    context.requestNotificationPermission()
+                })
+        }
+
+        // onboarding screen: webhook
+        composable(
+            route = OnboardingWebhookScreenRoute,
+            enterTransition = { fadeIn },
+            exitTransition = { fadeOut }) {
+
+            OnboardingScreen(
+                viewModel = viewModel,
+                pageNumber = 2,
+                onNextClick = {
+                    onboardingProgressRoute = OnboardingCompleteRoute
+                    writeToDataStore(context, onboardingKey, onboardingProgressRoute)
+                    controller.navigate(MessagesScreenRoute) {
+                        popUpTo(OnboardingTextToSpeechScreenRoute) { inclusive = true }
+                    }
                 })
         }
 
@@ -87,18 +146,23 @@ fun Navigation(
 }
 
 // skip login screen if user already authenticated
-fun getStartDestination() =
+fun getStartDestination(): String {
 
-    if (Firebase.auth.currentUser != null) {
+    if (Firebase.auth.currentUser == null) {
+        return LoginScreenRoute
+    }
 
-        // log for development
-        logMessage("Authentication skipped, user already signed-in")
-        logMessage("    uid: ${Firebase.auth.currentUser?.uid}")
-        logMessage("  token: $token")
+    if (onboardingProgressRoute != OnboardingCompleteRoute) {
+        return onboardingProgressRoute
+    }
 
-        MessagesScreenRoute }
+    // log for development
+    logMessage("Authentication skipped, user already signed-in")
+    logMessage("    uid: ${Firebase.auth.currentUser?.uid}")
+    logMessage("  token: $token")
 
-    else LoginScreenRoute
+    return MessagesScreenRoute
+}
 
 fun onAuthentication(
     context: Context,
@@ -108,14 +172,15 @@ fun onAuthentication(
     // reset dark mode to previous preference, if available
     viewModel.setUiMode(context)
 
-    // request notification permission, does nothing if already granted
-    (context as MainActivity).requestNotificationPermission()
-
     // write user:token pair to database, if needed
     writeTokenToDatabase()
 
-    // navigate to messages screen
-    controller.navigate(MessagesScreenRoute) {
+    // navigate to next destination
+    val nextDestination =
+        if (onboardingProgressRoute != OnboardingCompleteRoute) { onboardingProgressRoute }
+        else OnboardingTextToSpeechScreenRoute
+
+    controller.navigate(nextDestination) {
         popUpTo(LoginScreenRoute) { inclusive = true }
     }
 }
@@ -124,6 +189,9 @@ fun onSignOut(
     context: Context,
     viewModel: MainViewModel,
     controller: NavHostController) {
+
+    // user already signed-out
+    if (Firebase.auth.currentUser == null) { return }
 
     // sign-out firebase
     signOut()
@@ -174,12 +242,10 @@ fun onForceUpdate(
             isUpdateRequired = true
 
             // sign out, if needed
-            if (Firebase.auth.currentUser != null) {
-                onSignOut(
-                    context = context,
-                    viewModel = viewModel,
-                    controller = controller)
-            }
+            onSignOut(
+                context = context,
+                viewModel = viewModel,
+                controller = controller)
 
             // launch update flow ui
             updateManager.startUpdateFlowForResult(

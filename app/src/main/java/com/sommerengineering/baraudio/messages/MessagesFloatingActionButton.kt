@@ -41,9 +41,7 @@ fun MessagesFloatingActionButton(
                 shape = CircleShape),
         containerColor = viewModel.getFabBackgroundColor(),
         shape = CircleShape,
-        onClick = { viewModel.toggleMute(context) }
-
-    ) {
+        onClick = { viewModel.toggleMute(context) }) {
 
         // progress wheel
         if (viewModel.shouldShowSpinner) {
@@ -52,11 +50,8 @@ fun MessagesFloatingActionButton(
         }
 
         // animate toggle icon
-        var isMute by remember { mutableStateOf(true) }
-        isMute = viewModel.isMute
-
         AnimatedContent (
-            targetState = isMute,
+            targetState = viewModel.isMute,
             transitionSpec = {
                 fadeIn(spring(stiffness = Spring.StiffnessVeryLow))
                     .togetherWith(

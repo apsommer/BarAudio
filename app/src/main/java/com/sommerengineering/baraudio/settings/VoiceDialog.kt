@@ -21,6 +21,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.sommerengineering.baraudio.MainViewModel
+import com.sommerengineering.baraudio.edgePadding
 import kotlinx.coroutines.launch
 
 @Composable
@@ -37,7 +38,7 @@ fun VoiceDialog(
 
         Surface(
             modifier = Modifier
-                .padding(vertical = 24.dp)
+                .padding(vertical = edgePadding)
                 .clip(RoundedCornerShape(16.dp))) {
             Column {
 
@@ -45,7 +46,7 @@ fun VoiceDialog(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(24.dp),
+                        .padding(edgePadding),
                     horizontalArrangement = Arrangement.Center) {
 
                     Text(

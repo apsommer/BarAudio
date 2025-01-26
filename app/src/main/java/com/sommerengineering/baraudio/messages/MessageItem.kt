@@ -24,6 +24,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.beautifyTimestamp
+import com.sommerengineering.baraudio.edgePadding
+import com.sommerengineering.baraudio.settingsIconSize
 
 @Composable
 fun MessageItem(
@@ -85,14 +87,14 @@ fun MessageItem(
 
                 Spacer(
                     modifier = Modifier
-                        .padding(24.dp))
+                        .padding(edgePadding))
 
                 // origin
                 viewModel
                     .getOriginImageId(message.origin)?.let {
                     Image(
                         modifier = Modifier
-                            .size(24.dp),
+                            .size(settingsIconSize),
                         painter = painterResource(it),
                         contentDescription = null)
                 }

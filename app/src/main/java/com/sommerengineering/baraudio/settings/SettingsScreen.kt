@@ -31,8 +31,9 @@ import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.aboutTitle
 import com.sommerengineering.baraudio.aboutUrl
 import com.sommerengineering.baraudio.channelId
+import com.sommerengineering.baraudio.edgePadding
 import com.sommerengineering.baraudio.howToUseTitle
-import com.sommerengineering.baraudio.howToUseUrl
+import com.sommerengineering.baraudio.setupUrl
 import com.sommerengineering.baraudio.manageSubscriptionTitle
 import com.sommerengineering.baraudio.notificationsTitle
 import com.sommerengineering.baraudio.pitchTitle
@@ -60,8 +61,6 @@ fun SettingsScreen(
     val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
     val uriHandler = LocalUriHandler.current
 
-
-
     Scaffold { padding ->
 
         var isShowVoiceDialog by remember { mutableStateOf(false) }
@@ -75,7 +74,7 @@ fun SettingsScreen(
                 LinkSettingItem(
                     icon = R.drawable.browser,
                     title = howToUseTitle,
-                    onClick = { uriHandler.openUri(howToUseUrl) })
+                    onClick = { uriHandler.openUri(setupUrl) })
             }
 
             // webhook
@@ -180,10 +179,10 @@ fun SettingsScreen(
                 SwitchSettingItem(
                     icon = R.drawable.contrast,
                     title = uiModeTitle,
-                    description = viewModel.uiModeDescription.value) {
+                    description = viewModel.uiModeDescription) {
 
                         Switch(
-                            checked = viewModel.isDarkMode.value,
+                            checked = viewModel.isDarkMode,
                             onCheckedChange = { viewModel.setIsDarkMode(context, it) })
                     }
             }
@@ -262,7 +261,7 @@ fun SettingsScreen(
                 Text(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(start = 24.dp, end = 24.dp, bottom = 24.dp),
+                        .padding(start = edgePadding, end = edgePadding, bottom = edgePadding),
                     text = BuildConfig.VERSION_NAME,
                     textAlign = TextAlign.End,
                     style = MaterialTheme.typography.bodySmall)

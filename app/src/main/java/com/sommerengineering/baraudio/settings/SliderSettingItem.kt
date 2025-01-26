@@ -19,6 +19,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.sommerengineering.baraudio.edgePadding
+import com.sommerengineering.baraudio.settingsIconSize
 import com.sommerengineering.baraudio.speedTitle
 
 @Composable
@@ -32,7 +34,7 @@ fun SliderSettingItem(
         Column {
             Row(
                 modifier = Modifier
-                    .padding(end = 24.dp),
+                    .padding(end = edgePadding),
                 verticalAlignment = Alignment.CenterVertically) {
 
                 Row(
@@ -40,10 +42,10 @@ fun SliderSettingItem(
 
                     Box(
                         modifier = Modifier
-                            .padding(24.dp)) {
+                            .padding(edgePadding)) {
                         Icon(
                             modifier = Modifier
-                                .size(24.dp),
+                                .size(settingsIconSize),
                             painter = painterResource(icon),
                             contentDescription = null)
                     }
@@ -75,7 +77,7 @@ fun SliderSettingItem(
 
                 Spacer(
                     modifier = Modifier
-                        .width(24.dp))
+                        .width(edgePadding))
 
                 content()
             }

@@ -39,7 +39,7 @@ fun LoginScreen (
     val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
 
     // size composables
-    val githubImageSize = 50.dp // touch over half buttonBorderSize to align with google
+    val githubImageSize = 50.dp // touch over half circularButtonSize to align with google
     val logoPadding = 64.dp
 
     Surface {
