@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -17,30 +16,25 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.times
 import com.dotlottie.dlplayer.Mode
 import com.lottiefiles.dotlottie.core.compose.ui.DotLottieAnimation
 import com.lottiefiles.dotlottie.core.util.DotLottieSource
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.circularButtonSize
 import com.sommerengineering.baraudio.edgePadding
+import com.sommerengineering.baraudio.nextButtonText
+import com.sommerengineering.baraudio.onboardingTotalPages
 import com.sommerengineering.baraudio.setupUrl
 
 @Composable
@@ -86,7 +80,7 @@ fun OnboardingScreen(
                     // page indicator
                     PageIndicator(
                         pageNumber = pageNumber,
-                        totalPages = 3, // todo extract or hoist
+                        totalPages = onboardingTotalPages,
                         modifier = Modifier
                             .align(alignment = Alignment.Center))
 
@@ -97,7 +91,7 @@ fun OnboardingScreen(
                         enabled = viewModel.tts.isInit.collectAsState().value,
                         onClick = onNextClick) {
                         Text(
-                            text = "Next")
+                            text = nextButtonText)
                     }
                 }
             }
