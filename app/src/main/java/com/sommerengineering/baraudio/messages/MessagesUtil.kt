@@ -21,7 +21,6 @@ import org.json.JSONObject
 lateinit var dbListener: ChildEventListener
 
 fun listenToDatabase(
-    viewModel: MainViewModel,
     messages: SnapshotStateList<Message>,
     listState: LazyListState,
     coroutine: CoroutineScope) {

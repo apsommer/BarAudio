@@ -50,11 +50,8 @@ fun MessagesFloatingActionButton(
         }
 
         // animate toggle icon
-        var isMute by remember { mutableStateOf(true) }
-        isMute = viewModel.isMute
-
         AnimatedContent (
-            targetState = isMute,
+            targetState = viewModel.isMute,
             transitionSpec = {
                 fadeIn(spring(stiffness = Spring.StiffnessVeryLow))
                     .togetherWith(

@@ -179,10 +179,10 @@ fun SettingsScreen(
                 SwitchSettingItem(
                     icon = R.drawable.contrast,
                     title = uiModeTitle,
-                    description = viewModel.uiModeDescription.value) {
+                    description = viewModel.uiModeDescription) {
 
                         Switch(
-                            checked = viewModel.isDarkMode.value,
+                            checked = viewModel.isDarkMode,
                             onCheckedChange = { viewModel.setIsDarkMode(context, it) })
                     }
             }

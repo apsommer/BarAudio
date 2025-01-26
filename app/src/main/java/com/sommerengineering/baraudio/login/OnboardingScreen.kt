@@ -37,12 +37,12 @@ import com.sommerengineering.baraudio.edgePadding
 import com.sommerengineering.baraudio.linkAnimation
 import com.sommerengineering.baraudio.next
 import com.sommerengineering.baraudio.notificationAnimation
-import com.sommerengineering.baraudio.ttsInstalledTitle
-import com.sommerengineering.baraudio.ttsNotInstalledTitle
 import com.sommerengineering.baraudio.onboardingTotalPages
 import com.sommerengineering.baraudio.period
 import com.sommerengineering.baraudio.setupUrl
 import com.sommerengineering.baraudio.soundAnimation
+import com.sommerengineering.baraudio.ttsInstalledTitle
+import com.sommerengineering.baraudio.ttsNotInstalledTitle
 import com.sommerengineering.baraudio.webhookEndTitle
 import com.sommerengineering.baraudio.webhookStartTitle
 

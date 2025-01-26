@@ -38,7 +38,7 @@ import org.koin.core.parameter.parametersOf
 
 var isAppOpen = false
 var isUpdateRequired = false
-lateinit var onboardingProgressRoute: String // todo refactor onboardings to VM?
+lateinit var onboardingProgressRoute: String
 var isNotificationPermissionGranted = MutableStateFlow(false)
 
 class MainActivity : ComponentActivity() {
@@ -143,14 +143,13 @@ fun App() {
     // track ui mode
     viewModel.isSystemInDarkTheme = isSystemInDarkTheme()
     viewModel.setUiMode(context)
-    val isDarkMode by remember { viewModel.isDarkMode }
 
     // initialize billing client
     viewModel.initBilling(
         koinInject<BillingClientImpl> { parametersOf(context) })
 
     KoinContext {
-        AppTheme(isDarkMode) {
+        AppTheme(viewModel.isDarkMode) {
             Scaffold { padding ->
                 Modifier.padding(padding) // not used
                 Navigation(rememberNavController())

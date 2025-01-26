@@ -72,11 +72,7 @@ fun MessagesScreen(
 
         // listen to database
         LaunchedEffect(Unit) {
-            listenToDatabase(
-                viewModel,
-                messages,
-                listState,
-                coroutine)
+            listenToDatabase(messages, listState, coroutine)
         }
 
         Scaffold(
@@ -145,11 +141,7 @@ fun MessagesScreen(
                         messages.clear()
 
                         // reattach listener
-                        listenToDatabase(
-                            viewModel,
-                            messages,
-                            listState,
-                            coroutine)
+                        listenToDatabase(messages, listState, coroutine)
 
                         // dismiss indicator
                         coroutine.launch {
