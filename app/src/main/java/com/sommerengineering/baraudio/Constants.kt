@@ -53,9 +53,9 @@ const val isQueueFlushKey = "isQueueFlush"
 const val isDarkModeKey = "isDarkMode"
 const val volumeKey = android.speech.tts.TextToSpeech.Engine.KEY_PARAM_VOLUME
 
-// billing, configure in play store
-const val productId = "premium"
-const val freeTrial = "free-trial"
+// billing
+const val productId = "subscription" // config in play store
+const val freeTrial = "free-trial" // config in play store
 const val subscriptionUrl = "https://play.google.com/store/account/subscriptions?sku=" +
     productId + "&package=" + BuildConfig.APPLICATION_ID
 
