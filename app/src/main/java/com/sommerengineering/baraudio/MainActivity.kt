@@ -58,7 +58,6 @@ class MainActivity : ComponentActivity() {
     private fun init() {
 
         isAppOpen = true
-        get<TextToSpeechImpl>() // todo remove? instantiated in viewmodel creation
         token = readFromDataStore(context, tokenKey) ?: unauthenticatedToken
         onboardingProgressRoute = readFromDataStore(context, onboardingKey) ?: OnboardingTextToSpeechScreenRoute
 
