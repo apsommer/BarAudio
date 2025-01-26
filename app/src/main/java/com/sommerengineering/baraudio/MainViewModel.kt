@@ -106,7 +106,7 @@ class MainViewModel(
     lateinit var voices: List<Voice>
     var voiceDescription by mutableStateOf("")
     private val beautifulVoiceNames = hashMapOf<String, String>()
-    
+
     fun setVoice(
         context: Context,
         voice: Voice) {
