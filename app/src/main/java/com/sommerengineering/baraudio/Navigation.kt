@@ -186,7 +186,7 @@ fun onAuthentication(
     // navigate to next destination
     val nextDestination =
         if (onboardingProgressRoute != OnboardingCompleteRoute) { onboardingProgressRoute }
-        else OnboardingTextToSpeechScreenRoute
+        else MessagesScreenRoute
 
     controller.navigate(nextDestination) {
         popUpTo(LoginScreenRoute) { inclusive = true }
@@ -207,8 +207,7 @@ fun onSignOut(
 
     CoroutineScope(Dispatchers.Main).launch {
         credentialManager.clearCredentialState(
-            ClearCredentialStateRequest()
-        )
+            ClearCredentialStateRequest())
     }
 
     viewModel.messages.clear()
