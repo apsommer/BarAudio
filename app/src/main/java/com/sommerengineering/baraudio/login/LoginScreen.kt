@@ -32,7 +32,6 @@ import org.koin.compose.koinInject
 
 @Composable
 fun LoginScreen (
-    credentialManager: CredentialManager,
     onAuthentication: () -> Unit,
     onForceUpdate: () -> Unit) {
 
@@ -66,6 +65,9 @@ fun LoginScreen (
                 modifier = Modifier
                     .weight(1f),
                 verticalArrangement = Arrangement.Center) {
+
+                // inject google credential manager
+                val credentialManager = koinInject<CredentialManager>()
 
                 Box(
                     modifier = Modifier

@@ -62,17 +62,14 @@ fun Navigation(
             exitTransition = { fadeOut }) {
 
             LoginScreen(
-                credentialManager = credentialManager,
                 onAuthentication = {
                     onAuthentication(
                         context = context,
                         viewModel = viewModel,
                         controller = controller)
                 },
-
-                // block login attempt if update required
                 onForceUpdate = {
-                    onSignOut(
+                    onForceUpdate(
                         credentialManager = credentialManager,
                         controller = controller,
                         viewModel = viewModel,
