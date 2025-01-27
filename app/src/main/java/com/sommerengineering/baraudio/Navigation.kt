@@ -7,6 +7,8 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
+import androidx.credentials.ClearCredentialStateRequest
+import androidx.credentials.CredentialManager
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -20,8 +22,11 @@ import com.sommerengineering.baraudio.login.LoginScreen
 import com.sommerengineering.baraudio.login.OnboardingScreen
 import com.sommerengineering.baraudio.messages.MessagesScreen
 import com.sommerengineering.baraudio.messages.dbListener
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -195,6 +200,15 @@ fun onSignOut(
 
     // sign-out firebase
     signOut()
+
+    CoroutineScope(Dispatchers.Main).launch {
+        CredentialManager.create(context).clearCredentialState(
+            ClearCredentialStateRequest()
+        )
+        logMessage("cleared")
+    }
+
+    viewModel.messages.clear()
 
     // reset dark mode to system default
     viewModel.setUiMode(context)

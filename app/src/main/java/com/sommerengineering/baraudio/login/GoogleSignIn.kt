@@ -3,8 +3,10 @@ package com.sommerengineering.baraudio.login
 import android.content.Context
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
+import androidx.credentials.GetCredentialResponse
+import androidx.credentials.exceptions.GetCredentialCancellationException
+import androidx.credentials.exceptions.GetCredentialException
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
-import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
@@ -26,15 +28,10 @@ fun signInWithGoogle (
         onForceUpdate()
         return
     }
-
-    // display ui with modal dialog
-//    val signInOptions = GetSignInWithGoogleOption
-//        .Builder(BuildConfig.googleSignInWebClientId)
-//        .build()
-
-    // display ui with bottom sheet and progress bar
+    
+    // display ui with bottom sheet
     val signInOptions = GetGoogleIdOption.Builder()
-        .setFilterByAuthorizedAccounts(true) // false to initiate sign-up flow
+        .setFilterByAuthorizedAccounts(false) // false to initiate sign-up flow
         .setServerClientId(BuildConfig.googleSignInWebClientId)
         .setAutoSelectEnabled(true)
         .build()
@@ -48,25 +45,44 @@ fun signInWithGoogle (
         .addCredentialOption(signInOptions)
         .build()
 
+    // request credential
     coroutine.launch {
+        try {
+            handleSuccess(
+                response = credentialManager.getCredential(context, request),
+                onAuthentication = onAuthentication)
 
-        // request credential
-        val credential = credentialManager
-            .getCredential(context, request)
-            .credential
-
-        if (credential.type != GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL)
-            return@launch
-
-        // extract google id
-        val googleToken = GoogleIdTokenCredential
-            .createFrom(credential.data)
-            .idToken
-
-        Firebase.auth
-            .signInWithCredential(
-                GoogleAuthProvider.getCredential(googleToken, null))
-            .addOnSuccessListener { onAuthentication() }
-            .addOnFailureListener { logException(it) }
+        } catch (e: GetCredentialException) {
+            handleFailure(e)
+        }
     }
+}
+
+fun handleSuccess(
+    response: GetCredentialResponse,
+    onAuthentication: () -> Unit) {
+
+    // extract credential
+    val credential = response.credential
+    if (credential.type != GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) return
+
+    // extract google id
+    val googleToken = GoogleIdTokenCredential
+        .createFrom(credential.data)
+        .idToken
+
+    Firebase.auth
+        .signInWithCredential(
+            GoogleAuthProvider.getCredential(googleToken, null))
+        .addOnSuccessListener { onAuthentication() }
+        .addOnFailureListener { logException(it) }
+}
+
+fun handleFailure(
+    e: GetCredentialException) {
+
+    // user canceled sign-in dialog, do not send to crashlytics
+    if (e is GetCredentialCancellationException) return
+
+    logException(e)
 }
