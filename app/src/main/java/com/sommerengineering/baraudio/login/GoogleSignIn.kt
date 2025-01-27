@@ -1,6 +1,7 @@
 package com.sommerengineering.baraudio.login
 
 import android.content.Context
+import androidx.compose.runtime.Composable
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
@@ -17,9 +18,12 @@ import com.sommerengineering.baraudio.logException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.koin.compose.getKoin
+import org.koin.compose.koinInject
 
 fun signInWithGoogle (
     context: Context,
+    credentialManager: CredentialManager,
     onAuthentication: () -> Unit,
     onForceUpdate: () -> Unit) {
 
@@ -28,17 +32,13 @@ fun signInWithGoogle (
         onForceUpdate()
         return
     }
-    
+
     // display ui with bottom sheet
     val signInOptions = GetGoogleIdOption.Builder()
-        .setFilterByAuthorizedAccounts(false) // false to initiate sign-up flow
+        .setFilterByAuthorizedAccounts(false) // false to initiate sign-up flow, if needed
         .setServerClientId(BuildConfig.googleSignInWebClientId)
         .setAutoSelectEnabled(true)
         .build()
-
-    // create credential manager and coroutine
-    val credentialManager = CredentialManager.create(context)
-    val coroutine = CoroutineScope(Dispatchers.Main)
 
     // create request
     val request: GetCredentialRequest = GetCredentialRequest.Builder()
@@ -46,7 +46,7 @@ fun signInWithGoogle (
         .build()
 
     // request credential
-    coroutine.launch {
+    CoroutineScope(Dispatchers.Main).launch {
         try {
             handleSuccess(
                 response = credentialManager.getCredential(context, request),

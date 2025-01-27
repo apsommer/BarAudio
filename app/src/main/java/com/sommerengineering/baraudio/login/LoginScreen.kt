@@ -22,17 +22,19 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.credentials.CredentialManager
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.circularButtonSize
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 @Composable
 fun LoginScreen (
+    credentialManager: CredentialManager,
     onAuthentication: () -> Unit,
-    onForceUpdate: () -> Unit,
-    modifier: Modifier = Modifier) {
+    onForceUpdate: () -> Unit) {
 
     // inject viewmodel
     val context = LocalContext.current
@@ -45,7 +47,7 @@ fun LoginScreen (
     Surface {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxSize()) {
 
             // logo
@@ -72,6 +74,7 @@ fun LoginScreen (
                         .clickable {
                             signInWithGoogle(
                                 context = context,
+                                credentialManager = credentialManager,
                                 onAuthentication = onAuthentication,
                                 onForceUpdate = onForceUpdate)
                         }

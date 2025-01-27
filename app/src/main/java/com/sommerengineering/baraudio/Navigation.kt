@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 @Composable
 fun Navigation(
@@ -35,6 +36,7 @@ fun Navigation(
 
     val context = LocalContext.current
     val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
+    val credentialManager = koinInject<CredentialManager>()
 
     // animate screen transitions
     val fadeIn = fadeIn(spring(stiffness = 10f))
@@ -43,9 +45,10 @@ fun Navigation(
     // force update, if needed
     LaunchedEffect(Unit){
         onForceUpdate(
-            context,
+            credentialManager,
+            controller,
             viewModel,
-            controller)
+            context)
     }
 
     NavHost(
@@ -59,6 +62,7 @@ fun Navigation(
             exitTransition = { fadeOut }) {
 
             LoginScreen(
+                credentialManager = credentialManager,
                 onAuthentication = {
                     onAuthentication(
                         context = context,
@@ -68,10 +72,11 @@ fun Navigation(
 
                 // block login attempt if update required
                 onForceUpdate = {
-                    onForceUpdate(
-                        context = context,
+                    onSignOut(
+                        credentialManager = credentialManager,
+                        controller = controller,
                         viewModel = viewModel,
-                        controller = controller)
+                        context = context)
                 })
         }
 
@@ -142,6 +147,7 @@ fun Navigation(
             MessagesScreen(
                 onSignOut = {
                     onSignOut(
+                        credentialManager = credentialManager,
                         controller = controller,
                         viewModel = viewModel,
                         context = context)
@@ -191,9 +197,10 @@ fun onAuthentication(
 }
 
 fun onSignOut(
-    context: Context,
+    credentialManager: CredentialManager,
+    controller: NavHostController,
     viewModel: MainViewModel,
-    controller: NavHostController) {
+    context: Context) {
 
     // user already signed-out
     if (Firebase.auth.currentUser == null) { return }
@@ -202,10 +209,9 @@ fun onSignOut(
     signOut()
 
     CoroutineScope(Dispatchers.Main).launch {
-        CredentialManager.create(context).clearCredentialState(
+        credentialManager.clearCredentialState(
             ClearCredentialStateRequest()
         )
-        logMessage("cleared")
     }
 
     viewModel.messages.clear()
@@ -224,9 +230,10 @@ fun onSignOut(
 }
 
 fun onForceUpdate(
-    context: Context,
+    credentialManager: CredentialManager,
+    controller: NavHostController,
     viewModel: MainViewModel,
-    controller: NavHostController) {
+    context: Context) {
 
     val updateManager =
         AppUpdateManagerFactory
@@ -257,9 +264,10 @@ fun onForceUpdate(
 
             // sign out, if needed
             onSignOut(
-                context = context,
+                credentialManager = credentialManager,
+                controller = controller,
                 viewModel = viewModel,
-                controller = controller)
+                context = context)
 
             // launch update flow ui
             updateManager.startUpdateFlowForResult(
