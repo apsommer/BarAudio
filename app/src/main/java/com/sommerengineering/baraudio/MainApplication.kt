@@ -1,6 +1,7 @@
 package com.sommerengineering.baraudio
 
 import android.app.Application
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.ktx.crashlytics
 import com.google.firebase.ktx.Firebase
 import org.koin.android.ext.koin.androidContext
@@ -18,7 +19,10 @@ class MainApplication : Application() {
             modules(appModule)
         }
 
-        // disable crashlytics for debug builds
-        if (BuildConfig.DEBUG) Firebase.crashlytics.isCrashlyticsCollectionEnabled = false
+        // disable analytics for debug builds
+        if (BuildConfig.DEBUG) {
+            FirebaseAnalytics.getInstance(this).setAnalyticsCollectionEnabled(false)
+            Firebase.crashlytics.isCrashlyticsCollectionEnabled = false
+        }
     }
 }

@@ -7,6 +7,8 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
+import androidx.credentials.ClearCredentialStateRequest
+import androidx.credentials.CredentialManager
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -20,9 +22,13 @@ import com.sommerengineering.baraudio.login.LoginScreen
 import com.sommerengineering.baraudio.login.OnboardingScreen
 import com.sommerengineering.baraudio.messages.MessagesScreen
 import com.sommerengineering.baraudio.messages.dbListener
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 @Composable
 fun Navigation(
@@ -30,6 +36,7 @@ fun Navigation(
 
     val context = LocalContext.current
     val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
+    val credentialManager = koinInject<CredentialManager>()
 
     // animate screen transitions
     val fadeIn = fadeIn(spring(stiffness = 10f))
@@ -38,9 +45,10 @@ fun Navigation(
     // force update, if needed
     LaunchedEffect(Unit){
         onForceUpdate(
-            context,
+            credentialManager,
+            controller,
             viewModel,
-            controller)
+            context)
     }
 
     NavHost(
@@ -60,13 +68,12 @@ fun Navigation(
                         viewModel = viewModel,
                         controller = controller)
                 },
-
-                // block login attempt if update required
                 onForceUpdate = {
                     onForceUpdate(
-                        context = context,
+                        credentialManager = credentialManager,
+                        controller = controller,
                         viewModel = viewModel,
-                        controller = controller)
+                        context = context)
                 })
         }
 
@@ -137,6 +144,7 @@ fun Navigation(
             MessagesScreen(
                 onSignOut = {
                     onSignOut(
+                        credentialManager = credentialManager,
                         controller = controller,
                         viewModel = viewModel,
                         context = context)
@@ -178,7 +186,7 @@ fun onAuthentication(
     // navigate to next destination
     val nextDestination =
         if (onboardingProgressRoute != OnboardingCompleteRoute) { onboardingProgressRoute }
-        else OnboardingTextToSpeechScreenRoute
+        else MessagesScreenRoute
 
     controller.navigate(nextDestination) {
         popUpTo(LoginScreenRoute) { inclusive = true }
@@ -186,15 +194,23 @@ fun onAuthentication(
 }
 
 fun onSignOut(
-    context: Context,
+    credentialManager: CredentialManager,
+    controller: NavHostController,
     viewModel: MainViewModel,
-    controller: NavHostController) {
+    context: Context) {
 
     // user already signed-out
     if (Firebase.auth.currentUser == null) { return }
 
     // sign-out firebase
     signOut()
+
+    CoroutineScope(Dispatchers.Main).launch {
+        credentialManager.clearCredentialState(
+            ClearCredentialStateRequest())
+    }
+
+    viewModel.messages.clear()
 
     // reset dark mode to system default
     viewModel.setUiMode(context)
@@ -210,9 +226,10 @@ fun onSignOut(
 }
 
 fun onForceUpdate(
-    context: Context,
+    credentialManager: CredentialManager,
+    controller: NavHostController,
     viewModel: MainViewModel,
-    controller: NavHostController) {
+    context: Context) {
 
     val updateManager =
         AppUpdateManagerFactory
@@ -227,7 +244,6 @@ fun onForceUpdate(
             val availability = updateInfo.updateAvailability()
             if (availability == UpdateAvailability.UNKNOWN ||
                 availability == UpdateAvailability.UPDATE_NOT_AVAILABLE) {
-                    logMessage("Update not available")
                     return@addOnSuccessListener
             }
 
@@ -243,9 +259,10 @@ fun onForceUpdate(
 
             // sign out, if needed
             onSignOut(
-                context = context,
+                credentialManager = credentialManager,
+                controller = controller,
                 viewModel = viewModel,
-                controller = controller)
+                context = context)
 
             // launch update flow ui
             updateManager.startUpdateFlowForResult(

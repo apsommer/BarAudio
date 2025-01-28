@@ -1,10 +1,13 @@
 package com.sommerengineering.baraudio.login
 
 import android.content.Context
+import androidx.compose.runtime.Composable
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
+import androidx.credentials.GetCredentialResponse
+import androidx.credentials.exceptions.GetCredentialCancellationException
+import androidx.credentials.exceptions.GetCredentialException
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
-import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
@@ -15,9 +18,12 @@ import com.sommerengineering.baraudio.logException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.koin.compose.getKoin
+import org.koin.compose.koinInject
 
 fun signInWithGoogle (
     context: Context,
+    credentialManager: CredentialManager,
     onAuthentication: () -> Unit,
     onForceUpdate: () -> Unit) {
 
@@ -27,46 +33,56 @@ fun signInWithGoogle (
         return
     }
 
-    // display ui with modal dialog
-//    val signInOptions = GetSignInWithGoogleOption
-//        .Builder(BuildConfig.googleSignInWebClientId)
-//        .build()
-
-    // display ui with bottom sheet and progress bar
+    // display ui with bottom sheet
     val signInOptions = GetGoogleIdOption.Builder()
-        .setFilterByAuthorizedAccounts(true) // false to initiate sign-up flow
+        .setFilterByAuthorizedAccounts(false) // false to initiate sign-up flow, if needed
         .setServerClientId(BuildConfig.googleSignInWebClientId)
         .setAutoSelectEnabled(true)
         .build()
-
-    // create credential manager and coroutine
-    val credentialManager = CredentialManager.create(context)
-    val coroutine = CoroutineScope(Dispatchers.Main)
 
     // create request
     val request: GetCredentialRequest = GetCredentialRequest.Builder()
         .addCredentialOption(signInOptions)
         .build()
 
-    coroutine.launch {
+    // request credential
+    CoroutineScope(Dispatchers.Main).launch {
+        try {
+            handleSuccess(
+                response = credentialManager.getCredential(context, request),
+                onAuthentication = onAuthentication)
 
-        // request credential
-        val credential = credentialManager
-            .getCredential(context, request)
-            .credential
-
-        if (credential.type != GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL)
-            return@launch
-
-        // extract google id
-        val googleToken = GoogleIdTokenCredential
-            .createFrom(credential.data)
-            .idToken
-
-        Firebase.auth
-            .signInWithCredential(
-                GoogleAuthProvider.getCredential(googleToken, null))
-            .addOnSuccessListener { onAuthentication() }
-            .addOnFailureListener { logException(it) }
+        } catch (e: GetCredentialException) {
+            handleFailure(e)
+        }
     }
+}
+
+fun handleSuccess(
+    response: GetCredentialResponse,
+    onAuthentication: () -> Unit) {
+
+    // extract credential
+    val credential = response.credential
+    if (credential.type != GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) return
+
+    // extract google id
+    val googleToken = GoogleIdTokenCredential
+        .createFrom(credential.data)
+        .idToken
+
+    Firebase.auth
+        .signInWithCredential(
+            GoogleAuthProvider.getCredential(googleToken, null))
+        .addOnSuccessListener { onAuthentication() }
+        .addOnFailureListener { logException(it) }
+}
+
+fun handleFailure(
+    e: GetCredentialException) {
+
+    // user canceled sign-in dialog, do not send to crashlytics
+    if (e is GetCredentialCancellationException) return
+
+    logException(e)
 }
