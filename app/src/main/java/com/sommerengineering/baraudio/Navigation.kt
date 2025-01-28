@@ -244,7 +244,6 @@ fun onForceUpdate(
             val availability = updateInfo.updateAvailability()
             if (availability == UpdateAvailability.UNKNOWN ||
                 availability == UpdateAvailability.UPDATE_NOT_AVAILABLE) {
-                    logMessage("Update not available")
                     return@addOnSuccessListener
             }
 
