@@ -4,7 +4,7 @@
 
 [BarAudio](https://baraud.io/) is an Android app available on the [Play Store](https://play.google.com/store/apps/details?id=com.sommerengineering.baraudio) as a monthly subscription. It's written in Kotlin with MVVM architecture using Compose, Firebase, and Google Cloud Functions on the backend. The app provides audible realtime alerts for financial securities including stocks, futures, options, and crypto.
 
-The ecosystem of market exchanges, brokers, and third party platforms all emit financial data in realtime. To be an effective trader, digital charts must be constantly monitored throughout the day which causes eye strain and fatigue. Audio alerts from a mobile device provide an alternative information source, allowing investors to step away from their screens with confidence.
+The ecosystem of market exchanges, brokers, and third party platforms emits financial data in realtime. To be an effective trader, digital charts must be constantly monitored throughout the day. This causes eye strain and mental fatigue. Audio alerts from a mobile device provide an alternative information source, allowing investors to step away from their screens with confidence.
 
 ### Intended User
 
