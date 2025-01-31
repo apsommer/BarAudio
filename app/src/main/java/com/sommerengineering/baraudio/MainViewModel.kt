@@ -6,28 +6,14 @@ import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
 import android.speech.tts.Voice
 import android.widget.Toast
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.times
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
 import com.sommerengineering.baraudio.messages.Message
 import com.sommerengineering.baraudio.messages.tradingviewWhitelistIps
@@ -37,7 +23,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import org.json.JSONObject
 import kotlin.math.roundToInt
 
 class MainViewModel(
@@ -52,12 +37,6 @@ class MainViewModel(
         }
     }
 
-
-
-
-
-
-    
     private fun initTtsSettings() {
 
         voices =
