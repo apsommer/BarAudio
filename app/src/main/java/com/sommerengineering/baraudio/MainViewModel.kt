@@ -59,6 +59,9 @@ class MainViewModel(
         queueDescription =
             if (tts.isQueueAdd) queueBehaviorAddDescription
             else queueBehaviorFlushDescription
+
+        // todo remove this line on resume subscription requirement 310125
+        billing.billingState.value = BillingState.Subscribed
     }
 
     // webhook
