@@ -50,7 +50,8 @@ import com.sommerengineering.baraudio.webhookStartTitle
 fun OnboardingScreen(
     viewModel: MainViewModel,
     pageNumber: Int,
-    onNextClick: () -> Unit) {
+    onNextClick: () -> Unit,
+    isNextEnabled: Boolean = true) {
 
     Surface {
 
@@ -96,7 +97,7 @@ fun OnboardingScreen(
                     Button(
                         modifier = Modifier
                             .align(alignment = Alignment.BottomEnd),
-                        enabled = viewModel.tts.isInit.collectAsState().value,
+                        enabled = isNextEnabled,
                         onClick = onNextClick) {
                         Text(
                             text = next)
