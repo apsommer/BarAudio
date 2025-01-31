@@ -11,8 +11,8 @@ import org.koin.dsl.module
 val appModule = module {
     single<TextToSpeechImpl> { TextToSpeechImpl(androidContext())}
     viewModel { MainViewModel(get()) }
-    single<BillingClientImpl> { param -> BillingClientImpl(param.get<Context>()) }
-    single<CredentialManager> { CredentialManager.create(androidContext()) }
+    single<BillingClientImpl> { param -> BillingClientImpl(param.get<Context>()) } // todo viewmodel dependency
+    single<CredentialManager> { CredentialManager.create(androidContext()) } // todo viewmodel dependency
 }
 
 // preferences datastore
