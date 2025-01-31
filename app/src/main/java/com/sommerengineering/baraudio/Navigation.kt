@@ -88,7 +88,7 @@ fun Navigation(
             // tts engine is initialized and has at least one voice
             val isTtsEnabled =
                 viewModel.tts.isInit.collectAsState().value &&
-                        viewModel.voices.isNotEmpty()
+                    viewModel.voices.isNotEmpty()
 
             OnboardingScreen(
                 viewModel = viewModel,
