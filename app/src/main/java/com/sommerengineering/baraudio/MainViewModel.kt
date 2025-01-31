@@ -39,10 +39,10 @@ class MainViewModel(
 
     private fun initTtsSettings() {
 
-        voices =
+        voices.addAll(
             tts.getVoices()
                 .toList()
-                .sortedBy { it.locale.displayName }
+                .sortedBy { it.locale.displayName })
 
         initBeautifulVoiceNames()
 
@@ -85,7 +85,7 @@ class MainViewModel(
     }
     
     // voice
-    lateinit var voices: List<Voice>
+    val voices = mutableListOf<Voice>()
     var voiceDescription by mutableStateOf("")
     private val beautifulVoiceNames = hashMapOf<String, String>()
 
