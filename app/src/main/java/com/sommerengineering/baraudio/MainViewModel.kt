@@ -314,9 +314,9 @@ class MainViewModel(
         context: Context) {
 
         // unmute only allowed for paid user
-        val isUserPaid =
-            billing.billingState.value == BillingState.NewSubscription ||
-            billing.billingState.value == BillingState.Subscribed
+        val isUserPaid = true // todo disable 310125
+//            billing.billingState.value == BillingState.NewSubscription ||
+//            billing.billingState.value == BillingState.Subscribed
 
         if (isMute && !isUserPaid) {
 
