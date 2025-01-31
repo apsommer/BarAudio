@@ -120,6 +120,7 @@ class BillingClientImpl(
         // debounce, only need to launch once
         if (billingState.value == BillingState.Loading) { return }
 
+        // show progress spinner
         billingState.value = BillingState.Loading
 
         CoroutineScope(Dispatchers.IO).launch {
