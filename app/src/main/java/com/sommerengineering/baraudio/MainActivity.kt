@@ -38,6 +38,7 @@ import org.koin.core.parameter.parametersOf
 
 var isAppOpen = false
 var isUpdateRequired = false
+var isFirstLaunch = true // todo remove this var on resume subscription requirement 310125
 lateinit var onboardingProgressRoute: String
 var isNotificationPermissionGranted = MutableStateFlow(false)
 
@@ -59,6 +60,7 @@ class MainActivity : ComponentActivity() {
 
         isAppOpen = true
         token = readFromDataStore(context, tokenKey) ?: unauthenticatedToken
+        isFirstLaunch = readFromDataStore(context, isFirstLaunchKey)?.toBooleanStrictOrNull() ?: true // todo remove this var on resume subscription requirement 310125
         onboardingProgressRoute = readFromDataStore(context, onboardingKey) ?: OnboardingTextToSpeechScreenRoute
 
         isNotificationPermissionGranted.value =

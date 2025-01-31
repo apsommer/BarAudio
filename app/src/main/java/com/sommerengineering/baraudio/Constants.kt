@@ -44,6 +44,7 @@ const val MessagesScreenRoute = "MessagesScreen"
 
 // datastore
 const val localCache = "localCache"
+const val isFirstLaunchKey = "isFirstLaunch"
 const val onboardingKey = "onboarding"
 const val tokenKey = "token"
 const val voiceKey = "voice"
