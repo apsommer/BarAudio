@@ -272,7 +272,7 @@ class MainViewModel(
                         }
 
                         BillingState.Subscribed -> {
-                            tts.volume = readFromDataStore(context, volumeKey)?.toFloat() ?: 1f
+                            tts.volume = readFromDataStore(context, volumeKey)?.toFloat() ?: 0f // todo revert this to "1f" on resume subscription requirement 310125
                             isMute = tts.volume == 0f
                         }
 
