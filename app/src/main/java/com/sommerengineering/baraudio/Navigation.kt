@@ -13,6 +13,8 @@ import androidx.credentials.CredentialManager
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.google.android.play.core.appupdate.AppUpdateInfo
+import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.appupdate.AppUpdateOptions
 import com.google.android.play.core.install.model.AppUpdateType
@@ -43,9 +45,9 @@ fun Navigation(
     val fadeIn = fadeIn(spring(stiffness = 10f))
     val fadeOut = fadeOut(spring(stiffness = 10f))
 
-    // force update, if needed
-    LaunchedEffect(Unit){
-        onForceUpdate(
+    // check for forced updated
+    LaunchedEffect(Unit) {
+        checkForcedUpdate(
             credentialManager,
             controller,
             viewModel,
@@ -70,7 +72,7 @@ fun Navigation(
                         controller = controller)
                 },
                 onForceUpdate = {
-                    onForceUpdate(
+                    checkForcedUpdate(
                         credentialManager = credentialManager,
                         controller = controller,
                         viewModel = viewModel,
@@ -227,7 +229,7 @@ fun onSignOut(
     }
 }
 
-fun onForceUpdate(
+fun checkForcedUpdate(
     credentialManager: CredentialManager,
     controller: NavHostController,
     viewModel: MainViewModel,
@@ -251,7 +253,7 @@ fun onForceUpdate(
 
             val priority = updateInfo.updatePriority()
             logMessage("Update available with priority: $priority")
-            if (priority < 5) {
+            if (4 >= priority) {
                 logMessage("  Not forced, continue normal app behavior ...")
                 return@addOnSuccessListener
             }
@@ -259,27 +261,37 @@ fun onForceUpdate(
             logMessage("  Force update, block app until update installed")
             isUpdateRequired = true
 
-            // sign out, if needed
+            // sign out, if needed todo necessary?
             onSignOut(
                 credentialManager = credentialManager,
                 controller = controller,
                 viewModel = viewModel,
                 context = context)
 
-            // launch update flow ui
-            updateManager.startUpdateFlowForResult(
+            // launch system update flow ui
+            onForcedUpdate(
+                updateManager,
                 updateInfo,
-                (context as MainActivity).updateLauncher,
-                AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build())
+                context)
         }
 
         .addOnFailureListener { exception ->
 
             // skip exception log for debug build
-            if (exception.message
-                ?.contains("The app is not owned") == true)
-                    { return@addOnFailureListener }
+            if (exception.message?.contains("The app is not owned") == true) return@addOnFailureListener
             logException(exception)
         }
+}
+
+fun onForcedUpdate(
+    updateManager: AppUpdateManager,
+    updateInfo: AppUpdateInfo,
+    context: Context) {
+
+    // launch system update flow ui
+    updateManager.startUpdateFlowForResult(
+        updateInfo,
+        (context as MainActivity).updateLauncher,
+        AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build())
 }
 
