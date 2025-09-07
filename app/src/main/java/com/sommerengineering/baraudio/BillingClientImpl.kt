@@ -205,7 +205,7 @@ class BillingClientImpl(
             12 to "Network error",
 
             // customize
-            42 to "No offers associated with retrieved produce",
+            42 to "No offers associated with retrieved product",
             43 to "Client disconnected")
 
         logMessage("Billing error, code $responseCode: ${errorMap[responseCode]}")
