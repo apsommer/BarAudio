@@ -13,8 +13,8 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.auth.auth
+import com.google.firebase.Firebase
 import com.sommerengineering.baraudio.messages.Message
 import com.sommerengineering.baraudio.messages.tradingviewWhitelistIps
 import com.sommerengineering.baraudio.messages.trendspiderWhitelistIp
