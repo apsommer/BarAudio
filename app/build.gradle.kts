@@ -27,12 +27,12 @@ android {
     }
 
     namespace = "com.sommerengineering.baraudio"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.sommerengineering.baraudio"
         minSdk = 28
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 56 // increment for each release
         versionName = "2.9.020925a" // major.minor.date.letter
 
