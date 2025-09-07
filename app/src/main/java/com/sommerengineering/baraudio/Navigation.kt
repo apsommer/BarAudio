@@ -7,7 +7,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
@@ -85,11 +84,6 @@ fun Navigation(
             enterTransition = { fadeIn },
             exitTransition = { fadeOut }) {
 
-            // tts engine is initialized and has at least one voice
-            val isTtsEnabled =
-                viewModel.tts.isInit.collectAsState().value &&
-                    viewModel.voices.isNotEmpty()
-
             OnboardingScreen(
                 viewModel = viewModel,
                 pageNumber = 0,
@@ -97,7 +91,7 @@ fun Navigation(
                     writeToDataStore(context, onboardingKey, OnboardingNotificationsScreenRoute)
                     controller.navigate(OnboardingNotificationsScreenRoute)
                 },
-                isNextEnabled = isTtsEnabled)
+                isNextEnabled = viewModel.tts.isInit.collectAsState().value)
         }
 
         // onboarding screen: notifications
@@ -159,11 +153,6 @@ fun Navigation(
                 })
         }
     }
-}
-
-@Composable
-fun OnboardingScreens() {
-
 }
 
 // skip login screen if user already authenticated

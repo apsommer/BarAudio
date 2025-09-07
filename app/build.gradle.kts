@@ -2,7 +2,6 @@ import java.io.FileInputStream
 import java.util.Properties
 
 plugins {
-
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.google.services)
@@ -34,8 +33,8 @@ android {
         applicationId = "com.sommerengineering.baraudio"
         minSdk = 28
         targetSdk = 35
-        versionCode = 53 // increment for each release
-        versionName = "2.9.310125c" // major.minor.date.letter
+        versionCode = 56 // increment for each release
+        versionName = "2.9.020925a" // major.minor.date.letter
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
