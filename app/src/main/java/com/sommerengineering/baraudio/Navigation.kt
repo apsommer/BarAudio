@@ -19,8 +19,8 @@ import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.appupdate.AppUpdateOptions
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.auth.auth
+import com.google.firebase.Firebase
 import com.sommerengineering.baraudio.login.LoginScreen
 import com.sommerengineering.baraudio.login.OnboardingScreen
 import com.sommerengineering.baraudio.messages.MessagesScreen

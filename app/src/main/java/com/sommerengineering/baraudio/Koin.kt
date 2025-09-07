@@ -16,4 +16,4 @@ val appModule = module {
 }
 
 // preferences datastore
-val Context.dataStore by preferenceDataStore(localCache)
+val Context.dataStore by preferencesDataStore(localCache)
