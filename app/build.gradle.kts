@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.io.FileInputStream
 import java.util.Properties
 
@@ -15,6 +16,13 @@ keystoreProperties.load(
     FileInputStream(
         rootProject.file(
             rootProject.projectDir.absolutePath + "/upload/keystore.properties")))
+
+kotlin {
+    compilerOptions {
+        jvmTarget = JvmTarget.fromTarget("17")
+        freeCompilerArgs = listOf("-Xdebug") // enable all variables in debugger break points
+    }
+}
 
 android {
 
@@ -60,12 +68,8 @@ android {
         // debug keystore location
         // ~/.android/debug.keystore
 
-        // enable all variables in debugger break points
         debug {
             isMinifyEnabled = false
-            kotlinOptions {
-                freeCompilerArgs = listOf("-Xdebug")
-            }
         }
 
         release {
@@ -83,17 +87,9 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
-
     buildFeatures {
         compose = true
         buildConfig = true
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
     }
 
     packaging {
