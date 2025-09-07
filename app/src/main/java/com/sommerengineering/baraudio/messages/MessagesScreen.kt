@@ -25,7 +25,6 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -40,7 +39,7 @@ import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.edgePadding
 import com.sommerengineering.baraudio.getDatabaseReference
 import com.sommerengineering.baraudio.messagesNode
-import com.sommerengineering.baraudio.settings.SettingsScreen
+import com.sommerengineering.baraudio.settings.SettingsDrawer
 import com.sommerengineering.baraudio.theme.uiModeFadeTimeMillis
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -58,11 +57,12 @@ fun MessagesScreen(
     val listState = rememberLazyListState()
     val coroutine = rememberCoroutineScope()
 
+    // side drawer
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {
-                SettingsScreen(
+                SettingsDrawer(
                     onSignOut = onSignOut)
             }
         },
