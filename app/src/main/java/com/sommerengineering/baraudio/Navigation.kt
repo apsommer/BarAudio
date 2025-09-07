@@ -160,16 +160,11 @@ fun Navigation(
 // skip login screen if user already authenticated
 fun getStartDestination(): String {
 
-    if (Firebase.auth.currentUser == null) {
-        return LoginScreenRoute
-    }
-
-    if (onboardingProgressRoute != OnboardingCompleteRoute) {
-        return onboardingProgressRoute
-    }
+    if (Firebase.auth.currentUser == null) return LoginScreenRoute
+    if (onboardingProgressRoute != OnboardingCompleteRoute) return onboardingProgressRoute
 
     // log for development
-    logMessage("Authentication skipped, user already signed-in")
+    logMessage("User already authenticated, sign-in flow skipped.")
     logMessage("    uid: ${Firebase.auth.currentUser?.uid}")
     logMessage("  token: $token")
 
