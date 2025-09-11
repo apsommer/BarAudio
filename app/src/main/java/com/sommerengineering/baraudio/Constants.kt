@@ -2,7 +2,7 @@ package com.sommerengineering.baraudio
 
 import androidx.compose.ui.unit.dp
 
-// baraudio urls
+// urls
 const val setupUrl = "https://baraud.io/setup"
 const val aboutUrl = "https://baraud.io/"
 const val privacyUrl = "https://baraud.io/privacy/"
@@ -55,8 +55,8 @@ const val isDarkModeKey = "isDarkMode"
 const val volumeKey = android.speech.tts.TextToSpeech.Engine.KEY_PARAM_VOLUME
 
 // billing
-const val productId = "subscription" // config in play store
-const val freeTrial = "free-trial" // config in play store
+const val productId = "subscription" // match play store config
+const val freeTrial = "free-trial" // match play store config
 const val subscriptionUrl = "https://play.google.com/store/account/subscriptions?sku=" +
     productId + "&package=" + BuildConfig.APPLICATION_ID
 
@@ -83,7 +83,7 @@ const val uiModeLightDescription = "Light"
 
 // images
 const val deleteAllFadeDurationMillis = 1000
-val circularButtonSize = 96.dp // login, fab, ...
+val circularButtonSize = 96.dp // login, fab, ... todo separate, fab is too large
 val edgePadding = 24.dp
 val settingsIconSize = edgePadding
 

@@ -21,10 +21,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.credentials.CredentialManager
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.auth.auth
+import com.google.firebase.Firebase
 import com.sommerengineering.baraudio.BuildConfig
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
@@ -52,13 +50,10 @@ import com.sommerengineering.baraudio.uiModeTitle
 import com.sommerengineering.baraudio.voiceTitle
 import com.sommerengineering.baraudio.webhookBaseUrl
 import com.sommerengineering.baraudio.webhookTitle
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import org.koin.androidx.compose.koinViewModel
-import org.koin.compose.koinInject
 
 @Composable
-fun SettingsScreen(
+fun SettingsDrawer(
     onSignOut: () -> Unit) {
 
     val context = LocalContext.current

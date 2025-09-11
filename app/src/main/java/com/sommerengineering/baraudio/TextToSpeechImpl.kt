@@ -8,7 +8,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.core.bundle.bundleOf
+import androidx.core.os.bundleOf
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class TextToSpeechImpl(

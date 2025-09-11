@@ -41,42 +41,23 @@ class MainActivity : ComponentActivity() {
 
     val context = this
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-
-        installSplashScreen()
-        super.onCreate(savedInstanceState)
-
-        init()
-        enableEdgeToEdge()
-        setContent { App() }
-    }
-
-    private fun init() {
-
-        isAppOpen = true
-        token = readFromDataStore(context, tokenKey) ?: unauthenticatedToken
-        isFirstLaunch = readFromDataStore(context, isFirstLaunchKey)?.toBooleanStrictOrNull() ?: true // todo remove this var on resume subscription requirement 310125
-        onboardingProgressRoute = readFromDataStore(context, onboardingKey) ?: OnboardingTextToSpeechScreenRoute
-
-        isNotificationPermissionGranted.value =
-            Build.VERSION.SDK_INT < 33 || // realtime permission required if sdk >= 32
-                    ContextCompat.checkSelfPermission( // permission already granted
-                        context,
-                        Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
-
-        // dismiss notifications on launch
-        val isLaunchFromNotification = intent.extras?.getBoolean(isLaunchFromNotification) ?: false
-        if (isLaunchFromNotification) { cancelAllNotifications(context) }
-    }
+    private val requestPermissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                isNotificationPermissionGranted.value = true
+                initNotificationChannel()
+            }
+        }
 
     val updateLauncher =
         registerForActivityResult(
             ActivityResultContracts.StartIntentSenderForResult()) { result ->
-                if (result.resultCode != RESULT_OK) {
-                    logMessage("Update flow failed with code: ${result.resultCode}")
-                    return@registerForActivityResult
-                }
-                // since update is immediate (not flexible) play updates and restarts app
+            if (result.resultCode != RESULT_OK) {
+                logMessage("Update flow failed with code: ${result.resultCode}")
+                return@registerForActivityResult
+            }
+            // if update is required/immediate (not flexible) play updates and restarts app
         }
 
     @SuppressLint("InlinedApi")
@@ -88,15 +69,6 @@ class MainActivity : ComponentActivity() {
         requestPermissionLauncher
             .launch(Manifest.permission.POST_NOTIFICATIONS)
     }
-
-    private val requestPermissionLauncher =
-        registerForActivityResult(
-            ActivityResultContracts.RequestPermission()) { isGranted ->
-                if (isGranted) {
-                    isNotificationPermissionGranted.value = true
-                    initNotificationChannel()
-                }
-        }
 
     private fun initNotificationChannel() {
 
@@ -121,6 +93,34 @@ class MainActivity : ComponentActivity() {
             .createNotificationChannel(channel)
 
         logMessage("Notification channel registered")
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+
+        installSplashScreen()
+        super.onCreate(savedInstanceState)
+
+        init()
+        enableEdgeToEdge()
+        setContent { App() }
+    }
+
+    private fun init() {
+
+        isAppOpen = true
+        token = readFromDataStore(context, tokenKey) ?: unauthenticatedToken
+        isFirstLaunch = readFromDataStore(context, isFirstLaunchKey)?.toBooleanStrictOrNull() ?: true // todo remove this var on resume subscription requirement 310125
+        onboardingProgressRoute = readFromDataStore(context, onboardingKey) ?: OnboardingTextToSpeechScreenRoute
+
+        // check notification permission
+        isNotificationPermissionGranted.value =
+            32 >= Build.VERSION.SDK_INT || ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+
+        // dismiss all notifications on launch
+        val isLaunchFromNotification = intent.extras?.getBoolean(isLaunchFromNotification) ?: false
+        if (isLaunchFromNotification) { cancelAllNotifications(context) }
     }
 }
 

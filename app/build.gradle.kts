@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.io.FileInputStream
 import java.util.Properties
 
@@ -6,6 +7,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.google.services)
     alias(libs.plugins.crashlytics)
+    alias(libs.plugins.compose.compiler)
 }
 
 // import release upload signing keystore
@@ -14,6 +16,13 @@ keystoreProperties.load(
     FileInputStream(
         rootProject.file(
             rootProject.projectDir.absolutePath + "/upload/keystore.properties")))
+
+kotlin {
+    compilerOptions {
+        jvmTarget = JvmTarget.fromTarget("17")
+        freeCompilerArgs = listOf("-Xdebug") // enable all variables in debugger break points
+    }
+}
 
 android {
 
@@ -27,14 +36,14 @@ android {
     }
 
     namespace = "com.sommerengineering.baraudio"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.sommerengineering.baraudio"
         minSdk = 28
-        targetSdk = 35
-        versionCode = 56 // increment for each release
-        versionName = "2.9.020925a" // major.minor.date.letter
+        targetSdk = 36
+        versionCode = 57 // increment for each release
+        versionName = "2.9.110925a" // major.minor.date.letter
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -59,12 +68,8 @@ android {
         // debug keystore location
         // ~/.android/debug.keystore
 
-        // enable all variables in debugger break points
         debug {
             isMinifyEnabled = false
-            kotlinOptions {
-                freeCompilerArgs = listOf("-Xdebug")
-            }
         }
 
         release {
@@ -78,21 +83,13 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
-
-    kotlinOptions {
-        jvmTarget = "1.8"
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     buildFeatures {
         compose = true
         buildConfig = true
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
     }
 
     packaging {
