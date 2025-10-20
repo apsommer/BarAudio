@@ -30,3 +30,8 @@ data class MindfulnessQuote(
     val category: String
 )
 
+data class MindfulnessQuoteState(
+    val isLoading : Boolean = false,
+    val isError: Boolean = false,
+    val quote: String? = null
+)
