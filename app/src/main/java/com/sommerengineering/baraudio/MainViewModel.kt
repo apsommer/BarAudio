@@ -5,6 +5,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
 import android.speech.tts.Voice
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -13,6 +14,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.auth
 import com.google.firebase.Firebase
 import com.sommerengineering.baraudio.messages.Message
@@ -23,26 +25,35 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import kotlin.math.roundToInt
+import org.koin.java.KoinJavaComponent.get
+import org.koin.java.KoinJavaComponent.inject
 
+import kotlin.math.roundToInt
 
 class MainViewModel(
     val tts: TextToSpeechImpl
 ) : ViewModel() {
 
-//    private val rapidApiService : RapidApiService by inject()
+    private val rapidApiService : RapidApiService by inject(RapidApiService::class.java)
+    lateinit var mindfulnessQuote : String
     
     init {
-        CoroutineScope(Dispatchers.Main).launch {
+
+        viewModelScope.launch(Dispatchers.Main) {
             tts.isInit
                 .onEach { if (it) initTtsSettings() }
                 .collect()
         }
 
         // todo temp
-        CoroutineScope(Dispatchers.IO).launch {
-
+        viewModelScope.launch(Dispatchers.IO) {
+            val quote = rapidApiService.getQuote()
+            Log.d(TAG, quote.quote)
         }
+    }
+
+    suspend fun getMindfulnessQuote() {
+
     }
 
     private fun initTtsSettings() {

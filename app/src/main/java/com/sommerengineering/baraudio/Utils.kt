@@ -18,7 +18,7 @@ import java.util.Date
 import java.util.Locale
 
 // logs
-const val TAG = "~"
+const val TAG = "~~"
 
 fun logMessage(msg: String?) =
     Log.v(TAG, "$msg")
