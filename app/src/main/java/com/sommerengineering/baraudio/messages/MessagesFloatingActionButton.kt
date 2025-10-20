@@ -73,7 +73,7 @@ fun MessagesFloatingActionButton(
             // unmute
             Icon(
                 modifier = Modifier
-                    .size(loginButtonSize / 2),
+                    .size(fabButtonSize / 2),
                 painter = painterResource(R.drawable.volume_on),
                 tint = viewModel.getFabIconColor(),
                 contentDescription = null)
