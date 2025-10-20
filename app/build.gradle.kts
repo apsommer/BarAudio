@@ -135,6 +135,8 @@ dependencies {
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.googleid)
+    implementation(libs.koin.core)
+    implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)

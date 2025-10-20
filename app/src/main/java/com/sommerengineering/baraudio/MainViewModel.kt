@@ -25,15 +25,23 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
+
 class MainViewModel(
     val tts: TextToSpeechImpl
 ) : ViewModel() {
+
+//    private val rapidApiService : RapidApiService by inject()
     
     init {
         CoroutineScope(Dispatchers.Main).launch {
             tts.isInit
                 .onEach { if (it) initTtsSettings() }
                 .collect()
+        }
+
+        // todo temp
+        CoroutineScope(Dispatchers.IO).launch {
+
         }
     }
 

@@ -13,6 +13,7 @@ val appModule = module {
     viewModel { MainViewModel(get()) }
     single<BillingClientImpl> { param -> BillingClientImpl(param.get<Context>()) } // todo refactor as viewmodel dependency
     single<CredentialManager> { CredentialManager.create(androidContext()) } // todo refactor as viewmodel dependency
+    single<RapidApiService> { initRetrofit() }
 }
 
 // preferences datastore
