@@ -83,7 +83,8 @@ const val uiModeLightDescription = "Light"
 
 // images
 const val deleteAllFadeDurationMillis = 1000
-val circularButtonSize = 96.dp // login, fab, ... todo separate, fab is too large
+val loginButtonSize = 96.dp
+val fabButtonSize = 72.dp
 val edgePadding = 24.dp
 val settingsIconSize = edgePadding
 
