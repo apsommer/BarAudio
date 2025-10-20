@@ -67,6 +67,11 @@ android {
             type = "String",
             name = "googleSignInWebClientId",
             value = googleSignInWebClientId)
+        val rapidApiKey = properties.getProperty("rapidApiKey")
+        buildConfigField(
+            type = "String",
+            name = "rapidApiKey",
+            value = rapidApiKey)
     }
 
     buildTypes {
@@ -125,6 +130,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(kotlin("script-runtime"))
 
+    // custom
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
@@ -145,4 +151,5 @@ dependencies {
     implementation(libs.app.update.ktx)
     implementation(libs.dotlottie.android)
     implementation(libs.retrofit)
+    implementation(libs.converter.gson)
 }
