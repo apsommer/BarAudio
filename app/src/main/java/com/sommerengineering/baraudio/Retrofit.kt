@@ -31,7 +31,7 @@ data class MindfulnessQuote(
 )
 
 data class MindfulnessQuoteState(
-    val isLoading : Boolean = false,
-    val isError: Boolean = false,
-    val quote: String? = null
+    var isLoading : Boolean = false,
+    var isError: Boolean = false,
+    var quote: String? = null
 )

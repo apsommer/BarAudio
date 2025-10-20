@@ -22,10 +22,10 @@ import com.sommerengineering.baraudio.messages.tradingviewWhitelistIps
 import com.sommerengineering.baraudio.messages.trendspiderWhitelistIp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import org.koin.java.KoinJavaComponent.get
 import org.koin.java.KoinJavaComponent.inject
 
 import kotlin.math.roundToInt
@@ -35,7 +35,7 @@ class MainViewModel(
 ) : ViewModel() {
 
     private val rapidApiService : RapidApiService by inject(RapidApiService::class.java)
-    lateinit var mindfulnessQuote : String
+    var quoteState = MutableStateFlow(MindfulnessQuoteState())
     
     init {
 
@@ -47,13 +47,20 @@ class MainViewModel(
 
         // todo temp
         viewModelScope.launch(Dispatchers.IO) {
-            val quote = rapidApiService.getQuote()
-            Log.d(TAG, quote.quote)
+            getMindfulnessQuote()
         }
     }
 
     suspend fun getMindfulnessQuote() {
-
+        quoteState.value.isLoading = true
+        try {
+            val mindfulnessQuote = rapidApiService.getQuote()
+            quoteState.value.quote = mindfulnessQuote.quote
+            Log.d(TAG, "getMindfulnessQuote: ${quoteState.value.quote}")
+        } catch (e: Exception) {
+            Log.d(TAG, "getMindfulnessQuote: ${e.message}")
+            quoteState.value.isError = true
+        }
     }
 
     private fun initTtsSettings() {

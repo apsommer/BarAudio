@@ -1,5 +1,6 @@
 package com.sommerengineering.baraudio.messages
 
+import android.util.Log
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
@@ -24,6 +25,7 @@ import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,6 +46,7 @@ import com.sommerengineering.baraudio.theme.uiModeFadeTimeMillis
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import com.sommerengineering.baraudio.TAG
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,6 +59,7 @@ fun MessagesScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val listState = rememberLazyListState()
     val coroutine = rememberCoroutineScope()
+    val quoteState by viewModel.quoteState.collectAsState()
 
     // side drawer
     ModalNavigationDrawer(
@@ -126,6 +130,13 @@ fun MessagesScreen(
                 // settings switch option to disable
                 // confirm webhook behavior
                 // todo can use my webhook permanently for all users?
+                
+                if (quoteState.isLoading) {
+                    Log.d(TAG, "quote loading ...")
+                }
+                quoteState.quote?.let {
+                    Log.d(TAG, it)
+                }
 
                 var isRefreshing by remember { mutableStateOf(false) }
                 val pullToRefreshState = rememberPullToRefreshState()
