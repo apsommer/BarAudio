@@ -125,18 +125,11 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(kotlin("script-runtime"))
 
-    // navigation
     implementation(libs.androidx.navigation.compose)
-    
-    // google sign-in
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.googleid)
-
-    // koin
     implementation(libs.koin.androidx.compose)
-
-    // firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.auth)
@@ -144,21 +137,12 @@ dependencies {
     implementation(libs.firebase.messaging)
     implementation(libs.firebase.database)
     implementation(libs.firebase.crashlytics)
-
-    // preferences datastore
     implementation(libs.androidx.datastore.preferences)
-
-    // splash screen
     implementation(libs.androidx.core.splashscreen)
-
-    // billing
     implementation(libs.billing)
     implementation(libs.billing.ktx)
-
-    // play in-app update
     implementation(libs.app.update)
     implementation(libs.app.update.ktx)
-
-    // lottie animations
     implementation(libs.dotlottie.android)
+    implementation(libs.retrofit)
 }
