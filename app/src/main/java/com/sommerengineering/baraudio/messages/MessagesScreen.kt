@@ -93,9 +93,8 @@ fun MessagesScreen(
                 MessagesFloatingActionButton(
                     context = context,
                     viewModel = viewModel)
-            }
 
-        ) { padding ->
+            }) { padding ->
 
             // screen container
             Box(
@@ -120,6 +119,13 @@ fun MessagesScreen(
                             tween(uiModeFadeTimeMillis),
                         label = "")
                         .value)
+
+                // mindfulness quote
+
+                // dialog, Ok button, click outside dismisses
+                // settings switch option to disable
+                // confirm webhook behavior
+                // todo can use my webhook permanently for all users?
 
                 var isRefreshing by remember { mutableStateOf(false) }
                 val pullToRefreshState = rememberPullToRefreshState()

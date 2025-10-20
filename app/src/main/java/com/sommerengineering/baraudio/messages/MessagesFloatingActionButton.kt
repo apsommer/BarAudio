@@ -62,7 +62,7 @@ fun MessagesFloatingActionButton(
             if (targetState) {
                 Icon(
                     modifier = Modifier
-                        .size(loginButtonSize / 2),
+                        .size(fabButtonSize / 2),
                     painter = painterResource(R.drawable.volume_off),
                     tint = viewModel.getFabIconColor(),
                     contentDescription = null)
