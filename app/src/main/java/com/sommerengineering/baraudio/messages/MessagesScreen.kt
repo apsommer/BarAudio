@@ -38,7 +38,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
-import com.sommerengineering.baraudio.QuoteState
 import com.sommerengineering.baraudio.edgePadding
 import com.sommerengineering.baraudio.getDatabaseReference
 import com.sommerengineering.baraudio.messagesNode
@@ -60,7 +59,8 @@ fun MessagesScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val listState = rememberLazyListState()
     val coroutine = rememberCoroutineScope()
-    val quoteState by viewModel.quoteState.collectAsState()
+    val quoteState = viewModel.quoteState.collectAsState().value
+    val shouldShouldDialog by remember { mutableStateOf(true)}
 
     // side drawer
     ModalNavigationDrawer(
@@ -125,10 +125,7 @@ fun MessagesScreen(
                         label = "")
                         .value)
 
-                // mindfulness quote
-
-                // dialog, Ok button, click outside dismisses
-                // settings switch option to disable
+                // display quote for a few seconds, then fade to background image
                 // confirm webhook behavior
                 // todo can use my webhook permanently for all users?
 
@@ -137,7 +134,7 @@ fun MessagesScreen(
                         Log.d(TAG, "quote loading ...")
                     }
                     is QuoteState.Success -> {
-                        Log.d(TAG, "ui layer: ${(quoteState as QuoteState.Success).mindfulnessQuote.quote}")
+                        Log.d(TAG, "ui layer: ${quoteState.quote.quote}")
                     }
                     is QuoteState.Error -> {}
                 }

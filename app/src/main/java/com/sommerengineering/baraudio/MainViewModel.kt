@@ -5,7 +5,6 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
 import android.speech.tts.Voice
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -18,6 +17,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.auth
 import com.google.firebase.Firebase
 import com.sommerengineering.baraudio.messages.Message
+import com.sommerengineering.baraudio.messages.QuoteState
 import com.sommerengineering.baraudio.messages.tradingviewWhitelistIps
 import com.sommerengineering.baraudio.messages.trendspiderWhitelistIp
 import kotlinx.coroutines.CoroutineScope
@@ -34,7 +34,7 @@ class MainViewModel(
     val tts: TextToSpeechImpl
 ) : ViewModel() {
 
-    private val rapidApiService : RapidApiService by inject(RapidApiService::class.java)
+    private val rapidApi : RapidApi by inject(RapidApi::class.java)
     var quoteState = MutableStateFlow<QuoteState>(QuoteState.Loading)
     
     init {
@@ -55,7 +55,7 @@ class MainViewModel(
     suspend fun getMindfulnessQuote() {
 
         quoteState.value = QuoteState.Loading
-        try { quoteState.value = QuoteState.Success(rapidApiService.getQuote()) }
+        try { quoteState.value = QuoteState.Success(rapidApi.getQuote()) }
         catch (e: Exception) { quoteState.value = QuoteState.Error(e.message) }
     }
 

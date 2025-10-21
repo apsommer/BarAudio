@@ -1,37 +1,29 @@
 package com.sommerengineering.baraudio
 
+import com.sommerengineering.baraudio.messages.Quote
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Headers
 
-interface RapidApiService {
+interface RapidApi {
 
+    // todo move headers to interceptor
     @Headers(
         "x-rapidapi-key: ${BuildConfig.rapidApiKey}",
         "x-rapidapi-host: metaapi-mindfulness-quotes.p.rapidapi.com"
     )
 
     @GET("v1/mindfulness")
-    suspend fun getQuote() : MindfulnessQuote
+    suspend fun getQuote() : Quote
 }
 
-fun initRetrofit(): RapidApiService {
+fun initRetrofit(): RapidApi {
 
     return Retrofit.Builder()
         .baseUrl("https://metaapi-mindfulness-quotes.p.rapidapi.com/")
         .addConverterFactory(GsonConverterFactory.create())
         .build()
-        .create(RapidApiService::class.java)
+        .create(RapidApi::class.java)
 }
 
-data class MindfulnessQuote(
-    val quote: String,
-    val category: String
-)
-
-sealed class QuoteState {
-    object Loading : QuoteState()
-    data class Error(val message: String?) : QuoteState()
-    data class Success(val mindfulnessQuote: MindfulnessQuote) : QuoteState()
-}
