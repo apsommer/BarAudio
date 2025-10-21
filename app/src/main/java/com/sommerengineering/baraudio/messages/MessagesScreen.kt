@@ -38,6 +38,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
+import com.sommerengineering.baraudio.QuoteState
 import com.sommerengineering.baraudio.edgePadding
 import com.sommerengineering.baraudio.getDatabaseReference
 import com.sommerengineering.baraudio.messagesNode
@@ -130,12 +131,15 @@ fun MessagesScreen(
                 // settings switch option to disable
                 // confirm webhook behavior
                 // todo can use my webhook permanently for all users?
-                
-                if (quoteState.isLoading) {
-                    Log.d(TAG, "quote loading ...")
-                }
-                quoteState.quote?.let {
-                    Log.d(TAG, it)
+
+                when (quoteState) {
+                    QuoteState.Loading -> {
+                        Log.d(TAG, "quote loading ...")
+                    }
+                    is QuoteState.Success -> {
+                        Log.d(TAG, "ui layer: ${(quoteState as QuoteState.Success).mindfulnessQuote.quote}")
+                    }
+                    is QuoteState.Error -> {}
                 }
 
                 var isRefreshing by remember { mutableStateOf(false) }

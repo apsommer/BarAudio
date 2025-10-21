@@ -35,32 +35,28 @@ class MainViewModel(
 ) : ViewModel() {
 
     private val rapidApiService : RapidApiService by inject(RapidApiService::class.java)
-    var quoteState = MutableStateFlow(MindfulnessQuoteState())
+    var quoteState = MutableStateFlow<QuoteState>(QuoteState.Loading)
     
     init {
 
+        // init tts engine, takes a few seconds ...
         viewModelScope.launch(Dispatchers.Main) {
             tts.isInit
                 .onEach { if (it) initTtsSettings() }
                 .collect()
         }
 
-        // todo temp
+        // init network call for mindfulness quote
         viewModelScope.launch(Dispatchers.IO) {
             getMindfulnessQuote()
         }
     }
 
     suspend fun getMindfulnessQuote() {
-        quoteState.value.isLoading = true
-        try {
-            val mindfulnessQuote = rapidApiService.getQuote()
-            quoteState.value.quote = mindfulnessQuote.quote
-            Log.d(TAG, "getMindfulnessQuote: ${quoteState.value.quote}")
-        } catch (e: Exception) {
-            Log.d(TAG, "getMindfulnessQuote: ${e.message}")
-            quoteState.value.isError = true
-        }
+
+        quoteState.value = QuoteState.Loading
+        try { quoteState.value = QuoteState.Success(rapidApiService.getQuote()) }
+        catch (e: Exception) { quoteState.value = QuoteState.Error(e.message) }
     }
 
     private fun initTtsSettings() {

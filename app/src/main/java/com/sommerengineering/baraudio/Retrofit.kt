@@ -30,8 +30,8 @@ data class MindfulnessQuote(
     val category: String
 )
 
-data class MindfulnessQuoteState(
-    var isLoading : Boolean = false,
-    var isError: Boolean = false,
-    var quote: String? = null
-)
+sealed class QuoteState {
+    object Loading : QuoteState()
+    data class Error(val message: String?) : QuoteState()
+    data class Success(val mindfulnessQuote: MindfulnessQuote) : QuoteState()
+}
