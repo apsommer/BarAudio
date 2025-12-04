@@ -50,9 +50,9 @@ fun MessagesFloatingActionButton(
         AnimatedContent (
             targetState = viewModel.isMute,
             transitionSpec = {
-                fadeIn(spring(stiffness = Spring.StiffnessVeryLow))
+                fadeIn(spring(stiffness = Spring.StiffnessMedium))
                     .togetherWith(
-                        fadeOut(spring(stiffness = Spring.StiffnessVeryLow)))
+                        fadeOut(spring(stiffness = Spring.StiffnessMedium)))
             },
             label = ""
 
@@ -62,7 +62,7 @@ fun MessagesFloatingActionButton(
             if (targetState) {
                 Icon(
                     modifier = Modifier
-                        .size(fabButtonSize * 0.4f),
+                        .size(fabButtonSize * 0.5f),
                     painter = painterResource(R.drawable.volume_off),
                     tint = viewModel.getFabIconColor(),
                     contentDescription = null)
@@ -73,7 +73,7 @@ fun MessagesFloatingActionButton(
             // unmute
             Icon(
                 modifier = Modifier
-                    .size(fabButtonSize * 0.4f),
+                    .size(fabButtonSize * 0.5f),
                 painter = painterResource(R.drawable.volume_on),
                 tint = viewModel.getFabIconColor(),
                 contentDescription = null)

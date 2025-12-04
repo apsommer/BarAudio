@@ -7,7 +7,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
-const val uiModeFadeTimeMillis = 2000
+const val uiModeFadeTimeMillis = 1000
 
 @Composable
 fun AppTheme(
