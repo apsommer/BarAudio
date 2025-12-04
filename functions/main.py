@@ -7,6 +7,7 @@ app = initialize_app(
     credential = credentials.Certificate('admin.json'),
     options = { 'databaseURL': 'https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/' })
 
+# https://us-central1-com-sommerengineering-baraudio.cloudfunctions.net/baraudio?uid=
 @https_fn.on_request()
 def baraudio(req: https_fn.Request) -> https_fn.Response:
 
@@ -20,7 +21,7 @@ def baraudio(req: https_fn.Request) -> https_fn.Response:
         timestamp = str(round(time.time() * 1000))
         origin = str(req.headers.get('X-Forwarded-For'))
 
-        # wrote to database
+        # write to database
         group_key = db.reference('messages')
         group_key.child(uid).child(timestamp).set('{ "message": "' + message + '", "origin": "' + origin + '" }')
 
