@@ -21,8 +21,8 @@
             android:name=".MainActivity"
             android:configChanges="uiMode"
             android:screenOrientation="portrait"
-            android:exported="true"
-            android:theme="@style/Theme.BarAudio.Splash" >
+            android:theme="@style/Theme.BarAudio.Splash"
+            android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

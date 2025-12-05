@@ -38,7 +38,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
-import com.sommerengineering.baraudio.edgePadding
+import com.sommerengineering.baraudio.TAG
+import com.sommerengineering.baraudio.backgroundPadding
 import com.sommerengineering.baraudio.getDatabaseReference
 import com.sommerengineering.baraudio.messagesNode
 import com.sommerengineering.baraudio.settings.SettingsDrawer
@@ -46,8 +47,6 @@ import com.sommerengineering.baraudio.theme.uiModeFadeTimeMillis
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
-import com.sommerengineering.baraudio.TAG
-import com.sommerengineering.baraudio.backgroundPadding
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
