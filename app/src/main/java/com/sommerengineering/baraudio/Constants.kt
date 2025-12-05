@@ -3,10 +3,10 @@ package com.sommerengineering.baraudio
 import androidx.compose.ui.unit.dp
 
 // urls
-const val setupUrl = "https://baraud.io/setup"
-const val aboutUrl = "https://baraud.io/"
-const val privacyUrl = "https://baraud.io/privacy/"
-const val termsUrl = "https://baraud.io/terms/"
+const val setupUrl = "https://sommerengineering.com/baraud.io"
+const val aboutUrl = "https://sommerengineering.com/baraud.io"
+const val privacyUrl = "https://sommerengineering.com/privacy_policy"
+const val termsUrl = "https://sommerengineering.com/terms_and_conditions"
 
 // firebase
 const val databaseUrl = "https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/"
