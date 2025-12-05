@@ -15,7 +15,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -105,16 +105,17 @@ class MainActivity : ComponentActivity() {
 
         init()
 
+        // enable layout resizing into system designated screen space
+        WindowCompat.setDecorFitsSystemWindows(window, false)
 
-
-        WindowCompat.setDecorFitsSystemWindows(window, false) // Allows content to go behind bars
-
+        // hide system bars: status bar (top) and navigation bar (bottom)
         val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
         windowInsetsController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
+        // todo top?
 
+        // push layout boundary to full screen
         enableEdgeToEdge()
-
         setContent { App() }
     }
 
@@ -160,8 +161,11 @@ fun App() {
 
     KoinContext {
         AppTheme(viewModel.isDarkMode) {
-            Scaffold { padding ->
-                Modifier.padding(padding) // not used
+            Scaffold(
+                modifier = Modifier.fillMaxSize()
+//                Modifier.windowInsetsPadding(WindowInsets.safeDrawing)
+            ) { padding ->
+
                 Navigation(rememberNavController())
             }
         }
