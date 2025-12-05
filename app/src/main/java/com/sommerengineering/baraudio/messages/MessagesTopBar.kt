@@ -38,10 +38,9 @@ fun MessagesTopBar(
     var isEmpty by remember { mutableStateOf(true) }
     isEmpty = messages.isEmpty()
 
-    TopAppBar(
+    CenterAlignedTopAppBar(
 
         modifier = Modifier
-//            .windowInsetsPadding(WindowInsets.displayCutout),
             .padding(8.dp),
 
         // open settings drawer

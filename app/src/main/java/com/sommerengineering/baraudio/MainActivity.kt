@@ -105,10 +105,13 @@ class MainActivity : ComponentActivity() {
 
         init()
 
+
+
+        WindowCompat.setDecorFitsSystemWindows(window, false) // Allows content to go behind bars
+
         val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
         windowInsetsController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
-        WindowCompat.setDecorFitsSystemWindows(window, false) // Allows content to go behind bars
 
         enableEdgeToEdge()
 

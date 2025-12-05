@@ -9,8 +9,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -40,11 +38,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
-import com.sommerengineering.baraudio.edgePadding
 import com.sommerengineering.baraudio.getDatabaseReference
 import com.sommerengineering.baraudio.messagesNode
 import com.sommerengineering.baraudio.settings.SettingsDrawer
-import com.sommerengineering.baraudio.theme.uiModeFadeTimeMillis
+import com.sommerengineering.baraudio.theme.colorTransitionTimeMillis
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -63,7 +60,6 @@ fun MessagesScreen(
     val listState = rememberLazyListState()
     val coroutine = rememberCoroutineScope()
     val quoteState = viewModel.quoteState.collectAsState().value
-    val shouldShouldDialog by remember { mutableStateOf(true)}
 
     // side drawer
     ModalNavigationDrawer(
@@ -124,7 +120,7 @@ fun MessagesScreen(
                             if (messages.isEmpty()) { 1f }
                             else { (1 - 0.2 * messages.size).toFloat() },
                         animationSpec =
-                            tween(uiModeFadeTimeMillis),
+                            tween(colorTransitionTimeMillis),
                         label = "")
                         .value)
 
