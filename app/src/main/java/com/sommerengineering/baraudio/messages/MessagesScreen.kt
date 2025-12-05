@@ -47,6 +47,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import com.sommerengineering.baraudio.TAG
+import com.sommerengineering.baraudio.backgroundPadding
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -110,7 +111,7 @@ fun MessagesScreen(
                 // background image
                 Image(
                     modifier = Modifier
-                        .padding(start = edgePadding, end = edgePadding, bottom = 64.dp)
+                        .padding(start = backgroundPadding, end = backgroundPadding, bottom = 64.dp)
                         .align(Alignment.Center),
                     painter = painterResource(viewModel.getBackgroundId()),
                     contentDescription = null,
