@@ -106,13 +106,12 @@ class MainActivity : ComponentActivity() {
         init()
 
         // enable layout resizing into system designated screen space
+        // todo can not get behind front camera "notch", does not seem possible
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
-        // hide system bars: status bar (top) and navigation bar (bottom)
+        // hide system navigation ui
         val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
-        windowInsetsController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-        windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
-        // todo top?
+        windowInsetsController.hide(WindowInsetsCompat.Type.navigationBars())
 
         // push layout boundary to full screen
         enableEdgeToEdge()
