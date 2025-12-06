@@ -56,12 +56,13 @@ fun MessagesTopBar(
         },
 
         // logo
+//        title = {},
         title = {
             Image(
                 modifier = Modifier
-                    .fillMaxWidth(0.7f)
-                    .padding(8.dp),
-                painter = painterResource(R.drawable.logo_banner),
+                    .fillMaxWidth(0.5f)
+                    .padding(0.dp),
+                painter = painterResource(R.drawable.logo_banner_70),
                 contentDescription = null)
         },
 

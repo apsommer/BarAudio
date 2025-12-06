@@ -111,7 +111,7 @@ class MainActivity : ComponentActivity() {
 
         // hide system navigation ui
         val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
-        windowInsetsController.hide(WindowInsetsCompat.Type.navigationBars())
+        windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
 
         // push layout boundary to full screen
         enableEdgeToEdge()
