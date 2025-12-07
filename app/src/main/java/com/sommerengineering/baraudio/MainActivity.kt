@@ -15,9 +15,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.systemBarsIgnoringVisibility
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -65,6 +63,9 @@ class MainActivity : ComponentActivity() {
             // if update is required/immediate (not flexible) play updates and restarts app
         }
 
+    // controller to toggle fullscreen
+    val windowInsetsController by lazy { WindowCompat.getInsetsController(window, window.decorView) }
+
     @SuppressLint("InlinedApi")
     fun requestNotificationPermission() {
 
@@ -108,13 +109,8 @@ class MainActivity : ComponentActivity() {
         init()
 
         // enable layout resizing into system designated screen space
-        // todo can not get behind front camera "notch", does not seem possible
+        // can not get behind front camera "notch" of pixel 6a, other apps also can't!
         WindowCompat.setDecorFitsSystemWindows(window, false)
-
-        // hide system navigation ui
-        val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
-        windowInsetsController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-        windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
 
         // push layout boundary to full screen
         enableEdgeToEdge()

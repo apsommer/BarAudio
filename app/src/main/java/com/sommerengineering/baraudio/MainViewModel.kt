@@ -12,6 +12,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.auth
@@ -279,6 +282,25 @@ class MainViewModel(
         fullScreenDescription =
             if (isFullScreen) fullScreenOnDescription
             else fullScreenOffDescription
+
+        // expand or collapse layout
+        toggleFullScreen(context, isFullScreen)
+    }
+
+    fun toggleFullScreen(
+        context: Context,
+        isFullScreen: Boolean) {
+
+        val windowInsetsController = (context as MainActivity).windowInsetsController
+
+        // expand
+        if (isFullScreen) {
+            windowInsetsController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
+        }
+
+        // collapse
+        else { windowInsetsController.show(WindowInsetsCompat.Type.systemBars()) }
     }
 
     // billing client, purchase subscription flow ui triggered by mute button
