@@ -52,6 +52,7 @@ const val speedKey = "speed"
 const val pitchKey = "pitch"
 const val isQueueFlushKey = "isQueueFlush"
 const val isDarkModeKey = "isDarkMode"
+const val isFullScreenKey = "isFullScreen"
 const val volumeKey = android.speech.tts.TextToSpeech.Engine.KEY_PARAM_VOLUME
 
 // billing
@@ -69,6 +70,7 @@ const val speedTitle = "Speed"
 const val pitchTitle = "Pitch"
 const val queueBehaviorTitle = "Queue behavior"
 const val uiModeTitle = "Theme"
+const val fullScreenTitle = "Full screen"
 const val systemTtsTitle = "TTS system settings"
 const val notificationsTitle = "Notifications"
 const val aboutTitle = "About"
@@ -80,6 +82,8 @@ const val queueBehaviorFlushDescription = "Play new alerts immediately"
 const val queueBehaviorAddDescription = "Add new alerts to queue"
 const val uiModeDarkDescription = "Dark"
 const val uiModeLightDescription = "Light"
+const val fullScreenOnDescription = "Expanded"
+const val fullScreenOffDescription = "Windowed"
 
 // images
 const val deleteAllFadeDurationMillis = 1000

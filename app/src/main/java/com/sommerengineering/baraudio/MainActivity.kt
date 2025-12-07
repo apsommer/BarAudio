@@ -15,7 +15,9 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.systemBarsIgnoringVisibility
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -111,6 +113,7 @@ class MainActivity : ComponentActivity() {
 
         // hide system navigation ui
         val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+        windowInsetsController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
 
         // push layout boundary to full screen
@@ -154,6 +157,10 @@ fun App() {
     viewModel.isSystemInDarkTheme = isSystemInDarkTheme()
     viewModel.setUiMode(context)
 
+    // toggle fullscreen
+    val isFullScreen = readFromDataStore(context, isFullScreenKey)?.toBoolean() == true
+    viewModel.setFullScreen(context, isFullScreen)
+
     // initialize billing client
     viewModel.initBilling(
         koinInject<BillingClientImpl> { parametersOf(context) })
@@ -161,10 +168,7 @@ fun App() {
     KoinContext {
         AppTheme(viewModel.isDarkMode) {
             Scaffold(
-                modifier = Modifier.fillMaxSize()
-//                Modifier.windowInsetsPadding(WindowInsets.safeDrawing)
-            ) { padding ->
-
+                modifier = Modifier.fillMaxSize()) { padding ->
                 Navigation(rememberNavController())
             }
         }

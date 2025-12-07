@@ -265,6 +265,22 @@ class MainViewModel(
             else uiModeLightDescription
     }
 
+    // fullscreen
+    var isFullScreen by mutableStateOf(false)
+    var fullScreenDescription by mutableStateOf("")
+
+    fun setFullScreen(
+        context: Context,
+        isChecked: Boolean) {
+
+        isFullScreen = isChecked
+        writeToDataStore(context, isFullScreenKey, isChecked.toString())
+
+        fullScreenDescription =
+            if (isFullScreen) fullScreenOnDescription
+            else fullScreenOffDescription
+    }
+
     // billing client, purchase subscription flow ui triggered by mute button
     private lateinit var billing: BillingClientImpl
 

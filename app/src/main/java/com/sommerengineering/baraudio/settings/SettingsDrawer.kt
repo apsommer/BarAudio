@@ -31,6 +31,7 @@ import com.sommerengineering.baraudio.aboutTitle
 import com.sommerengineering.baraudio.aboutUrl
 import com.sommerengineering.baraudio.channelId
 import com.sommerengineering.baraudio.edgePadding
+import com.sommerengineering.baraudio.fullScreenTitle
 import com.sommerengineering.baraudio.howToUseTitle
 import com.sommerengineering.baraudio.setupUrl
 import com.sommerengineering.baraudio.manageSubscriptionTitle
@@ -180,9 +181,22 @@ fun SettingsDrawer(
                     title = uiModeTitle,
                     description = viewModel.uiModeDescription) {
 
+                    Switch(
+                        checked = viewModel.isDarkMode,
+                        onCheckedChange = { viewModel.setIsDarkMode(context, it) })
+                }
+            }
+
+            // full screen
+            item {
+                SwitchSettingItem(
+                    icon = R.drawable.fullscreen,
+                    title = fullScreenTitle,
+                    description = viewModel.fullScreenDescription) {
+
                         Switch(
-                            checked = viewModel.isDarkMode,
-                            onCheckedChange = { viewModel.setIsDarkMode(context, it) })
+                            checked = viewModel.isFullScreen,
+                            onCheckedChange = { viewModel.setFullScreen(context, it) })
                     }
             }
 

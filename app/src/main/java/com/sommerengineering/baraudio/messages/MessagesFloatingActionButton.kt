@@ -50,9 +50,9 @@ fun MessagesFloatingActionButton(
         AnimatedContent (
             targetState = viewModel.isMute,
             transitionSpec = {
-                fadeIn(spring(stiffness = Spring.StiffnessMedium))
+                fadeIn(spring(stiffness = Spring.StiffnessVeryLow))
                     .togetherWith(
-                        fadeOut(spring(stiffness = Spring.StiffnessMedium)))
+                        fadeOut(spring(stiffness = Spring.StiffnessVeryLow)))
             },
             label = ""
 

@@ -7,7 +7,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
-const val colorTransitionTimeMillis = 1000
+const val colorTransitionTimeMillis = 500
 
 @Composable
 fun AppTheme(
