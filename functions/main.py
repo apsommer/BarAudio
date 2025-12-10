@@ -7,6 +7,9 @@ app = initialize_app(
     credential = credentials.Certificate('admin.json'),
     options = { 'databaseURL': 'https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/' })
 
+# drew@baraud.io
+uid_admin = 'GxZTktT079Rf3vwDWLdSUFnUBs52'
+
 # https://us-central1-com-sommerengineering-baraudio.cloudfunctions.net/baraudio?uid=...
 @https_fn.on_request()
 def baraudio(req: https_fn.Request) -> https_fn.Response:
@@ -22,37 +25,48 @@ def baraudio(req: https_fn.Request) -> https_fn.Response:
         if len(message) == 0:
             return https_fn.Response('Received empty message ...')
 
-        
-
+        # parse request
         timestamp = str(round(time.time() * 1000))
         origin = str(req.headers.get('X-Forwarded-For'))
 
-        # write to database
-        group_key = db.reference('messages')
-        group_key.child(uid).child(timestamp).set('{ "message": "' + message + '", "origin": "' + origin + '" }')
-
-        # get device token
-        try:
-            device_token = db.reference('users').get()[uid]
-        except TypeError:
-            return https_fn.Response('Thank you for using BarAudio, sign-in to hear message! :)')
-
-        # set priority to high
-        config = messaging.AndroidConfig(
-            priority="high",  # "normal" is default, "high" attempts to wake device in doze mode
-            ttl=0)  # ttl is "time to live", 0 means "now or never" and fcm discards if can't be delivered immediately
-
-        # construct notification
-        remote_message = messaging.Message(
-            data={
-                'uid': uid,
-                'timestamp': timestamp,
-                'message': message},
-            android=config,
-            token=device_token)
-
-        # send notification to device
-        messaging.send(remote_message)
+        # check if message originates from drew@baraudio
+        if uid == uid_admin:
+            send_message_to_all_devices(timestamp, message, origin)
+        else:
+            send_message_to_single_device(uid, timestamp, message, origin)
 
     # respond with simple message
     return https_fn.Response('Thank you for using BarAudio! :)')
+
+def send_message_to_all_devices(timestamp, message, origin):
+
+    return https_fn.Response('Abercrombie')
+
+def send_message_to_single_device(uid, timestamp, message, origin):
+
+    # write to database
+    group_key = db.reference('messages')
+    group_key.child(uid).child(timestamp).set('{ "message": "' + message + '", "origin": "' + origin + '" }')
+
+    # get device token
+    try:
+        device_token = db.reference('users').get()[uid]
+    except TypeError:
+        return https_fn.Response('Thank you for using BarAudio, sign-in to hear message! :)')
+
+    # set priority to high
+    config = messaging.AndroidConfig(
+        priority="high",  # "normal" is default, "high" attempts to wake device in doze mode
+        ttl=0)  # ttl is "time to live", 0 means "now or never" and fcm discards if can't be delivered immediately
+
+    # construct notification
+    remote_message = messaging.Message(
+        data={
+            'uid': uid,
+            'timestamp': timestamp,
+            'message': message},
+        android=config,
+        token=device_token)
+
+    # send notification to device
+    messaging.send(remote_message)
