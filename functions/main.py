@@ -7,7 +7,7 @@ app = initialize_app(
     credential = credentials.Certificate('admin.json'),
     options = { 'databaseURL': 'https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/' })
 
-# https://us-central1-com-sommerengineering-baraudio.cloudfunctions.net/baraudio?uid=
+# https://us-central1-com-sommerengineering-baraudio.cloudfunctions.net/baraudio?uid=...
 @https_fn.on_request()
 def baraudio(req: https_fn.Request) -> https_fn.Response:
 
@@ -16,7 +16,13 @@ def baraudio(req: https_fn.Request) -> https_fn.Response:
     message = req.get_data(as_text = True) # message as plain/text from body
 
     # process webhook when request is properly formed
-    if req.method == 'POST' and uid is not None and len(message) > 0:
+    if req.method == 'POST' and uid is not None:
+
+        # catch empty message
+        if len(message) == 0:
+            return https_fn.Response('Received empty message ...')
+
+        
 
         timestamp = str(round(time.time() * 1000))
         origin = str(req.headers.get('X-Forwarded-For'))
