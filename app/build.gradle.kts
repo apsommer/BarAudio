@@ -80,11 +80,11 @@ android {
         // ~/.android/debug.keystore
 
         debug {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
         }
 
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
