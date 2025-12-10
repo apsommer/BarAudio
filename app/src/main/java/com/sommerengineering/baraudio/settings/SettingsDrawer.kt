@@ -31,7 +31,7 @@ import com.sommerengineering.baraudio.aboutTitle
 import com.sommerengineering.baraudio.aboutUrl
 import com.sommerengineering.baraudio.channelId
 import com.sommerengineering.baraudio.edgePadding
-import com.sommerengineering.baraudio.fullScreenTitle
+import com.sommerengineering.baraudio.screenTitle
 import com.sommerengineering.baraudio.howToUseTitle
 import com.sommerengineering.baraudio.setupUrl
 import com.sommerengineering.baraudio.manageSubscriptionTitle
@@ -191,7 +191,7 @@ fun SettingsDrawer(
             item {
                 SwitchSettingItem(
                     icon = R.drawable.fullscreen,
-                    title = fullScreenTitle,
+                    title = screenTitle,
                     description = viewModel.fullScreenDescription) {
 
                         Switch(

@@ -12,7 +12,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.ViewModel
@@ -280,8 +279,8 @@ class MainViewModel(
         writeToDataStore(context, isFullScreenKey, isChecked.toString())
 
         fullScreenDescription =
-            if (isFullScreen) fullScreenOnDescription
-            else fullScreenOffDescription
+            if (isFullScreen) screenFullDescription
+            else screenWindowedDescription
 
         // expand or collapse layout
         toggleFullScreen(context, isFullScreen)
