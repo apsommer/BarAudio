@@ -56,7 +56,7 @@ def send_message_to_single_device(uid, timestamp, message, origin):
     group_key.child(uid).child(timestamp).set('{ "message": "' + message + '", "origin": "' + origin + '" }')
 
     # get device token
-    try: device_token = db.reference('users').get()[uid]
+    try: device_token = db.reference('users').get()[uid] # todo increase perf, pass device token to only call once
     except TypeError: return https_fn.Response('Thank you for using BarAudio, sign-in to hear message! :)')
 
     # set priority to high
@@ -78,4 +78,6 @@ def send_message_to_single_device(uid, timestamp, message, origin):
     try:
         messaging.send(remote_message)
     except (FirebaseError, UnregisteredError) as error:
+        print(uid)
         print(error)
+        # todo remove user from database, these are generated test accounts from automated systems
