@@ -1,6 +1,8 @@
 from firebase_admin import initialize_app, credentials, db, messaging
+from firebase_admin.exceptions import FirebaseError
+from firebase_admin.messaging import UnregisteredError
 from firebase_functions import https_fn
-import time
+import time, json
 
 # initialize admin sdk
 app = initialize_app(
@@ -22,8 +24,7 @@ def baraudio(req: https_fn.Request) -> https_fn.Response:
     if req.method == 'POST' and uid is not None:
 
         # catch empty message
-        if len(message) == 0:
-            return https_fn.Response('Received empty message ...')
+        if len(message) == 0: return
 
         # parse request
         timestamp = str(round(time.time() * 1000))
@@ -32,15 +33,21 @@ def baraudio(req: https_fn.Request) -> https_fn.Response:
         # check if message originates from drew@baraudio
         if uid == uid_admin:
             send_message_to_all_devices(timestamp, message, origin)
+            return https_fn.Response('drew@baraud.io sent message to all devices ...')
         else:
-            send_message_to_single_device(uid, timestamp, message, origin)
 
-    # respond with simple message
-    return https_fn.Response('Thank you for using BarAudio! :)')
+            send_message_to_single_device(uid, timestamp, message, origin)
+            https_fn.Response('Thank you for using BarAudio! :)')
+
+    # respond with simple error message
+    return https_fn.Response('Request must be POST and include uid as query parameter. Thank you for using BarAudio! :)')
 
 def send_message_to_all_devices(timestamp, message, origin):
 
-    return https_fn.Response('Abercrombie')
+    users = db.reference('users').get(shallow=True)
+
+    for uid in users.keys():
+        send_message_to_single_device(uid, timestamp, message, origin)
 
 def send_message_to_single_device(uid, timestamp, message, origin):
 
@@ -49,10 +56,8 @@ def send_message_to_single_device(uid, timestamp, message, origin):
     group_key.child(uid).child(timestamp).set('{ "message": "' + message + '", "origin": "' + origin + '" }')
 
     # get device token
-    try:
-        device_token = db.reference('users').get()[uid]
-    except TypeError:
-        return https_fn.Response('Thank you for using BarAudio, sign-in to hear message! :)')
+    try: device_token = db.reference('users').get()[uid]
+    except TypeError: return https_fn.Response('Thank you for using BarAudio, sign-in to hear message! :)')
 
     # set priority to high
     config = messaging.AndroidConfig(
@@ -69,4 +74,8 @@ def send_message_to_single_device(uid, timestamp, message, origin):
         token=device_token)
 
     # send notification to device
-    messaging.send(remote_message)
+    # https://console.cloud.google.com/run/detail/us-central1/baraudio/observability/logs?inv=1&invt=AbhuYw&project=com-sommerengineering-baraudio
+    try:
+        messaging.send(remote_message)
+    except (FirebaseError, UnregisteredError) as error:
+        print(error)
