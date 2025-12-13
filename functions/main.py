@@ -48,7 +48,7 @@ def send_message_to_all_devices(timestamp, message, origin):
     whitelist = db.reference('whitelist').get(shallow=True)
 
     for uid in users.keys():
-        if not whitelist[uid]: continue
+        if uid in whitelist.keys() and not whitelist[uid]: continue
         send_message_to_single_device(uid, timestamp, message, origin)
 
 def send_message_to_single_device(uid, timestamp, message, origin):
@@ -80,6 +80,9 @@ def send_message_to_single_device(uid, timestamp, message, origin):
     try:
         messaging.send(remote_message)
     except (FirebaseError, UnregisteredError) as error:
-        print(uid)
+
+        # remove user from database, these are generated test accounts from google automated systems
+        db.reference('users').child(uid).delete()
         print(error)
-        # todo remove user from database, these are generated test accounts from google automated systems
+        print('Removed ' + uid + ' from database.')
+
