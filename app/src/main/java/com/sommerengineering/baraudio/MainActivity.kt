@@ -105,11 +105,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         init()
-
-        // enable layout resizing into system designated screen space
-        // can not get behind front camera "notch" of pixel 6a, other apps also can't!
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-
+        
         // push layout boundary to full screen
         enableEdgeToEdge()
         setContent { App() }
@@ -131,6 +127,10 @@ class MainActivity : ComponentActivity() {
         // dismiss all notifications on launch
         val isLaunchFromNotification = intent.extras?.getBoolean(isLaunchFromNotification) ?: false
         if (isLaunchFromNotification) { cancelAllNotifications(context) }
+
+        // enable layout resizing into system designated screen space
+        // can not get behind front camera "notch" of pixel 6a, other apps also can't!
+        WindowCompat.setDecorFitsSystemWindows(window, false)
     }
 }
 
@@ -155,9 +155,9 @@ fun App() {
     val isFullScreen = readFromDataStore(context, isFullScreenKey)?.toBoolean() == true
     viewModel.setFullScreen(context, isFullScreen)
 
-    //
-    val isSubscribed = readFromDataStore(context, isFuturesWebhooksKey)?.toBoolean() == true
-    viewModel.setFuturesWebhooks(context, isSubscribed)
+    // futures webhooks
+    val isFuturesWebhooksKey = readFromDataStore(context, isFuturesWebhooksKey)?.toBooleanStrictOrNull() ?: true
+    viewModel.setFuturesWebhooks(context, isFuturesWebhooksKey)
 
     // initialize billing client
     viewModel.initBilling(

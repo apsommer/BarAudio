@@ -26,6 +26,7 @@ import com.sommerengineering.baraudio.messagesNode
 import com.sommerengineering.baraudio.onboardingProgressRoute
 import com.sommerengineering.baraudio.signOut
 import com.sommerengineering.baraudio.writeTokenToDatabase
+import com.sommerengineering.baraudio.writeWhitelistToDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -38,7 +39,7 @@ fun onAuthentication(
     // reset dark mode to previous preference, if available
     viewModel.setUiMode(context)
 
-    // write user:token pair to database, if needed
+    // write to database, if needed
     writeTokenToDatabase()
 
     // navigate to next destination

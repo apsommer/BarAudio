@@ -145,6 +145,7 @@ fun writeTokenToDatabase() {
 fun writeWhitelistToDatabase(
     isWhitelist: Boolean) {
 
+    // write user to whitelist database, no write occurs if correct value already present
     getDatabaseReference(whitelistNode)
         .setValue(isWhitelist)
 
