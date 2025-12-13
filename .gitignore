@@ -18,7 +18,7 @@
 /.idea
 
 database-debug.log
-database-rules.json
+rules.json
 firebase.json
 firebase-debug.log
 local.properties
