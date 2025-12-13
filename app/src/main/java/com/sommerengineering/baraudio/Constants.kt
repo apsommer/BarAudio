@@ -53,6 +53,7 @@ const val pitchKey = "pitch"
 const val isQueueFlushKey = "isQueueFlush"
 const val isDarkModeKey = "isDarkMode"
 const val isFullScreenKey = "isFullScreen"
+const val isSubscribedKey = "isSubscribed"
 const val volumeKey = android.speech.tts.TextToSpeech.Engine.KEY_PARAM_VOLUME
 
 // billing
@@ -71,8 +72,8 @@ const val pitchTitle = "Pitch"
 const val queueBehaviorTitle = "Queue behavior"
 const val uiModeTitle = "Theme"
 const val screenTitle = "Screen"
-const val exampleWebhookTitle = "Example webhook"
-const val systemTtsTitle = "Text-to-speech system settings"
+const val exampleWebhookTitle = "Futures webhooks"
+const val systemTtsTitle = "Text-to-speech system"
 const val notificationsTitle = "Notifications"
 const val aboutTitle = "About"
 const val privacyTitle = "Privacy policy"
@@ -85,6 +86,8 @@ const val uiModeDarkDescription = "Dark"
 const val uiModeLightDescription = "Light"
 const val screenFullDescription = "Full screen"
 const val screenWindowedDescription = "Show system"
+const val subscribedDescription = "Show NQ, ES, and GC at 1min"
+const val unsubscribedDescription = "Hide NQ, ES, and GC at 1min"
 
 // images
 const val deleteAllFadeDurationMillis = 1000

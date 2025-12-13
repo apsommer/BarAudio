@@ -157,6 +157,10 @@ fun App() {
     val isFullScreen = readFromDataStore(context, isFullScreenKey)?.toBoolean() == true
     viewModel.setFullScreen(context, isFullScreen)
 
+    //
+    val isSubscribed = readFromDataStore(context, isSubscribedKey)?.toBoolean() == true
+    viewModel.setSubscribed(context, isSubscribed)
+
     // initialize billing client
     viewModel.initBilling(
         koinInject<BillingClientImpl> { parametersOf(context) })

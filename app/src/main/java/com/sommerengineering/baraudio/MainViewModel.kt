@@ -306,6 +306,20 @@ class MainViewModel(
     var isSubscribedToExampleWebhook by mutableStateOf(true)
     var exampleWebhookDescription by mutableStateOf("")
 
+    fun setSubscribed(
+        context: Context,
+        isChecked: Boolean) {
+
+        isSubscribedToExampleWebhook = isChecked
+        writeToDataStore(context, isSubscribedKey, isChecked.toString())
+
+        exampleWebhookDescription =
+            if (isSubscribedToExampleWebhook) subscribedDescription
+            else unsubscribedDescription
+
+        // todo isChecked -> add to db whitelist, else -> remove from db whitelist
+    }
+
     // billing client, purchase subscription flow ui triggered by mute button
     private lateinit var billing: BillingClientImpl
 

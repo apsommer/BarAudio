@@ -201,16 +201,16 @@ fun SettingsDrawer(
                     }
             }
 
-            // example webhook (all users every 1 minute for NQ, ES, GC)
+            // example webhooks (all users every 1 minute for NQ, ES, GC)
             item {
                 SwitchSettingItem(
-                    icon = R.drawable.fullscreen,
+                    icon = R.drawable.ear_listen,
                     title = exampleWebhookTitle,
                     description = viewModel.exampleWebhookDescription) {
 
                     Switch(
                         checked = viewModel.isSubscribedToExampleWebhook,
-                        onCheckedChange = { })
+                        onCheckedChange = { viewModel.setSubscribed(context, it)})
                 }
             }
 
