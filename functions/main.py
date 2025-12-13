@@ -24,7 +24,7 @@ def baraudio(req: https_fn.Request) -> https_fn.Response:
     if req.method == 'POST' and uid is not None:
 
         # catch empty message
-        if len(message) == 0: return
+        if len(message) == 0: https_fn.Response('The json message is empty.')
 
         # parse request
         timestamp = str(round(time.time() * 1000))
@@ -33,9 +33,9 @@ def baraudio(req: https_fn.Request) -> https_fn.Response:
         # check if message originates from drew@baraudio
         if uid == uid_admin:
             send_message_to_all_devices(timestamp, message, origin)
-            return https_fn.Response('drew@baraud.io sent message to all devices ...')
-        else:
+            return https_fn.Response('Admin drew@baraud.io sent message to all whitelisted devices.')
 
+        else:
             send_message_to_single_device(uid, timestamp, message, origin)
             https_fn.Response('Thank you for using BarAudio! :)')
 
@@ -45,8 +45,10 @@ def baraudio(req: https_fn.Request) -> https_fn.Response:
 def send_message_to_all_devices(timestamp, message, origin):
 
     users = db.reference('users').get(shallow=True)
+    whitelist = db.reference('whitelist').get(shallow=True)
 
     for uid in users.keys():
+        if not whitelist[uid]: continue
         send_message_to_single_device(uid, timestamp, message, origin)
 
 def send_message_to_single_device(uid, timestamp, message, origin):
@@ -80,4 +82,4 @@ def send_message_to_single_device(uid, timestamp, message, origin):
     except (FirebaseError, UnregisteredError) as error:
         print(uid)
         print(error)
-        # todo remove user from database, these are generated test accounts from automated systems
+        # todo remove user from database, these are generated test accounts from google automated systems

@@ -132,12 +132,21 @@ fun getDatabaseReference(
 fun writeTokenToDatabase() {
 
     val user = Firebase.auth.currentUser ?: return
-    logMessage("Sign-in success")
-    logMessage("    uid: ${user.uid}")
-    logMessage("  token: $token")
 
     // write user:token pair to database, no write occurs if correct token already present
     getDatabaseReference(usersNode)
         .setValue(token)
+
+    logMessage("Sign-in success")
+    logMessage("    uid: ${user.uid}")
+    logMessage("  token: $token")
 }
 
+fun writeWhitelistToDatabase(
+    isWhitelist: Boolean) {
+
+    getDatabaseReference(whitelistNode)
+        .setValue(isWhitelist)
+
+    logMessage("isWhitelist: ${isWhitelist}")
+}

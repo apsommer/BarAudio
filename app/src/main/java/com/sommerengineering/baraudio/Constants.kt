@@ -13,6 +13,7 @@ const val databaseUrl = "https://com-sommerengineering-baraudio-default-rtdb.fir
 const val webhookBaseUrl = "https://us-central1-com-sommerengineering-baraudio.cloudfunctions.net/baraudio?uid="
 const val usersNode = "users"
 const val messagesNode = "messages"
+const val whitelistNode = "whitelist"
 const val unauthenticatedUser = "unauthenticatedUser"
 const val unauthenticatedToken = "unauthenticatedToken"
 const val gitHubProviderId = "github.com"

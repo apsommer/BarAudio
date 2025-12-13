@@ -317,7 +317,7 @@ class MainViewModel(
             if (isSubscribedToExampleWebhook) subscribedDescription
             else unsubscribedDescription
 
-        // todo isChecked -> add to db whitelist, else -> remove from db whitelist
+        writeWhitelistToDatabase(isSubscribedToExampleWebhook)
     }
 
     // billing client, purchase subscription flow ui triggered by mute button
