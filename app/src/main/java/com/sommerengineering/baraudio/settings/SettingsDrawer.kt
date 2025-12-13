@@ -31,7 +31,7 @@ import com.sommerengineering.baraudio.aboutTitle
 import com.sommerengineering.baraudio.aboutUrl
 import com.sommerengineering.baraudio.channelId
 import com.sommerengineering.baraudio.edgePadding
-import com.sommerengineering.baraudio.exampleWebhookTitle
+import com.sommerengineering.baraudio.futuresWebhooksTitle
 import com.sommerengineering.baraudio.screenTitle
 import com.sommerengineering.baraudio.howToUseTitle
 import com.sommerengineering.baraudio.setupUrl
@@ -201,16 +201,16 @@ fun SettingsDrawer(
                     }
             }
 
-            // example webhooks (all users every 1 minute for NQ, ES, GC)
+            // futures webhooks
             item {
                 SwitchSettingItem(
                     icon = R.drawable.ear_listen,
-                    title = exampleWebhookTitle,
-                    description = viewModel.exampleWebhookDescription) {
+                    title = futuresWebhooksTitle,
+                    description = viewModel.futuresWebhooksDescription) {
 
                     Switch(
-                        checked = viewModel.isSubscribedToExampleWebhook,
-                        onCheckedChange = { viewModel.setSubscribed(context, it)})
+                        checked = viewModel.isFuturesWebhooks,
+                        onCheckedChange = { viewModel.setFuturesWebhooks(context, it)})
                 }
             }
 

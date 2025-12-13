@@ -303,21 +303,16 @@ class MainViewModel(
     }
 
     // example webhook
-    var isSubscribedToExampleWebhook by mutableStateOf(true)
-    var exampleWebhookDescription by mutableStateOf("")
+    var isFuturesWebhooks by mutableStateOf(true)
+    var futuresWebhooksDescription = "NQ, ES, and GC at 1min"
 
-    fun setSubscribed(
+    fun setFuturesWebhooks(
         context: Context,
         isChecked: Boolean) {
 
-        isSubscribedToExampleWebhook = isChecked
-        writeToDataStore(context, isSubscribedKey, isChecked.toString())
-
-        exampleWebhookDescription =
-            if (isSubscribedToExampleWebhook) subscribedDescription
-            else unsubscribedDescription
-
-        writeWhitelistToDatabase(isSubscribedToExampleWebhook)
+        isFuturesWebhooks = isChecked
+        writeToDataStore(context, isFuturesWebhooksKey, isChecked.toString())
+        writeWhitelistToDatabase(isFuturesWebhooks)
     }
 
     // billing client, purchase subscription flow ui triggered by mute button

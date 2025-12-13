@@ -24,8 +24,6 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
 import androidx.navigation.compose.rememberNavController
 import com.sommerengineering.baraudio.theme.AppTheme
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -158,8 +156,8 @@ fun App() {
     viewModel.setFullScreen(context, isFullScreen)
 
     //
-    val isSubscribed = readFromDataStore(context, isSubscribedKey)?.toBoolean() == true
-    viewModel.setSubscribed(context, isSubscribed)
+    val isSubscribed = readFromDataStore(context, isFuturesWebhooksKey)?.toBoolean() == true
+    viewModel.setFuturesWebhooks(context, isSubscribed)
 
     // initialize billing client
     viewModel.initBilling(

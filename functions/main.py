@@ -44,11 +44,15 @@ def baraudio(req: https_fn.Request) -> https_fn.Response:
 
 def send_message_to_all_devices(timestamp, message, origin):
 
-    users = db.reference('users').get(shallow=True)
-    whitelist = db.reference('whitelist').get(shallow=True)
+    users = db.reference('users').get()
+    whitelist = db.reference('whitelist').get()
 
     for uid in users.keys():
-        if uid in whitelist.keys() and not whitelist[uid]: continue
+
+        # check whitelist
+        if uid in whitelist.keys() and not whitelist[uid]:
+            continue
+
         send_message_to_single_device(uid, timestamp, message, origin)
 
 def send_message_to_single_device(uid, timestamp, message, origin):
@@ -84,5 +88,5 @@ def send_message_to_single_device(uid, timestamp, message, origin):
         # remove user from database, these are generated test accounts from google automated systems
         db.reference('users').child(uid).delete()
         print(error)
-        print('Removed ' + uid + ' from database.')
+        print('Removed google test account ' + uid + ' from database.')
 
