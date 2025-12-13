@@ -63,7 +63,7 @@ const val subscriptionUrl = "https://play.google.com/store/account/subscriptions
 
 // settings
 const val systemTtsPackageName = "com.android.settings.TTS_SETTINGS"
-const val howToUseTitle = "How to use"
+const val howToUseTitle = "How to setup"
 const val webhookTitle = "Webhook"
 const val voiceTitle = "Voice"
 const val speedTitle = "Speed"
@@ -71,7 +71,8 @@ const val pitchTitle = "Pitch"
 const val queueBehaviorTitle = "Queue behavior"
 const val uiModeTitle = "Theme"
 const val screenTitle = "Screen"
-const val systemTtsTitle = "TTS system settings"
+const val exampleWebhookTitle = "Example webhook"
+const val systemTtsTitle = "Text-to-speech system settings"
 const val notificationsTitle = "Notifications"
 const val aboutTitle = "About"
 const val privacyTitle = "Privacy policy"

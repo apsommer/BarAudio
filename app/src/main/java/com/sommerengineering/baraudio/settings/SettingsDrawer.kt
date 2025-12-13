@@ -31,6 +31,7 @@ import com.sommerengineering.baraudio.aboutTitle
 import com.sommerengineering.baraudio.aboutUrl
 import com.sommerengineering.baraudio.channelId
 import com.sommerengineering.baraudio.edgePadding
+import com.sommerengineering.baraudio.exampleWebhookTitle
 import com.sommerengineering.baraudio.screenTitle
 import com.sommerengineering.baraudio.howToUseTitle
 import com.sommerengineering.baraudio.setupUrl
@@ -198,6 +199,19 @@ fun SettingsDrawer(
                             checked = viewModel.isFullScreen,
                             onCheckedChange = { viewModel.setFullScreen(context, it) })
                     }
+            }
+
+            // example webhook (all users every 1 minute for NQ, ES, GC)
+            item {
+                SwitchSettingItem(
+                    icon = R.drawable.fullscreen,
+                    title = exampleWebhookTitle,
+                    description = viewModel.exampleWebhookDescription) {
+
+                    Switch(
+                        checked = viewModel.isSubscribedToExampleWebhook,
+                        onCheckedChange = { })
+                }
             }
 
             // system tts settings

@@ -302,6 +302,10 @@ class MainViewModel(
         else { windowInsetsController.show(WindowInsetsCompat.Type.systemBars()) }
     }
 
+    // example webhook
+    var isSubscribedToExampleWebhook by mutableStateOf(true)
+    var exampleWebhookDescription by mutableStateOf("")
+
     // billing client, purchase subscription flow ui triggered by mute button
     private lateinit var billing: BillingClientImpl
 
