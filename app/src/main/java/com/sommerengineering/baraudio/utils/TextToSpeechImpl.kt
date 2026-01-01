@@ -1,14 +1,18 @@
-package com.sommerengineering.baraudio
+package com.sommerengineering.baraudio.utils
 
 import android.content.Context
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.speech.tts.Voice
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.core.os.bundleOf
+import com.sommerengineering.baraudio.cancelAllNotifications
+import com.sommerengineering.baraudio.isQueueFlushKey
+import com.sommerengineering.baraudio.pitchKey
+import com.sommerengineering.baraudio.speedKey
+import com.sommerengineering.baraudio.voiceKey
+import com.sommerengineering.baraudio.volumeKey
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class TextToSpeechImpl(
@@ -47,7 +51,7 @@ class TextToSpeechImpl(
 
             override fun onStart(
                 utteranceId: String?) =
-                    cancelAllNotifications(context)
+                cancelAllNotifications(context)
 
             override fun onDone(timestamp: String?) { }
             override fun onStop(timestamp: String?, isInterupted: Boolean) { }

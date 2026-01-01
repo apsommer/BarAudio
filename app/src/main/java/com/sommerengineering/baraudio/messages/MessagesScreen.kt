@@ -8,13 +8,8 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.systemBarsIgnoringVisibility
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -44,14 +39,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
-import com.sommerengineering.baraudio.getDatabaseReference
+import com.sommerengineering.baraudio.utils.getDatabaseReference
 import com.sommerengineering.baraudio.messagesNode
 import com.sommerengineering.baraudio.settings.SettingsDrawer
 import com.sommerengineering.baraudio.theme.colorTransitionTimeMillis
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
-import com.sommerengineering.baraudio.TAG
+import com.sommerengineering.baraudio.utils.TAG
 import com.sommerengineering.baraudio.backgroundPadding
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)

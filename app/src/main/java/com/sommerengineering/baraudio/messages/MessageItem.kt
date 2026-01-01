@@ -23,7 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainViewModel
-import com.sommerengineering.baraudio.beautifyTimestamp
+import com.sommerengineering.baraudio.utils.beautifyTimestamp
 import com.sommerengineering.baraudio.edgePadding
 import com.sommerengineering.baraudio.settingsIconSize
 

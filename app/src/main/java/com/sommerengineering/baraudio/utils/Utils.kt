@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio
+package com.sommerengineering.baraudio.utils
 
 import android.content.Context
 import android.text.format.DateUtils

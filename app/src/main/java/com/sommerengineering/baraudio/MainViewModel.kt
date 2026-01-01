@@ -22,6 +22,13 @@ import com.sommerengineering.baraudio.messages.Message
 import com.sommerengineering.baraudio.messages.QuoteState
 import com.sommerengineering.baraudio.messages.tradingviewWhitelistIps
 import com.sommerengineering.baraudio.messages.trendspiderWhitelistIp
+import com.sommerengineering.baraudio.utils.BillingClientImpl
+import com.sommerengineering.baraudio.utils.BillingState
+import com.sommerengineering.baraudio.utils.RapidApi
+import com.sommerengineering.baraudio.utils.TextToSpeechImpl
+import com.sommerengineering.baraudio.utils.readFromDataStore
+import com.sommerengineering.baraudio.utils.writeToDataStore
+import com.sommerengineering.baraudio.utils.writeWhitelistToDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -319,7 +326,8 @@ class MainViewModel(
     private lateinit var billing: BillingClientImpl
 
     fun initBilling(
-        billingClientImpl: BillingClientImpl) {
+        billingClientImpl: BillingClientImpl
+    ) {
 
         // initialize connection to google play
         billing = billingClientImpl

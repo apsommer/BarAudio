@@ -1,5 +1,6 @@
-package com.sommerengineering.baraudio
+package com.sommerengineering.baraudio.utils
 
+import com.sommerengineering.baraudio.BuildConfig
 import com.sommerengineering.baraudio.messages.Quote
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory

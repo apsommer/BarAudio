@@ -26,6 +26,10 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.navigation.compose.rememberNavController
 import com.sommerengineering.baraudio.theme.AppTheme
+import com.sommerengineering.baraudio.utils.BillingClientImpl
+import com.sommerengineering.baraudio.utils.logMessage
+import com.sommerengineering.baraudio.utils.readFromDataStore
+import com.sommerengineering.baraudio.utils.token
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.KoinContext

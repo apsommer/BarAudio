@@ -19,6 +19,9 @@ import com.sommerengineering.baraudio.login.checkForcedUpdate
 import com.sommerengineering.baraudio.login.onAuthentication
 import com.sommerengineering.baraudio.login.onSignOut
 import com.sommerengineering.baraudio.messages.MessagesScreen
+import com.sommerengineering.baraudio.utils.logMessage
+import com.sommerengineering.baraudio.utils.token
+import com.sommerengineering.baraudio.utils.writeToDataStore
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import org.koin.androidx.compose.koinViewModel
@@ -158,7 +161,7 @@ fun getStartDestination(): String {
     // log for development
     logMessage("User already authenticated, sign-in flow skipped.")
     logMessage("    uid: ${Firebase.auth.currentUser?.uid}")
-    logMessage("  token: $token")
+    logMessage("  token: ${token}")
 
     return MessagesScreenRoute
 }
