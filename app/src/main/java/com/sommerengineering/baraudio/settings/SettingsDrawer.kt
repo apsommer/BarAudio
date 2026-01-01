@@ -70,41 +70,6 @@ fun SettingsDrawer(
             modifier = Modifier
                 .padding(padding)) {
 
-            // how to use
-            item {
-                LinkSettingItem(
-                    icon = R.drawable.browser,
-                    title = howToUseTitle,
-                    onClick = { uriHandler.openUri(setupUrl) })
-            }
-
-            // webhook
-            item {
-
-                // set webhook url
-                val webhookUrl = webhookBaseUrl + Firebase.auth.currentUser?.uid
-
-                DialogSettingItem(
-                    icon = R.drawable.webhook,
-                    title = webhookTitle,
-                    description = webhookUrl,
-                    onClick = {
-                        viewModel.saveToWebhookClipboard(
-                            context = context,
-                            webhookUrl = webhookUrl) }) {
-
-                    IconButton(
-                        onClick = {
-                            viewModel.saveToWebhookClipboard(
-                                context = context,
-                                webhookUrl = webhookUrl) }) {
-                        Icon(
-                            painter = painterResource(R.drawable.copy),
-                            contentDescription = null)
-                    }
-                }
-            }
-
             // voice
             item {
                 DialogSettingItem (
@@ -175,6 +140,20 @@ fun SettingsDrawer(
                     }
             }
 
+            // system tts settings
+            item {
+                LinkSettingItem(
+                    icon = R.drawable.settings,
+                    title = systemTtsTitle,
+                    onClick = {
+                        with(context) {
+                            startActivity(
+                                Intent(systemTtsPackageName)
+                                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                        }
+                    })
+            }
+
             // dark mode
             item {
                 SwitchSettingItem(
@@ -214,18 +193,39 @@ fun SettingsDrawer(
                 }
             }
 
-            // system tts settings
+            // how to use
             item {
                 LinkSettingItem(
-                    icon = R.drawable.settings,
-                    title = systemTtsTitle,
+                    icon = R.drawable.browser,
+                    title = howToUseTitle,
+                    onClick = { uriHandler.openUri(setupUrl) })
+            }
+
+            // webhook
+            item {
+
+                // set webhook url
+                val webhookUrl = webhookBaseUrl + Firebase.auth.currentUser?.uid
+
+                DialogSettingItem(
+                    icon = R.drawable.webhook,
+                    title = webhookTitle,
+                    description = webhookUrl,
                     onClick = {
-                        with(context) {
-                            startActivity(
-                                Intent(systemTtsPackageName)
-                                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-                        }
-                    })
+                        viewModel.saveToWebhookClipboard(
+                            context = context,
+                            webhookUrl = webhookUrl) }) {
+
+                    IconButton(
+                        onClick = {
+                            viewModel.saveToWebhookClipboard(
+                                context = context,
+                                webhookUrl = webhookUrl) }) {
+                        Icon(
+                            painter = painterResource(R.drawable.copy),
+                            contentDescription = null)
+                    }
+                }
             }
 
             // notification settings

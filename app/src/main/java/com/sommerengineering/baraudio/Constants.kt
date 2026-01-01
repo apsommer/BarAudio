@@ -22,9 +22,9 @@ const val messageMaxSize = 1000
 // notifications
 const val channelId = "42"
 const val channelName = "Webhook"
-const val channelDescription = "Notifications for incoming webhook"
+const val channelDescription = "Allow notifications to enable BarAudio"
 const val channelGroupId = "42"
-const val channelGroupName = "Alerts"
+const val channelGroupName = "Webhook"
 const val isLaunchFromNotification = "isLaunchFromNotification"
 const val uidKey = "uid"
 const val timestampKey = "timestamp"
@@ -65,7 +65,7 @@ const val subscriptionUrl = "https://play.google.com/store/account/subscriptions
 
 // settings
 const val systemTtsPackageName = "com.android.settings.TTS_SETTINGS"
-const val howToUseTitle = "Setup custom webhook"
+const val howToUseTitle = "Custom webhook"
 const val webhookTitle = "Webhook"
 const val voiceTitle = "Voice"
 const val speedTitle = "Speed"
@@ -101,8 +101,8 @@ const val onboardingTotalPages = 3
 const val next = "Next"
 const val ttsInstalledTitle = "BarAudio uses text-to-speech to announce alerts."
 const val ttsNotInstalledTitle = "BarAudio requires text-to-speech, please install it to continue."
-const val allowNotificationsTitle = "Please allow notifications for realtime events."
-const val webhookStartTitle = "BarAudio connects to your unique webhook with a simple "
+const val allowNotificationsTitle = "Allow notifications to recieve realtime events."
+const val webhookStartTitle = "Customize your webhook with a simple "
 const val webhookEndTitle = "setup"
 const val period = "."
 const val soundAnimation = "sound.json"

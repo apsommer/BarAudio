@@ -38,7 +38,7 @@
             </intent-filter>
         </service>
 
-        <!-- fcm notification icon -->
+        <!-- fcm notification icon todo can remove fcm defaults? all notifications are custom push ... -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/logo_square" />
