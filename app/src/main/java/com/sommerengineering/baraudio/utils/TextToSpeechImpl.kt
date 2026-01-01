@@ -4,8 +4,10 @@ import android.content.Context
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.speech.tts.Voice
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.core.os.bundleOf
 import com.sommerengineering.baraudio.cancelAllNotifications
 import com.sommerengineering.baraudio.isQueueFlushKey
