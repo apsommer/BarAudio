@@ -2,8 +2,12 @@ package com.sommerengineering.baraudio.settings
 
 import android.content.Intent
 import android.provider.Settings
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -21,13 +25,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.auth
 import com.google.firebase.Firebase
 import com.sommerengineering.baraudio.BuildConfig
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.channelId
 import com.sommerengineering.baraudio.dataDividerTitle
 import com.sommerengineering.baraudio.edgePadding
 import com.sommerengineering.baraudio.futuresWebhooksTitle
@@ -36,7 +40,6 @@ import com.sommerengineering.baraudio.howToSetupTitle
 import com.sommerengineering.baraudio.legalDividerTitle
 import com.sommerengineering.baraudio.setupUrl
 import com.sommerengineering.baraudio.manageSubscriptionTitle
-import com.sommerengineering.baraudio.notificationsTitle
 import com.sommerengineering.baraudio.pitchTitle
 import com.sommerengineering.baraudio.privacyTitle
 import com.sommerengineering.baraudio.privacyUrl
@@ -70,7 +73,7 @@ fun SettingsDrawer(
 
         LazyColumn(
             modifier = Modifier
-                .padding(padding)) {
+                .padding(start = 0.dp, end = 0.dp, top = edgePadding / 2, bottom = 0.dp)) {
 
             // divider
             item {
@@ -163,37 +166,6 @@ fun SettingsDrawer(
 
             // divider
             item {
-                DividerItem(uiDividerTitle)
-            }
-
-            // dark mode
-            item {
-                SwitchSettingItem(
-                    icon = R.drawable.contrast,
-                    title = uiModeTitle,
-                    description = viewModel.uiModeDescription) {
-
-                    Switch(
-                        checked = viewModel.isDarkMode,
-                        onCheckedChange = { viewModel.setIsDarkMode(context, it) })
-                }
-            }
-
-            // full screen
-            item {
-                SwitchSettingItem(
-                    icon = R.drawable.fullscreen,
-                    title = screenTitle,
-                    description = viewModel.fullScreenDescription) {
-
-                        Switch(
-                            checked = viewModel.isFullScreen,
-                            onCheckedChange = { viewModel.setFullScreen(context, it) })
-                    }
-            }
-
-            // divider
-            item {
                 DividerItem(dataDividerTitle)
             }
 
@@ -243,6 +215,37 @@ fun SettingsDrawer(
                     icon = R.drawable.browser,
                     title = howToSetupTitle,
                     onClick = { uriHandler.openUri(setupUrl) })
+            }
+
+            // divider
+            item {
+                DividerItem(uiDividerTitle)
+            }
+
+            // dark mode
+            item {
+                SwitchSettingItem(
+                    icon = R.drawable.contrast,
+                    title = uiModeTitle,
+                    description = viewModel.uiModeDescription) {
+
+                    Switch(
+                        checked = viewModel.isDarkMode,
+                        onCheckedChange = { viewModel.setIsDarkMode(context, it) })
+                }
+            }
+
+            // full screen
+            item {
+                SwitchSettingItem(
+                    icon = R.drawable.fullscreen,
+                    title = screenTitle,
+                    description = viewModel.fullScreenDescription) {
+
+                    Switch(
+                        checked = viewModel.isFullScreen,
+                        onCheckedChange = { viewModel.setFullScreen(context, it) })
+                }
             }
 
             // divider

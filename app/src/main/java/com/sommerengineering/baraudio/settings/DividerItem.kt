@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -19,18 +21,25 @@ import com.sommerengineering.baraudio.edgePadding
 fun DividerItem(
     text: String) {
 
+    val padding = edgePadding / 2
+
     Surface {
         Row(
             verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(edgePadding)) {
+                .padding(start = 0.dp, end = 0.dp, top = padding, bottom = padding)) {
+
+            HorizontalDivider(modifier = Modifier
+                .align(Alignment.CenterVertically)
+                .width(padding))
 
             Text(
                 text = text,
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier
-                    .padding(start = 0.dp, end = edgePadding, top = 0.dp, bottom = 0.dp))
+                    .padding(start = padding, end = padding, top = 0.dp, bottom = 0.dp))
 
             HorizontalDivider()
         }
@@ -40,5 +49,5 @@ fun DividerItem(
 @Preview
 @Composable
 private fun DividerItemPreview() {
-    DividerItem("Divider")
+    DividerItem("DIVIDER")
 }
