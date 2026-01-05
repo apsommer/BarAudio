@@ -4,7 +4,6 @@ import androidx.compose.ui.unit.dp
 
 // urls
 const val setupUrl = "https://sommerengineering.com/baraud.io"
-const val aboutUrl = "https://sommerengineering.com/baraud.io"
 const val privacyUrl = "https://sommerengineering.com/privacy_policy"
 const val termsUrl = "https://sommerengineering.com/terms_and_conditions"
 
@@ -76,7 +75,6 @@ const val screenTitle = "Screen"
 const val futuresWebhooksTitle = "Futures"
 const val systemTtsTitle = "Text-to-speech"
 const val notificationsTitle = "Notifications"
-const val aboutTitle = "About"
 const val privacyTitle = "Privacy policy"
 const val termsTitle = "Terms and conditions"
 const val manageSubscriptionTitle = "Manage subscription"
@@ -87,6 +85,9 @@ const val uiModeDarkDescription = "Dark"
 const val uiModeLightDescription = "Light"
 const val screenFullDescription = "Full screen"
 const val screenWindowedDescription = "Show system"
+const val voiceDividerTitle = "Voice"
+const val uiDividerTitle = "UI"
+const val dataDividerTitle = "Data"
 
 // images
 const val deleteAllFadeDurationMillis = 1000

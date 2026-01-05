@@ -27,9 +27,8 @@ import com.sommerengineering.baraudio.BuildConfig
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.aboutTitle
-import com.sommerengineering.baraudio.aboutUrl
 import com.sommerengineering.baraudio.channelId
+import com.sommerengineering.baraudio.dataDividerTitle
 import com.sommerengineering.baraudio.edgePadding
 import com.sommerengineering.baraudio.futuresWebhooksTitle
 import com.sommerengineering.baraudio.screenTitle
@@ -48,7 +47,9 @@ import com.sommerengineering.baraudio.systemTtsPackageName
 import com.sommerengineering.baraudio.systemTtsTitle
 import com.sommerengineering.baraudio.termsTitle
 import com.sommerengineering.baraudio.termsUrl
+import com.sommerengineering.baraudio.uiDividerTitle
 import com.sommerengineering.baraudio.uiModeTitle
+import com.sommerengineering.baraudio.voiceDividerTitle
 import com.sommerengineering.baraudio.voiceTitle
 import com.sommerengineering.baraudio.webhookBaseUrl
 import com.sommerengineering.baraudio.webhookTitle
@@ -69,6 +70,11 @@ fun SettingsDrawer(
         LazyColumn(
             modifier = Modifier
                 .padding(padding)) {
+
+            // divider
+            item {
+                DividerItem(voiceDividerTitle)
+            }
 
             // voice
             item {
@@ -154,6 +160,11 @@ fun SettingsDrawer(
                     })
             }
 
+            // divider
+            item {
+                DividerItem(uiDividerTitle)
+            }
+
             // dark mode
             item {
                 SwitchSettingItem(
@@ -180,25 +191,9 @@ fun SettingsDrawer(
                     }
             }
 
-            // futures webhooks
+            // divider
             item {
-                SwitchSettingItem(
-                    icon = R.drawable.ear_listen,
-                    title = futuresWebhooksTitle,
-                    description = viewModel.futuresWebhooksDescription) {
-
-                    Switch(
-                        checked = viewModel.isFuturesWebhooks,
-                        onCheckedChange = { viewModel.setFuturesWebhooks(context, it)})
-                }
-            }
-
-            // how to use
-            item {
-                LinkSettingItem(
-                    icon = R.drawable.browser,
-                    title = howToUseTitle,
-                    onClick = { uriHandler.openUri(setupUrl) })
+                DividerItem(dataDividerTitle)
             }
 
             // webhook
@@ -228,6 +223,27 @@ fun SettingsDrawer(
                 }
             }
 
+            // futures webhooks
+            item {
+                SwitchSettingItem(
+                    icon = R.drawable.ear_listen,
+                    title = futuresWebhooksTitle,
+                    description = viewModel.futuresWebhooksDescription) {
+
+                    Switch(
+                        checked = viewModel.isFuturesWebhooks,
+                        onCheckedChange = { viewModel.setFuturesWebhooks(context, it)})
+                }
+            }
+
+            // how to use
+            item {
+                LinkSettingItem(
+                    icon = R.drawable.browser,
+                    title = howToUseTitle,
+                    onClick = { uriHandler.openUri(setupUrl) })
+            }
+
             // notification settings
             item {
                 LinkSettingItem(
@@ -241,14 +257,6 @@ fun SettingsDrawer(
                                     .putExtra(Settings.EXTRA_CHANNEL_ID, channelId))
                         }
                     })
-            }
-
-            // about
-            item {
-                LinkSettingItem(
-                    icon = R.drawable.browser,
-                    title = aboutTitle,
-                    onClick = { uriHandler.openUri(aboutUrl) })
             }
 
             // privacy
