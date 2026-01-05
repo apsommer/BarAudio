@@ -32,7 +32,8 @@ import com.sommerengineering.baraudio.dataDividerTitle
 import com.sommerengineering.baraudio.edgePadding
 import com.sommerengineering.baraudio.futuresWebhooksTitle
 import com.sommerengineering.baraudio.screenTitle
-import com.sommerengineering.baraudio.howToUseTitle
+import com.sommerengineering.baraudio.howToSetupTitle
+import com.sommerengineering.baraudio.legalDividerTitle
 import com.sommerengineering.baraudio.setupUrl
 import com.sommerengineering.baraudio.manageSubscriptionTitle
 import com.sommerengineering.baraudio.notificationsTitle
@@ -196,6 +197,19 @@ fun SettingsDrawer(
                 DividerItem(dataDividerTitle)
             }
 
+            // futures
+            item {
+                SwitchSettingItem(
+                    icon = R.drawable.ear_listen,
+                    title = futuresWebhooksTitle,
+                    description = viewModel.futuresWebhooksDescription) {
+
+                    Switch(
+                        checked = viewModel.isFuturesWebhooks,
+                        onCheckedChange = { viewModel.setFuturesWebhooks(context, it)})
+                }
+            }
+
             // webhook
             item {
 
@@ -223,41 +237,33 @@ fun SettingsDrawer(
                 }
             }
 
-            // futures webhooks
-            item {
-                SwitchSettingItem(
-                    icon = R.drawable.ear_listen,
-                    title = futuresWebhooksTitle,
-                    description = viewModel.futuresWebhooksDescription) {
-
-                    Switch(
-                        checked = viewModel.isFuturesWebhooks,
-                        onCheckedChange = { viewModel.setFuturesWebhooks(context, it)})
-                }
-            }
-
-            // how to use
+            // how to setup
             item {
                 LinkSettingItem(
                     icon = R.drawable.browser,
-                    title = howToUseTitle,
+                    title = howToSetupTitle,
                     onClick = { uriHandler.openUri(setupUrl) })
             }
 
-            // notification settings
+            // divider
             item {
-                LinkSettingItem(
-                    icon = R.drawable.notifications_active,
-                    title = notificationsTitle,
-                    onClick = {
-                        with(context) {
-                            startActivity(
-                                Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
-                                    .putExtra(Settings.EXTRA_APP_PACKAGE, BuildConfig.APPLICATION_ID)
-                                    .putExtra(Settings.EXTRA_CHANNEL_ID, channelId))
-                        }
-                    })
+                DividerItem(legalDividerTitle)
             }
+
+            // notification settings todo refactor to dialog
+//            item {
+//                LinkSettingItem(
+//                    icon = R.drawable.notifications_active,
+//                    title = notificationsTitle,
+//                    onClick = {
+//                        with(context) {
+//                            startActivity(
+//                                Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
+//                                    .putExtra(Settings.EXTRA_APP_PACKAGE, BuildConfig.APPLICATION_ID)
+//                                    .putExtra(Settings.EXTRA_CHANNEL_ID, channelId))
+//                        }
+//                    })
+//            }
 
             // privacy
             item {

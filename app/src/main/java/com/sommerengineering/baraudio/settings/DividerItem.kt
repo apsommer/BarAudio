@@ -1,5 +1,6 @@
 package com.sommerengineering.baraudio.settings
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -24,11 +25,13 @@ fun DividerItem(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(edgePadding)) {
+
             Text(
                 text = text,
                 style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(start = 0.dp, end = edgePadding, top = 0.dp, bottom = 0.dp)
-            )
+                modifier = Modifier
+                    .padding(start = 0.dp, end = edgePadding, top = 0.dp, bottom = 0.dp))
+
             HorizontalDivider()
         }
     }

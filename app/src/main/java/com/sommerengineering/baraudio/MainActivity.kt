@@ -113,6 +113,10 @@ class MainActivity : ComponentActivity() {
         // push layout boundary to full screen
         enableEdgeToEdge()
         setContent { App() }
+
+        // todo detect if notification are not allowed
+        //   yes -> do nothing
+        //   no -> dialog, ok button links to notifications
     }
 
     private fun init() {

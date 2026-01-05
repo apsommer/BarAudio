@@ -64,7 +64,7 @@ const val subscriptionUrl = "https://play.google.com/store/account/subscriptions
 
 // settings
 const val systemTtsPackageName = "com.android.settings.TTS_SETTINGS"
-const val howToUseTitle = "Custom webhook"
+const val howToSetupTitle = "How to setup"
 const val webhookTitle = "Webhook"
 const val voiceTitle = "Voice"
 const val speedTitle = "Speed"
@@ -73,7 +73,7 @@ const val queueBehaviorTitle = "Queue"
 const val uiModeTitle = "Theme"
 const val screenTitle = "Screen"
 const val futuresWebhooksTitle = "Futures"
-const val systemTtsTitle = "Text-to-speech"
+const val systemTtsTitle = "System settings"
 const val notificationsTitle = "Notifications"
 const val privacyTitle = "Privacy policy"
 const val termsTitle = "Terms and conditions"
@@ -86,8 +86,9 @@ const val uiModeLightDescription = "Light"
 const val screenFullDescription = "Full screen"
 const val screenWindowedDescription = "Show system"
 const val voiceDividerTitle = "Voice"
-const val uiDividerTitle = "UI"
+const val uiDividerTitle = "Theme"
 const val dataDividerTitle = "Data"
+const val legalDividerTitle = "Legal"
 
 // images
 const val deleteAllFadeDurationMillis = 1000
