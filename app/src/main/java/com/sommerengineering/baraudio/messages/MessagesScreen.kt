@@ -1,6 +1,5 @@
 package com.sommerengineering.baraudio.messages
 
-import android.util.Log
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
@@ -20,6 +19,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -39,15 +39,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
-import com.sommerengineering.baraudio.utils.getDatabaseReference
+import com.sommerengineering.baraudio.backgroundPadding
 import com.sommerengineering.baraudio.messagesNode
 import com.sommerengineering.baraudio.settings.SettingsDrawer
 import com.sommerengineering.baraudio.theme.colorTransitionTimeMillis
+import com.sommerengineering.baraudio.utils.getDatabaseReference
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
-import com.sommerengineering.baraudio.utils.TAG
-import com.sommerengineering.baraudio.backgroundPadding
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -107,6 +106,21 @@ fun MessagesScreen(
                     .fillMaxSize()
                     .padding(padding)) {
 
+                // todo display quote for a few seconds, then fade to background image
+                val showQuote = quoteState is QuoteState.Success
+                if (showQuote) {
+
+                    val quote = quoteState.quote.quote
+
+                    //
+                    Text(
+                        text = quote,
+                        modifier = Modifier
+                            .padding(start = backgroundPadding, end = backgroundPadding, bottom = 64.dp)
+                    )
+
+                }
+
                 // background image
                 Image(
                     modifier = Modifier
@@ -122,22 +136,7 @@ fun MessagesScreen(
                             else { (1 - 0.2 * messages.size).toFloat() },
                         animationSpec =
                             tween(colorTransitionTimeMillis),
-                        label = "")
-                        .value)
-
-                // display quote for a few seconds, then fade to background image
-                // confirm webhook behavior
-                // todo can use my webhook permanently for all users?
-
-                when (quoteState) {
-                    QuoteState.Loading -> {
-                        Log.d(TAG, "quote loading ...")
-                    }
-                    is QuoteState.Success -> {
-                        Log.d(TAG, "ui layer: ${quoteState.quote.quote}")
-                    }
-                    is QuoteState.Error -> {}
-                }
+                        label = "").value)
 
                 var isRefreshing by remember { mutableStateOf(false) }
                 val pullToRefreshState = rememberPullToRefreshState()
