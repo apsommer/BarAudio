@@ -2,6 +2,10 @@ package com.sommerengineering.baraudio
 
 import androidx.compose.ui.unit.dp
 
+// durations
+const val colorTransitionTimeMillis = 500
+const val quoteFadeTimeMillis = 7000
+
 // urls
 const val setupUrl = "https://sommerengineering.com/baraud.io"
 const val privacyUrl = "https://sommerengineering.com/privacy_policy"

@@ -1,12 +1,16 @@
 package com.sommerengineering.baraudio.messages
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -36,13 +40,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.backgroundPadding
+import com.sommerengineering.baraudio.colorTransitionTimeMillis
 import com.sommerengineering.baraudio.messagesNode
+import com.sommerengineering.baraudio.quoteFadeTimeMillis
 import com.sommerengineering.baraudio.settings.SettingsDrawer
-import com.sommerengineering.baraudio.theme.colorTransitionTimeMillis
 import com.sommerengineering.baraudio.utils.getDatabaseReference
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -59,7 +65,10 @@ fun MessagesScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val listState = rememberLazyListState()
     val coroutine = rememberCoroutineScope()
+    var isRefreshing by remember { mutableStateOf(false) }
+    val pullToRefreshState = rememberPullToRefreshState()
     val quoteState = viewModel.quoteState.collectAsState().value
+    val quoteFadeState = remember { MutableTransitionState(true).apply { targetState = false } }
 
     // side drawer
     ModalNavigationDrawer(
@@ -100,28 +109,31 @@ fun MessagesScreen(
 
             }) { padding ->
 
-            // screen container
+            // entire screen
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)) {
 
-                // todo display quote for a few seconds, then fade to background image
-                val showQuote = quoteState is QuoteState.Success
-                if (showQuote) {
+                // display quote for a few seconds, then fade out
+                if (quoteState is QuoteState.Success) {
 
-                    val quote = quoteState.quote.quote
-
-                    //
-                    Text(
-                        text = quote,
+                    AnimatedVisibility(
                         modifier = Modifier
-                            .padding(start = backgroundPadding, end = backgroundPadding, bottom = 64.dp)
-                    )
+                            .padding(start = backgroundPadding, end = backgroundPadding, top = 64.dp),
+                        visibleState = quoteFadeState,
+                        exit = fadeOut(tween(quoteFadeTimeMillis))) {
 
+                        Text(
+                            text = quoteState.quote.quote,
+                            style = MaterialTheme.typography.titleLarge,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .align(Alignment.Center))
+                    }
                 }
 
-                // background image
+                // background image, todo fade in while quote fades out
                 Image(
                     modifier = Modifier
                         .padding(start = backgroundPadding, end = backgroundPadding, bottom = 64.dp)
@@ -136,10 +148,8 @@ fun MessagesScreen(
                             else { (1 - 0.2 * messages.size).toFloat() },
                         animationSpec =
                             tween(colorTransitionTimeMillis),
-                        label = "").value)
-
-                var isRefreshing by remember { mutableStateOf(false) }
-                val pullToRefreshState = rememberPullToRefreshState()
+                        label = "")
+                        .value)
 
                 // pull to refresh
                 PullToRefreshBox(
@@ -166,6 +176,8 @@ fun MessagesScreen(
                             isRefreshing = false
                         }
                     },
+
+                    // default spinner from top of screen
                     indicator = {
                         Indicator(
                             modifier = Modifier
@@ -176,7 +188,7 @@ fun MessagesScreen(
                             state = pullToRefreshState)
                     }) {
 
-                    // message list
+                    // messages list
                     LazyColumn(
                         state = listState) {
                         items(
