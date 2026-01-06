@@ -171,12 +171,10 @@ fun App() {
     viewModel.initBilling(
         koinInject<BillingClientImpl> { parametersOf(context) })
 
-    KoinContext {
-        AppTheme(viewModel.isDarkMode) {
-            Scaffold(
-                modifier = Modifier.fillMaxSize()) { padding ->
-                Navigation(rememberNavController())
-            }
+    AppTheme(viewModel.isDarkMode) {
+        Scaffold(
+            modifier = Modifier.fillMaxSize()) { padding ->
+            Navigation(rememberNavController())
         }
     }
 }
