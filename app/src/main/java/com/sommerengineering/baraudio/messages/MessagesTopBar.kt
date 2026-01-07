@@ -71,7 +71,7 @@ fun MessagesTopBar(
                 onClick = { deleteAllMessages(messages) },
                 enabled = !messages.isEmpty()) {
                 Icon(
-                    painter = painterResource(R.drawable.done_all),
+                    painter = painterResource(R.drawable.delete_sweep),
                     tint = animateColorAsState(
                         targetValue =
                             if (isEmpty) IconButtonDefaults.iconButtonColors().disabledContentColor
