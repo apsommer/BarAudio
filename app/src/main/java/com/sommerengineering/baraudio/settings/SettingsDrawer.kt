@@ -45,6 +45,7 @@ import com.sommerengineering.baraudio.pitchTitle
 import com.sommerengineering.baraudio.privacyTitle
 import com.sommerengineering.baraudio.privacyUrl
 import com.sommerengineering.baraudio.queueBehaviorTitle
+import com.sommerengineering.baraudio.showQuoteTitle
 import com.sommerengineering.baraudio.signOutTitle
 import com.sommerengineering.baraudio.speedTitle
 import com.sommerengineering.baraudio.subscriptionUrl
@@ -246,6 +247,19 @@ fun SettingsDrawer(
                     Switch(
                         checked = viewModel.isFullScreen,
                         onCheckedChange = { viewModel.setFullScreen(context, it) })
+                }
+            }
+
+            // quote
+            item {
+                SwitchSettingItem(
+                    icon = R.drawable.fullscreen,
+                    title = showQuoteTitle,
+                    description = viewModel.showQuoteDescription) {
+
+                    Switch(
+                        checked = viewModel.showQuote,
+                        onCheckedChange = { viewModel.showQuote(context, it)})
                 }
             }
 
