@@ -1,5 +1,6 @@
 package com.sommerengineering.baraudio.messages
 
+import android.view.animation.AlphaAnimation
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.Spring
@@ -38,6 +39,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -88,6 +91,8 @@ fun MessagesScreen(
             listenToDatabase(messages, listState, coroutine)
         }
 
+
+
         Scaffold(
 
             // top bar
@@ -115,42 +120,36 @@ fun MessagesScreen(
                     .fillMaxSize()
                     .padding(padding)) {
 
-                // display quote for a few seconds, then fade out
+                // fade background as new messages appear
+                val animatedAlpha by animateFloatAsState(
+                    targetValue =
+                        if (messages.isEmpty()) { 1f }
+                        else { (1 - 0.2 * messages.size).toFloat() },
+                    animationSpec = tween(colorTransitionTimeMillis))
+
+                // inspirational quote
                 val showQuote = quoteState is QuoteState.Success && viewModel.showQuote
                 if (showQuote) {
 
-                    AnimatedVisibility(
+                    Text(
+                        text = quoteState.quote.quote,
+                        style = MaterialTheme.typography.titleLarge,
+                        textAlign = TextAlign.Center,
                         modifier = Modifier
-                            .padding(start = backgroundPadding, end = backgroundPadding, top = 64.dp),
-                        visibleState = quoteFadeState,
-                        exit = fadeOut(tween(quoteFadeTimeMillis))) {
-
-                        Text(
-                            text = quoteState.quote.quote,
-                            style = MaterialTheme.typography.titleLarge,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier
-                                .align(Alignment.Center))
-                    }
+                            .fillMaxSize()
+                            .padding(start = backgroundPadding, end = backgroundPadding, top = 64.dp)
+                            .align(Alignment.Center)
+                            .alpha(animatedAlpha))
                 }
 
-                // background image, todo fade in while quote fades out
+                // background image
                 Image(
                     modifier = Modifier
                         .padding(start = backgroundPadding, end = backgroundPadding, bottom = 64.dp)
                         .align(Alignment.Center),
                     painter = painterResource(viewModel.getBackgroundId()),
                     contentDescription = null,
-
-                    // fade to invisible after 5 messages
-                    alpha = animateFloatAsState(
-                        targetValue =
-                            if (messages.isEmpty()) { 1f }
-                            else { (1 - 0.2 * messages.size).toFloat() },
-                        animationSpec =
-                            tween(colorTransitionTimeMillis),
-                        label = "")
-                        .value)
+                    alpha = animatedAlpha)
 
                 // pull to refresh
                 PullToRefreshBox(
