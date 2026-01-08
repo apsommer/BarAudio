@@ -254,8 +254,7 @@ fun SettingsDrawer(
             item {
                 SwitchSettingItem(
                     icon = R.drawable.cognition,
-                    title = showQuoteTitle,
-                    description = viewModel.showQuoteDescription) {
+                    title = showQuoteTitle) {
 
                     Switch(
                         checked = viewModel.showQuote,

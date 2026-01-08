@@ -309,8 +309,8 @@ class MainViewModel(
         else { windowInsetsController.show(WindowInsetsCompat.Type.systemBars()) }
     }
 
+    // quote
     var showQuote by mutableStateOf(true)
-    var showQuoteDescription by mutableStateOf("")
 
     fun showQuote(
         context: Context,
@@ -318,10 +318,6 @@ class MainViewModel(
 
         showQuote = isChecked
         writeToDataStore(context, showQuoteKey, isChecked.toString())
-
-        showQuoteDescription =
-            if (showQuote) showInspirationalQuoteDescription
-            else hideInspirationalQuoteDescription
     }
 
     // futures
