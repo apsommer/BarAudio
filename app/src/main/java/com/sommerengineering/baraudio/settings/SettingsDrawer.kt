@@ -34,6 +34,7 @@ import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.dataDividerTitle
 import com.sommerengineering.baraudio.edgePadding
+import com.sommerengineering.baraudio.futuresWebhookDescription
 import com.sommerengineering.baraudio.futuresWebhooksTitle
 import com.sommerengineering.baraudio.screenTitle
 import com.sommerengineering.baraudio.howToSetupTitle
@@ -174,7 +175,7 @@ fun SettingsDrawer(
                 SwitchSettingItem(
                     icon = R.drawable.ear_listen,
                     title = futuresWebhooksTitle,
-                    description = viewModel.futuresWebhooksDescription) {
+                    description = futuresWebhookDescription) {
 
                     Switch(
                         checked = viewModel.isFuturesWebhooks,

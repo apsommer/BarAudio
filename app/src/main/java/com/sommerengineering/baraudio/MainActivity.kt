@@ -165,6 +165,7 @@ fun App() {
 
     // toggle show quote
     val showQuote = readFromDataStore(context, showQuoteKey)?.toBooleanStrictOrNull() ?: true
+    viewModel.showQuote(context, showQuote)
 
     // futures webhooks
     val isFuturesWebhooksKey = readFromDataStore(context, isFuturesWebhooksKey)?.toBooleanStrictOrNull() ?: true
@@ -181,3 +182,4 @@ fun App() {
         }
     }
 }
+

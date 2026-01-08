@@ -324,10 +324,8 @@ class MainViewModel(
             else hideInspirationalQuoteDescription
     }
 
-    // example webhook
+    // futures
     var isFuturesWebhooks by mutableStateOf(true)
-    var futuresWebhooksDescription = "NQ, ES, and GC at 1min"
-
     fun setFuturesWebhooks(
         context: Context,
         isChecked: Boolean) {
