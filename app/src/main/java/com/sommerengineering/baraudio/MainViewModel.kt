@@ -309,6 +309,21 @@ class MainViewModel(
         else { windowInsetsController.show(WindowInsetsCompat.Type.systemBars()) }
     }
 
+    var showQuote by mutableStateOf(true)
+    var showQuoteDescription by mutableStateOf("")
+
+    fun showQuote(
+        context: Context,
+        isChecked: Boolean) {
+
+        showQuote = isChecked
+        writeToDataStore(context, showQuoteKey, isChecked.toString())
+
+        showQuoteDescription =
+            if (showQuote) showInspirationalQuoteDescription
+            else hideInspirationalQuoteDescription
+    }
+
     // example webhook
     var isFuturesWebhooks by mutableStateOf(true)
     var futuresWebhooksDescription = "NQ, ES, and GC at 1min"

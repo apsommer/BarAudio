@@ -163,6 +163,9 @@ fun App() {
     val isFullScreen = readFromDataStore(context, isFullScreenKey)?.toBoolean() == true
     viewModel.setFullScreen(context, isFullScreen)
 
+    // toggle show quote
+    val showQuote = readFromDataStore(context, showQuoteKey)?.toBooleanStrictOrNull() ?: true
+
     // futures webhooks
     val isFuturesWebhooksKey = readFromDataStore(context, isFuturesWebhooksKey)?.toBooleanStrictOrNull() ?: true
     viewModel.setFuturesWebhooks(context, isFuturesWebhooksKey)

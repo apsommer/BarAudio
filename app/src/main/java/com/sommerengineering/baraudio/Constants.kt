@@ -57,6 +57,7 @@ const val pitchKey = "pitch"
 const val isQueueFlushKey = "isQueueFlush"
 const val isDarkModeKey = "isDarkMode"
 const val isFullScreenKey = "isFullScreen"
+const val showQuoteKey = "showQuote"
 const val isFuturesWebhooksKey = "isFuturesWebhooks"
 const val volumeKey = android.speech.tts.TextToSpeech.Engine.KEY_PARAM_VOLUME
 
@@ -68,7 +69,7 @@ const val subscriptionUrl = "https://play.google.com/store/account/subscriptions
 
 // settings
 const val systemTtsPackageName = "com.android.settings.TTS_SETTINGS"
-const val howToSetupTitle = "How to setup"
+const val howToSetupTitle = "How to customize"
 const val webhookTitle = "Webhook"
 const val voiceTitle = "Voice"
 const val speedTitle = "Speed"
@@ -88,6 +89,8 @@ const val uiModeDarkDescription = "Dark"
 const val uiModeLightDescription = "Light"
 const val screenFullDescription = "Full screen"
 const val screenWindowedDescription = "Show system"
+const val showInspirationalQuoteDescription = "Show inspirational message"
+const val hideInspirationalQuoteDescription = "Hide inspirational message"
 const val voiceDividerTitle = "VOICE"
 const val uiDividerTitle = "THEME"
 const val dataDividerTitle = "DATA"
