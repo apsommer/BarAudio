@@ -253,7 +253,7 @@ fun SettingsDrawer(
             // quote
             item {
                 SwitchSettingItem(
-                    icon = R.drawable.fullscreen,
+                    icon = R.drawable.cognition,
                     title = showQuoteTitle,
                     description = viewModel.showQuoteDescription) {
 

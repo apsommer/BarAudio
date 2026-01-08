@@ -116,7 +116,8 @@ fun MessagesScreen(
                     .padding(padding)) {
 
                 // display quote for a few seconds, then fade out
-                if (quoteState is QuoteState.Success) {
+                val showQuote = quoteState is QuoteState.Success && viewModel.showQuote
+                if (showQuote) {
 
                     AnimatedVisibility(
                         modifier = Modifier
