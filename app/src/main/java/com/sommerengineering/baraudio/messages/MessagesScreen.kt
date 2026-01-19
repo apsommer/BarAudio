@@ -1,18 +1,17 @@
 package com.sommerengineering.baraudio.messages
 
-import android.view.animation.AlphaAnimation
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -40,19 +39,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
+import com.sommerengineering.baraudio.allowNotificationsTitle
 import com.sommerengineering.baraudio.backgroundPadding
 import com.sommerengineering.baraudio.colorTransitionTimeMillis
+import com.sommerengineering.baraudio.edgePadding
 import com.sommerengineering.baraudio.messagesNode
-import com.sommerengineering.baraudio.quoteFadeTimeMillis
 import com.sommerengineering.baraudio.settings.SettingsDrawer
 import com.sommerengineering.baraudio.utils.getDatabaseReference
+import com.sommerengineering.baraudio.utils.logMessage
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -208,6 +209,34 @@ fun MessagesScreen(
                                 message = message)
                         }
                     }
+                }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.BottomCenter)
+                        .clickable(
+                            onClick = {
+                                logMessage("Clicked banner ...")
+                            })
+                ) {
+
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.BottomCenter)
+                            .padding(edgePadding)
+                            .background(Color.Red)
+                            .clickable(
+                                onClick = {
+                                    logMessage("Clicked banner ...")
+                                }
+                            )
+                        ,
+                        text = allowNotificationsTitle,
+                        textAlign = TextAlign.Center,
+                        color = Color.White
+                    )
                 }
             }
         }
