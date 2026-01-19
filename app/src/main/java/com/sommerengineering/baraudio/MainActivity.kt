@@ -47,7 +47,9 @@ class MainActivity : ComponentActivity() {
     val requestPermissionLauncher =
         registerForActivityResult(
             ActivityResultContracts.RequestPermission()) { isGranted ->
-            if (isGranted) { initNotificationChannel() }
+            if (isGranted) {
+                initNotificationChannel()
+            }
         }
 
     val updateLauncher =
@@ -55,7 +57,6 @@ class MainActivity : ComponentActivity() {
             ActivityResultContracts.StartIntentSenderForResult()) { result ->
             if (result.resultCode != RESULT_OK) {
                 logMessage("Update flow failed with code: ${result.resultCode}")
-                return@registerForActivityResult
             }
             // if update is required/immediate (not flexible) play updates and restarts app
         }

@@ -11,6 +11,11 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.credentials.CredentialManager
 import androidx.navigation.NavHostController
@@ -101,20 +106,24 @@ fun Navigation(
             enterTransition = { fadeIn },
             exitTransition = { fadeOut }) {
 
+            // ask for permission at most two times
+            val count = remember { mutableIntStateOf(0) }
+
             OnboardingScreen(
                 viewModel = viewModel,
                 pageNumber = 1,
                 onNextClick = {
 
-                    // notifications granted, navigate forward
-                    if (context.areNotificationsEnabled() || 32 >= Build.VERSION.SDK_INT) {
+                    // navigate forward
+                    if (context.areNotificationsEnabled() || 32 >= Build.VERSION.SDK_INT || count.intValue > 1) {
                         writeToDataStore(context, onboardingKey, OnboardingWebhookScreenRoute)
                         controller.navigate(OnboardingWebhookScreenRoute)
 
-                    // request notification permission again
+                    // request notification permission
                     } else {
                         context.requestPermissionLauncher
                             .launch(Manifest.permission.POST_NOTIFICATIONS)
+                        count.intValue ++
                     }
                 })
         }
