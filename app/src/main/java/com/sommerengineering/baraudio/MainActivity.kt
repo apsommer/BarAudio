@@ -32,7 +32,6 @@ import com.sommerengineering.baraudio.utils.readFromDataStore
 import com.sommerengineering.baraudio.utils.token
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.koin.androidx.compose.koinViewModel
-import org.koin.compose.KoinContext
 import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
 
@@ -40,19 +39,15 @@ var isAppOpen = false
 var isUpdateRequired = false
 var isFirstLaunch = true // todo remove this var on resume subscription requirement 310125
 lateinit var onboardingProgressRoute: String
-var isNotificationPermissionGranted = MutableStateFlow(false)
 
 class MainActivity : ComponentActivity() {
 
     val context = this
 
-    private val requestPermissionLauncher =
+    val requestPermissionLauncher =
         registerForActivityResult(
             ActivityResultContracts.RequestPermission()) { isGranted ->
-            if (isGranted) {
-                isNotificationPermissionGranted.value = true
-                initNotificationChannel()
-            }
+            if (isGranted) { initNotificationChannel() }
         }
 
     val updateLauncher =
@@ -66,16 +61,8 @@ class MainActivity : ComponentActivity() {
         }
 
     // controller to toggle fullscreen
-    val windowInsetsController by lazy { WindowCompat.getInsetsController(window, window.decorView) }
-
-    @SuppressLint("InlinedApi")
-    fun requestNotificationPermission() {
-
-        if (isNotificationPermissionGranted.value) return
-
-        // launch system permission request ui
-        requestPermissionLauncher
-            .launch(Manifest.permission.POST_NOTIFICATIONS)
+    val windowInsetsController by lazy {
+        WindowCompat.getInsetsController(window, window.decorView)
     }
 
     private fun initNotificationChannel() {
@@ -90,15 +77,13 @@ class MainActivity : ComponentActivity() {
         channel.group = channelGroupId
 
         // register with system
-        val notificationManager =
-            getSystemService(Service.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager
+        val manager = getSystemService(Service.NOTIFICATION_SERVICE) as NotificationManager
+        manager
             .createNotificationChannelGroup(
                 NotificationChannelGroup(
                     channelGroupId,
                     channelGroupName))
-        notificationManager
-            .createNotificationChannel(channel)
+        manager.createNotificationChannel(channel)
 
         logMessage("Notification channel registered")
     }
@@ -113,10 +98,16 @@ class MainActivity : ComponentActivity() {
         // push layout boundary to full screen
         enableEdgeToEdge()
         setContent { App() }
+    }
 
-        // todo detect if notification are not allowed
-        //   yes -> do nothing
-        //   no -> dialog, ok button links to notifications
+    fun areNotificationsEnabled() : Boolean {
+
+        // get notification channel
+        val manager = context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        val channel = manager.getNotificationChannel(channelId)
+
+        return manager.areNotificationsEnabled()
+            && channel.importance > NotificationManager.IMPORTANCE_NONE
     }
 
     private fun init() {
@@ -125,12 +116,6 @@ class MainActivity : ComponentActivity() {
         token = readFromDataStore(context, tokenKey) ?: unauthenticatedToken
         isFirstLaunch = readFromDataStore(context, isFirstLaunchKey)?.toBooleanStrictOrNull() ?: true // todo remove this var on resume subscription requirement 310125
         onboardingProgressRoute = readFromDataStore(context, onboardingKey) ?: OnboardingTextToSpeechScreenRoute
-
-        // check notification permission
-        isNotificationPermissionGranted.value =
-            32 >= Build.VERSION.SDK_INT || ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
 
         // dismiss all notifications on launch
         val isLaunchFromNotification = intent.extras?.getBoolean(isLaunchFromNotification) ?: false

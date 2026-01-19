@@ -71,7 +71,6 @@ fun MessagesScreen(
     var isRefreshing by remember { mutableStateOf(false) }
     val pullToRefreshState = rememberPullToRefreshState()
     val quoteState = viewModel.quoteState.collectAsState().value
-    val quoteFadeState = remember { MutableTransitionState(true).apply { targetState = false } }
 
     // side drawer
     ModalNavigationDrawer(
@@ -90,8 +89,6 @@ fun MessagesScreen(
         LaunchedEffect(Unit) {
             listenToDatabase(messages, listState, coroutine)
         }
-
-
 
         Scaffold(
 

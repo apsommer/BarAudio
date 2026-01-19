@@ -1,5 +1,10 @@
 package com.sommerengineering.baraudio
 
+import android.Manifest
+import android.app.NotificationManager
+import android.app.Service
+import android.os.Build
+import android.util.Log
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -42,10 +47,10 @@ fun Navigation(
     // check for forced updated
     LaunchedEffect(Unit) {
         checkForcedUpdate(
-            credentialManager,
-            controller,
-            viewModel,
-            context)
+            credentialManager = credentialManager,
+            controller = controller,
+            viewModel = viewModel,
+            context = context)
     }
 
     NavHost(
@@ -84,7 +89,7 @@ fun Navigation(
                 viewModel = viewModel,
                 pageNumber = 0,
                 onNextClick = {
-                    writeToDataStore(context, onboardingKey, OnboardingNotificationsScreenRoute)
+                    writeToDataStore(context, onboardingKey, OnboardingNotificationsScreenRoute) // todo remove these, no need to save progress
                     controller.navigate(OnboardingNotificationsScreenRoute)
                 },
                 isNextEnabled = viewModel.tts.isInit.collectAsState().value)
@@ -96,23 +101,21 @@ fun Navigation(
             enterTransition = { fadeIn },
             exitTransition = { fadeOut }) {
 
-            // request notification permission, if needed
-            LaunchedEffect(Unit) {
-                isNotificationPermissionGranted
-                    .onEach { isGranted ->
-                        if (isGranted) {
-                            writeToDataStore(context, onboardingKey, OnboardingWebhookScreenRoute)
-                            controller.navigate(OnboardingWebhookScreenRoute)
-                        }
-                    }
-                    .collect()
-            }
-
             OnboardingScreen(
                 viewModel = viewModel,
                 pageNumber = 1,
                 onNextClick = {
-                    context.requestNotificationPermission()
+
+                    // notifications granted, navigate forward
+                    if (context.areNotificationsEnabled() || 32 >= Build.VERSION.SDK_INT) {
+                        writeToDataStore(context, onboardingKey, OnboardingWebhookScreenRoute)
+                        controller.navigate(OnboardingWebhookScreenRoute)
+
+                    // request notification permission again
+                    } else {
+                        context.requestPermissionLauncher
+                            .launch(Manifest.permission.POST_NOTIFICATIONS)
+                    }
                 })
         }
 
@@ -129,6 +132,8 @@ fun Navigation(
                     onboardingProgressRoute = OnboardingCompleteRoute
                     writeToDataStore(context, onboardingKey, onboardingProgressRoute)
                     controller.navigate(MessagesScreenRoute) {
+
+                        // clear backstack
                         popUpTo(OnboardingTextToSpeechScreenRoute) { inclusive = true }
                     }
                 })
