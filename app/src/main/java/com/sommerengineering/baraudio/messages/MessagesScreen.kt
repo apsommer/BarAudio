@@ -224,7 +224,7 @@ fun MessagesScreen(
                     Text(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .align(Alignment.BottomCenter)
+//                            .align(Alignment.BottomCenter)
                             .padding(edgePadding)
                             .background(Color.Red)
                             .clickable(

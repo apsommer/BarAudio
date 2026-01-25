@@ -224,19 +224,6 @@ fun SettingsDrawer(
                 DividerItem(uiDividerTitle)
             }
 
-            // dark mode
-            item {
-                SwitchSettingItem(
-                    icon = R.drawable.contrast,
-                    title = uiModeTitle,
-                    description = viewModel.uiModeDescription) {
-
-                    Switch(
-                        checked = viewModel.isDarkMode,
-                        onCheckedChange = { viewModel.setIsDarkMode(context, it) })
-                }
-            }
-
             // full screen
             item {
                 SwitchSettingItem(
@@ -247,6 +234,19 @@ fun SettingsDrawer(
                     Switch(
                         checked = viewModel.isFullScreen,
                         onCheckedChange = { viewModel.setFullScreen(context, it) })
+                }
+            }
+
+            // theme
+            item {
+                SwitchSettingItem(
+                    icon = R.drawable.contrast,
+                    title = uiModeTitle,
+                    description = viewModel.uiModeDescription) {
+
+                    Switch(
+                        checked = viewModel.isDarkMode,
+                        onCheckedChange = { viewModel.setIsDarkMode(context, it) })
                 }
             }
 
