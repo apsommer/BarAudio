@@ -1,14 +1,10 @@
 package com.sommerengineering.baraudio
 
-import android.Manifest
-import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationChannelGroup
 import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -18,10 +14,12 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.navigation.compose.rememberNavController
@@ -30,7 +28,6 @@ import com.sommerengineering.baraudio.utils.BillingClientImpl
 import com.sommerengineering.baraudio.utils.logMessage
 import com.sommerengineering.baraudio.utils.readFromDataStore
 import com.sommerengineering.baraudio.utils.token
-import kotlinx.coroutines.flow.MutableStateFlow
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
@@ -38,7 +35,8 @@ import org.koin.core.parameter.parametersOf
 var isAppOpen = false
 var isUpdateRequired = false
 var isFirstLaunch = true // todo remove this var on resume subscription requirement 310125
-lateinit var onboardingProgressRoute: String
+lateinit var onboardingProgressRoute: String // todo remove this one too
+var areNotificationsEnabled by mutableStateOf(false)
 
 class MainActivity : ComponentActivity() {
 
@@ -110,6 +108,12 @@ class MainActivity : ComponentActivity() {
         return manager.areNotificationsEnabled()
             && channel.importance > NotificationManager.IMPORTANCE_NONE
     }
+
+//    override fun onResume() {
+//        super.onResume()
+//
+//        areNotificationsEnabled = areNotificationsEnabled()
+//    }
 
     private fun init() {
 

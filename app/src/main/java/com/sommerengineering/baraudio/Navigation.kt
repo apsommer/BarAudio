@@ -18,11 +18,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.credentials.CredentialManager
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import com.sommerengineering.baraudio.areNotificationsEnabled
 import com.sommerengineering.baraudio.login.LoginScreen
 import com.sommerengineering.baraudio.login.OnboardingScreen
 import com.sommerengineering.baraudio.login.checkForcedUpdate
@@ -153,6 +156,11 @@ fun Navigation(
             route = MessagesScreenRoute,
             enterTransition = { fadeIn },
             exitTransition = { fadeOut }) {
+
+            LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+                logMessage("Resumed ...")
+                areNotificationsEnabled = context.areNotificationsEnabled()
+            }
 
             MessagesScreen(
                 onSignOut = {
