@@ -42,7 +42,7 @@ class FirebaseService: com.google.firebase.messaging.FirebaseMessagingService() 
         // either speak, or show notification
         var isShowNotification =
             Firebase.auth.currentUser == null || // user not signed-in
-            !_root_ide_package_.com.sommerengineering.baraudio.isAppOpen // app closed
+            !_root_ide_package_.com.sommerengineering.baraudio.isAppOpen // app closed todo ugly, refactor?
 
         // note for different user, same device
         val note =

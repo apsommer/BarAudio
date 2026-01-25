@@ -1,21 +1,15 @@
 package com.sommerengineering.baraudio
 
 import android.Manifest
-import android.app.NotificationManager
-import android.app.Service
 import android.os.Build
-import android.util.Log
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.credentials.CredentialManager
 import androidx.lifecycle.Lifecycle
@@ -25,7 +19,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
-import com.sommerengineering.baraudio.areNotificationsEnabled
 import com.sommerengineering.baraudio.login.LoginScreen
 import com.sommerengineering.baraudio.login.OnboardingScreen
 import com.sommerengineering.baraudio.login.checkForcedUpdate
@@ -35,8 +28,6 @@ import com.sommerengineering.baraudio.messages.MessagesScreen
 import com.sommerengineering.baraudio.utils.logMessage
 import com.sommerengineering.baraudio.utils.token
 import com.sommerengineering.baraudio.utils.writeToDataStore
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.onEach
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
@@ -124,7 +115,7 @@ fun Navigation(
 
                     // request notification permission
                     } else {
-                        context.requestPermissionLauncher
+                        context.requestNotificationPermissionLauncher
                             .launch(Manifest.permission.POST_NOTIFICATIONS)
                         count.intValue ++
                     }

@@ -42,12 +42,10 @@ class MainActivity : ComponentActivity() {
 
     val context = this
 
-    val requestPermissionLauncher =
+    val requestNotificationPermissionLauncher =
         registerForActivityResult(
-            ActivityResultContracts.RequestPermission()) { isGranted ->
-            if (isGranted) {
-                initNotificationChannel()
-            }
+            ActivityResultContracts.RequestPermission()) {
+            areNotificationsEnabled = areNotificationsEnabled()
         }
 
     val updateLauncher =
@@ -75,7 +73,7 @@ class MainActivity : ComponentActivity() {
         channel.description = channelDescription
         channel.group = channelGroupId
 
-        // register with system
+        // register with system, system takes no action if channel already exists
         val manager = getSystemService(Service.NOTIFICATION_SERVICE) as NotificationManager
         manager
             .createNotificationChannelGroup(
@@ -83,8 +81,6 @@ class MainActivity : ComponentActivity() {
                     channelGroupId,
                     channelGroupName))
         manager.createNotificationChannel(channel)
-
-        logMessage("Notification channel registered")
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -109,12 +105,6 @@ class MainActivity : ComponentActivity() {
             && channel.importance > NotificationManager.IMPORTANCE_NONE
     }
 
-//    override fun onResume() {
-//        super.onResume()
-//
-//        areNotificationsEnabled = areNotificationsEnabled()
-//    }
-
     private fun init() {
 
         isAppOpen = true
@@ -129,6 +119,9 @@ class MainActivity : ComponentActivity() {
         // enable layout resizing into system designated screen space
         // can not get behind front camera "notch" of pixel 6a, other apps also can't!
         WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        // init notification channel
+        initNotificationChannel()
     }
 }
 

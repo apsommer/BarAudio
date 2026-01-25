@@ -105,7 +105,8 @@ fun MessagesScreen(
             },
 
             bottomBar = {
-                AllowNotificationsBottomBar(areNotificationsEnabled)
+                AllowNotificationsBottomBar(
+                    areNotificationsAllowed = areNotificationsEnabled)
             }
 
         ) { padding ->
@@ -119,13 +120,9 @@ fun MessagesScreen(
                 // fade background as new messages appear
                 val animatedAlpha by animateFloatAsState(
                     targetValue =
-                        if (messages.isEmpty()) {
-                            1f
-                        } else {
-                            (1 - 0.2 * messages.size).toFloat()
-                        },
-                    animationSpec = tween(colorTransitionTimeMillis)
-                )
+                        if (messages.isEmpty()) { 1f }
+                        else { (1 - 0.2 * messages.size).toFloat() },
+                    animationSpec = tween(colorTransitionTimeMillis))
 
                 // inspirational quote
                 val showQuote = quoteState is QuoteState.Success && viewModel.showQuote
