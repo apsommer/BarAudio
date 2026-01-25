@@ -24,7 +24,7 @@ const val messageMaxSize = 1000
 // notifications
 const val channelId = "42"
 const val channelName = "Webhook"
-const val channelDescription = "Data connection for BarAudio"
+const val channelDescription = "Realtime data connection for BarAudio"
 const val channelGroupId = "42"
 const val channelGroupName = "Webhook"
 const val isLaunchFromNotification = "isLaunchFromNotification"

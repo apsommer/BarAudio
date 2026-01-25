@@ -36,7 +36,7 @@ var isAppOpen = false
 var isUpdateRequired = false
 var isFirstLaunch = true // todo remove this var on resume subscription requirement 310125
 lateinit var onboardingProgressRoute: String // todo remove this one too
-var areNotificationsEnabled by mutableStateOf(false)
+var areNotificationsEnabled by mutableStateOf(true)
 
 class MainActivity : ComponentActivity() {
 

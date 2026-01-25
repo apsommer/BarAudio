@@ -148,8 +148,8 @@ fun Navigation(
             enterTransition = { fadeIn },
             exitTransition = { fadeOut }) {
 
+            // check for notification permission
             LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
-                logMessage("Resumed ...")
                 areNotificationsEnabled = context.areNotificationsEnabled()
             }
 
