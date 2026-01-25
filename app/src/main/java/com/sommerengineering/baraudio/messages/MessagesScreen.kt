@@ -115,31 +115,7 @@ fun MessagesScreen(
             },
 
             bottomBar = {
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable(
-                            onClick = {
-                                logMessage("Clicked banner ...")
-                            })
-                ) {
-
-                    Text(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color.Red)
-                            .clickable(
-                                onClick = {
-                                    logMessage("Clicked banner ...")
-
-                                }
-                            ),
-                        text = allowNotificationsTitle,
-                        textAlign = TextAlign.Center,
-                        color = Color.White
-                    )
-                }
+                AllowNotificationsBottomBar(false)
             }
 
         ) { padding ->
@@ -148,8 +124,7 @@ fun MessagesScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(padding)
-            ) {
+                    .padding(padding)) {
 
                 // fade background as new messages appear
                 val animatedAlpha by animateFloatAsState(
