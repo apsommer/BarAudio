@@ -7,11 +7,14 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -109,21 +112,55 @@ fun MessagesScreen(
                 MessagesFloatingActionButton(
                     context = context,
                     viewModel = viewModel)
+            },
 
-            }) { padding ->
+            bottomBar = {
 
-            // entire screen
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable(
+                            onClick = {
+                                logMessage("Clicked banner ...")
+                            })
+                ) {
+
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color.Red)
+                            .clickable(
+                                onClick = {
+                                    logMessage("Clicked banner ...")
+
+                                }
+                            ),
+                        text = allowNotificationsTitle,
+                        textAlign = TextAlign.Center,
+                        color = Color.White
+                    )
+                }
+            }
+
+        ) { padding ->
+
+            // screen container
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(padding)) {
+                    .padding(padding)
+            ) {
 
                 // fade background as new messages appear
                 val animatedAlpha by animateFloatAsState(
                     targetValue =
-                        if (messages.isEmpty()) { 1f }
-                        else { (1 - 0.2 * messages.size).toFloat() },
-                    animationSpec = tween(colorTransitionTimeMillis))
+                        if (messages.isEmpty()) {
+                            1f
+                        } else {
+                            (1 - 0.2 * messages.size).toFloat()
+                        },
+                    animationSpec = tween(colorTransitionTimeMillis)
+                )
 
                 // inspirational quote
                 val showQuote = quoteState is QuoteState.Success && viewModel.showQuote
@@ -135,19 +172,29 @@ fun MessagesScreen(
                         textAlign = TextAlign.Center,
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(start = backgroundPadding, end = backgroundPadding, top = 64.dp)
+                            .padding(
+                                start = backgroundPadding,
+                                end = backgroundPadding,
+                                top = 64.dp
+                            )
                             .align(Alignment.Center)
-                            .alpha(animatedAlpha))
+                            .alpha(animatedAlpha)
+                    )
                 }
 
                 // background image
                 Image(
                     modifier = Modifier
-                        .padding(start = backgroundPadding, end = backgroundPadding, bottom = 64.dp)
+                        .padding(
+                            start = backgroundPadding,
+                            end = backgroundPadding,
+                            bottom = 64.dp
+                        )
                         .align(Alignment.Center),
                     painter = painterResource(viewModel.getBackgroundId()),
                     contentDescription = null,
-                    alpha = animatedAlpha)
+                    alpha = animatedAlpha
+                )
 
                 // pull to refresh
                 PullToRefreshBox(
@@ -183,12 +230,14 @@ fun MessagesScreen(
                             isRefreshing = isRefreshing,
                             containerColor = MaterialTheme.colorScheme.primaryContainer,
                             color = MaterialTheme.colorScheme.onPrimaryContainer,
-                            state = pullToRefreshState)
+                            state = pullToRefreshState
+                        )
                     }) {
 
                     // messages list
                     LazyColumn(
-                        state = listState) {
+                        state = listState
+                    ) {
                         items(
                             items = messages.reversed(),
                             key = { it.timestamp }) { message ->
@@ -205,38 +254,12 @@ fun MessagesScreen(
                                     .animateItem(
                                         fadeInSpec = spring(stiffness = Spring.StiffnessVeryLow),
                                         fadeOutSpec = spring(stiffness = Spring.StiffnessVeryLow),
-                                        placementSpec = spring(stiffness = Spring.StiffnessVeryLow)),
-                                message = message)
+                                        placementSpec = spring(stiffness = Spring.StiffnessVeryLow)
+                                    ),
+                                message = message
+                            )
                         }
                     }
-                }
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .align(Alignment.BottomCenter)
-                        .clickable(
-                            onClick = {
-                                logMessage("Clicked banner ...")
-                            })
-                ) {
-
-                    Text(
-                        modifier = Modifier
-                            .fillMaxWidth()
-//                            .align(Alignment.BottomCenter)
-                            .padding(edgePadding)
-                            .background(Color.Red)
-                            .clickable(
-                                onClick = {
-                                    logMessage("Clicked banner ...")
-                                }
-                            )
-                        ,
-                        text = allowNotificationsTitle,
-                        textAlign = TextAlign.Center,
-                        color = Color.White
-                    )
                 }
             }
         }
