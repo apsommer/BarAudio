@@ -14,7 +14,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue.EndToStart
+import androidx.compose.material3.SwipeToDismissBoxValue.StartToEnd
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,80 +27,110 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainViewModel
-import com.sommerengineering.baraudio.utils.beautifyTimestamp
 import com.sommerengineering.baraudio.edgePadding
 import com.sommerengineering.baraudio.settingsIconSize
+import com.sommerengineering.baraudio.utils.beautifyTimestamp
 
 @Composable
 fun MessageItem(
     viewModel: MainViewModel,
     isRecent: Boolean,
     modifier: Modifier,
-    message: Message) {
+    message: Message,
+    onRemove: () -> Unit) {
 
-    Surface(
-        modifier = modifier
-            .padding(
-                horizontal = 8.dp,
-                vertical = 4.dp),
-        color = Color.Transparent) {
+    val swipeToDismissBoxState = rememberSwipeToDismissBoxState(
+        confirmValueChange = {
+            if (it == StartToEnd || it == EndToStart) {
+                onRemove()
+            }
+            true // swipe processed successfully
+        })
 
-        Column {
+    SwipeToDismissBox(
+        state = swipeToDismissBoxState,
+        modifier = Modifier.fillMaxSize(),
+        backgroundContent = { }) {
 
-            // container
-            Row(
-                modifier = Modifier
-                    .clip(
-                        RoundedCornerShape(8.dp))
-                    .border(
-                        BorderStroke(
-                            width = 1.dp,
-                            color =
-                                if (isRecent) MaterialTheme.colorScheme.outlineVariant
-                                else MaterialTheme.colorScheme.outlineVariant),
-                        shape = RoundedCornerShape(8.dp))
-                    .background(
-                        color =
-                            if (isRecent) MaterialTheme.colorScheme.surfaceBright
-                            else MaterialTheme.colorScheme.surfaceContainer)
-                    .padding(
-                        horizontal = 16.dp,
-                        vertical = 12.dp),
-                verticalAlignment = Alignment.CenterVertically) {
+        // todo combine with above?
+        Surface(
+            modifier = modifier
+                .padding(
+                    horizontal = 8.dp,
+                    vertical = 4.dp
+                ),
+            color = Color.Transparent
+        ) {
 
-                Column(
+            Column {
+
+                // container
+                Row(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .weight(1f),
-                    horizontalAlignment = Alignment.Start) {
+                        .clip(
+                            RoundedCornerShape(8.dp)
+                        )
+                        .border(
+                            BorderStroke(
+                                width = 1.dp,
+                                color =
+                                    if (isRecent) MaterialTheme.colorScheme.outlineVariant
+                                    else MaterialTheme.colorScheme.outlineVariant
+                            ),
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                        .background(
+                            color =
+                                if (isRecent) MaterialTheme.colorScheme.surfaceBright
+                                else MaterialTheme.colorScheme.surfaceContainer
+                        )
+                        .padding(
+                            horizontal = 16.dp,
+                            vertical = 12.dp
+                        ),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
 
-                    // message
-                    Text(
-                        text = message.message,
-                        style = MaterialTheme.typography.titleMedium)
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .weight(1f),
+                        horizontalAlignment = Alignment.Start
+                    ) {
+
+                        // message
+                        Text(
+                            text = message.message,
+                            style = MaterialTheme.typography.titleMedium
+                        )
+
+                        Spacer(
+                            modifier = Modifier
+                                .height(4.dp)
+                        )
+
+                        // timestamp
+                        Text(
+                            text = beautifyTimestamp(message.timestamp),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
 
                     Spacer(
                         modifier = Modifier
-                            .height(4.dp))
+                            .padding(edgePadding)
+                    )
 
-                    // timestamp
-                    Text(
-                        text = beautifyTimestamp(message.timestamp),
-                        style = MaterialTheme.typography.bodyMedium)
-                }
-
-                Spacer(
-                    modifier = Modifier
-                        .padding(edgePadding))
-
-                // origin
-                viewModel
-                    .getOriginImageId(message.origin)?.let {
-                    Image(
-                        modifier = Modifier
-                            .size(settingsIconSize),
-                        painter = painterResource(it),
-                        contentDescription = null)
+                    // origin
+                    viewModel
+                        .getOriginImageId(message.origin)?.let {
+                            Image(
+                                modifier = Modifier
+                                    .size(settingsIconSize),
+                                painter = painterResource(it),
+                                contentDescription = null
+                            )
+                        }
                 }
             }
         }
