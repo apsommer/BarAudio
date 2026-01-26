@@ -48,9 +48,7 @@ class TextToSpeechImpl(
         // attach progress listener to clear notifications
         textToSpeech.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
 
-            override fun onStart(
-                utteranceId: String?) =
-                cancelAllNotifications(context)
+            override fun onStart(utteranceId: String?) = cancelAllNotifications(context)
 
             // ignore
             override fun onDone(timestamp: String?) { }
