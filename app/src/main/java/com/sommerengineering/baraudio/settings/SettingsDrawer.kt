@@ -266,22 +266,7 @@ fun SettingsDrawer(
             item {
                 DividerItem(legalDividerTitle)
             }
-
-            // notification settings todo refactor to dialog
-//            item {
-//                LinkSettingItem(
-//                    icon = R.drawable.notifications_active,
-//                    title = notificationsTitle,
-//                    onClick = {
-//                        with(context) {
-//                            startActivity(
-//                                Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
-//                                    .putExtra(Settings.EXTRA_APP_PACKAGE, BuildConfig.APPLICATION_ID)
-//                                    .putExtra(Settings.EXTRA_CHANNEL_ID, channelId))
-//                        }
-//                    })
-//            }
-
+            
             // privacy
             item {
                 LinkSettingItem(

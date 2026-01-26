@@ -115,7 +115,7 @@ fun checkForcedUpdate(
             logMessage("  Force update, block app until update installed")
             isUpdateRequired = true
 
-            // sign out, if needed todo necessary?
+            // sign out, if needed
             onSignOut(
                 credentialManager = credentialManager,
                 controller = controller,
