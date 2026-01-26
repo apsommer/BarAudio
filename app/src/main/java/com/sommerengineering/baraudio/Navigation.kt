@@ -102,20 +102,35 @@ fun Navigation(
             // ask for permission again if the first request is declined
             val count = remember { mutableIntStateOf(0) }
 
+            // navigate forward
+            LaunchedEffect(areNotificationsEnabled) {
+                if (areNotificationsEnabled && Build.VERSION.SDK_INT >= 33) {
+                    controller.navigate(OnboardingWebhookScreenRoute)
+                }
+            }
+
             OnboardingScreen(
                 viewModel = viewModel,
                 pageNumber = 1,
                 onNextClick = {
 
-                    // navigate forward
+                    if (Build.VERSION.SDK_INT >= 33 && 2 > count.intValue) {
+                        context.requestNotificationPermissionLauncher
+                            .launch(Manifest.permission.POST_NOTIFICATIONS)
+                        count.intValue ++
+                    }
+
+                    else {
+                        controller.navigate(OnboardingWebhookScreenRoute)
+                    }
+
+
                     if (context.areNotificationsEnabled() || 32 >= Build.VERSION.SDK_INT || count.intValue > 1) {
                         controller.navigate(OnboardingWebhookScreenRoute)
 
                     // request notification permission
                     } else {
-                        context.requestNotificationPermissionLauncher
-                            .launch(Manifest.permission.POST_NOTIFICATIONS)
-                        count.intValue ++
+
                     }
                 })
         }

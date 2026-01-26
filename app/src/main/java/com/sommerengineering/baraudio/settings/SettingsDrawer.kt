@@ -266,7 +266,7 @@ fun SettingsDrawer(
             item {
                 DividerItem(legalDividerTitle)
             }
-            
+
             // privacy
             item {
                 LinkSettingItem(

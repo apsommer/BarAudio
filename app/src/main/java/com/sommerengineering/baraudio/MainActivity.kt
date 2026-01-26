@@ -36,7 +36,7 @@ var isAppOpen = false
 var isUpdateRequired = false
 var isFirstLaunch = true // todo remove this var on resume subscription requirement 310125
 var isOnboardingComplete = false
-var areNotificationsEnabled by mutableStateOf(true)
+var areNotificationsEnabled by mutableStateOf(false)
 
 class MainActivity : ComponentActivity() {
 
@@ -74,13 +74,15 @@ class MainActivity : ComponentActivity() {
         channel.group = channelGroupId
 
         // register with system, system takes no action if channel already exists
-        val manager = getSystemService(Service.NOTIFICATION_SERVICE) as NotificationManager
+        val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         manager
             .createNotificationChannelGroup(
                 NotificationChannelGroup(
                     channelGroupId,
                     channelGroupName))
         manager.createNotificationChannel(channel)
+
+        areNotificationsEnabled = areNotificationsEnabled()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
