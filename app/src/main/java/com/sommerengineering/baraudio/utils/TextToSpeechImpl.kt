@@ -34,15 +34,12 @@ class TextToSpeechImpl(
     override fun onInit(status: Int) {
 
         if (status != TextToSpeech.SUCCESS) { return }
-        isInit.value = true
 
-        voice.value =
-            readFromDataStore(context, voiceKey)
-                ?.let { name ->
-                    textToSpeech
-                        .voices
-                        .first { it.name == name }
-                } ?: textToSpeech.voice
+        // init voice
+        voice.value = readFromDataStore(context, voiceKey)
+            ?.let { preference -> textToSpeech.voices.firstOrNull { it.name == preference }}
+            ?: textToSpeech.voices.firstOrNull { it.name == "en-gb-x-rjs-local" } // british, male
+            ?: textToSpeech.voice
 
         speed = readFromDataStore(context, speedKey)?.toFloat() ?: 1f
         pitch = readFromDataStore(context, pitchKey)?.toFloat() ?: 1f
@@ -59,6 +56,8 @@ class TextToSpeechImpl(
             override fun onStop(timestamp: String?, isInterupted: Boolean) { }
             override fun onError(utteranceId: String?) { }
         })
+
+        isInit.value = true
     }
 
     fun getVoices(): Set<Voice> =
