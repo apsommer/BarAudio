@@ -35,7 +35,7 @@ import org.koin.core.parameter.parametersOf
 var isAppOpen = false
 var isUpdateRequired = false
 var isFirstLaunch = true // todo remove this var on resume subscription requirement 310125
-lateinit var onboardingProgressRoute: String // todo remove this one too
+var isOnboardingComplete = false
 var areNotificationsEnabled by mutableStateOf(true)
 
 class MainActivity : ComponentActivity() {
@@ -108,9 +108,11 @@ class MainActivity : ComponentActivity() {
     private fun init() {
 
         isAppOpen = true
+
+        // load key:values from preferences
         token = readFromDataStore(context, tokenKey) ?: unauthenticatedToken
         isFirstLaunch = readFromDataStore(context, isFirstLaunchKey)?.toBooleanStrictOrNull() ?: true // todo remove this var on resume subscription requirement 310125
-        onboardingProgressRoute = readFromDataStore(context, onboardingKey) ?: OnboardingTextToSpeechScreenRoute
+        isOnboardingComplete = readFromDataStore(context, onboardingKey).toBoolean()
 
         // dismiss all notifications on launch
         val isLaunchFromNotification = intent.extras?.getBoolean(isLaunchFromNotification) ?: false
@@ -160,7 +162,7 @@ fun App() {
 
     AppTheme(viewModel.isDarkMode) {
         Scaffold(
-            modifier = Modifier.fillMaxSize()) { padding ->
+            modifier = Modifier.fillMaxSize()) { padding -> padding
             Navigation(rememberNavController())
         }
     }

@@ -88,7 +88,6 @@ fun Navigation(
                 viewModel = viewModel,
                 pageNumber = 0,
                 onNextClick = {
-                    writeToDataStore(context, onboardingKey, OnboardingNotificationsScreenRoute) // todo remove these, no need to save progress
                     controller.navigate(OnboardingNotificationsScreenRoute)
                 },
                 isNextEnabled = viewModel.tts.isInit.collectAsState().value)
@@ -100,7 +99,7 @@ fun Navigation(
             enterTransition = { fadeIn },
             exitTransition = { fadeOut }) {
 
-            // ask for permission at most two times
+            // ask for permission again if the first request is declined
             val count = remember { mutableIntStateOf(0) }
 
             OnboardingScreen(
@@ -110,7 +109,6 @@ fun Navigation(
 
                     // navigate forward
                     if (context.areNotificationsEnabled() || 32 >= Build.VERSION.SDK_INT || count.intValue > 1) {
-                        writeToDataStore(context, onboardingKey, OnboardingWebhookScreenRoute)
                         controller.navigate(OnboardingWebhookScreenRoute)
 
                     // request notification permission
@@ -132,11 +130,11 @@ fun Navigation(
                 viewModel = viewModel,
                 pageNumber = 2,
                 onNextClick = {
-                    onboardingProgressRoute = OnboardingCompleteRoute
-                    writeToDataStore(context, onboardingKey, onboardingProgressRoute)
-                    controller.navigate(MessagesScreenRoute) {
 
-                        // clear backstack
+                    // onboarding complete
+                    writeToDataStore(context, onboardingKey, true.toString())
+
+                    controller.navigate(MessagesScreenRoute) {
                         popUpTo(OnboardingTextToSpeechScreenRoute) { inclusive = true }
                     }
                 })
@@ -169,12 +167,13 @@ fun getStartDestination(): String {
 
     // skip login screen if user already authenticated
     if (Firebase.auth.currentUser == null) return LoginScreenRoute
-    if (onboardingProgressRoute != OnboardingCompleteRoute) return onboardingProgressRoute
 
     // log for development
     logMessage("User already authenticated, sign-in flow skipped.")
     logMessage("    uid: ${Firebase.auth.currentUser?.uid}")
     logMessage("  token: ${token}")
+
+    if (!isOnboardingComplete) return OnboardingTextToSpeechScreenRoute
 
     return MessagesScreenRoute
 }

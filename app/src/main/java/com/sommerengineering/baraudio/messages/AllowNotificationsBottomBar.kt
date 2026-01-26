@@ -61,11 +61,9 @@ fun AllowNotificationsBottomBar(
     }
 }
 
-fun launchSystemNotificationSettings(
-    context: Context) {
+fun launchSystemNotificationSettings(context: Context) =
 
     context.startActivity(
         Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
             .putExtra(Settings.EXTRA_APP_PACKAGE, BuildConfig.APPLICATION_ID)
             .putExtra(Settings.EXTRA_CHANNEL_ID, channelId))
-}

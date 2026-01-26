@@ -16,14 +16,14 @@ import com.sommerengineering.baraudio.LoginScreenRoute
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.MessagesScreenRoute
-import com.sommerengineering.baraudio.OnboardingCompleteRoute
-import com.sommerengineering.baraudio.utils.getDatabaseReference
+import com.sommerengineering.baraudio.OnboardingTextToSpeechScreenRoute
+import com.sommerengineering.baraudio.isOnboardingComplete
 import com.sommerengineering.baraudio.isUpdateRequired
-import com.sommerengineering.baraudio.utils.logException
-import com.sommerengineering.baraudio.utils.logMessage
 import com.sommerengineering.baraudio.messages.dbListener
 import com.sommerengineering.baraudio.messagesNode
-import com.sommerengineering.baraudio.onboardingProgressRoute
+import com.sommerengineering.baraudio.utils.getDatabaseReference
+import com.sommerengineering.baraudio.utils.logException
+import com.sommerengineering.baraudio.utils.logMessage
 import com.sommerengineering.baraudio.utils.signOut
 import com.sommerengineering.baraudio.utils.writeTokenToDatabase
 import kotlinx.coroutines.CoroutineScope
@@ -43,7 +43,7 @@ fun onAuthentication(
 
     // navigate to next destination
     val nextDestination =
-        if (onboardingProgressRoute != OnboardingCompleteRoute) { onboardingProgressRoute }
+        if (!isOnboardingComplete) OnboardingTextToSpeechScreenRoute
         else MessagesScreenRoute
 
     controller.navigate(nextDestination) {
