@@ -45,6 +45,7 @@ import com.sommerengineering.baraudio.areNotificationsEnabled
 import com.sommerengineering.baraudio.backgroundPadding
 import com.sommerengineering.baraudio.colorTransitionTimeMillis
 import com.sommerengineering.baraudio.messagesNode
+import com.sommerengineering.baraudio.recentMessageTimeMillis
 import com.sommerengineering.baraudio.settings.SettingsDrawer
 import com.sommerengineering.baraudio.utils.getDatabaseReference
 import kotlinx.coroutines.delay
@@ -198,16 +199,15 @@ fun MessagesScreen(
 
                     // messages list
                     LazyColumn(
-                        state = listState
-                    ) {
+                        state = listState) {
+
                         items(
                             items = messages.reversed(),
                             key = { it.timestamp }) { message ->
 
                             // highlight recent messages
                             var isRecent by remember { mutableStateOf(true) }
-                            isRecent =
-                                1000 * 60 > System.currentTimeMillis() - message.timestamp.toLong()
+                            isRecent = recentMessageTimeMillis * 60 > System.currentTimeMillis() - message.timestamp.toLong()
 
                             MessageItem(
                                 viewModel = viewModel,

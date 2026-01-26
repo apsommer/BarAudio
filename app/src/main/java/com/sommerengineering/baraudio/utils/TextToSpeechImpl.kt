@@ -38,7 +38,7 @@ class TextToSpeechImpl(
         // init voice
         voice.value = readFromDataStore(context, voiceKey)
             ?.let { preference -> textToSpeech.voices.firstOrNull { it.name == preference }}
-            ?: textToSpeech.voices.firstOrNull { it.name == "en-gb-x-rjs-local" } // british, male
+            ?: textToSpeech.voices.firstOrNull { it.name == "en-gb-x-gbd-local" } // british, male
             ?: textToSpeech.voice
 
         speed = readFromDataStore(context, speedKey)?.toFloat() ?: 1f
@@ -52,6 +52,7 @@ class TextToSpeechImpl(
                 utteranceId: String?) =
                 cancelAllNotifications(context)
 
+            // ignore
             override fun onDone(timestamp: String?) { }
             override fun onStop(timestamp: String?, isInterupted: Boolean) { }
             override fun onError(utteranceId: String?) { }

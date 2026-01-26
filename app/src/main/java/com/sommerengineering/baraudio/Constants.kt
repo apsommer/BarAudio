@@ -4,6 +4,7 @@ import androidx.compose.ui.unit.dp
 
 // durations
 const val colorTransitionTimeMillis = 1000
+const val recentMessageTimeMillis = 3000
 
 // urls
 const val setupUrl = "https://sommerengineering.com/baraud.io"
