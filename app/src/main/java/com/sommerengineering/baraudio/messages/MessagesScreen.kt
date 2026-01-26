@@ -220,7 +220,9 @@ fun MessagesScreen(
                                     ),
                                 message = message,
                                 onRemove = {
-                                    messages.remove(message)
+                                    deleteMessage(
+                                        messages = messages,
+                                        message = message)
                                 }
                             )
                         }
