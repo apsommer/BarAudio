@@ -6,8 +6,7 @@ import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-
-const val uiModeFadeTimeMillis = 2000
+import com.sommerengineering.baraudio.colorTransitionTimeMillis
 
 @Composable
 fun AppTheme(
@@ -30,7 +29,7 @@ fun animateColor(target: Color) =
     animateColorAsState(
         targetValue = target,
         animationSpec = tween(
-            durationMillis = uiModeFadeTimeMillis),
+            durationMillis = colorTransitionTimeMillis),
         label = "")
         .value
 

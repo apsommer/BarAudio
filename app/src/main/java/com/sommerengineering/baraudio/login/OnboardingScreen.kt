@@ -99,8 +99,7 @@ fun OnboardingScreen(
                             .align(alignment = Alignment.BottomEnd),
                         enabled = isNextEnabled,
                         onClick = onNextClick) {
-                        Text(
-                            text = next)
+                        Text(text = next)
                     }
                 }
             }

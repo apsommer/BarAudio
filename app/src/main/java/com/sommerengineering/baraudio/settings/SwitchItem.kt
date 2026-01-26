@@ -25,7 +25,7 @@ import com.sommerengineering.baraudio.settingsIconSize
 fun SwitchSettingItem(
     @DrawableRes icon: Int,
     title: String,
-    description: String,
+    description: String? = null,
     content: @Composable () -> Unit) {
 
     Surface {
@@ -51,16 +51,20 @@ fun SwitchSettingItem(
                     }
 
                     Column {
+
                         Text(
                             text = title,
                             style = MaterialTheme.typography.titleMedium)
-                        Text(
-                            modifier = Modifier
-                                .padding(top = 4.dp),
-                            text = description,
-                            style = MaterialTheme.typography.bodySmall,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis)
+
+                        description?.let {
+                            Text(
+                                modifier = Modifier
+                                    .padding(top = 4.dp),
+                                text = description,
+                                style = MaterialTheme.typography.bodySmall,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis)
+                        }
                     }
                 }
 

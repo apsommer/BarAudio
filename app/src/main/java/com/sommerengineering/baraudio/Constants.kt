@@ -2,17 +2,21 @@ package com.sommerengineering.baraudio
 
 import androidx.compose.ui.unit.dp
 
+// durations
+const val colorTransitionTimeMillis = 1000
+const val recentMessageTimeMillis = 3000
+
 // urls
-const val setupUrl = "https://baraud.io/setup"
-const val aboutUrl = "https://baraud.io/"
-const val privacyUrl = "https://baraud.io/privacy/"
-const val termsUrl = "https://baraud.io/terms/"
+const val setupUrl = "https://sommerengineering.com/baraud.io"
+const val privacyUrl = "https://sommerengineering.com/privacy_policy"
+const val termsUrl = "https://sommerengineering.com/terms_and_conditions"
 
 // firebase
 const val databaseUrl = "https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/"
 const val webhookBaseUrl = "https://us-central1-com-sommerengineering-baraudio.cloudfunctions.net/baraudio?uid="
 const val usersNode = "users"
 const val messagesNode = "messages"
+const val whitelistNode = "whitelist"
 const val unauthenticatedUser = "unauthenticatedUser"
 const val unauthenticatedToken = "unauthenticatedToken"
 const val gitHubProviderId = "github.com"
@@ -21,9 +25,9 @@ const val messageMaxSize = 1000
 // notifications
 const val channelId = "42"
 const val channelName = "Webhook"
-const val channelDescription = "Notifications for incoming webhook"
+const val channelDescription = "Realtime data connection for BarAudio"
 const val channelGroupId = "42"
-const val channelGroupName = "Alerts"
+const val channelGroupName = "Webhook"
 const val isLaunchFromNotification = "isLaunchFromNotification"
 const val uidKey = "uid"
 const val timestampKey = "timestamp"
@@ -52,6 +56,9 @@ const val speedKey = "speed"
 const val pitchKey = "pitch"
 const val isQueueFlushKey = "isQueueFlush"
 const val isDarkModeKey = "isDarkMode"
+const val isFullScreenKey = "isFullScreen"
+const val showQuoteKey = "showQuote"
+const val isFuturesWebhooksKey = "isFuturesWebhooks"
 const val volumeKey = android.speech.tts.TextToSpeech.Engine.KEY_PARAM_VOLUME
 
 // billing
@@ -62,16 +69,17 @@ const val subscriptionUrl = "https://play.google.com/store/account/subscriptions
 
 // settings
 const val systemTtsPackageName = "com.android.settings.TTS_SETTINGS"
-const val howToUseTitle = "How to use"
+const val howToSetupTitle = "How to customize"
 const val webhookTitle = "Webhook"
 const val voiceTitle = "Voice"
 const val speedTitle = "Speed"
 const val pitchTitle = "Pitch"
-const val queueBehaviorTitle = "Queue behavior"
+const val queueBehaviorTitle = "Queue"
 const val uiModeTitle = "Theme"
-const val systemTtsTitle = "TTS system settings"
-const val notificationsTitle = "Notifications"
-const val aboutTitle = "About"
+const val screenTitle = "Screen"
+const val showQuoteTitle = "Inspirational quote"
+const val futuresWebhooksTitle = "Futures"
+const val systemTtsTitle = "System settings"
 const val privacyTitle = "Privacy policy"
 const val termsTitle = "Terms and conditions"
 const val manageSubscriptionTitle = "Manage subscription"
@@ -80,11 +88,20 @@ const val queueBehaviorFlushDescription = "Play new alerts immediately"
 const val queueBehaviorAddDescription = "Add new alerts to queue"
 const val uiModeDarkDescription = "Dark"
 const val uiModeLightDescription = "Light"
+const val screenFullDescription = "Full screen"
+const val screenWindowedDescription = "Show system"
+const val futuresWebhookDescription = "NQ, ES, and GC at 1min"
+const val voiceDividerTitle = "VOICE"
+const val uiDividerTitle = "THEME"
+const val dataDividerTitle = "DATA"
+const val legalDividerTitle = "LEGAL"
 
 // images
 const val deleteAllFadeDurationMillis = 1000
-val circularButtonSize = 96.dp // login, fab, ... todo separate, fab is too large
+val loginButtonSize = 96.dp
+val fabButtonSize = 72.dp
 val edgePadding = 24.dp
+val backgroundPadding = 48.dp
 val settingsIconSize = edgePadding
 
 // onboarding
@@ -92,8 +109,8 @@ const val onboardingTotalPages = 3
 const val next = "Next"
 const val ttsInstalledTitle = "BarAudio uses text-to-speech to announce alerts."
 const val ttsNotInstalledTitle = "BarAudio requires text-to-speech, please install it to continue."
-const val allowNotificationsTitle = "Please allow notifications for realtime events."
-const val webhookStartTitle = "BarAudio connects to your unique webhook with a simple "
+const val allowNotificationsTitle = "Allow notifications for realtime data."
+const val webhookStartTitle = "Customize your webhook with a simple "
 const val webhookEndTitle = "setup"
 const val period = "."
 const val soundAnimation = "sound.json"

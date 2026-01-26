@@ -1,7 +1,6 @@
 package com.sommerengineering.baraudio.login
 
 import android.content.Context
-import androidx.compose.runtime.Composable
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
@@ -14,12 +13,10 @@ import com.google.firebase.auth.auth
 import com.google.firebase.Firebase
 import com.sommerengineering.baraudio.BuildConfig
 import com.sommerengineering.baraudio.isUpdateRequired
-import com.sommerengineering.baraudio.logException
+import com.sommerengineering.baraudio.utils.logException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.koin.compose.getKoin
-import org.koin.compose.koinInject
 
 fun signInWithGoogle (
     context: Context,

@@ -3,12 +3,18 @@ package com.sommerengineering.baraudio.messages
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -53,6 +59,7 @@ fun MessagesTopBar(
         title = {
             Image(
                 modifier = Modifier
+                    .fillMaxWidth(0.75f)
                     .padding(8.dp),
                 painter = painterResource(R.drawable.logo_banner),
                 contentDescription = null)
@@ -64,7 +71,7 @@ fun MessagesTopBar(
                 onClick = { deleteAllMessages(messages) },
                 enabled = !messages.isEmpty()) {
                 Icon(
-                    painter = painterResource(R.drawable.done_all),
+                    painter = painterResource(R.drawable.delete_sweep),
                     tint = animateColorAsState(
                         targetValue =
                             if (isEmpty) IconButtonDefaults.iconButtonColors().disabledContentColor

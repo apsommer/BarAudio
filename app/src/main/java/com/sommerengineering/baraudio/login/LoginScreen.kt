@@ -26,7 +26,7 @@ import androidx.credentials.CredentialManager
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.circularButtonSize
+import com.sommerengineering.baraudio.loginButtonSize
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
@@ -71,7 +71,7 @@ fun LoginScreen (
 
                 Box(
                     modifier = Modifier
-                        .size(circularButtonSize)
+                        .size(loginButtonSize)
                         .clip(CircleShape)
                         .clickable {
                             signInWithGoogle(
@@ -88,19 +88,19 @@ fun LoginScreen (
 
                     Image(
                         modifier = Modifier
-                            .size(circularButtonSize),
+                            .size(loginButtonSize),
                         painter = painterResource(R.drawable.google),
                         contentDescription = null)
                 }
 
                 Spacer(
                     modifier = Modifier
-                        .height(circularButtonSize / 2))
+                        .height(loginButtonSize / 2))
 
                 // github
                 Box(
                     modifier = Modifier
-                        .size(circularButtonSize)
+                        .size(loginButtonSize)
                         .clip(CircleShape)
                         .clickable {
                             signInWithGitHub(

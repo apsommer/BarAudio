@@ -21,8 +21,8 @@
             android:name=".MainActivity"
             android:configChanges="uiMode"
             android:screenOrientation="portrait"
-            android:exported="true"
-            android:theme="@style/Theme.BarAudio.Splash" >
+            android:theme="@style/Theme.BarAudio.Splash"
+            android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -31,14 +31,14 @@
 
         <!-- firebase cloud messaging -->
         <service
-            android:name="com.sommerengineering.baraudio.FirebaseService"
+            android:name="com.sommerengineering.baraudio.utils.FirebaseService"
             android:exported="true" >
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
 
-        <!-- fcm notification icon -->
+        <!-- fcm notification icon todo can remove fcm defaults? all notifications are custom push ... -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/logo_square" />

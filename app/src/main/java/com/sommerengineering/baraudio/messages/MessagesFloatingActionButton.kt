@@ -15,16 +15,13 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.circularButtonSize
+import com.sommerengineering.baraudio.fabButtonSize
+import com.sommerengineering.baraudio.loginButtonSize
 
 @Composable
 fun MessagesFloatingActionButton(
@@ -33,7 +30,7 @@ fun MessagesFloatingActionButton(
 
     FloatingActionButton (
         modifier = Modifier
-            .size(circularButtonSize)
+            .size(fabButtonSize)
             .border(
                 border = BorderStroke(
                     width = 1.dp,
@@ -65,7 +62,7 @@ fun MessagesFloatingActionButton(
             if (targetState) {
                 Icon(
                     modifier = Modifier
-                        .size(circularButtonSize / 2),
+                        .size(fabButtonSize * 0.5f),
                     painter = painterResource(R.drawable.volume_off),
                     tint = viewModel.getFabIconColor(),
                     contentDescription = null)
@@ -76,7 +73,7 @@ fun MessagesFloatingActionButton(
             // unmute
             Icon(
                 modifier = Modifier
-                    .size(circularButtonSize / 2),
+                    .size(fabButtonSize * 0.5f),
                 painter = painterResource(R.drawable.volume_on),
                 tint = viewModel.getFabIconColor(),
                 contentDescription = null)

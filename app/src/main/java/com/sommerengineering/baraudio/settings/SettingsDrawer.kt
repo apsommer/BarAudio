@@ -2,8 +2,12 @@ package com.sommerengineering.baraudio.settings
 
 import android.content.Intent
 import android.provider.Settings
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -21,24 +25,27 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.auth
 import com.google.firebase.Firebase
 import com.sommerengineering.baraudio.BuildConfig
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.aboutTitle
-import com.sommerengineering.baraudio.aboutUrl
-import com.sommerengineering.baraudio.channelId
+import com.sommerengineering.baraudio.dataDividerTitle
 import com.sommerengineering.baraudio.edgePadding
-import com.sommerengineering.baraudio.howToUseTitle
+import com.sommerengineering.baraudio.futuresWebhookDescription
+import com.sommerengineering.baraudio.futuresWebhooksTitle
+import com.sommerengineering.baraudio.screenTitle
+import com.sommerengineering.baraudio.howToSetupTitle
+import com.sommerengineering.baraudio.legalDividerTitle
 import com.sommerengineering.baraudio.setupUrl
 import com.sommerengineering.baraudio.manageSubscriptionTitle
-import com.sommerengineering.baraudio.notificationsTitle
 import com.sommerengineering.baraudio.pitchTitle
 import com.sommerengineering.baraudio.privacyTitle
 import com.sommerengineering.baraudio.privacyUrl
 import com.sommerengineering.baraudio.queueBehaviorTitle
+import com.sommerengineering.baraudio.showQuoteTitle
 import com.sommerengineering.baraudio.signOutTitle
 import com.sommerengineering.baraudio.speedTitle
 import com.sommerengineering.baraudio.subscriptionUrl
@@ -46,7 +53,9 @@ import com.sommerengineering.baraudio.systemTtsPackageName
 import com.sommerengineering.baraudio.systemTtsTitle
 import com.sommerengineering.baraudio.termsTitle
 import com.sommerengineering.baraudio.termsUrl
+import com.sommerengineering.baraudio.uiDividerTitle
 import com.sommerengineering.baraudio.uiModeTitle
+import com.sommerengineering.baraudio.voiceDividerTitle
 import com.sommerengineering.baraudio.voiceTitle
 import com.sommerengineering.baraudio.webhookBaseUrl
 import com.sommerengineering.baraudio.webhookTitle
@@ -66,41 +75,11 @@ fun SettingsDrawer(
 
         LazyColumn(
             modifier = Modifier
-                .padding(padding)) {
+                .padding(start = 0.dp, end = 0.dp, top = edgePadding / 2, bottom = 0.dp)) {
 
-            // how to use
+            // divider
             item {
-                LinkSettingItem(
-                    icon = R.drawable.browser,
-                    title = howToUseTitle,
-                    onClick = { uriHandler.openUri(setupUrl) })
-            }
-
-            // webhook
-            item {
-
-                // set webhook url
-                val webhookUrl = webhookBaseUrl + Firebase.auth.currentUser?.uid
-
-                DialogSettingItem(
-                    icon = R.drawable.webhook,
-                    title = webhookTitle,
-                    description = webhookUrl,
-                    onClick = {
-                        viewModel.saveToWebhookClipboard(
-                            context = context,
-                            webhookUrl = webhookUrl) }) {
-
-                    IconButton(
-                        onClick = {
-                            viewModel.saveToWebhookClipboard(
-                                context = context,
-                                webhookUrl = webhookUrl) }) {
-                        Icon(
-                            painter = painterResource(R.drawable.copy),
-                            contentDescription = null)
-                    }
-                }
+                DividerItem(voiceDividerTitle)
             }
 
             // voice
@@ -173,19 +152,6 @@ fun SettingsDrawer(
                     }
             }
 
-            // dark mode
-            item {
-                SwitchSettingItem(
-                    icon = R.drawable.contrast,
-                    title = uiModeTitle,
-                    description = viewModel.uiModeDescription) {
-
-                        Switch(
-                            checked = viewModel.isDarkMode,
-                            onCheckedChange = { viewModel.setIsDarkMode(context, it) })
-                    }
-            }
-
             // system tts settings
             item {
                 LinkSettingItem(
@@ -200,27 +166,105 @@ fun SettingsDrawer(
                     })
             }
 
-            // notification settings
+            // divider
             item {
-                LinkSettingItem(
-                    icon = R.drawable.notifications_active,
-                    title = notificationsTitle,
-                    onClick = {
-                        with(context) {
-                            startActivity(
-                                Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
-                                    .putExtra(Settings.EXTRA_APP_PACKAGE, BuildConfig.APPLICATION_ID)
-                                    .putExtra(Settings.EXTRA_CHANNEL_ID, channelId))
-                        }
-                    })
+                DividerItem(dataDividerTitle)
             }
 
-            // about
+            // futures
+            item {
+                SwitchSettingItem(
+                    icon = R.drawable.ear_listen,
+                    title = futuresWebhooksTitle,
+                    description = futuresWebhookDescription) {
+
+                    Switch(
+                        checked = viewModel.isFuturesWebhooks,
+                        onCheckedChange = { viewModel.setFuturesWebhooks(context, it)})
+                }
+            }
+
+            // webhook
+            item {
+
+                // set webhook url
+                val webhookUrl = webhookBaseUrl + Firebase.auth.currentUser?.uid
+
+                DialogSettingItem(
+                    icon = R.drawable.webhook,
+                    title = webhookTitle,
+                    description = webhookUrl,
+                    onClick = {
+                        viewModel.saveToWebhookClipboard(
+                            context = context,
+                            webhookUrl = webhookUrl) }) {
+
+                    IconButton(
+                        onClick = {
+                            viewModel.saveToWebhookClipboard(
+                                context = context,
+                                webhookUrl = webhookUrl) }) {
+                        Icon(
+                            painter = painterResource(R.drawable.copy),
+                            contentDescription = null)
+                    }
+                }
+            }
+
+            // how to setup
             item {
                 LinkSettingItem(
                     icon = R.drawable.browser,
-                    title = aboutTitle,
-                    onClick = { uriHandler.openUri(aboutUrl) })
+                    title = howToSetupTitle,
+                    onClick = { uriHandler.openUri(setupUrl) })
+            }
+
+            // divider
+            item {
+                DividerItem(uiDividerTitle)
+            }
+
+            // full screen
+            item {
+                SwitchSettingItem(
+                    icon = R.drawable.fullscreen,
+                    title = screenTitle,
+                    description = viewModel.fullScreenDescription) {
+
+                    Switch(
+                        checked = viewModel.isFullScreen,
+                        onCheckedChange = { viewModel.setFullScreen(context, it) })
+                }
+            }
+
+            // theme
+            item {
+                SwitchSettingItem(
+                    icon = R.drawable.contrast,
+                    title = uiModeTitle,
+                    description = viewModel.uiModeDescription) {
+
+                    Switch(
+                        checked = viewModel.isDarkMode,
+                        onCheckedChange = { viewModel.setIsDarkMode(context, it) })
+                }
+            }
+
+            // quote
+            item {
+                SwitchSettingItem(
+                    icon = R.drawable.cognition,
+                    title = showQuoteTitle) {
+
+                    Switch(
+                        checked = viewModel.showQuote,
+                        onCheckedChange = { viewModel.showQuote(context, it)})
+                }
+            }
+
+            // divider
+            item {
+                DividerItem(legalDividerTitle)
             }
 
             // privacy

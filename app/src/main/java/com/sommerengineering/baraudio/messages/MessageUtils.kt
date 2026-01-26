@@ -5,8 +5,8 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
-import com.sommerengineering.baraudio.getDatabaseReference
-import com.sommerengineering.baraudio.logException
+import com.sommerengineering.baraudio.utils.getDatabaseReference
+import com.sommerengineering.baraudio.utils.logException
 import com.sommerengineering.baraudio.messageKey
 import com.sommerengineering.baraudio.messageMaxSize
 import com.sommerengineering.baraudio.messagesNode

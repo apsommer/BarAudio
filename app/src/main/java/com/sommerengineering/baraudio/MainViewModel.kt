@@ -12,29 +12,60 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.auth
 import com.google.firebase.Firebase
 import com.sommerengineering.baraudio.messages.Message
+import com.sommerengineering.baraudio.messages.QuoteState
 import com.sommerengineering.baraudio.messages.tradingviewWhitelistIps
 import com.sommerengineering.baraudio.messages.trendspiderWhitelistIp
+import com.sommerengineering.baraudio.utils.BillingClientImpl
+import com.sommerengineering.baraudio.utils.BillingState
+import com.sommerengineering.baraudio.utils.RapidApi
+import com.sommerengineering.baraudio.utils.TextToSpeechImpl
+import com.sommerengineering.baraudio.utils.readFromDataStore
+import com.sommerengineering.baraudio.utils.writeToDataStore
+import com.sommerengineering.baraudio.utils.writeWhitelistToDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import org.koin.java.KoinJavaComponent.inject
+
 import kotlin.math.roundToInt
 
 class MainViewModel(
     val tts: TextToSpeechImpl
 ) : ViewModel() {
+
+    private val rapidApi : RapidApi by inject(RapidApi::class.java)
+    var quoteState = MutableStateFlow<QuoteState>(QuoteState.Loading)
     
     init {
-        CoroutineScope(Dispatchers.Main).launch {
+
+        // init tts engine, takes a few seconds ...
+        viewModelScope.launch(Dispatchers.Main) {
             tts.isInit
                 .onEach { if (it) initTtsSettings() }
                 .collect()
         }
+
+        // init network call for mindfulness quote
+        viewModelScope.launch(Dispatchers.IO) {
+            getMindfulnessQuote()
+        }
+    }
+
+    suspend fun getMindfulnessQuote() {
+
+        quoteState.value = QuoteState.Loading
+        try { quoteState.value = QuoteState.Success(rapidApi.getQuote()) }
+        catch (e: Exception) { quoteState.value = QuoteState.Error(e.message) }
     }
 
     private fun initTtsSettings() {
@@ -243,11 +274,69 @@ class MainViewModel(
             else uiModeLightDescription
     }
 
+    // fullscreen
+    var isFullScreen by mutableStateOf(false)
+    var fullScreenDescription by mutableStateOf("")
+
+    fun setFullScreen(
+        context: Context,
+        isChecked: Boolean) {
+
+        isFullScreen = isChecked
+        writeToDataStore(context, isFullScreenKey, isChecked.toString())
+
+        fullScreenDescription =
+            if (isFullScreen) screenFullDescription
+            else screenWindowedDescription
+
+        // expand or collapse layout
+        toggleFullScreen(context, isFullScreen)
+    }
+
+    fun toggleFullScreen(
+        context: Context,
+        isFullScreen: Boolean) {
+
+        val windowInsetsController = (context as MainActivity).windowInsetsController
+
+        // expand
+        if (isFullScreen) {
+            windowInsetsController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
+        }
+
+        // collapse
+        else { windowInsetsController.show(WindowInsetsCompat.Type.systemBars()) }
+    }
+
+    // quote
+    var showQuote by mutableStateOf(true)
+
+    fun showQuote(
+        context: Context,
+        isChecked: Boolean) {
+
+        showQuote = isChecked
+        writeToDataStore(context, showQuoteKey, isChecked.toString())
+    }
+
+    // futures
+    var isFuturesWebhooks by mutableStateOf(true)
+    fun setFuturesWebhooks(
+        context: Context,
+        isChecked: Boolean) {
+
+        isFuturesWebhooks = isChecked
+        writeToDataStore(context, isFuturesWebhooksKey, isChecked.toString())
+        writeWhitelistToDatabase(isFuturesWebhooks)
+    }
+
     // billing client, purchase subscription flow ui triggered by mute button
     private lateinit var billing: BillingClientImpl
 
     fun initBilling(
-        billingClientImpl: BillingClientImpl) {
+        billingClientImpl: BillingClientImpl
+    ) {
 
         // initialize connection to google play
         billing = billingClientImpl
