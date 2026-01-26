@@ -39,87 +39,65 @@ fun MessageItem(
     message: Message,
     onRemove: () -> Unit) {
 
-    val swipeToDismissBoxState = rememberSwipeToDismissBoxState(
-        confirmValueChange = {
-            if (it == StartToEnd || it == EndToStart) {
-                onRemove()
-            }
-            true // swipe processed successfully
-        })
-
     SwipeToDismissBox(
-        state = swipeToDismissBoxState,
+        state = rememberSwipeToDismissBoxState(),
         modifier = Modifier.fillMaxSize(),
+        onDismiss = { if (it == StartToEnd || it == EndToStart) { onRemove() } },
         backgroundContent = { }) {
 
-        // todo combine with above?
         Surface(
             modifier = modifier
                 .padding(
                     horizontal = 8.dp,
                     vertical = 4.dp
                 ),
-            color = Color.Transparent
-        ) {
+            color = Color.Transparent) {
 
             Column {
 
                 // container
                 Row(
                     modifier = Modifier
-                        .clip(
-                            RoundedCornerShape(8.dp)
-                        )
-                        .border(
-                            BorderStroke(
-                                width = 1.dp,
-                                color =
-                                    if (isRecent) MaterialTheme.colorScheme.outlineVariant
-                                    else MaterialTheme.colorScheme.outlineVariant
-                            ),
-                            shape = RoundedCornerShape(8.dp)
-                        )
+                        .clip(RoundedCornerShape(8.dp))
+                        .border(BorderStroke(
+                            width = 1.dp,
+                            color =
+                                if (isRecent) MaterialTheme.colorScheme.outlineVariant
+                                else MaterialTheme.colorScheme.outlineVariant),
+                            shape = RoundedCornerShape(8.dp))
                         .background(
                             color =
                                 if (isRecent) MaterialTheme.colorScheme.surfaceBright
-                                else MaterialTheme.colorScheme.surfaceContainer
-                        )
+                                else MaterialTheme.colorScheme.surfaceContainer)
                         .padding(
                             horizontal = 16.dp,
-                            vertical = 12.dp
-                        ),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                            vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically) {
 
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
                             .weight(1f),
-                        horizontalAlignment = Alignment.Start
-                    ) {
+                        horizontalAlignment = Alignment.Start) {
 
                         // message
                         Text(
                             text = message.message,
-                            style = MaterialTheme.typography.titleMedium
-                        )
+                            style = MaterialTheme.typography.titleMedium)
 
                         Spacer(
                             modifier = Modifier
-                                .height(4.dp)
-                        )
+                                .height(4.dp))
 
                         // timestamp
                         Text(
                             text = beautifyTimestamp(message.timestamp),
-                            style = MaterialTheme.typography.bodyMedium
-                        )
+                            style = MaterialTheme.typography.bodyMedium)
                     }
 
                     Spacer(
                         modifier = Modifier
-                            .padding(edgePadding)
-                    )
+                            .padding(edgePadding))
 
                     // origin
                     viewModel
@@ -128,8 +106,7 @@ fun MessageItem(
                                 modifier = Modifier
                                     .size(settingsIconSize),
                                 painter = painterResource(it),
-                                contentDescription = null
-                            )
+                                contentDescription = null)
                         }
                 }
             }
