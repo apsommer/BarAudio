@@ -100,8 +100,8 @@ fun deleteMessage(
 fun deleteAllMessages(
     messages: SnapshotStateList<Message>) {
 
-    getDatabaseReference(messagesNode)
-        .removeValue()
+    // remove the entire node to remove all children
+    getDatabaseReference(messagesNode).removeValue()
 
     messages.clear()
 }
