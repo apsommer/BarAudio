@@ -5,10 +5,12 @@ import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.crashlytics
 import com.sommerengineering.baraudio.utils.appModule
+import dagger.hilt.android.HiltAndroidApp
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.GlobalContext.startKoin
 
+@HiltAndroidApp
 class MainApplication : Application() {
     override fun onCreate() {
         super.onCreate()

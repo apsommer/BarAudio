@@ -8,8 +8,11 @@ plugins {
     alias(libs.plugins.google.services)
     alias(libs.plugins.crashlytics)
     alias(libs.plugins.compose.compiler)
-    alias(libs.plugins.kotlin.ksp)
-    alias(libs.plugins.hilt)
+//    alias(libs.plugins.kotlin.ksp)
+//    alias(libs.plugins.hilt)
+
+    id("com.google.devtools.ksp")
+    id("com.google.dagger.hilt.android")
 }
 
 // import release upload signing keystore
@@ -149,7 +152,8 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.hilt.android)
-    ksp(libs.hilt.android.compiler)
+    ksp(libs.hilt.compiler)
+    ksp(libs.kotlin.metadata)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

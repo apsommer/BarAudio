@@ -7,3 +7,4 @@ plugins {
     alias(libs.plugins.kotlin.ksp) apply false
     alias(libs.plugins.hilt) apply false
 }
+
