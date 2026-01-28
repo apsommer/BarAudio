@@ -379,7 +379,7 @@ class MainViewModel(
 
     // mute
     var shouldShowSpinner by mutableStateOf(false)
-    var isMute by mutableStateOf(true)
+    var isMute by mutableStateOf(false) // default unmuted
 
     fun toggleMute(
         context: Context) {
