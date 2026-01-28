@@ -148,8 +148,8 @@ dependencies {
     implementation(libs.dotlottie.android)
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
-    implementation("com.google.dagger:hilt-android:2.59")
-    ksp("com.google.dagger:hilt-android-compiler:2.59")
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.android.compiler)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
