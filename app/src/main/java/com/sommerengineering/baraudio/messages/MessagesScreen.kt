@@ -218,7 +218,12 @@ fun MessagesScreen(
                                         fadeOutSpec = spring(stiffness = Spring.StiffnessVeryLow),
                                         placementSpec = spring(stiffness = Spring.StiffnessVeryLow)
                                     ),
-                                message = message
+                                message = message,
+                                onRemove = {
+                                    deleteMessage(
+                                        messages = messages,
+                                        message = message)
+                                }
                             )
                         }
                     }
