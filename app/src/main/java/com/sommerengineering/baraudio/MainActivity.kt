@@ -3,7 +3,6 @@ package com.sommerengineering.baraudio
 import android.app.NotificationChannel
 import android.app.NotificationChannelGroup
 import android.app.NotificationManager
-import android.app.Service
 import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -28,6 +27,7 @@ import com.sommerengineering.baraudio.utils.BillingClientImpl
 import com.sommerengineering.baraudio.utils.logMessage
 import com.sommerengineering.baraudio.utils.readFromDataStore
 import com.sommerengineering.baraudio.utils.token
+import dagger.hilt.android.AndroidEntryPoint
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
@@ -38,6 +38,7 @@ var isFirstLaunch = true // todo remove this var on resume subscription requirem
 var isOnboardingComplete = false
 var areNotificationsEnabled by mutableStateOf(false)
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     val context = this
