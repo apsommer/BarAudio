@@ -8,9 +8,6 @@ plugins {
     alias(libs.plugins.google.services)
     alias(libs.plugins.crashlytics)
     alias(libs.plugins.compose.compiler)
-//    alias(libs.plugins.kotlin.ksp)
-//    alias(libs.plugins.hilt)
-
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
 }
