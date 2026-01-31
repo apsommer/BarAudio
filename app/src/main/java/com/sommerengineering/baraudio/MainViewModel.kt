@@ -24,11 +24,12 @@ import com.sommerengineering.baraudio.messages.tradingviewWhitelistIps
 import com.sommerengineering.baraudio.messages.trendspiderWhitelistIp
 import com.sommerengineering.baraudio.utils.BillingClientImpl
 import com.sommerengineering.baraudio.utils.BillingState
-import com.sommerengineering.baraudio.utils.RapidApi
+import com.sommerengineering.baraudio.utils.RapidApiService
 import com.sommerengineering.baraudio.utils.TextToSpeechImpl
 import com.sommerengineering.baraudio.utils.readFromDataStore
 import com.sommerengineering.baraudio.utils.writeToDataStore
 import com.sommerengineering.baraudio.utils.writeWhitelistToDatabase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,14 +37,20 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.koin.java.KoinJavaComponent.inject
+import javax.inject.Inject
 
 import kotlin.math.roundToInt
 
-class MainViewModel(
-    val tts: TextToSpeechImpl
+@HiltViewModel
+class MainViewModel @Inject constructor(
+    val tts: TextToSpeechImpl,
+//    val rapidApiService: RapidApiService,
 ) : ViewModel() {
 
-    private val rapidApi : RapidApi by inject(RapidApi::class.java)
+    private val rapidApiService : RapidApiService by inject(RapidApiService::class.java)
+//    @Inject lateinit var rapidApiService : RapidApiService // by inject(RapidApiService::class.java)
+
+
     var quoteState = MutableStateFlow<QuoteState>(QuoteState.Loading)
     
     init {
@@ -64,7 +71,7 @@ class MainViewModel(
     suspend fun getMindfulnessQuote() {
 
         quoteState.value = QuoteState.Loading
-        try { quoteState.value = QuoteState.Success(rapidApi.getQuote()) }
+        try { quoteState.value = QuoteState.Success(rapidApiService.getQuote()) }
         catch (e: Exception) { quoteState.value = QuoteState.Error(e.message) }
     }
 

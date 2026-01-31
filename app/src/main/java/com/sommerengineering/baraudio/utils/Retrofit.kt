@@ -7,7 +7,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Headers
 
-interface RapidApi {
+interface RapidApiService {
 
     // todo move headers to interceptor
     @Headers(
@@ -19,12 +19,12 @@ interface RapidApi {
     suspend fun getQuote() : Quote
 }
 
-fun initRetrofit(): RapidApi {
+fun initRetrofit(): RapidApiService {
 
     return Retrofit.Builder()
         .baseUrl("https://metaapi-mindfulness-quotes.p.rapidapi.com/")
         .addConverterFactory(GsonConverterFactory.create())
         .build()
-        .create(RapidApi::class.java)
+        .create(RapidApiService::class.java)
 }
 
