@@ -28,9 +28,6 @@ import com.sommerengineering.baraudio.utils.logMessage
 import com.sommerengineering.baraudio.utils.readFromDataStore
 import com.sommerengineering.baraudio.utils.token
 import dagger.hilt.android.AndroidEntryPoint
-import org.koin.androidx.compose.koinViewModel
-import org.koin.compose.koinInject
-import org.koin.core.parameter.parametersOf
 
 var isAppOpen = false
 var isUpdateRequired = false

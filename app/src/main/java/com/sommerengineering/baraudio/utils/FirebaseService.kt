@@ -8,20 +8,18 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.database
-import com.google.firebase.Firebase
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import org.koin.android.ext.android.get
 import javax.inject.Inject
 
 var token = _root_ide_package_.com.sommerengineering.baraudio.unauthenticatedToken
 
 class FirebaseService: FirebaseMessagingService() {
 
-//    private val tts: TextToSpeechImpl = get()
     @Inject lateinit var tts: TextToSpeechImpl
 
     override fun onNewToken(newToken: String) {

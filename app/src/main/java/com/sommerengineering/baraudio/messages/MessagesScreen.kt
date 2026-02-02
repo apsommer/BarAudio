@@ -50,7 +50,6 @@ import com.sommerengineering.baraudio.settings.SettingsDrawer
 import com.sommerengineering.baraudio.utils.getDatabaseReference
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -59,7 +58,7 @@ fun MessagesScreen(
 
     val context = LocalContext.current
     val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
-    val messages = remember { viewModel.messages }
+
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val listState = rememberLazyListState()
     val coroutine = rememberCoroutineScope()

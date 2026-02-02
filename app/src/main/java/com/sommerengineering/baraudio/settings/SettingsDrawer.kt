@@ -59,7 +59,6 @@ import com.sommerengineering.baraudio.voiceDividerTitle
 import com.sommerengineering.baraudio.voiceTitle
 import com.sommerengineering.baraudio.webhookBaseUrl
 import com.sommerengineering.baraudio.webhookTitle
-import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun SettingsDrawer(

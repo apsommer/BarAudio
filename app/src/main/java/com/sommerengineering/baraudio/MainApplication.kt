@@ -24,11 +24,9 @@ class MainApplication : Application() {
 // preferences datastore
 val Context.dataStore by preferencesDataStore(localCache)
 
-// todo
+// todo koin notes
 //single<TextToSpeechImpl> { TextToSpeechImpl(androidContext()) }
-//    viewModel { MainViewModel(get()) }
-
-// todo refactor as viewmodel dependency
+//viewModel { MainViewModel(get()) }
 //single<BillingClientImpl> { param -> BillingClientImpl(param.get<Context>()) }
 //single<CredentialManager> { CredentialManager.create(androidContext()) }
-//    single<RapidApiService> { initRetrofit() }
+//single<RapidApiService> { initRetrofit() }
