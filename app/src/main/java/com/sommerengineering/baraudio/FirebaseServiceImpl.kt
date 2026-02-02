@@ -13,12 +13,11 @@ import com.google.firebase.auth.auth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.database
 import com.google.firebase.messaging.RemoteMessage
-import com.sommerengineering.baraudio.TextToSpeechImpl
 import com.sommerengineering.baraudio.messages.beautifyTimestamp
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
-var token = _root_ide_package_.com.sommerengineering.baraudio.unauthenticatedToken
+var token = unauthenticatedToken
 
 @AndroidEntryPoint
 class FirebaseServiceImpl: com.google.firebase.messaging.FirebaseMessagingService() {
@@ -39,20 +38,20 @@ class FirebaseServiceImpl: com.google.firebase.messaging.FirebaseMessagingServic
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
 
         // extract attributes
-        val uid = remoteMessage.data[_root_ide_package_.com.sommerengineering.baraudio.uidKey] ?: return
-        val timestamp = remoteMessage.data[_root_ide_package_.com.sommerengineering.baraudio.timestampKey] ?: return
-        val message = remoteMessage.data[_root_ide_package_.com.sommerengineering.baraudio.messageKey] ?: return
+        val uid = remoteMessage.data[uidKey] ?: return
+        val timestamp = remoteMessage.data[timestampKey] ?: return
+        val message = remoteMessage.data[messageKey] ?: return
 
         // either speak, or show notification
         var isShowNotification =
             Firebase.auth.currentUser == null || // user not signed-in
-            !_root_ide_package_.com.sommerengineering.baraudio.isAppOpen // app closed
+            !isAppOpen // app closed
 
         // note for different user, same device
         val note =
             if (uid != Firebase.auth.currentUser?.uid) {
                 isShowNotification = true
-                _root_ide_package_.com.sommerengineering.baraudio.unauthenticatedTimestampNote
+                unauthenticatedTimestampNote
             } else { "" }
 
         // either speak, or show notification
@@ -79,8 +78,8 @@ class FirebaseServiceImpl: com.google.firebase.messaging.FirebaseMessagingServic
             != PackageManager.PERMISSION_GRANTED) { return }
 
         // create pending intent to activity
-        val intent = Intent(this, _root_ide_package_.com.sommerengineering.baraudio.MainActivity::class.java)
-            .putExtra(_root_ide_package_.com.sommerengineering.baraudio.isLaunchFromNotification, true)
+        val intent = Intent(this, MainActivity::class.java)
+            .putExtra(isLaunchFromNotification, true)
         val pendingIntent= PendingIntent
             .getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
@@ -88,11 +87,9 @@ class FirebaseServiceImpl: com.google.firebase.messaging.FirebaseMessagingServic
         val timestampWithNote =
             beautifyTimestamp(timestamp) + note
 
-        val builder = NotificationCompat.Builder(this,
-            _root_ide_package_.com.sommerengineering.baraudio.channelId
-        )
-            .setSmallIcon(_root_ide_package_.com.sommerengineering.baraudio.R.drawable.logo_square)
-            .setColor(ContextCompat.getColor(this, _root_ide_package_.com.sommerengineering.baraudio.R.color.logo_blue))
+        val builder = NotificationCompat.Builder(this, channelId)
+            .setSmallIcon(R.drawable.logo_square)
+            .setColor(ContextCompat.getColor(this, R.color.logo_blue))
             .setContentTitle(message)
             .setContentText(timestampWithNote) // collapsed
             .setStyle(NotificationCompat.BigTextStyle().bigText(timestampWithNote)) // expanded
@@ -124,16 +121,16 @@ fun getDatabaseReference(
 
         // enable local cache
         Firebase
-            .database(_root_ide_package_.com.sommerengineering.baraudio.databaseUrl)
+            .database(databaseUrl)
             .setPersistenceEnabled(true)
 
         isDatabaseInitialized = true
     }
 
-    val uid = Firebase.auth.currentUser?.uid ?: _root_ide_package_.com.sommerengineering.baraudio.unauthenticatedUser
+    val uid = Firebase.auth.currentUser?.uid ?: unauthenticatedUser
 
     return Firebase
-        .database(_root_ide_package_.com.sommerengineering.baraudio.databaseUrl)
+        .database(databaseUrl)
         .getReference(node)
         .child(uid)
 }
@@ -143,7 +140,7 @@ fun writeTokenToDatabase() {
     val user = Firebase.auth.currentUser ?: return
 
     // write user:token pair to database, no write occurs if correct token already present
-    getDatabaseReference(_root_ide_package_.com.sommerengineering.baraudio.usersNode)
+    getDatabaseReference(usersNode)
         .setValue(token)
 
     logMessage("Sign-in success")
@@ -155,7 +152,7 @@ fun writeWhitelistToDatabase(
     isWhitelist: Boolean) {
 
     // write user to whitelist database, no write occurs if correct value already present
-    getDatabaseReference(_root_ide_package_.com.sommerengineering.baraudio.whitelistNode)
+    getDatabaseReference(whitelistNode)
         .setValue(isWhitelist)
 
     logMessage("isWhitelist: ${isWhitelist}")
