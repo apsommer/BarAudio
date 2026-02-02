@@ -14,10 +14,12 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.database
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 var token = _root_ide_package_.com.sommerengineering.baraudio.unauthenticatedToken
 
+@AndroidEntryPoint
 class FirebaseService: FirebaseMessagingService() {
 
     @Inject lateinit var tts: TextToSpeechImpl
