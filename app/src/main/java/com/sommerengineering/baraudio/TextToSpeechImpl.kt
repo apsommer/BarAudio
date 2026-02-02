@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.utils
+package com.sommerengineering.baraudio
 
 import android.content.Context
 import android.speech.tts.TextToSpeech
@@ -9,12 +9,6 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.os.bundleOf
-import com.sommerengineering.baraudio.cancelAllNotifications
-import com.sommerengineering.baraudio.isQueueFlushKey
-import com.sommerengineering.baraudio.pitchKey
-import com.sommerengineering.baraudio.speedKey
-import com.sommerengineering.baraudio.voiceKey
-import com.sommerengineering.baraudio.volumeKey
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext

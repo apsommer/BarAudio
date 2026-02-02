@@ -24,12 +24,7 @@ import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.sommerengineering.baraudio.theme.AppTheme
-import com.sommerengineering.baraudio.utils.BillingClientImpl
-import com.sommerengineering.baraudio.utils.logMessage
-import com.sommerengineering.baraudio.utils.readFromDataStore
-import com.sommerengineering.baraudio.utils.token
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 var isAppOpen = false
 var isUpdateRequired = false

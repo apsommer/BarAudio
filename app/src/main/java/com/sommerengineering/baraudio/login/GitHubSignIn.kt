@@ -7,7 +7,7 @@ import com.google.firebase.auth.auth
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.gitHubProviderId
 import com.sommerengineering.baraudio.isUpdateRequired
-import com.sommerengineering.baraudio.utils.logException
+import com.sommerengineering.baraudio.logException
 
 fun signInWithGitHub (
     context: Context,

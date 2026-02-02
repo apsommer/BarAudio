@@ -39,7 +39,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.areNotificationsEnabled
 import com.sommerengineering.baraudio.backgroundPadding
@@ -47,7 +46,7 @@ import com.sommerengineering.baraudio.colorTransitionTimeMillis
 import com.sommerengineering.baraudio.messagesNode
 import com.sommerengineering.baraudio.recentMessageTimeMillis
 import com.sommerengineering.baraudio.settings.SettingsDrawer
-import com.sommerengineering.baraudio.utils.getDatabaseReference
+import com.sommerengineering.baraudio.getDatabaseReference
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -64,7 +63,7 @@ fun MessagesScreen(
     val coroutine = rememberCoroutineScope()
     var isRefreshing by remember { mutableStateOf(false) }
     val pullToRefreshState = rememberPullToRefreshState()
-    val quoteState = viewModel.quoteState.collectAsState().value
+    val quoteState = viewModel.mindfullnessQuoteState.collectAsState().value
 
     // side drawer
     ModalNavigationDrawer(
@@ -126,11 +125,11 @@ fun MessagesScreen(
                     animationSpec = tween(colorTransitionTimeMillis))
 
                 // inspirational quote
-                val showQuote = quoteState is QuoteState.Success && viewModel.showQuote
+                val showQuote = quoteState is MindfullnessQuoteState.Success && viewModel.showQuote
                 if (showQuote) {
 
                     Text(
-                        text = quoteState.quote.quote,
+                        text = quoteState.mindfullnessQuote.quote,
                         style = MaterialTheme.typography.titleLarge,
                         textAlign = TextAlign.Center,
                         modifier = Modifier

@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.utils
+package com.sommerengineering.baraudio
 
 import android.Manifest
 import android.app.PendingIntent
@@ -12,15 +12,16 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.database
-import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import com.sommerengineering.baraudio.TextToSpeechImpl
+import com.sommerengineering.baraudio.messages.beautifyTimestamp
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 var token = _root_ide_package_.com.sommerengineering.baraudio.unauthenticatedToken
 
 @AndroidEntryPoint
-class FirebaseService: FirebaseMessagingService() {
+class FirebaseServiceImpl: com.google.firebase.messaging.FirebaseMessagingService() {
 
     @Inject lateinit var tts: TextToSpeechImpl
 
@@ -29,7 +30,7 @@ class FirebaseService: FirebaseMessagingService() {
         token = newToken
         writeToDataStore(
             applicationContext,
-            _root_ide_package_.com.sommerengineering.baraudio.tokenKey,
+            tokenKey,
             token
         )
         logMessage("New token: $token")

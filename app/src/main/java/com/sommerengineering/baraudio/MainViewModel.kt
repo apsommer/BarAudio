@@ -20,16 +20,13 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.auth
 import com.google.firebase.Firebase
 import com.sommerengineering.baraudio.messages.Message
-import com.sommerengineering.baraudio.messages.QuoteState
+import com.sommerengineering.baraudio.messages.MindfullnessQuoteState
 import com.sommerengineering.baraudio.messages.tradingviewWhitelistIps
 import com.sommerengineering.baraudio.messages.trendspiderWhitelistIp
-import com.sommerengineering.baraudio.utils.BillingClientImpl
-import com.sommerengineering.baraudio.utils.BillingState
-import com.sommerengineering.baraudio.utils.RapidApiService
-import com.sommerengineering.baraudio.utils.TextToSpeechImpl
-import com.sommerengineering.baraudio.utils.readFromDataStore
-import com.sommerengineering.baraudio.utils.writeToDataStore
-import com.sommerengineering.baraudio.utils.writeWhitelistToDatabase
+import com.sommerengineering.baraudio.login.BillingClientImpl
+import com.sommerengineering.baraudio.login.BillingState
+import com.sommerengineering.baraudio.messages.RapidApiService
+import com.sommerengineering.baraudio.TextToSpeechImpl
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -49,7 +46,7 @@ class MainViewModel @Inject constructor(
     val credentialManager: CredentialManager
 ) : ViewModel() {
 
-    var quoteState = MutableStateFlow<QuoteState>(QuoteState.Loading)
+    var mindfullnessQuoteState = MutableStateFlow<MindfullnessQuoteState>(MindfullnessQuoteState.Loading)
 
     init {
 
@@ -68,9 +65,9 @@ class MainViewModel @Inject constructor(
 
     suspend fun getMindfulnessQuote() {
 
-        quoteState.value = QuoteState.Loading
-        try { quoteState.value = QuoteState.Success(rapidApiService.getQuote()) }
-        catch (e: Exception) { quoteState.value = QuoteState.Error(e.message) }
+        mindfullnessQuoteState.value = MindfullnessQuoteState.Loading
+        try { mindfullnessQuoteState.value = MindfullnessQuoteState.Success(rapidApiService.getQuote()) }
+        catch (e: Exception) { mindfullnessQuoteState.value = MindfullnessQuoteState.Error(e.message) }
     }
 
     private fun initTtsSettings() {

@@ -1,7 +1,6 @@
-package com.sommerengineering.baraudio.utils
+package com.sommerengineering.baraudio.messages
 
 import com.sommerengineering.baraudio.BuildConfig
-import com.sommerengineering.baraudio.messages.Quote
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -20,7 +19,7 @@ interface RapidApiService {
     )
 
     @GET("v1/mindfulness")
-    suspend fun getQuote() : Quote
+    suspend fun getQuote() : MindfullnessQuote
 }
 
 @Module

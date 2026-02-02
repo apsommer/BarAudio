@@ -24,9 +24,6 @@ import com.sommerengineering.baraudio.login.checkForcedUpdate
 import com.sommerengineering.baraudio.login.onAuthentication
 import com.sommerengineering.baraudio.login.onSignOut
 import com.sommerengineering.baraudio.messages.MessagesScreen
-import com.sommerengineering.baraudio.utils.logMessage
-import com.sommerengineering.baraudio.utils.token
-import com.sommerengineering.baraudio.utils.writeToDataStore
 
 @Composable
 fun Navigation(

@@ -29,7 +29,6 @@ import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.edgePadding
 import com.sommerengineering.baraudio.settingsIconSize
-import com.sommerengineering.baraudio.utils.beautifyTimestamp
 
 @Composable
 fun MessageItem(

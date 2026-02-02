@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.utils
+package com.sommerengineering.baraudio.login
 
 import android.content.Context
 import com.android.billingclient.api.AcknowledgePurchaseParams
@@ -20,9 +20,9 @@ import com.android.billingclient.api.queryProductDetails
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.freeTrial
 import com.sommerengineering.baraudio.productId
+import com.sommerengineering.baraudio.logMessage
 import dagger.Module
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ActivityContext
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
