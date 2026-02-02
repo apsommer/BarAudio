@@ -20,10 +20,16 @@ import com.android.billingclient.api.queryProductDetails
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.freeTrial
 import com.sommerengineering.baraudio.productId
+import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ActivityContext
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 enum class BillingState {
     Loading,
@@ -33,8 +39,10 @@ enum class BillingState {
     Error
 }
 
-class BillingClientImpl(
-    val context: Context)
+@Module
+@InstallIn(SingletonComponent::class)
+class BillingClientImpl @Inject constructor(
+    @ApplicationContext val context: Context)
 : BillingClientStateListener, PurchasesUpdatedListener {
 
     // flow billing state

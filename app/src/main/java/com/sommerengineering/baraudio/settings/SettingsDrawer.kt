@@ -62,10 +62,10 @@ import com.sommerengineering.baraudio.webhookTitle
 
 @Composable
 fun SettingsDrawer(
+    viewModel: MainViewModel,
     onSignOut: () -> Unit) {
 
     val context = LocalContext.current
-    val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
     val uriHandler = LocalUriHandler.current
 
     Scaffold { padding ->

@@ -54,11 +54,11 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun MessagesScreen(
+    viewModel: MainViewModel,
     onSignOut: () -> Unit) {
 
     val context = LocalContext.current
-    val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
-
+    val messages = remember { viewModel.messages }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val listState = rememberLazyListState()
     val coroutine = rememberCoroutineScope()
@@ -72,6 +72,7 @@ fun MessagesScreen(
         drawerContent = {
             ModalDrawerSheet {
                 SettingsDrawer(
+                    viewModel = viewModel,
                     onSignOut = onSignOut)
             }
         },

@@ -14,6 +14,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.credentials.CredentialManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.auth
@@ -44,14 +45,12 @@ import kotlin.math.roundToInt
 class MainViewModel @Inject constructor(
     val tts: TextToSpeechImpl,
     val rapidApiService: RapidApiService,
+    val billing: BillingClientImpl,
+    val credentialManager: CredentialManager
 ) : ViewModel() {
 
-//    private val rapidApiService : RapidApiService by inject(RapidApiService::class.java)
-//    @Inject lateinit var rapidApiService : RapidApiService // by inject(RapidApiService::class.java)
-
-
     var quoteState = MutableStateFlow<QuoteState>(QuoteState.Loading)
-    
+
     init {
 
         // init tts engine, takes a few seconds ...
@@ -337,15 +336,10 @@ class MainViewModel @Inject constructor(
         writeWhitelistToDatabase(isFuturesWebhooks)
     }
 
-    // billing client, purchase subscription flow ui triggered by mute button
-    private lateinit var billing: BillingClientImpl
-
-    fun initBilling(
-        billingClientImpl: BillingClientImpl
-    ) {
+    // todo billing client, purchase subscription flow ui triggered by mute button
+    fun initBilling() {
 
         // initialize connection to google play
-        billing = billingClientImpl
         billing.connect()
 
         val context = billing.context

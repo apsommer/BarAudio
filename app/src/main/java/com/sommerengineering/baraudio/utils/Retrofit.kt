@@ -2,6 +2,10 @@ package com.sommerengineering.baraudio.utils
 
 import com.sommerengineering.baraudio.BuildConfig
 import com.sommerengineering.baraudio.messages.Quote
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
@@ -19,12 +23,18 @@ interface RapidApiService {
     suspend fun getQuote() : Quote
 }
 
-fun initRetrofit(): RapidApiService {
+@Module
+@InstallIn(SingletonComponent::class)
+object RetrofitModule {
 
-    return Retrofit.Builder()
-        .baseUrl("https://metaapi-mindfulness-quotes.p.rapidapi.com/")
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-        .create(RapidApiService::class.java)
+    @Provides
+    fun provideRetrofit(): RapidApiService {
+
+        return Retrofit.Builder()
+            .baseUrl("https://metaapi-mindfulness-quotes.p.rapidapi.com/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(RapidApiService::class.java)
+    }
 }
 

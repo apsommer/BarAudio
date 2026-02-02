@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.sommerengineering.baraudio.theme.AppTheme
 import com.sommerengineering.baraudio.utils.BillingClientImpl
@@ -28,6 +29,7 @@ import com.sommerengineering.baraudio.utils.logMessage
 import com.sommerengineering.baraudio.utils.readFromDataStore
 import com.sommerengineering.baraudio.utils.token
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 var isAppOpen = false
 var isUpdateRequired = false
@@ -92,7 +94,11 @@ class MainActivity : ComponentActivity() {
         
         // push layout boundary to full screen
         enableEdgeToEdge()
-        setContent { App() }
+
+        // launch app
+        setContent {
+            App()
+        }
     }
 
     fun areNotificationsEnabled() : Boolean {
@@ -138,7 +144,7 @@ fun App() {
 
     // inject viewmodel
     val context = LocalContext.current
-    val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
+    val viewModel: MainViewModel = viewModel()
 
     // track ui mode
     viewModel.isSystemInDarkTheme = isSystemInDarkTheme()
@@ -156,14 +162,15 @@ fun App() {
     val isFuturesWebhooksKey = readFromDataStore(context, isFuturesWebhooksKey)?.toBooleanStrictOrNull() ?: true
     viewModel.setFuturesWebhooks(context, isFuturesWebhooksKey)
 
-    // initialize billing client
-    viewModel.initBilling(
-        koinInject<BillingClientImpl> { parametersOf(context) })
+    viewModel.initBilling()
 
     AppTheme(viewModel.isDarkMode) {
         Scaffold(
             modifier = Modifier.fillMaxSize()) { padding -> padding
-            Navigation(rememberNavController())
+            Navigation(
+                controller = rememberNavController(),
+                viewModel = viewModel
+            )
         }
     }
 }

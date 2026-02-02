@@ -11,7 +11,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
-import androidx.credentials.CredentialManager
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.navigation.NavHostController
@@ -31,11 +30,10 @@ import com.sommerengineering.baraudio.utils.writeToDataStore
 
 @Composable
 fun Navigation(
-    controller: NavHostController) {
+    controller: NavHostController,
+    viewModel: MainViewModel) {
 
     val context = LocalContext.current
-    val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
-    val credentialManager = koinInject<CredentialManager>()
 
     // animate screen transitions
     val fadeIn = fadeIn(spring(stiffness = 10f))
@@ -44,7 +42,7 @@ fun Navigation(
     // check for forced updated
     LaunchedEffect(Unit) {
         checkForcedUpdate(
-            credentialManager = credentialManager,
+            credentialManager = viewModel.credentialManager,
             controller = controller,
             viewModel = viewModel,
             context = context)
@@ -61,6 +59,7 @@ fun Navigation(
             exitTransition = { fadeOut }) {
 
             LoginScreen(
+                viewModel = viewModel,
                 onAuthentication = {
                     onAuthentication(
                         context = context,
@@ -69,7 +68,7 @@ fun Navigation(
                 },
                 onForceUpdate = {
                     checkForcedUpdate(
-                        credentialManager = credentialManager,
+                        credentialManager = viewModel.credentialManager,
                         controller = controller,
                         viewModel = viewModel,
                         context = context)
@@ -113,7 +112,7 @@ fun Navigation(
                 onNextClick = {
 
                     if (Build.VERSION.SDK_INT >= 33 && 2 > count.intValue) {
-                        context.requestNotificationPermissionLauncher
+                        (context as MainActivity).requestNotificationPermissionLauncher
                             .launch(Manifest.permission.POST_NOTIFICATIONS)
                         count.intValue ++
                     }
@@ -123,7 +122,7 @@ fun Navigation(
                     }
 
 
-                    if (context.areNotificationsEnabled() || 32 >= Build.VERSION.SDK_INT || count.intValue > 1) {
+                    if ((context as MainActivity).areNotificationsEnabled() || 32 >= Build.VERSION.SDK_INT || count.intValue > 1) {
                         controller.navigate(OnboardingWebhookScreenRoute)
 
                     // request notification permission
@@ -161,13 +160,14 @@ fun Navigation(
 
             // check for notification permission
             LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
-                areNotificationsEnabled = context.areNotificationsEnabled()
+                areNotificationsEnabled =(context as MainActivity).areNotificationsEnabled()
             }
 
             MessagesScreen(
+                viewModel = viewModel,
                 onSignOut = {
                     onSignOut(
-                        credentialManager = credentialManager,
+                        credentialManager = viewModel.credentialManager,
                         controller = controller,
                         viewModel = viewModel,
                         context = context)
