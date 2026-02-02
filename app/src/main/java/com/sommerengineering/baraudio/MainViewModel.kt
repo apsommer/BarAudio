@@ -44,10 +44,10 @@ import kotlin.math.roundToInt
 @HiltViewModel
 class MainViewModel @Inject constructor(
     val tts: TextToSpeechImpl,
-//    val rapidApiService: RapidApiService,
+    val rapidApiService: RapidApiService,
 ) : ViewModel() {
 
-    private val rapidApiService : RapidApiService by inject(RapidApiService::class.java)
+//    private val rapidApiService : RapidApiService by inject(RapidApiService::class.java)
 //    @Inject lateinit var rapidApiService : RapidApiService // by inject(RapidApiService::class.java)
 
 

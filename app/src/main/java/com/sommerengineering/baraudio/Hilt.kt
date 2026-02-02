@@ -22,5 +22,5 @@ object RetrofitModule {
             .build()
             .create(RapidApiService::class.java)
     }
-    
+
 }

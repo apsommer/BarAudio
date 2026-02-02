@@ -1,26 +1,17 @@
 package com.sommerengineering.baraudio
 
 import android.app.Application
+import android.content.Context
+import androidx.datastore.preferences.preferencesDataStore
 import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.crashlytics
-import com.sommerengineering.baraudio.utils.appModule
 import dagger.hilt.android.HiltAndroidApp
-import org.koin.android.ext.koin.androidContext
-import org.koin.android.ext.koin.androidLogger
-import org.koin.core.context.GlobalContext.startKoin
 
 @HiltAndroidApp
 class MainApplication : Application() {
     override fun onCreate() {
         super.onCreate()
-
-        // initialize koin
-        startKoin {
-            androidLogger()
-            androidContext(this@MainApplication)
-            modules(appModule)
-        }
 
         // disable analytics for debug builds
         if (BuildConfig.DEBUG) {
@@ -29,3 +20,15 @@ class MainApplication : Application() {
         }
     }
 }
+
+// preferences datastore
+val Context.dataStore by preferencesDataStore(localCache)
+
+// todo
+//single<TextToSpeechImpl> { TextToSpeechImpl(androidContext()) }
+//    viewModel { MainViewModel(get()) }
+
+// todo refactor as viewmodel dependency
+//single<BillingClientImpl> { param -> BillingClientImpl(param.get<Context>()) }
+//single<CredentialManager> { CredentialManager.create(androidContext()) }
+//    single<RapidApiService> { initRetrofit() }
