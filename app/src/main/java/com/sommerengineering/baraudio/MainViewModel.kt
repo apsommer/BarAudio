@@ -22,7 +22,7 @@ import com.google.firebase.auth.auth
 import com.sommerengineering.baraudio.login.BillingClientImpl
 import com.sommerengineering.baraudio.login.BillingState
 import com.sommerengineering.baraudio.messages.Message
-import com.sommerengineering.baraudio.messages.MindfullnessQuoteState
+import com.sommerengineering.baraudio.messages.MindfulnessQuoteState
 import com.sommerengineering.baraudio.messages.RapidApiService
 import com.sommerengineering.baraudio.messages.tradingviewWhitelistIps
 import com.sommerengineering.baraudio.messages.trendspiderWhitelistIp
@@ -44,7 +44,7 @@ class MainViewModel @Inject constructor(
     val credentialManager: CredentialManager
 ) : ViewModel() {
 
-    var mindfullnessQuoteState = MutableStateFlow<MindfullnessQuoteState>(MindfullnessQuoteState.Loading)
+    var mindfulnessQuoteState = MutableStateFlow<MindfulnessQuoteState>(MindfulnessQuoteState.Loading)
 
     init {
 
@@ -63,9 +63,9 @@ class MainViewModel @Inject constructor(
 
     suspend fun getMindfulnessQuote() {
 
-        mindfullnessQuoteState.value = MindfullnessQuoteState.Loading
-        try { mindfullnessQuoteState.value = MindfullnessQuoteState.Success(rapidApiService.getQuote()) }
-        catch (e: Exception) { mindfullnessQuoteState.value = MindfullnessQuoteState.Error(e.message) }
+        mindfulnessQuoteState.value = MindfulnessQuoteState.Loading
+        try { mindfulnessQuoteState.value = MindfulnessQuoteState.Success(rapidApiService.getQuote()) }
+        catch (e: Exception) { mindfulnessQuoteState.value = MindfulnessQuoteState.Error(e.message) }
     }
 
     private fun initTtsSettings() {

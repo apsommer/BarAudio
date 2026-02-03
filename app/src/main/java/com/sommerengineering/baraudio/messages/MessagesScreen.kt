@@ -63,7 +63,7 @@ fun MessagesScreen(
     val coroutine = rememberCoroutineScope()
     var isRefreshing by remember { mutableStateOf(false) }
     val pullToRefreshState = rememberPullToRefreshState()
-    val quoteState = viewModel.mindfullnessQuoteState.collectAsState().value
+    val quoteState = viewModel.mindfulnessQuoteState.collectAsState().value
 
     // side drawer
     ModalNavigationDrawer(
@@ -125,11 +125,11 @@ fun MessagesScreen(
                     animationSpec = tween(colorTransitionTimeMillis))
 
                 // inspirational quote
-                val showQuote = quoteState is MindfullnessQuoteState.Success && viewModel.showQuote
+                val showQuote = quoteState is MindfulnessQuoteState.Success && viewModel.showQuote
                 if (showQuote) {
 
                     Text(
-                        text = quoteState.mindfullnessQuote.quote,
+                        text = quoteState.mindfulnessQuote.quote,
                         style = MaterialTheme.typography.titleLarge,
                         textAlign = TextAlign.Center,
                         modifier = Modifier

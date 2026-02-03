@@ -19,7 +19,7 @@ interface RapidApiService {
     )
 
     @GET("v1/mindfulness")
-    suspend fun getQuote() : MindfullnessQuote
+    suspend fun getQuote() : MindfulnessQuote
 }
 
 @Module
