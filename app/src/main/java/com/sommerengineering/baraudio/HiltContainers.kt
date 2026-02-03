@@ -23,7 +23,7 @@ object ApplicationModule {
 
     @Provides
     @Singleton
-    fun provideTextToSpeechImpl(
+    fun provideTextToSpeech(
         @ApplicationContext context: Context): TextToSpeechImpl {
         return TextToSpeechImpl(context)
     }
