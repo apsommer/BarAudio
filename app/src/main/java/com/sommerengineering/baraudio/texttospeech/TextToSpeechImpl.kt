@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio
+package com.sommerengineering.baraudio.texttospeech
 
 import android.content.Context
 import android.speech.tts.TextToSpeech
@@ -9,15 +9,18 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.os.bundleOf
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
+import com.sommerengineering.baraudio.cancelAllNotifications
+import com.sommerengineering.baraudio.isQueueFlushKey
+import com.sommerengineering.baraudio.pitchKey
+import com.sommerengineering.baraudio.readFromDataStore
+import com.sommerengineering.baraudio.speedKey
+import com.sommerengineering.baraudio.voiceKey
+import com.sommerengineering.baraudio.volumeKey
 import kotlinx.coroutines.flow.MutableStateFlow
-import javax.inject.Inject
 
 class TextToSpeechImpl(
-    private val context: Context) : TextToSpeech.OnInitListener {
+    private val context: Context
+) : TextToSpeech.OnInitListener {
 
     private val textToSpeech = TextToSpeech(context, this)
 

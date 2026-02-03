@@ -3,6 +3,7 @@ package com.sommerengineering.baraudio
 import android.content.Context
 import androidx.credentials.CredentialManager
 import com.sommerengineering.baraudio.login.BillingClientImpl
+import com.sommerengineering.baraudio.texttospeech.TextToSpeechImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

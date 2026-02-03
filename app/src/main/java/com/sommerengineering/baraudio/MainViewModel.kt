@@ -23,9 +23,10 @@ import com.sommerengineering.baraudio.login.BillingClientImpl
 import com.sommerengineering.baraudio.login.BillingState
 import com.sommerengineering.baraudio.messages.Message
 import com.sommerengineering.baraudio.messages.MindfulnessQuoteState
-import com.sommerengineering.baraudio.messages.RapidApiService
 import com.sommerengineering.baraudio.messages.tradingviewWhitelistIps
 import com.sommerengineering.baraudio.messages.trendspiderWhitelistIp
+import com.sommerengineering.baraudio.network.writeWhitelistToDatabase
+import com.sommerengineering.baraudio.texttospeech.TextToSpeechImpl
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -38,13 +39,13 @@ import kotlin.math.roundToInt
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
+    val repository: MainRepository,
     val tts: TextToSpeechImpl,
-    val rapidApiService: RapidApiService,
     val billing: BillingClientImpl,
     val credentialManager: CredentialManager
 ) : ViewModel() {
 
-    var mindfulnessQuoteState = MutableStateFlow<MindfulnessQuoteState>(MindfulnessQuoteState.Loading)
+    var mindfulnessQuoteState: MutableStateFlow<MindfulnessQuoteState> = MutableStateFlow(MindfulnessQuoteState.Idle)
 
     init {
 
@@ -64,7 +65,7 @@ class MainViewModel @Inject constructor(
     suspend fun getMindfulnessQuote() {
 
         mindfulnessQuoteState.value = MindfulnessQuoteState.Loading
-        try { mindfulnessQuoteState.value = MindfulnessQuoteState.Success(rapidApiService.getQuote()) }
+        try { mindfulnessQuoteState.value = MindfulnessQuoteState.Success(repository.getMindfulnessQuote()) }
         catch (e: Exception) { mindfulnessQuoteState.value = MindfulnessQuoteState.Error(e.message) }
     }
 

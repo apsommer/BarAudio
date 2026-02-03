@@ -1,6 +1,7 @@
-package com.sommerengineering.baraudio.messages
+package com.sommerengineering.baraudio.network
 
 import com.sommerengineering.baraudio.BuildConfig
+import com.sommerengineering.baraudio.messages.MindfulnessQuote
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -10,7 +11,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Headers
 
-interface RapidApiService {
+interface RapidApi {
 
     // todo move headers to interceptor
     @Headers(
@@ -19,7 +20,7 @@ interface RapidApiService {
     )
 
     @GET("v1/mindfulness")
-    suspend fun getQuote() : MindfulnessQuote
+    suspend fun getMindfulnessQuote() : MindfulnessQuote
 }
 
 @Module
@@ -27,13 +28,13 @@ interface RapidApiService {
 object RetrofitModule {
 
     @Provides
-    fun provideRetrofit(): RapidApiService {
+    fun provideRetrofit(): RapidApi {
 
         return Retrofit.Builder()
             .baseUrl("https://metaapi-mindfulness-quotes.p.rapidapi.com/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-            .create(RapidApiService::class.java)
+            .create(RapidApi::class.java)
     }
 }
 

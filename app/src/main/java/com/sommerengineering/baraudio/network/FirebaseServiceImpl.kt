@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio
+package com.sommerengineering.baraudio.network
 
 import android.Manifest
 import android.app.PendingIntent
@@ -14,10 +14,27 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.database
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import com.sommerengineering.baraudio.MainActivity
+import com.sommerengineering.baraudio.R
+import com.sommerengineering.baraudio.channelId
+import com.sommerengineering.baraudio.databaseUrl
+import com.sommerengineering.baraudio.isAppOpen
+import com.sommerengineering.baraudio.isLaunchFromNotification
+import com.sommerengineering.baraudio.logMessage
+import com.sommerengineering.baraudio.messageKey
 import com.sommerengineering.baraudio.messages.beautifyTimestamp
+import com.sommerengineering.baraudio.texttospeech.TextToSpeechImpl
+import com.sommerengineering.baraudio.timestampKey
+import com.sommerengineering.baraudio.tokenKey
+import com.sommerengineering.baraudio.uidKey
+import com.sommerengineering.baraudio.unauthenticatedTimestampNote
+import com.sommerengineering.baraudio.unauthenticatedToken
+import com.sommerengineering.baraudio.unauthenticatedUser
+import com.sommerengineering.baraudio.usersNode
+import com.sommerengineering.baraudio.whitelistNode
+import com.sommerengineering.baraudio.writeToDataStore
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
-import javax.inject.Singleton
 
 var token = unauthenticatedToken
 

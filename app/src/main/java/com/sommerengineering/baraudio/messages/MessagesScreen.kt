@@ -46,7 +46,7 @@ import com.sommerengineering.baraudio.colorTransitionTimeMillis
 import com.sommerengineering.baraudio.messagesNode
 import com.sommerengineering.baraudio.recentMessageTimeMillis
 import com.sommerengineering.baraudio.settings.SettingsDrawer
-import com.sommerengineering.baraudio.getDatabaseReference
+import com.sommerengineering.baraudio.network.getDatabaseReference
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -63,7 +63,7 @@ fun MessagesScreen(
     val coroutine = rememberCoroutineScope()
     var isRefreshing by remember { mutableStateOf(false) }
     val pullToRefreshState = rememberPullToRefreshState()
-    val quoteState = viewModel.mindfulnessQuoteState.collectAsState().value
+    val quoteState by viewModel.mindfulnessQuoteState.collectAsState()
 
     // side drawer
     ModalNavigationDrawer(
@@ -129,7 +129,7 @@ fun MessagesScreen(
                 if (showQuote) {
 
                     Text(
-                        text = quoteState.mindfulnessQuote.quote,
+                        text = (quoteState as MindfulnessQuoteState.Success).mindfulnessQuote.quote,
                         style = MaterialTheme.typography.titleLarge,
                         textAlign = TextAlign.Center,
                         modifier = Modifier

@@ -31,7 +31,7 @@
 
         <!-- firebase cloud messaging -->
         <service
-            android:name="com.sommerengineering.baraudio.FirebaseServiceImpl"
+            android:name="com.sommerengineering.baraudio.network.FirebaseServiceImpl"
             android:exported="true" >
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />

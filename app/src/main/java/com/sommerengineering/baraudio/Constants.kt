@@ -7,10 +7,7 @@ import com.google.firebase.crashlytics.crashlytics
 
 // logs
 const val TAG = "~~"
-
-fun logMessage(msg: String?) =
-    Log.v(TAG, "$msg")
-
+fun logMessage(msg: String?) = Log.v(TAG, "$msg")
 fun logException(e: Exception) {
     Log.e(TAG, "handleException: ${e.message}", e)
     Firebase.crashlytics.recordException(e)
