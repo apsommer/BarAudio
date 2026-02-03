@@ -12,15 +12,17 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.database
+import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.sommerengineering.baraudio.messages.beautifyTimestamp
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import javax.inject.Singleton
 
 var token = unauthenticatedToken
 
 @AndroidEntryPoint
-class FirebaseServiceImpl: com.google.firebase.messaging.FirebaseMessagingService() {
+class FirebaseServiceImpl: FirebaseMessagingService() {
 
     @Inject lateinit var tts: TextToSpeechImpl
 

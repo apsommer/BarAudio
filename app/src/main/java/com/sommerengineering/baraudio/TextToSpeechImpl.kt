@@ -16,11 +16,8 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Inject
 
-@Module
-@InstallIn(SingletonComponent::class)
-class TextToSpeechImpl @Inject constructor(
-    @ApplicationContext private val context: Context
-) : TextToSpeech.OnInitListener {
+class TextToSpeechImpl(
+    private val context: Context) : TextToSpeech.OnInitListener {
 
     private val textToSpeech = TextToSpeech(context, this)
 
@@ -29,7 +26,6 @@ class TextToSpeechImpl @Inject constructor(
     var pitch by mutableFloatStateOf(1f)
     var isQueueAdd by mutableStateOf(true)
     var volume by mutableFloatStateOf(0f)
-
     var isInit = MutableStateFlow(false)
 
     override fun onInit(status: Int) {

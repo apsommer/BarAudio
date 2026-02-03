@@ -39,11 +39,8 @@ enum class BillingState {
     Error
 }
 
-@Module
-@InstallIn(SingletonComponent::class)
-class BillingClientImpl @Inject constructor(
-    @ApplicationContext val context: Context)
-: BillingClientStateListener, PurchasesUpdatedListener {
+class BillingClientImpl(
+    val context: Context) : BillingClientStateListener, PurchasesUpdatedListener {
 
     // flow billing state
     val billingState = MutableStateFlow(BillingState.Unsubscribed)
