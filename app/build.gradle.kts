@@ -9,8 +9,8 @@ plugins {
     alias(libs.plugins.google.services)
     alias(libs.plugins.crashlytics)
     alias(libs.plugins.compose.compiler)
-    id("com.google.devtools.ksp")
-    id("com.google.dagger.hilt.android")
+    alias(libs.plugins.kotlin.ksp)
+    alias(libs.plugins.hilt)
 }
 
 // import release upload signing keystore
