@@ -15,14 +15,12 @@ val Context.dataStore by preferencesDataStore(localCache)
 
 fun readFromDataStore(
     context: Context,
-    key: String) {
-
-    runBlocking {
+    key: String) = runBlocking {
         context.dataStore.data
             .map { it[stringPreferencesKey(key)] }
             .first()
     }
-}
+
 
 fun writeToDataStore(
     context: Context,

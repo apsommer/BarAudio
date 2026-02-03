@@ -108,23 +108,15 @@ fun Navigation(
                 pageNumber = 1,
                 onNextClick = {
 
+                    // request notification permission
                     if (Build.VERSION.SDK_INT >= 33 && 2 > count.intValue) {
                         (context as MainActivity).requestNotificationPermissionLauncher
                             .launch(Manifest.permission.POST_NOTIFICATIONS)
                         count.intValue ++
                     }
-
+                    
                     else {
                         controller.navigate(OnboardingWebhookScreenRoute)
-                    }
-
-
-                    if ((context as MainActivity).areNotificationsEnabled() || 32 >= Build.VERSION.SDK_INT || count.intValue > 1) {
-                        controller.navigate(OnboardingWebhookScreenRoute)
-
-                    // request notification permission
-                    } else {
-
                     }
                 })
         }
