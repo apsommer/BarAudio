@@ -1,3 +1,4 @@
+import com.android.build.api.dsl.ApplicationExtension
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.io.FileInputStream
 import java.util.Properties
@@ -32,7 +33,7 @@ kotlin {
     }
 }
 
-android {
+configure<ApplicationExtension> {
 
     signingConfigs {
         create("release") {
