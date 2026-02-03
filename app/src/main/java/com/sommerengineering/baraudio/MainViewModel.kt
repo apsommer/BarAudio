@@ -17,16 +17,15 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.credentials.CredentialManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.auth
 import com.google.firebase.Firebase
-import com.sommerengineering.baraudio.messages.Message
-import com.sommerengineering.baraudio.messages.MindfullnessQuoteState
-import com.sommerengineering.baraudio.messages.tradingviewWhitelistIps
-import com.sommerengineering.baraudio.messages.trendspiderWhitelistIp
+import com.google.firebase.auth.auth
 import com.sommerengineering.baraudio.login.BillingClientImpl
 import com.sommerengineering.baraudio.login.BillingState
+import com.sommerengineering.baraudio.messages.Message
+import com.sommerengineering.baraudio.messages.MindfullnessQuoteState
 import com.sommerengineering.baraudio.messages.RapidApiService
-import com.sommerengineering.baraudio.TextToSpeechImpl
+import com.sommerengineering.baraudio.messages.tradingviewWhitelistIps
+import com.sommerengineering.baraudio.messages.trendspiderWhitelistIp
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -35,7 +34,6 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
 import kotlin.math.roundToInt
 
 @HiltViewModel
