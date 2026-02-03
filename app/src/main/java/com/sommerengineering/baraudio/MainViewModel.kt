@@ -14,38 +14,40 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.credentials.CredentialManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.auth
 import com.google.firebase.Firebase
 import com.sommerengineering.baraudio.messages.Message
-import com.sommerengineering.baraudio.messages.QuoteState
+import com.sommerengineering.baraudio.messages.MindfullnessQuoteState
 import com.sommerengineering.baraudio.messages.tradingviewWhitelistIps
 import com.sommerengineering.baraudio.messages.trendspiderWhitelistIp
-import com.sommerengineering.baraudio.utils.BillingClientImpl
-import com.sommerengineering.baraudio.utils.BillingState
-import com.sommerengineering.baraudio.utils.RapidApi
-import com.sommerengineering.baraudio.utils.TextToSpeechImpl
-import com.sommerengineering.baraudio.utils.readFromDataStore
-import com.sommerengineering.baraudio.utils.writeToDataStore
-import com.sommerengineering.baraudio.utils.writeWhitelistToDatabase
+import com.sommerengineering.baraudio.login.BillingClientImpl
+import com.sommerengineering.baraudio.login.BillingState
+import com.sommerengineering.baraudio.messages.RapidApiService
+import com.sommerengineering.baraudio.TextToSpeechImpl
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import org.koin.java.KoinJavaComponent.inject
+import javax.inject.Inject
 
 import kotlin.math.roundToInt
 
-class MainViewModel(
-    val tts: TextToSpeechImpl
+@HiltViewModel
+class MainViewModel @Inject constructor(
+    val tts: TextToSpeechImpl,
+    val rapidApiService: RapidApiService,
+    val billing: BillingClientImpl,
+    val credentialManager: CredentialManager
 ) : ViewModel() {
 
-    private val rapidApi : RapidApi by inject(RapidApi::class.java)
-    var quoteState = MutableStateFlow<QuoteState>(QuoteState.Loading)
-    
+    var mindfullnessQuoteState = MutableStateFlow<MindfullnessQuoteState>(MindfullnessQuoteState.Loading)
+
     init {
 
         // init tts engine, takes a few seconds ...
@@ -63,9 +65,9 @@ class MainViewModel(
 
     suspend fun getMindfulnessQuote() {
 
-        quoteState.value = QuoteState.Loading
-        try { quoteState.value = QuoteState.Success(rapidApi.getQuote()) }
-        catch (e: Exception) { quoteState.value = QuoteState.Error(e.message) }
+        mindfullnessQuoteState.value = MindfullnessQuoteState.Loading
+        try { mindfullnessQuoteState.value = MindfullnessQuoteState.Success(rapidApiService.getQuote()) }
+        catch (e: Exception) { mindfullnessQuoteState.value = MindfullnessQuoteState.Error(e.message) }
     }
 
     private fun initTtsSettings() {
@@ -331,15 +333,10 @@ class MainViewModel(
         writeWhitelistToDatabase(isFuturesWebhooks)
     }
 
-    // billing client, purchase subscription flow ui triggered by mute button
-    private lateinit var billing: BillingClientImpl
-
-    fun initBilling(
-        billingClientImpl: BillingClientImpl
-    ) {
+    // todo billing client, purchase subscription flow ui triggered by mute button
+    fun initBilling() {
 
         // initialize connection to google play
-        billing = billingClientImpl
         billing.connect()
 
         val context = billing.context
@@ -379,7 +376,7 @@ class MainViewModel(
 
     // mute
     var shouldShowSpinner by mutableStateOf(false)
-    var isMute by mutableStateOf(true)
+    var isMute by mutableStateOf(false) // default unmuted
 
     fun toggleMute(
         context: Context) {

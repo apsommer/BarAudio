@@ -23,21 +23,18 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.credentials.CredentialManager
-import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.loginButtonSize
-import org.koin.androidx.compose.koinViewModel
-import org.koin.compose.koinInject
 
 @Composable
 fun LoginScreen (
+    viewModel: MainViewModel,
     onAuthentication: () -> Unit,
     onForceUpdate: () -> Unit) {
 
     // inject viewmodel
     val context = LocalContext.current
-    val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
 
     // size composables
     val githubImageSize = 50.dp // touch over half circularButtonSize to align with google
@@ -66,9 +63,6 @@ fun LoginScreen (
                     .weight(1f),
                 verticalArrangement = Arrangement.Center) {
 
-                // inject google credential manager
-                val credentialManager = koinInject<CredentialManager>()
-
                 Box(
                     modifier = Modifier
                         .size(loginButtonSize)
@@ -76,7 +70,7 @@ fun LoginScreen (
                         .clickable {
                             signInWithGoogle(
                                 context = context,
-                                credentialManager = credentialManager,
+                                credentialManager = viewModel.credentialManager,
                                 onAuthentication = onAuthentication,
                                 onForceUpdate = onForceUpdate)
                         }

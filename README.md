@@ -28,7 +28,7 @@ A free trial is offered for one week, then converts to a rolling subscription of
 
 - Compose using Material Design 3
 - MVVM architecture
-- Koin dependency injection
+- Dagger Hilt dependency injection
 - Webhook endpoint deployed on Google Cloud Functions
 - Firebase Cloud Messaging for notifications
 - Firebase Realtime Database for local and cloud storage

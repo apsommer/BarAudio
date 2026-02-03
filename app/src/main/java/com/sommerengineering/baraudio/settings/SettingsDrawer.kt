@@ -59,14 +59,13 @@ import com.sommerengineering.baraudio.voiceDividerTitle
 import com.sommerengineering.baraudio.voiceTitle
 import com.sommerengineering.baraudio.webhookBaseUrl
 import com.sommerengineering.baraudio.webhookTitle
-import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun SettingsDrawer(
+    viewModel: MainViewModel,
     onSignOut: () -> Unit) {
 
     val context = LocalContext.current
-    val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
     val uriHandler = LocalUriHandler.current
 
     Scaffold { padding ->

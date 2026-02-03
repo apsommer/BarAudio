@@ -21,11 +21,11 @@ import com.sommerengineering.baraudio.isOnboardingComplete
 import com.sommerengineering.baraudio.isUpdateRequired
 import com.sommerengineering.baraudio.messages.dbListener
 import com.sommerengineering.baraudio.messagesNode
-import com.sommerengineering.baraudio.utils.getDatabaseReference
-import com.sommerengineering.baraudio.utils.logException
-import com.sommerengineering.baraudio.utils.logMessage
-import com.sommerengineering.baraudio.utils.signOut
-import com.sommerengineering.baraudio.utils.writeTokenToDatabase
+import com.sommerengineering.baraudio.getDatabaseReference
+import com.sommerengineering.baraudio.logException
+import com.sommerengineering.baraudio.logMessage
+import com.sommerengineering.baraudio.signOut
+import com.sommerengineering.baraudio.writeTokenToDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

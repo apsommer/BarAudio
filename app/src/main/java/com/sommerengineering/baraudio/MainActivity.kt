@@ -3,7 +3,6 @@ package com.sommerengineering.baraudio
 import android.app.NotificationChannel
 import android.app.NotificationChannelGroup
 import android.app.NotificationManager
-import android.app.Service
 import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -22,15 +21,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.sommerengineering.baraudio.theme.AppTheme
-import com.sommerengineering.baraudio.utils.BillingClientImpl
-import com.sommerengineering.baraudio.utils.logMessage
-import com.sommerengineering.baraudio.utils.readFromDataStore
-import com.sommerengineering.baraudio.utils.token
-import org.koin.androidx.compose.koinViewModel
-import org.koin.compose.koinInject
-import org.koin.core.parameter.parametersOf
+import dagger.hilt.android.AndroidEntryPoint
 
 var isAppOpen = false
 var isUpdateRequired = false
@@ -38,6 +32,7 @@ var isFirstLaunch = true // todo remove this var on resume subscription requirem
 var isOnboardingComplete = false
 var areNotificationsEnabled by mutableStateOf(false)
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     val context = this
@@ -94,7 +89,11 @@ class MainActivity : ComponentActivity() {
         
         // push layout boundary to full screen
         enableEdgeToEdge()
-        setContent { App() }
+
+        // launch app
+        setContent {
+            App()
+        }
     }
 
     fun areNotificationsEnabled() : Boolean {
@@ -140,7 +139,7 @@ fun App() {
 
     // inject viewmodel
     val context = LocalContext.current
-    val viewModel: MainViewModel = koinViewModel(viewModelStoreOwner = context as MainActivity)
+    val viewModel: MainViewModel = viewModel()
 
     // track ui mode
     viewModel.isSystemInDarkTheme = isSystemInDarkTheme()
@@ -158,14 +157,15 @@ fun App() {
     val isFuturesWebhooksKey = readFromDataStore(context, isFuturesWebhooksKey)?.toBooleanStrictOrNull() ?: true
     viewModel.setFuturesWebhooks(context, isFuturesWebhooksKey)
 
-    // initialize billing client
-    viewModel.initBilling(
-        koinInject<BillingClientImpl> { parametersOf(context) })
+    viewModel.initBilling()
 
     AppTheme(viewModel.isDarkMode) {
         Scaffold(
             modifier = Modifier.fillMaxSize()) { padding -> padding
-            Navigation(rememberNavController())
+            Navigation(
+                controller = rememberNavController(),
+                viewModel = viewModel
+            )
         }
     }
 }

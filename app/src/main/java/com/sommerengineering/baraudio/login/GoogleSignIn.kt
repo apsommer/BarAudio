@@ -13,7 +13,7 @@ import com.google.firebase.auth.auth
 import com.google.firebase.Firebase
 import com.sommerengineering.baraudio.BuildConfig
 import com.sommerengineering.baraudio.isUpdateRequired
-import com.sommerengineering.baraudio.utils.logException
+import com.sommerengineering.baraudio.logException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
