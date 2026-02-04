@@ -30,6 +30,7 @@ import com.sommerengineering.baraudio.hilt.TextToSpeechImpl
 import com.sommerengineering.baraudio.hilt.readFromDataStore
 import com.sommerengineering.baraudio.hilt.writeToDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -44,7 +45,8 @@ import kotlin.math.roundToInt
 class MainViewModel @Inject constructor(
     val repository: MainRepository,
     val tts: TextToSpeechImpl,
-    val credentialManager: CredentialManager
+    val credentialManager: CredentialManager,
+    @ApplicationContext val context: Context
 ) : ViewModel() {
 
     // mindfulness quote
@@ -247,8 +249,7 @@ class MainViewModel @Inject constructor(
     var isSystemInDarkTheme = false
     var uiModeDescription by mutableStateOf("")
 
-    fun setUiMode(
-        context: Context) {
+    fun setUiMode() {
 
         isDarkMode =
             if (Firebase.auth.currentUser == null) isSystemInDarkTheme

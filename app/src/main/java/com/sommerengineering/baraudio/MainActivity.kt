@@ -146,7 +146,7 @@ fun App(
 
     // track ui mode
     viewModel.isSystemInDarkTheme = isSystemInDarkTheme()
-    viewModel.setUiMode(context)
+    viewModel.setUiMode()
 
     // toggle fullscreen
     val isFullScreen = readFromDataStore(context, isFullScreenKey)?.toBoolean() == true

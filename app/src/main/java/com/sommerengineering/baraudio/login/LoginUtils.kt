@@ -36,7 +36,7 @@ fun onAuthentication(
     controller: NavHostController) {
 
     // reset dark mode to previous preference, if available
-    viewModel.setUiMode(context)
+    viewModel.setUiMode()
 
     // write to database, if needed
     writeTokenToDatabase()
@@ -71,7 +71,7 @@ fun onSignOut(
     viewModel.messages.clear()
 
     // reset dark mode to system default
-    viewModel.setUiMode(context)
+    viewModel.setUiMode()
 
     // clear local cache by detaching database listener
     getDatabaseReference(messagesNode)
