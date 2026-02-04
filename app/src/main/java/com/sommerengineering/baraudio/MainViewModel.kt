@@ -51,14 +51,7 @@ class MainViewModel @Inject constructor(
     private var _mindfulnessQuoteState: MutableStateFlow<MindfulnessQuoteState> = MutableStateFlow(MindfulnessQuoteState.Idle)
     val mindfulnessQuoteState = _mindfulnessQuoteState.asStateFlow()
 
-    init {
-
-        // init tts engine, takes a few seconds ...
-        viewModelScope.launch(Dispatchers.Main) {
-            tts.isInit
-                .onEach { if (it) initTtsSettings() }
-                .collect()
-        }
+    fun getMindfulnessQuote() {
 
         // network call for mindfulness quote
         viewModelScope.launch(Dispatchers.IO) {
@@ -67,6 +60,25 @@ class MainViewModel @Inject constructor(
             catch (e: Exception) { _mindfulnessQuoteState.value = MindfulnessQuoteState.Error(e.message) }
         }
     }
+
+    init {
+
+        // init tts engine, takes a few seconds ...
+        viewModelScope.launch(Dispatchers.Main) {
+            tts.isInit
+                .onEach { if (it) initTtsSettings() }
+                .collect()
+        }
+    }
+
+    // voice
+    val voices = mutableListOf<Voice>()
+    var voiceDescription by mutableStateOf("")
+    private val beautifulVoiceNames = hashMapOf<String, String>()
+    var speedDescription by mutableStateOf("")
+    var pitchDescription by mutableStateOf("")
+    var queueDescription by mutableStateOf("")
+
 
     private fun initTtsSettings() {
 
@@ -94,31 +106,6 @@ class MainViewModel @Inject constructor(
         // todo remove this line on resume subscription requirement 310125
         billing.billingState.value = BillingState.Subscribed
     }
-
-    // webhook
-    fun saveToWebhookClipboard(
-        context: Context,
-        webhookUrl: String) {
-
-        // save url to clipboard
-        val clipboardManager = context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
-        val clip = ClipData.newPlainText("", webhookUrl)
-        clipboardManager.setPrimaryClip(clip)
-
-        // toast for older api
-        if (31 > android.os.Build.VERSION.SDK_INT) {
-            Toast.makeText(
-                context,
-                webhookUrl,
-                Toast.LENGTH_SHORT)
-                .show()
-        }
-    }
-    
-    // voice
-    val voices = mutableListOf<Voice>()
-    var voiceDescription by mutableStateOf("")
-    private val beautifulVoiceNames = hashMapOf<String, String>()
 
     fun setVoice(
         context: Context,
@@ -153,8 +140,7 @@ class MainViewModel @Inject constructor(
             }
     }
 
-    fun beautifyVoiceName(name: String) =
-        beautifulVoiceNames[name] ?: ""
+    fun beautifyVoiceName(name: String) = beautifulVoiceNames[name] ?: ""
 
     private fun enumerateVoices(
         voice: Voice,
@@ -191,9 +177,6 @@ class MainViewModel @Inject constructor(
             voices.find {
                 it == tts.voice.value })
 
-    // speed
-    var speedDescription by mutableStateOf("")
-
     fun getSpeed() =
         tts.speed
     
@@ -208,9 +191,6 @@ class MainViewModel @Inject constructor(
         writeToDataStore(context, speedKey, selectedSpeed.toString())
         speedDescription = selectedSpeed.toString()
     }
-
-    // pitch
-    var pitchDescription by mutableStateOf("")
 
     fun getPitch() =
         tts.pitch
@@ -227,9 +207,6 @@ class MainViewModel @Inject constructor(
         pitchDescription = selectedPitch.toString()
     }
 
-    // queue behavior
-    var queueDescription by mutableStateOf("")
-
     fun isQueueAdd() =
         tts.isQueueAdd
     
@@ -243,6 +220,32 @@ class MainViewModel @Inject constructor(
         queueDescription =
             if (tts.isQueueAdd) queueBehaviorAddDescription
             else queueBehaviorFlushDescription
+    }
+
+
+
+
+
+
+
+    // webhook
+    fun saveToWebhookClipboard(
+        context: Context,
+        webhookUrl: String) {
+
+        // save url to clipboard
+        val clipboardManager = context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipData.newPlainText("", webhookUrl)
+        clipboardManager.setPrimaryClip(clip)
+
+        // toast for older api
+        if (31 > android.os.Build.VERSION.SDK_INT) {
+            Toast.makeText(
+                context,
+                webhookUrl,
+                Toast.LENGTH_SHORT)
+                .show()
+        }
     }
 
     // dark mode

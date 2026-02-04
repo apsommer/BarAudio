@@ -56,6 +56,8 @@ fun MessagesScreen(
     viewModel: MainViewModel,
     onSignOut: () -> Unit) {
 
+    viewModel.getMindfulnessQuote()
+
     val context = LocalContext.current
     val messages = remember { viewModel.messages }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
