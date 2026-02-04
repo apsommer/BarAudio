@@ -10,4 +10,6 @@ class MainRepository @Inject constructor(
 
     suspend fun getMindfulnessQuote() = rapidApi.getMindfulnessQuote()
 
+
+
 }

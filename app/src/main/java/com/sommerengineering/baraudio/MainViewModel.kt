@@ -31,6 +31,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -45,7 +47,9 @@ class MainViewModel @Inject constructor(
     val credentialManager: CredentialManager
 ) : ViewModel() {
 
-    var mindfulnessQuoteState: MutableStateFlow<MindfulnessQuoteState> = MutableStateFlow(MindfulnessQuoteState.Idle)
+    // mindfulness quote
+    private var _mindfulnessQuoteState: MutableStateFlow<MindfulnessQuoteState> = MutableStateFlow(MindfulnessQuoteState.Idle)
+    val mindfulnessQuoteState = _mindfulnessQuoteState.asStateFlow()
 
     init {
 
@@ -56,17 +60,12 @@ class MainViewModel @Inject constructor(
                 .collect()
         }
 
-        // init network call for mindfulness quote
+        // network call for mindfulness quote
         viewModelScope.launch(Dispatchers.IO) {
-            getMindfulnessQuote()
+            _mindfulnessQuoteState.value = MindfulnessQuoteState.Loading
+            try { _mindfulnessQuoteState.value = MindfulnessQuoteState.Success(repository.getMindfulnessQuote()) }
+            catch (e: Exception) { _mindfulnessQuoteState.value = MindfulnessQuoteState.Error(e.message) }
         }
-    }
-
-    suspend fun getMindfulnessQuote() {
-
-        mindfulnessQuoteState.value = MindfulnessQuoteState.Loading
-        try { mindfulnessQuoteState.value = MindfulnessQuoteState.Success(repository.getMindfulnessQuote()) }
-        catch (e: Exception) { mindfulnessQuoteState.value = MindfulnessQuoteState.Error(e.message) }
     }
 
     private fun initTtsSettings() {
