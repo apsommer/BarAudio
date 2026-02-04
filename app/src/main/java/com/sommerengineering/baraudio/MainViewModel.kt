@@ -342,25 +342,6 @@ class MainViewModel @Inject constructor(
     fun toggleMute(
         context: Context) {
 
-        // todo disable subscription requirement 310125
-        // unmute only allowed for paid user
-//        val isUserPaid =
-//            billing.billingState.value == BillingState.NewSubscription ||
-//            billing.billingState.value == BillingState.Subscribed
-//
-//        if (isMute && !isUserPaid) {
-//
-//            billing.launchBillingFlowUi(context)
-//            return
-//        }
-
-        // todo remove this block on resume subscription requirement 310125
-        if (isFirstLaunch) {
-            speakLastMessage()
-            isFirstLaunch = false
-            writeToDataStore(context, isFirstLaunchKey, isFirstLaunch.toString())
-        }
-
         setMute(context, !isMute)
     }
 

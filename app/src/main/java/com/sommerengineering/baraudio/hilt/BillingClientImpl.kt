@@ -19,6 +19,8 @@ import com.android.billingclient.api.acknowledgePurchase
 import com.android.billingclient.api.queryProductDetails
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.freeTrial
+import com.sommerengineering.baraudio.isFirstLaunch
+import com.sommerengineering.baraudio.isFirstLaunchKey
 import com.sommerengineering.baraudio.productId
 import com.sommerengineering.baraudio.logMessage
 import com.sommerengineering.baraudio.volumeKey
@@ -217,46 +219,68 @@ class BillingClientImpl(
         logMessage("Billing error, code $responseCode: ${errorMap[responseCode]}")
     }
 
-    // todo billing client, purchase subscription flow ui triggered by mute button
-    fun initBilling(
-        billing: BillingClientImpl,
-    ) {
-
-        // initialize connection to google play
-        billing.connect()
-
-        val context = billing.context
-
-        // listen to subscription status
-        CoroutineScope(Dispatchers.Main).launch {
-            billing.billingState
-                .onEach {
-                    when (it) {
-
-                        // show spinner
-                        BillingState.Loading -> {
+//    // todo billing client, purchase subscription flow ui triggered by mute button
+//    fun initBilling() {
+//
+//        // initialize connection to google play
+//        billing.connect()
+//
+//        // listen to subscription status
+//        CoroutineScope(Dispatchers.Main).launch {
+//            billing.billingState
+//                .onEach {
+//                    when (it) {
+//
+//                        // show spinner
+//                        BillingState.Loading -> {
 //                            shouldShowSpinner = true
-                        }
-
-                        BillingState.NewSubscription -> {
+//                        }
+//
+//                        BillingState.NewSubscription -> {
 //                            setMute(context, false)
 //                            this@MainViewModel.speakLastMessage()
-                        }
-
-                        BillingState.Subscribed -> {
+//                        }
+//
+//                        BillingState.Subscribed -> {
 //                            tts.volume = readFromDataStore(context, volumeKey)?.toFloat() ?: 0f // todo revert this to "1f" on resume subscription requirement 310125
 //                            isMute = tts.volume == 0f
-                        }
-
-                        BillingState.Unsubscribed, BillingState.Error -> { }
-                    }
-
-                    // hide spinner
-                    if (it != BillingState.Loading) {
+//                        }
+//
+//                        BillingState.Unsubscribed, BillingState.Error -> { }
+//                    }
+//
+//                    // hide spinner
+//                    if (it != BillingState.Loading) {
 //                        shouldShowSpinner = false
-                    }
-                }
-                .collect()
-        }
-    }
+//                    }
+//                }
+//                .collect()
+//        }
+//    }
+
+//    fun toggleMute(
+//        context: Context) {
+//
+//        // todo disable subscription requirement 310125
+//        // unmute only allowed for paid user
+//        val isUserPaid =
+//            billing.billingState.value == BillingState.NewSubscription ||
+//            billing.billingState.value == BillingState.Subscribed
+//
+//        if (isMute && !isUserPaid) {
+//
+//            billing.launchBillingFlowUi(context)
+//            return
+//        }
+//
+//        // todo remove this block on resume subscription requirement 310125
+//        if (isFirstLaunch) {
+//            speakLastMessage()
+//            isFirstLaunch = false
+//            writeToDataStore(context, isFirstLaunchKey, isFirstLaunch.toString())
+//        }
+//
+//        setMute(context, !isMute)
+//    }
+
 }
