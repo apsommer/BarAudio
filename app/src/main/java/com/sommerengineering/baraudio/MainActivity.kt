@@ -9,6 +9,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
@@ -38,6 +39,7 @@ var areNotificationsEnabled by mutableStateOf(false)
 class MainActivity : ComponentActivity() {
 
     val context = this
+    private val viewModel: MainViewModel by viewModels()
 
     val requestNotificationPermissionLauncher =
         registerForActivityResult(
@@ -94,7 +96,8 @@ class MainActivity : ComponentActivity() {
 
         // launch app
         setContent {
-            App()
+            App(
+                viewModel = viewModel)
         }
     }
 
@@ -137,11 +140,12 @@ fun cancelAllNotifications(
             .cancelAll()
 
 @Composable
-fun App() {
+fun App(
+    viewModel: MainViewModel
+) {
 
     // inject viewmodel
     val context = LocalContext.current
-    val viewModel: MainViewModel = viewModel()
 
     // track ui mode
     viewModel.isSystemInDarkTheme = isSystemInDarkTheme()
@@ -158,8 +162,6 @@ fun App() {
     // futures webhooks
     val isFuturesWebhooksKey = readFromDataStore(context, isFuturesWebhooksKey)?.toBooleanStrictOrNull() ?: true
     viewModel.setFuturesWebhooks(context, isFuturesWebhooksKey)
-
-    viewModel.initBilling()
 
     AppTheme(viewModel.isDarkMode) {
         Scaffold(
