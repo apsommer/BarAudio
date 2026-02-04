@@ -46,7 +46,7 @@ import com.sommerengineering.baraudio.colorTransitionTimeMillis
 import com.sommerengineering.baraudio.messagesNode
 import com.sommerengineering.baraudio.recentMessageTimeMillis
 import com.sommerengineering.baraudio.settings.SettingsDrawer
-import com.sommerengineering.baraudio.network.getDatabaseReference
+import com.sommerengineering.baraudio.hilt.getDatabaseReference
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 

@@ -18,13 +18,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import com.sommerengineering.baraudio.hilt.writeToDataStore
 import com.sommerengineering.baraudio.login.LoginScreen
 import com.sommerengineering.baraudio.login.OnboardingScreen
 import com.sommerengineering.baraudio.login.checkForcedUpdate
 import com.sommerengineering.baraudio.login.onAuthentication
 import com.sommerengineering.baraudio.login.onSignOut
 import com.sommerengineering.baraudio.messages.MessagesScreen
-import com.sommerengineering.baraudio.network.token
+import com.sommerengineering.baraudio.hilt.token
 
 @Composable
 fun Navigation(

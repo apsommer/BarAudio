@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.login
+package com.sommerengineering.baraudio.hilt
 
 import android.content.Context
 import com.android.billingclient.api.AcknowledgePurchaseParams
@@ -21,15 +21,10 @@ import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.freeTrial
 import com.sommerengineering.baraudio.productId
 import com.sommerengineering.baraudio.logMessage
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 enum class BillingState {
     Loading,

@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.texttospeech
+package com.sommerengineering.baraudio.hilt
 
 import android.content.Context
 import android.speech.tts.TextToSpeech
@@ -12,7 +12,6 @@ import androidx.core.os.bundleOf
 import com.sommerengineering.baraudio.cancelAllNotifications
 import com.sommerengineering.baraudio.isQueueFlushKey
 import com.sommerengineering.baraudio.pitchKey
-import com.sommerengineering.baraudio.readFromDataStore
 import com.sommerengineering.baraudio.speedKey
 import com.sommerengineering.baraudio.voiceKey
 import com.sommerengineering.baraudio.volumeKey

@@ -23,7 +23,8 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
-import com.sommerengineering.baraudio.network.token
+import com.sommerengineering.baraudio.hilt.readFromDataStore
+import com.sommerengineering.baraudio.hilt.token
 import com.sommerengineering.baraudio.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 

@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.network
+package com.sommerengineering.baraudio.hilt
 
 import com.sommerengineering.baraudio.BuildConfig
 import com.sommerengineering.baraudio.messages.MindfulnessQuote

@@ -1,6 +1,6 @@
 package com.sommerengineering.baraudio
 
-import com.sommerengineering.baraudio.network.RapidApi
+import com.sommerengineering.baraudio.hilt.RapidApi
 import javax.inject.Inject
 
 class MainRepository @Inject constructor(
