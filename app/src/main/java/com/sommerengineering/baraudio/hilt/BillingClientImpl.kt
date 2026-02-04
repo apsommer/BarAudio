@@ -19,16 +19,11 @@ import com.android.billingclient.api.acknowledgePurchase
 import com.android.billingclient.api.queryProductDetails
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.freeTrial
-import com.sommerengineering.baraudio.isFirstLaunch
-import com.sommerengineering.baraudio.isFirstLaunchKey
-import com.sommerengineering.baraudio.productId
 import com.sommerengineering.baraudio.logMessage
-import com.sommerengineering.baraudio.volumeKey
+import com.sommerengineering.baraudio.productId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 enum class BillingState {
@@ -218,8 +213,10 @@ class BillingClientImpl(
 
         logMessage("Billing error, code $responseCode: ${errorMap[responseCode]}")
     }
+}
 
-//    // todo billing client, purchase subscription flow ui triggered by mute button
+//    // todo billing client, purchase subscription flow ui was triggered by mute button
+
 //    fun initBilling() {
 //
 //        // initialize connection to google play
@@ -242,7 +239,7 @@ class BillingClientImpl(
 //                        }
 //
 //                        BillingState.Subscribed -> {
-//                            tts.volume = readFromDataStore(context, volumeKey)?.toFloat() ?: 0f // todo revert this to "1f" on resume subscription requirement 310125
+//                            tts.volume = readFromDataStore(context, volumeKey)?.toFloat() ?: 0f
 //                            isMute = tts.volume == 0f
 //                        }
 //
@@ -258,10 +255,13 @@ class BillingClientImpl(
 //        }
 //    }
 
+
+
+
+
 //    fun toggleMute(
 //        context: Context) {
 //
-//        // todo disable subscription requirement 310125
 //        // unmute only allowed for paid user
 //        val isUserPaid =
 //            billing.billingState.value == BillingState.NewSubscription ||
@@ -273,7 +273,6 @@ class BillingClientImpl(
 //            return
 //        }
 //
-//        // todo remove this block on resume subscription requirement 310125
 //        if (isFirstLaunch) {
 //            speakLastMessage()
 //            isFirstLaunch = false
@@ -282,5 +281,3 @@ class BillingClientImpl(
 //
 //        setMute(context, !isMute)
 //    }
-
-}
