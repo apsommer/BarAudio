@@ -101,6 +101,10 @@ class MainViewModel @Inject constructor(
         queueDescription =
             if (tts.isQueueAdd) queueBehaviorAddDescription
             else queueBehaviorFlushDescription
+
+        // todo mute button ui must be faster
+        tts.volume = readFromDataStore(context, volumeKey)?.toFloat() ?: 0f
+        isMute = tts.volume == 0f
     }
 
     fun setVoice(
