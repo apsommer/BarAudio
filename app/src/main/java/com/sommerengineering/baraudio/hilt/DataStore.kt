@@ -22,7 +22,6 @@ fun readFromDataStore(
             .first()
     }
 
-
 fun writeToDataStore(
     context: Context,
     key: String,

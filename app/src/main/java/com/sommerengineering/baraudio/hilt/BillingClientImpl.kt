@@ -21,9 +21,12 @@ import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.freeTrial
 import com.sommerengineering.baraudio.productId
 import com.sommerengineering.baraudio.logMessage
+import com.sommerengineering.baraudio.volumeKey
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 enum class BillingState {
@@ -212,5 +215,48 @@ class BillingClientImpl(
             43 to "Client disconnected")
 
         logMessage("Billing error, code $responseCode: ${errorMap[responseCode]}")
+    }
+
+    // todo billing client, purchase subscription flow ui triggered by mute button
+    fun initBilling(
+        billing: BillingClientImpl,
+    ) {
+
+        // initialize connection to google play
+        billing.connect()
+
+        val context = billing.context
+
+        // listen to subscription status
+        CoroutineScope(Dispatchers.Main).launch {
+            billing.billingState
+                .onEach {
+                    when (it) {
+
+                        // show spinner
+                        BillingState.Loading -> {
+//                            shouldShowSpinner = true
+                        }
+
+                        BillingState.NewSubscription -> {
+//                            setMute(context, false)
+//                            this@MainViewModel.speakLastMessage()
+                        }
+
+                        BillingState.Subscribed -> {
+//                            tts.volume = readFromDataStore(context, volumeKey)?.toFloat() ?: 0f // todo revert this to "1f" on resume subscription requirement 310125
+//                            isMute = tts.volume == 0f
+                        }
+
+                        BillingState.Unsubscribed, BillingState.Error -> { }
+                    }
+
+                    // hide spinner
+                    if (it != BillingState.Loading) {
+//                        shouldShowSpinner = false
+                    }
+                }
+                .collect()
+        }
     }
 }

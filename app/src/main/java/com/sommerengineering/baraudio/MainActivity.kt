@@ -9,6 +9,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
@@ -37,7 +38,7 @@ var areNotificationsEnabled by mutableStateOf(false)
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    val context = this
+    private val viewModel: MainViewModel by viewModels()
 
     val requestNotificationPermissionLauncher =
         registerForActivityResult(
@@ -51,7 +52,7 @@ class MainActivity : ComponentActivity() {
             if (result.resultCode != RESULT_OK) {
                 logMessage("Update flow failed with code: ${result.resultCode}")
             }
-            // if update is required/immediate (not flexible) play updates and restarts app
+            // system update and restart when update is required/immediate
         }
 
     // controller to toggle fullscreen
@@ -86,22 +87,22 @@ class MainActivity : ComponentActivity() {
 
         installSplashScreen()
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
 
         init()
-        
-        // push layout boundary to full screen
-        enableEdgeToEdge()
 
         // launch app
         setContent {
-            App()
+            App(
+                viewModel = viewModel
+            )
         }
     }
 
     fun areNotificationsEnabled() : Boolean {
 
         // get notification channel
-        val manager = context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         val channel = manager.getNotificationChannel(channelId)
 
         return manager.areNotificationsEnabled()
@@ -113,13 +114,13 @@ class MainActivity : ComponentActivity() {
         isAppOpen = true
 
         // load key:values from preferences
-        token = readFromDataStore(context, tokenKey) ?: unauthenticatedToken
-        isFirstLaunch = readFromDataStore(context, isFirstLaunchKey)?.toBooleanStrictOrNull() ?: true // todo remove this var on resume subscription requirement 310125
-        isOnboardingComplete = readFromDataStore(context, onboardingKey).toBoolean()
+        token = readFromDataStore(this, tokenKey) ?: unauthenticatedToken
+        isFirstLaunch = readFromDataStore(this, isFirstLaunchKey)?.toBooleanStrictOrNull() ?: true // todo remove this var on resume subscription requirement 310125
+        isOnboardingComplete = readFromDataStore(this, onboardingKey).toBoolean()
 
         // dismiss all notifications on launch
         val isLaunchFromNotification = intent.extras?.getBoolean(isLaunchFromNotification) ?: false
-        if (isLaunchFromNotification) { cancelAllNotifications(context) }
+        if (isLaunchFromNotification) { cancelAllNotifications(this) }
 
         // enable layout resizing into system designated screen space
         // can not get behind front camera "notch" of pixel 6a, other apps also can't!
@@ -137,11 +138,11 @@ fun cancelAllNotifications(
             .cancelAll()
 
 @Composable
-fun App() {
+fun App(
+    viewModel: MainViewModel
+) {
 
-    // inject viewmodel
     val context = LocalContext.current
-    val viewModel: MainViewModel = viewModel()
 
     // track ui mode
     viewModel.isSystemInDarkTheme = isSystemInDarkTheme()
@@ -158,8 +159,6 @@ fun App() {
     // futures webhooks
     val isFuturesWebhooksKey = readFromDataStore(context, isFuturesWebhooksKey)?.toBooleanStrictOrNull() ?: true
     viewModel.setFuturesWebhooks(context, isFuturesWebhooksKey)
-
-    viewModel.initBilling()
 
     AppTheme(viewModel.isDarkMode) {
         Scaffold(

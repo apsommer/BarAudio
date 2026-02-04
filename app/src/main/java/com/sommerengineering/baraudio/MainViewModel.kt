@@ -44,7 +44,6 @@ import kotlin.math.roundToInt
 class MainViewModel @Inject constructor(
     val repository: MainRepository,
     val tts: TextToSpeechImpl,
-    val billing: BillingClientImpl,
     val credentialManager: CredentialManager
 ) : ViewModel() {
 
@@ -53,8 +52,6 @@ class MainViewModel @Inject constructor(
     val mindfulnessQuoteState = _mindfulnessQuoteState.asStateFlow()
 
     fun getMindfulnessQuote() {
-
-        // network call for mindfulness quote
         viewModelScope.launch(Dispatchers.IO) {
             _mindfulnessQuoteState.value = MindfulnessQuoteState.Loading
             try { _mindfulnessQuoteState.value = MindfulnessQuoteState.Success(repository.getMindfulnessQuote()) }
@@ -80,7 +77,6 @@ class MainViewModel @Inject constructor(
     var pitchDescription by mutableStateOf("")
     var queueDescription by mutableStateOf("")
 
-
     private fun initTtsSettings() {
 
         voices.addAll(
@@ -103,9 +99,6 @@ class MainViewModel @Inject constructor(
         queueDescription =
             if (tts.isQueueAdd) queueBehaviorAddDescription
             else queueBehaviorFlushDescription
-
-        // todo remove this line on resume subscription requirement 310125
-        billing.billingState.value = BillingState.Subscribed
     }
 
     fun setVoice(
@@ -335,46 +328,7 @@ class MainViewModel @Inject constructor(
         writeWhitelistToDatabase(isFuturesWebhooks)
     }
 
-    // todo billing client, purchase subscription flow ui triggered by mute button
-    fun initBilling() {
 
-        // initialize connection to google play
-        billing.connect()
-
-        val context = billing.context
-
-        // listen to subscription status
-        CoroutineScope(Dispatchers.Main).launch {
-            billing.billingState
-                .onEach {
-                    when (it) {
-
-                        // show spinner
-                        BillingState.Loading -> {
-                            shouldShowSpinner = true
-                        }
-
-                        BillingState.NewSubscription -> {
-                            setMute(context, false)
-                            this@MainViewModel.speakLastMessage()
-                        }
-
-                        BillingState.Subscribed -> {
-                            tts.volume = readFromDataStore(context, volumeKey)?.toFloat() ?: 0f // todo revert this to "1f" on resume subscription requirement 310125
-                            isMute = tts.volume == 0f
-                        }
-
-                        BillingState.Unsubscribed, BillingState.Error -> { }
-                    }
-
-                    // hide spinner
-                    if (it != BillingState.Loading) {
-                        shouldShowSpinner = false
-                    }
-                }
-                .collect()
-        }
-    }
 
     // mute
     var shouldShowSpinner by mutableStateOf(false)
