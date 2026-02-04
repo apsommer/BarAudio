@@ -179,7 +179,7 @@ fun SettingsDrawer(
 
                     Switch(
                         checked = viewModel.isFuturesWebhooks,
-                        onCheckedChange = { viewModel.setFuturesWebhooks(context, it)})
+                        onCheckedChange = { viewModel.setFuturesWebhooks(it)})
                 }
             }
 
@@ -257,7 +257,7 @@ fun SettingsDrawer(
 
                     Switch(
                         checked = viewModel.showQuote,
-                        onCheckedChange = { viewModel.showQuote(context, it)})
+                        onCheckedChange = { viewModel.showQuote(it)})
                 }
             }
 

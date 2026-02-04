@@ -140,23 +140,13 @@ fun App(
     viewModel: MainViewModel
 ) {
 
-    val context = LocalContext.current
-
-    // track ui mode
+    // track ui mode todo simplify
     viewModel.isSystemInDarkTheme = isSystemInDarkTheme()
     viewModel.setUiMode()
 
-    // toggle fullscreen
-    val isFullScreen = readFromDataStore(context, isFullScreenKey)?.toBoolean() == true
-    viewModel.setFullScreen(context, isFullScreen)
-
-    // toggle show quote
-    val showQuote = readFromDataStore(context, showQuoteKey)?.toBooleanStrictOrNull() ?: true
-    viewModel.showQuote(context, showQuote)
-
-    // futures webhooks
-    val isFuturesWebhooksKey = readFromDataStore(context, isFuturesWebhooksKey)?.toBooleanStrictOrNull() ?: true
-    viewModel.setFuturesWebhooks(context, isFuturesWebhooksKey)
+    // toggle fullscreen todo simplify
+    val isFullScreen = readFromDataStore(LocalContext.current, isFullScreenKey)?.toBoolean() == true
+    viewModel.setFullScreen(LocalContext.current, isFullScreen)
 
     AppTheme(viewModel.isDarkMode) {
         Scaffold(

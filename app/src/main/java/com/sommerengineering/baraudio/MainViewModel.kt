@@ -19,8 +19,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
-import com.sommerengineering.baraudio.hilt.BillingClientImpl
-import com.sommerengineering.baraudio.hilt.BillingState
 import com.sommerengineering.baraudio.messages.Message
 import com.sommerengineering.baraudio.messages.MindfulnessQuoteState
 import com.sommerengineering.baraudio.messages.tradingviewWhitelistIps
@@ -31,7 +29,6 @@ import com.sommerengineering.baraudio.hilt.readFromDataStore
 import com.sommerengineering.baraudio.hilt.writeToDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -49,25 +46,40 @@ class MainViewModel @Inject constructor(
     @ApplicationContext val context: Context
 ) : ViewModel() {
 
-    // mindfulness quote
     private var _mindfulnessQuoteState: MutableStateFlow<MindfulnessQuoteState> = MutableStateFlow(MindfulnessQuoteState.Idle)
     val mindfulnessQuoteState = _mindfulnessQuoteState.asStateFlow()
 
-    fun getMindfulnessQuote() {
-        viewModelScope.launch(Dispatchers.IO) {
-            _mindfulnessQuoteState.value = MindfulnessQuoteState.Loading
-            try { _mindfulnessQuoteState.value = MindfulnessQuoteState.Success(repository.getMindfulnessQuote()) }
-            catch (e: Exception) { _mindfulnessQuoteState.value = MindfulnessQuoteState.Error(e.message) }
-        }
-    }
+    private var _showQuote by mutableStateOf(true)
+    val showQuote get() = _showQuote
+
+    private var _isFuturesWebhooks by mutableStateOf(true)
+    val isFuturesWebhooks get() = _isFuturesWebhooks
 
     init {
+
+        getMindfulnessQuote()
+
+        // toggle show quote
+        val showQuote = readFromDataStore(context, showQuoteKey)?.toBooleanStrictOrNull() ?: true
+        showQuote(showQuote)
+
+        // futures webhooks
+        val isFuturesWebhooksKey = readFromDataStore(context, isFuturesWebhooksKey)?.toBooleanStrictOrNull() ?: true
+        setFuturesWebhooks(isFuturesWebhooksKey)
 
         // init tts engine, takes a few seconds ...
         viewModelScope.launch(Dispatchers.Main) {
             tts.isInit
                 .onEach { if (it) initTtsSettings() }
                 .collect()
+        }
+    }
+
+    fun getMindfulnessQuote() {
+        viewModelScope.launch(Dispatchers.IO) {
+            _mindfulnessQuoteState.value = MindfulnessQuoteState.Loading
+            try { _mindfulnessQuoteState.value = MindfulnessQuoteState.Success(repository.getMindfulnessQuote()) }
+            catch (e: Exception) { _mindfulnessQuoteState.value = MindfulnessQuoteState.Error(e.message) }
         }
     }
 
@@ -312,28 +324,23 @@ class MainViewModel @Inject constructor(
     }
 
     // quote
-    var showQuote by mutableStateOf(true)
 
     fun showQuote(
-        context: Context,
         isChecked: Boolean) {
 
-        showQuote = isChecked
+        _showQuote = isChecked
         writeToDataStore(context, showQuoteKey, isChecked.toString())
     }
 
     // futures
-    var isFuturesWebhooks by mutableStateOf(true)
+
     fun setFuturesWebhooks(
-        context: Context,
         isChecked: Boolean) {
 
-        isFuturesWebhooks = isChecked
+        _isFuturesWebhooks = isChecked
         writeToDataStore(context, isFuturesWebhooksKey, isChecked.toString())
-        writeWhitelistToDatabase(isFuturesWebhooks)
+        writeWhitelistToDatabase(_isFuturesWebhooks)
     }
-
-
 
     // mute
     var shouldShowSpinner by mutableStateOf(false)
