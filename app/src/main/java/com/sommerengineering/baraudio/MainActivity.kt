@@ -31,7 +31,6 @@ import dagger.hilt.android.AndroidEntryPoint
 
 var isAppOpen = false
 var isUpdateRequired = false
-var isFirstLaunch = true // todo remove this var on resume subscription requirement 310125
 var isOnboardingComplete = false
 var areNotificationsEnabled by mutableStateOf(false)
 
@@ -115,7 +114,6 @@ class MainActivity : ComponentActivity() {
 
         // load key:values from preferences
         token = readFromDataStore(this, tokenKey) ?: unauthenticatedToken
-        isFirstLaunch = readFromDataStore(this, isFirstLaunchKey)?.toBooleanStrictOrNull() ?: true // todo remove this var on resume subscription requirement 310125
         isOnboardingComplete = readFromDataStore(this, onboardingKey).toBoolean()
 
         // dismiss all notifications on launch

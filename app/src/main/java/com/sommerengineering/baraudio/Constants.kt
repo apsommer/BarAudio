@@ -54,12 +54,10 @@ const val LoginScreenRoute = "LoginScreen"
 const val OnboardingTextToSpeechScreenRoute = "OnboardingTextToSpeechScreen"
 const val OnboardingNotificationsScreenRoute = "OnboardingNotificationsScreen"
 const val OnboardingWebhookScreenRoute = "OnboardingWebhookScreen"
-const val OnboardingCompleteRoute = "complete"
 const val MessagesScreenRoute = "MessagesScreen"
 
 // datastore
 const val localCache = "localCache"
-const val isFirstLaunchKey = "isFirstLaunch"
 const val onboardingKey = "onboarding"
 const val tokenKey = "token"
 const val voiceKey = "voice"
