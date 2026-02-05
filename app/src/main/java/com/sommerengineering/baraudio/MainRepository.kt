@@ -5,6 +5,7 @@ import android.speech.tts.Voice
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.sommerengineering.baraudio.hilt.RapidApi
 import com.sommerengineering.baraudio.hilt.TextToSpeechImpl
 import com.sommerengineering.baraudio.hilt.readFromDataStore
@@ -16,10 +17,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.collections.emptyList
 import kotlin.math.roundToInt
 
 class MainRepository @Inject constructor(
@@ -31,8 +36,8 @@ class MainRepository @Inject constructor(
     private val _voices = MutableStateFlow<List<Voice>>(emptyList())
     val voices = _voices.asStateFlow()
 
-    private val _messages = MutableStateFlow<List<Message>>(emptyList())
-    val messages = _messages.asStateFlow()
+    private val _messages = SnapshotStateList<Message>()
+    val messages = _messages
 
     private var _voiceDescription by mutableStateOf("")
     val voiceDescription get() = _voiceDescription
@@ -51,17 +56,13 @@ class MainRepository @Inject constructor(
 
     private val beautifulVoiceNames = hashMapOf<String, String>()
 
-    init {
+    fun observeTtsInit(onInit: () -> Unit) =
+        tts.isInit
+            .filter { it }
+            .distinctUntilChanged()
+            .onEach { onInit() }
 
-        // detect initialization of tts engine, takes a few seconds
-        CoroutineScope(Dispatchers.Main).launch {
-            tts.isInit
-                .onEach { if (it) initTtsSettings() }
-                .collect()
-        }
-    }
-
-    private fun initTtsSettings() {
+    fun initTtsSettings() {
 
         // get voices from engine
         val voices = tts.getVoices().sortedBy { it.locale.displayName }
@@ -123,7 +124,13 @@ class MainRepository @Inject constructor(
 
     fun beautifyVoiceName(name: String) = beautifulVoiceNames[name] ?: ""
 
-    fun getVoiceIndex() = _voices.indexOf(_voices.find { it == tts.voice.value })
+    fun getVoiceIndex() : Int {
+        val voices = _voices.value
+        return voices.indexOf(
+            voices.find {
+                it == tts.voice.value
+            })
+    }
 
     fun setVoice(
         voice: Voice) {
@@ -136,9 +143,11 @@ class MainRepository @Inject constructor(
 
     fun speakLastMessage() {
 
+        val messages = _messages
+
         val lastMessage =
-            if (_messages.isEmpty()) defaultMessage
-            else _messages.last().message
+            if (messages.isEmpty()) defaultMessage
+            else messages.last().message
 
         tts.speak(
             timestamp = "",
@@ -159,19 +168,13 @@ class MainRepository @Inject constructor(
         if (_isMute && tts.isSpeaking()) { tts.stop() }
 
         writeToDataStore(context, volumeKey, tts.volume.toString())
-
     }
-
-
-
 
     fun getSpeed() = tts.speed
     fun setSpeed(
         rawSpeed: Float) {
 
-        // round to nearest tenth
         val selectedSpeed = ((rawSpeed * 10).roundToInt()).toFloat() / 10
-
         tts.speed = selectedSpeed
         writeToDataStore(context, speedKey, selectedSpeed.toString())
         _speedDescription = selectedSpeed.toString()
@@ -181,9 +184,7 @@ class MainRepository @Inject constructor(
     fun setPitch(
         rawPitch: Float) {
 
-        // round to nearest tenth
         val selectedPitch = ((rawPitch * 10).roundToInt()).toFloat() / 10
-
         tts.pitch = selectedPitch
         writeToDataStore(context, pitchKey, selectedPitch.toString())
         _pitchDescription = selectedPitch.toString()

@@ -17,6 +17,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.credentials.CredentialManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.sommerengineering.baraudio.messages.MindfulnessQuoteState
@@ -31,6 +32,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -53,7 +55,19 @@ class MainViewModel @Inject constructor(
 
     init {
 
-        getMindfulnessQuote()
+        // observe initialization of tts engine, takes a few seconds
+        viewModelScope.launch(Dispatchers.Main) {
+            repo.observeTtsInit {
+                repo.initTtsSettings()
+            }.collect()
+        }
+
+        // request mindfulness quote from network
+        viewModelScope.launch(Dispatchers.IO) {
+            _mindfulnessQuoteState.value = MindfulnessQuoteState.Loading
+            try { _mindfulnessQuoteState.value = MindfulnessQuoteState.Success(repo.getMindfulnessQuote()) }
+            catch (e: Exception) { _mindfulnessQuoteState.value = MindfulnessQuoteState.Error(e.message) }
+        }
 
         // mindfulness quote
         val showQuote = readFromDataStore(context, showQuoteKey)?.toBooleanStrictOrNull() ?: true
@@ -62,65 +76,29 @@ class MainViewModel @Inject constructor(
         // futures webhooks
         val isFuturesWebhooksKey = readFromDataStore(context, isFuturesWebhooksKey)?.toBooleanStrictOrNull() ?: true
         setFuturesWebhooks(isFuturesWebhooksKey)
-
     }
-
-    fun getMindfulnessQuote() {
-        viewModelScope.launch(Dispatchers.IO) {
-            _mindfulnessQuoteState.value = MindfulnessQuoteState.Loading
-            try { _mindfulnessQuoteState.value = MindfulnessQuoteState.Success(repo.getMindfulnessQuote()) }
-            catch (e: Exception) { _mindfulnessQuoteState.value = MindfulnessQuoteState.Error(e.message) }
-        }
-    }
-
-
-
 
     val voices = repo.voices
     val messages = repo.messages
     var voiceDescription = repo.voiceDescription
     var speedDescription = repo.speedDescription
     var pitchDescription = repo.pitchDescription
-    var queueDescription =repo.queueDescription
+    var queueDescription = repo.queueDescription
+    var isMute = repo.isMute
 
-
-
-
-    fun setVoice(
-        voice: Voice) {
-
-        repo.setVoice(voice)
-        voiceDescription = repo.voiceDescription
-    }
-
+    fun setVoice(voice: Voice) = repo.setVoice(voice)
     fun beautifyVoiceName(name: String) = repo.beautifyVoiceName(name)
     fun getVoiceIndex() = repo.getVoiceIndex()
 
     fun getSpeed() = repo.getSpeed()
-    fun setSpeed(
-        rawSpeed: Float) {
-
-        repo.setSpeed(rawSpeed)
-        speedDescription = repo.speedDescription
-    }
+    fun setSpeed(rawSpeed: Float) { repo.setSpeed(rawSpeed) }
 
     fun getPitch() = repo.getPitch()
-    fun setPitch(
-        rawPitch: Float) {
-
-        repo.setPitch(rawPitch)
-        pitchDescription = repo.pitchDescription
-    }
+    fun setPitch(rawPitch: Float) = repo.setPitch(rawPitch)
 
     fun isQueueAdd() = repo.isQueueAdd()
-    fun setIsQueueAdd(
-        isChecked: Boolean) {
+    fun setIsQueueAdd(isChecked: Boolean) = repo.setIsQueueAdd(isChecked)
 
-        repo.setIsQueueAdd(isChecked)
-        queueDescription = repo.queueDescription
-    }
-
-    var isMute = repo.isMute
     fun toggleMute() = repo.toggleMute()
     fun speakLastMessage() = repo.speakLastMessage()
 

@@ -54,8 +54,7 @@ fun onAuthentication(
 fun onSignOut(
     credentialManager: CredentialManager,
     controller: NavHostController,
-    viewModel: MainViewModel,
-    context: Context) {
+    viewModel: MainViewModel) {
 
     // user already signed-out
     if (Firebase.auth.currentUser == null) { return }
@@ -68,7 +67,8 @@ fun onSignOut(
             ClearCredentialStateRequest())
     }
 
-    viewModel.messages.clear()
+    // todo why clear messages?
+//    viewModel.messages.clear()
 
     // reset dark mode to system default
     viewModel.setUiMode()
@@ -119,8 +119,7 @@ fun checkForcedUpdate(
             onSignOut(
                 credentialManager = credentialManager,
                 controller = controller,
-                viewModel = viewModel,
-                context = context)
+                viewModel = viewModel)
 
             // launch system update flow ui
             onForcedUpdate(

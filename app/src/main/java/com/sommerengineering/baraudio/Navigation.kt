@@ -160,8 +160,7 @@ fun Navigation(
                     onSignOut(
                         credentialManager = viewModel.credentialManager,
                         controller = controller,
-                        viewModel = viewModel,
-                        context = context)
+                        viewModel = viewModel)
                 })
         }
     }

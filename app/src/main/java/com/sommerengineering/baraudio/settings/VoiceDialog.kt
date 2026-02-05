@@ -14,6 +14,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,6 +34,7 @@ fun VoiceDialog(
 
     val listState = rememberLazyListState()
     val coroutine = rememberCoroutineScope()
+    val voices by viewModel.voices.collectAsState()
 
     Dialog (
         onDismissRequest = { onDismiss() }) {
@@ -59,10 +62,10 @@ fun VoiceDialog(
                 LazyColumn(
                     state = listState) {
 
-                    items(viewModel.voices) {
+                    items(voices) {
                         VoiceItem(
                             viewModel = viewModel,
-                            voice = it as Voice,
+                            voice = it,
                             onItemSelected = onItemSelected
                         )
                     }

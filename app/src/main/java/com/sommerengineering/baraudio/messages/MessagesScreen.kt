@@ -57,7 +57,7 @@ fun MessagesScreen(
     onSignOut: () -> Unit) {
 
     val context = LocalContext.current
-    val messages = remember { viewModel.messages }
+    val messages = viewModel.messages
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val listState = rememberLazyListState()
     val coroutine = rememberCoroutineScope()
