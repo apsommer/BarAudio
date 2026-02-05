@@ -62,7 +62,7 @@ fun VoiceDialog(
                     items(viewModel.voices) {
                         VoiceItem(
                             viewModel = viewModel,
-                            voice = it,
+                            voice = it as Voice,
                             onItemSelected = onItemSelected
                         )
                     }

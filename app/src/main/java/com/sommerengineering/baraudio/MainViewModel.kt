@@ -19,7 +19,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
-import com.sommerengineering.baraudio.messages.Message
 import com.sommerengineering.baraudio.messages.MindfulnessQuoteState
 import com.sommerengineering.baraudio.messages.tradingviewWhitelistIps
 import com.sommerengineering.baraudio.messages.trendspiderWhitelistIp
@@ -32,15 +31,12 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.math.roundToInt
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    val repository: MainRepository,
+    val repo: MainRepository,
     val tts: TextToSpeechImpl,
     val credentialManager: CredentialManager,
     @ApplicationContext val context: Context
@@ -59,7 +55,7 @@ class MainViewModel @Inject constructor(
 
         getMindfulnessQuote()
 
-        // toggle show quote
+        // mindfulness quote
         val showQuote = readFromDataStore(context, showQuoteKey)?.toBooleanStrictOrNull() ?: true
         showQuote(showQuote)
 
@@ -67,172 +63,76 @@ class MainViewModel @Inject constructor(
         val isFuturesWebhooksKey = readFromDataStore(context, isFuturesWebhooksKey)?.toBooleanStrictOrNull() ?: true
         setFuturesWebhooks(isFuturesWebhooksKey)
 
-        // init tts engine, takes a few seconds ...
-        viewModelScope.launch(Dispatchers.Main) {
-            tts.isInit
-                .onEach { if (it) initTtsSettings() }
-                .collect()
-        }
     }
 
     fun getMindfulnessQuote() {
         viewModelScope.launch(Dispatchers.IO) {
             _mindfulnessQuoteState.value = MindfulnessQuoteState.Loading
-            try { _mindfulnessQuoteState.value = MindfulnessQuoteState.Success(repository.getMindfulnessQuote()) }
+            try { _mindfulnessQuoteState.value = MindfulnessQuoteState.Success(repo.getMindfulnessQuote()) }
             catch (e: Exception) { _mindfulnessQuoteState.value = MindfulnessQuoteState.Error(e.message) }
         }
     }
 
-    // voice
-    val voices = mutableListOf<Voice>()
-    var voiceDescription by mutableStateOf("")
-    private val beautifulVoiceNames = hashMapOf<String, String>()
-    var speedDescription by mutableStateOf("")
-    var pitchDescription by mutableStateOf("")
-    var queueDescription by mutableStateOf("")
 
-    private fun initTtsSettings() {
 
-        voices.addAll(
-            tts.getVoices()
-                .toList()
-                .sortedBy { it.locale.displayName })
 
-        initBeautifulVoiceNames()
+    val voices = repo.voices
+    val messages = repo.messages
+    var voiceDescription = repo.voiceDescription
+    var speedDescription = repo.speedDescription
+    var pitchDescription = repo.pitchDescription
+    var queueDescription =repo.queueDescription
 
-        voiceDescription =
-            beautifyVoiceName(
-                tts.voice.value.name)
 
-        speedDescription =
-            tts.speed.toString()
 
-        pitchDescription =
-            tts.pitch.toString()
-
-        queueDescription =
-            if (tts.isQueueAdd) queueBehaviorAddDescription
-            else queueBehaviorFlushDescription
-
-        // todo mute button ui must be faster
-        tts.volume = readFromDataStore(context, volumeKey)?.toFloat() ?: 0f
-        isMute = tts.volume == 0f
-    }
 
     fun setVoice(
-        context: Context,
         voice: Voice) {
 
-        tts.voice.value = voice
-        writeToDataStore(context, voiceKey, voice.name)
-        voiceDescription = beautifyVoiceName(voice.name)
-        speakLastMessage()
+        repo.setVoice(voice)
+        voiceDescription = repo.voiceDescription
     }
 
-    private fun initBeautifulVoiceNames() {
+    fun beautifyVoiceName(name: String) = repo.beautifyVoiceName(name)
+    fun getVoiceIndex() = repo.getVoiceIndex()
 
-        // group voices by combined language/country
-        val groupedVoices = voices
-            .groupBy {
-                it.locale.displayName
-            }
-
-        // add roman numeral to display name
-        groupedVoices.keys
-            .forEach { languageCountryGroup ->
-
-                val voices =
-                    groupedVoices[languageCountryGroup]
-                        ?: return@forEach
-
-                voices
-                    .forEachIndexed { i, voice ->
-                        beautifulVoiceNames[voice.name] = enumerateVoices(voice, i)
-                    }
-            }
-    }
-
-    fun beautifyVoiceName(name: String) = beautifulVoiceNames[name] ?: ""
-
-    private fun enumerateVoices(
-        voice: Voice,
-        number: Int): String {
-
-        val displayName = voice.locale.displayName
-        var romanNumeral = "I"
-
-        if (number == 1) romanNumeral = "II"
-        if (number == 2) romanNumeral = "III"
-        if (number == 3) romanNumeral = "IV"
-        if (number == 4) romanNumeral = "V"
-        if (number == 5) romanNumeral = "VI"
-        if (number == 6) romanNumeral = "VII"
-        if (number == 7) romanNumeral = "VIII"
-        if (number == 8) romanNumeral = "IX"
-        if (number == 9) romanNumeral = "X"
-        if (number == 10) romanNumeral = "XI"
-        if (number == 11) romanNumeral = "XII"
-        if (number == 12) romanNumeral = "XIII"
-        if (number == 13) romanNumeral = "XIV"
-        if (number == 14) romanNumeral = "XV"
-        if (number == 15) romanNumeral = "XVI"
-        if (number == 16) romanNumeral = "XVII"
-        if (number == 17) romanNumeral = "XVIII"
-        if (number == 18) romanNumeral = "XIX"
-        if (number == 19) romanNumeral = "XX"
-
-        return "$displayName • Voice $romanNumeral"
-    }
-
-    fun getVoiceIndex() =
-        voices.indexOf(
-            voices.find {
-                it == tts.voice.value })
-
-    fun getSpeed() =
-        tts.speed
-    
+    fun getSpeed() = repo.getSpeed()
     fun setSpeed(
-        context: Context,
         rawSpeed: Float) {
 
-        // round to nearest tenth
-        val selectedSpeed = ((rawSpeed * 10).roundToInt()).toFloat() / 10
-
-        tts.speed = selectedSpeed
-        writeToDataStore(context, speedKey, selectedSpeed.toString())
-        speedDescription = selectedSpeed.toString()
+        repo.setSpeed(rawSpeed)
+        speedDescription = repo.speedDescription
     }
 
-    fun getPitch() =
-        tts.pitch
-    
+    fun getPitch() = repo.getPitch()
     fun setPitch(
-        context: Context,
         rawPitch: Float) {
 
-        // round to nearest tenth
-        val selectedPitch = ((rawPitch * 10).roundToInt()).toFloat() / 10
-
-        tts.pitch = selectedPitch
-        writeToDataStore(context, pitchKey, selectedPitch.toString())
-        pitchDescription = selectedPitch.toString()
+        repo.setPitch(rawPitch)
+        pitchDescription = repo.pitchDescription
     }
 
-    fun isQueueAdd() =
-        tts.isQueueAdd
-    
+    fun isQueueAdd() = repo.isQueueAdd()
     fun setIsQueueAdd(
-        context: Context,
         isChecked: Boolean) {
 
-        tts.isQueueAdd = isChecked
-        writeToDataStore(context, isQueueFlushKey, isChecked.toString())
-
-        queueDescription =
-            if (tts.isQueueAdd) queueBehaviorAddDescription
-            else queueBehaviorFlushDescription
+        repo.setIsQueueAdd(isChecked)
+        queueDescription = repo.queueDescription
     }
+
+    var isMute = repo.isMute
+    fun toggleMute() = repo.toggleMute()
+    fun speakLastMessage() = repo.speakLastMessage()
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -324,7 +224,6 @@ class MainViewModel @Inject constructor(
     }
 
     // quote
-
     fun showQuote(
         isChecked: Boolean) {
 
@@ -333,50 +232,12 @@ class MainViewModel @Inject constructor(
     }
 
     // futures
-
     fun setFuturesWebhooks(
         isChecked: Boolean) {
 
         _isFuturesWebhooks = isChecked
         writeToDataStore(context, isFuturesWebhooksKey, isChecked.toString())
         writeWhitelistToDatabase(_isFuturesWebhooks)
-    }
-
-    // mute
-    var shouldShowSpinner by mutableStateOf(false)
-    var isMute by mutableStateOf(false) // default unmuted
-
-    fun toggleMute(
-        context: Context) {
-
-        setMute(context, !isMute)
-    }
-
-    private fun setMute(
-        context: Context,
-        newMute: Boolean) {
-
-        isMute = newMute
-
-        if (isMute) { tts.volume = 0f }
-        else { tts.volume = 1f }
-
-        if (isMute && tts.isSpeaking()) { tts.stop() }
-
-        writeToDataStore(context, volumeKey, tts.volume.toString())
-    }
-
-    val messages = mutableStateListOf<Message>()
-    fun speakLastMessage() {
-
-        val lastMessage =
-            if (messages.isEmpty()) defaultMessage
-            else messages.last().message
-
-        tts.speak(
-            timestamp = "",
-            message = lastMessage,
-            isForceVolume = true)
     }
 
     // images //////////////////////////////////////////////////////////////////////////////////////

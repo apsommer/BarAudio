@@ -100,7 +100,7 @@ fun SettingsDrawer(
                             VoiceDialog(
                                 viewModel = viewModel,
                                 onItemSelected = {
-                                    viewModel.setVoice(context, it)
+                                    viewModel.setVoice(it)
                                     isShowVoiceDialog = false
                                 },
                                 onDismiss = {
@@ -119,7 +119,7 @@ fun SettingsDrawer(
 
                         SliderImpl(
                             initPosition = viewModel.getSpeed(),
-                            onValueChanged = { viewModel.setSpeed(context, it) },
+                            onValueChanged = { viewModel.setSpeed(it) },
                             onValueChangeFinished = { viewModel.speakLastMessage() })
                     }
             }
@@ -133,7 +133,7 @@ fun SettingsDrawer(
 
                         SliderImpl(
                             initPosition = viewModel.getPitch(),
-                            onValueChanged = { viewModel.setPitch(context, it) },
+                            onValueChanged = { viewModel.setPitch(it) },
                             onValueChangeFinished = { viewModel.speakLastMessage() })
                         }
             }
@@ -147,7 +147,7 @@ fun SettingsDrawer(
 
                         Switch(
                             checked = viewModel.isQueueAdd(),
-                            onCheckedChange = { viewModel.setIsQueueAdd(context, it) })
+                            onCheckedChange = { viewModel.setIsQueueAdd(it) })
                     }
             }
 
