@@ -7,17 +7,23 @@ import android.content.Context.CLIPBOARD_SERVICE
 import android.speech.tts.Voice
 import android.widget.Toast
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.datastore.dataStore
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
 import com.sommerengineering.baraudio.hilt.RapidApi
 import com.sommerengineering.baraudio.hilt.TextToSpeechImpl
+import com.sommerengineering.baraudio.hilt.dataStore
 import com.sommerengineering.baraudio.hilt.readFromDataStore
 import com.sommerengineering.baraudio.hilt.writeToDataStore
 import com.sommerengineering.baraudio.hilt.writeWhitelistToDatabase
 import com.sommerengineering.baraudio.messages.Message
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
@@ -56,8 +62,16 @@ class MainRepository @Inject constructor(
     private val _isShowQuote = MutableStateFlow(false)
     val isShowQuote = _isShowQuote.asStateFlow()
 
-    private val _isFullScreen = MutableStateFlow(false)
-    val isFullScreen = _isFullScreen.asStateFlow()
+    val isFullScreen: Flow<Boolean> =
+        context.dataStore.data.map {
+            it[booleanPreferencesKey(isFullScreenKey)] ?: false
+        }
+
+    suspend fun setFullScreen(enabled: Boolean) {
+        context.dataStore.edit {
+            it[booleanPreferencesKey(isFullScreenKey)] = enabled
+        }
+    }
 
     private val _isDarkMode = MutableStateFlow(false)
     val isDarkMode = _isDarkMode.asStateFlow()

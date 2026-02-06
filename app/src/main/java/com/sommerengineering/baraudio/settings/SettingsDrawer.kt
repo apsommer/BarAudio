@@ -69,6 +69,8 @@ fun SettingsDrawer(
     val queueDescription by viewModel.queueDescription.collectAsState()
     val isShowQuote by viewModel.isShowQuote.collectAsState()
     val isFuturesWebhooks by viewModel.isFuturesWebhooks.collectAsState()
+    val isFullScreen by viewModel.isFullScreen.collectAsState()
+    val fullScreenDescription by viewModel.fullScreenDescription.collectAsState()
 
     Scaffold { padding ->
 
@@ -224,10 +226,10 @@ fun SettingsDrawer(
                 SwitchSettingItem(
                     icon = R.drawable.fullscreen,
                     title = screenTitle,
-                    description = viewModel.fullScreenDescription) {
+                    description = fullScreenDescription) {
 
                     Switch(
-                        checked = viewModel.isFullScreen,
+                        checked = isFullScreen,
                         onCheckedChange = { viewModel.setIsFullScreen(it) })
                 }
             }

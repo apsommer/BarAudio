@@ -20,8 +20,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -47,12 +50,15 @@ class MainViewModel @Inject constructor(
     val mindfulnessQuoteState = _mindfulnessQuoteState.asStateFlow()
 
     // fullscreen
-    var isFullScreen by mutableStateOf(
-        readFromDataStore(context, isFullScreenKey)?.toBoolean() == true)
+    val isFullScreen = repo.isFullScreen
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
-    var fullScreenDescription by mutableStateOf(
-        if (isFullScreen) screenFullDescription
-        else screenWindowedDescription)
+    var fullScreenDescription = isFullScreen
+        .map { if (it) screenFullDescription else screenWindowedDescription }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, screenWindowedDescription)
+
+    fun setIsFullScreen(enabled: Boolean) =
+        viewModelScope.launch { repo.setFullScreen(enabled) }
 
     init {
 
@@ -112,16 +118,7 @@ class MainViewModel @Inject constructor(
             else uiModeLightDescription
     }
 
-    fun setIsFullScreen(
-        isChecked: Boolean) {
 
-        isFullScreen = isChecked
-        writeToDataStore(context, isFullScreenKey, isChecked.toString())
-
-        fullScreenDescription =
-            if (isFullScreen) screenFullDescription
-            else screenWindowedDescription
-    }
 
 
 
