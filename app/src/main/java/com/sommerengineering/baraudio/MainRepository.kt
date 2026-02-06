@@ -2,9 +2,6 @@ package com.sommerengineering.baraudio
 
 import android.content.Context
 import android.speech.tts.Voice
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.sommerengineering.baraudio.hilt.RapidApi
 import com.sommerengineering.baraudio.hilt.TextToSpeechImpl
@@ -19,8 +16,6 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
-import kotlin.collections.forEachIndexed
-import kotlin.collections.groupBy
 import kotlin.math.roundToInt
 
 class MainRepository @Inject constructor(
@@ -52,6 +47,13 @@ class MainRepository @Inject constructor(
 
     private val beautifulVoiceNames = hashMapOf<String, String>()
 
+    // load local cache from data store
+    init {
+
+        _isMute.value = readFromDataStore(context, volumeKey)?.toFloat() == 0f
+
+    }
+
     fun observeTtsInit(onInit: () -> Unit) =
         tts.isInit
             .filter { it }
@@ -75,9 +77,8 @@ class MainRepository @Inject constructor(
             else queueBehaviorFlushDescription
         }
 
-        // todo mute button ui must be faster
-        tts.volume = readFromDataStore(context, volumeKey)?.toFloat() ?: 0f
-        _isMute.update { tts.volume == 0f }
+        val isMute = _isMute.value
+        tts.volume = if (isMute) 0f else 1f
     }
 
     private fun createBeautifulVoices() {

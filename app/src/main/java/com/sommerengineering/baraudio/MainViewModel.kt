@@ -6,8 +6,6 @@ import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
 import android.speech.tts.Voice
 import android.widget.Toast
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -31,7 +29,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -69,8 +66,8 @@ class MainViewModel @Inject constructor(
         }
 
         // mindfulness quote
-        val showQuote = readFromDataStore(context, showQuoteKey)?.toBooleanStrictOrNull() ?: true
-        showQuote(showQuote)
+        val isShowQuote = readFromDataStore(context, showQuoteKey)?.toBooleanStrictOrNull() ?: true
+        showQuote(isShowQuote)
 
         // futures webhooks
         val isFuturesWebhooksKey = readFromDataStore(context, isFuturesWebhooksKey)?.toBooleanStrictOrNull() ?: true
@@ -100,21 +97,6 @@ class MainViewModel @Inject constructor(
 
     fun toggleMute() = repo.toggleMute()
     fun speakLastMessage() = repo.speakLastMessage()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     // webhook
