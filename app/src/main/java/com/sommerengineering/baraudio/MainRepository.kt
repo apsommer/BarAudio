@@ -24,6 +24,9 @@ class MainRepository @Inject constructor(
     val tts: TextToSpeechImpl,
 ) {
 
+    // todo move?
+    private val beautifulVoiceNames = hashMapOf<String, String>()
+
     private val _voices = MutableStateFlow<List<Voice>>(emptyList())
     val voices = _voices.asStateFlow()
 
@@ -45,13 +48,21 @@ class MainRepository @Inject constructor(
     private val _isMute = MutableStateFlow(false) // default unmuted
     val isMute = _isMute.asStateFlow()
 
-    private val beautifulVoiceNames = hashMapOf<String, String>()
+    private val _isShowQuote = MutableStateFlow(false)
+    val isShowQuote = _isShowQuote.asStateFlow()
 
     // load local cache from data store
     init {
+        _isMute.update { readFromDataStore(context, volumeKey)?.toFloat() == 0f }
+        _isShowQuote.update { readFromDataStore(context, showQuoteKey)?.toBooleanStrictOrNull() ?: true }
+    }
 
-        _isMute.value = readFromDataStore(context, volumeKey)?.toFloat() == 0f
+    // quote
+    fun showQuote(
+        isChecked: Boolean) {
 
+        _isShowQuote.value = isChecked
+        writeToDataStore(context, showQuoteKey, isChecked.toString())
     }
 
     fun observeTtsInit(onInit: () -> Unit) =

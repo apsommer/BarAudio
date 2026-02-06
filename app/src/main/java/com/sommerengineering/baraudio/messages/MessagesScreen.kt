@@ -56,7 +56,6 @@ fun MessagesScreen(
     viewModel: MainViewModel,
     onSignOut: () -> Unit) {
 
-    val context = LocalContext.current
     val messages = viewModel.messages
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val listState = rememberLazyListState()
@@ -64,6 +63,8 @@ fun MessagesScreen(
     var isRefreshing by remember { mutableStateOf(false) }
     val pullToRefreshState = rememberPullToRefreshState()
     val quoteState by viewModel.mindfulnessQuoteState.collectAsState()
+
+    val isShowQuote by viewModel.isShowQuote.collectAsState()
 
     // side drawer
     ModalNavigationDrawer(
@@ -123,9 +124,8 @@ fun MessagesScreen(
                         else { (1 - 0.2 * messages.size).toFloat() },
                     animationSpec = tween(colorTransitionTimeMillis))
 
-                // inspirational quote
-                val showQuote = quoteState is MindfulnessQuoteState.Success && viewModel.showQuote
-                if (showQuote) {
+                // mindfulness quote
+                if (isShowQuote && quoteState is MindfulnessQuoteState.Success) {
 
                     Text(
                         text = (quoteState as MindfulnessQuoteState.Success).mindfulnessQuote.quote,
@@ -136,8 +136,7 @@ fun MessagesScreen(
                             .padding(
                                 start = backgroundPadding,
                                 end = backgroundPadding,
-                                top = 64.dp
-                            )
+                                top = 64.dp)
                             .align(Alignment.Center)
                             .alpha(animatedAlpha)
                     )

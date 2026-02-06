@@ -43,9 +43,6 @@ class MainViewModel @Inject constructor(
     private var _mindfulnessQuoteState: MutableStateFlow<MindfulnessQuoteState> = MutableStateFlow(MindfulnessQuoteState.Idle)
     val mindfulnessQuoteState = _mindfulnessQuoteState.asStateFlow()
 
-    private var _showQuote by mutableStateOf(true)
-    val showQuote get() = _showQuote
-
     private var _isFuturesWebhooks by mutableStateOf(true)
     val isFuturesWebhooks get() = _isFuturesWebhooks
 
@@ -65,10 +62,6 @@ class MainViewModel @Inject constructor(
             catch (e: Exception) { _mindfulnessQuoteState.value = MindfulnessQuoteState.Error(e.message) }
         }
 
-        // mindfulness quote
-        val isShowQuote = readFromDataStore(context, showQuoteKey)?.toBooleanStrictOrNull() ?: true
-        showQuote(isShowQuote)
-
         // futures webhooks
         val isFuturesWebhooksKey = readFromDataStore(context, isFuturesWebhooksKey)?.toBooleanStrictOrNull() ?: true
         setFuturesWebhooks(isFuturesWebhooksKey)
@@ -81,6 +74,8 @@ class MainViewModel @Inject constructor(
     var pitchDescription = repo.pitchDescription
     var queueDescription = repo.queueDescription
     var isMute = repo.isMute
+
+    var isShowQuote = repo.isShowQuote
 
     fun setVoice(voice: Voice) = repo.setVoice(voice)
     fun beautifyVoiceName(name: String) = repo.beautifyVoiceName(name)
@@ -97,7 +92,6 @@ class MainViewModel @Inject constructor(
 
     fun toggleMute() = repo.toggleMute()
     fun speakLastMessage() = repo.speakLastMessage()
-
 
     // webhook
     fun saveToWebhookClipboard(
@@ -183,12 +177,7 @@ class MainViewModel @Inject constructor(
     }
 
     // quote
-    fun showQuote(
-        isChecked: Boolean) {
-
-        _showQuote = isChecked
-        writeToDataStore(context, showQuoteKey, isChecked.toString())
-    }
+    fun showQuote(isChecked: Boolean) = repo.showQuote(isChecked)
 
     // futures
     fun setFuturesWebhooks(
