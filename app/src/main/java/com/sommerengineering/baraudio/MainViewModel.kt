@@ -39,6 +39,16 @@ class MainViewModel @Inject constructor(
     @ApplicationContext val context: Context
 ) : ViewModel() {
 
+    val voices = repo.voices
+    val messages = repo.messages
+    val voiceDescription = repo.voiceDescription
+    var speedDescription = repo.speedDescription
+    var pitchDescription = repo.pitchDescription
+    var queueDescription = repo.queueDescription
+    var isMute = repo.isMute
+    var isShowQuote = repo.isShowQuote
+    var isFuturesWebhooks = repo.isFuturesWebhooks
+
     private var _mindfulnessQuoteState: MutableStateFlow<MindfulnessQuoteState> = MutableStateFlow(MindfulnessQuoteState.Idle)
     val mindfulnessQuoteState = _mindfulnessQuoteState.asStateFlow()
 
@@ -57,35 +67,20 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    val voices = repo.voices
-    val messages = repo.messages
-    val voiceDescription = repo.voiceDescription
-    var speedDescription = repo.speedDescription
-    var pitchDescription = repo.pitchDescription
-    var queueDescription = repo.queueDescription
-    var isMute = repo.isMute
-
-    var isShowQuote = repo.isShowQuote
-    var isFuturesWebhooks = repo.isFuturesWebhooks
-
     fun setVoice(voice: Voice) = repo.setVoice(voice)
     fun beautifyVoiceName(name: String) = repo.beautifyVoiceName(name)
     fun getVoiceIndex() = repo.getVoiceIndex()
-
     fun getSpeed() = repo.getSpeed()
     fun setSpeed(rawSpeed: Float) { repo.setSpeed(rawSpeed) }
-
     fun getPitch() = repo.getPitch()
     fun setPitch(rawPitch: Float) = repo.setPitch(rawPitch)
-
     fun isQueueAdd() = repo.isQueueAdd()
     fun setIsQueueAdd(isChecked: Boolean) = repo.setIsQueueAdd(isChecked)
-
     fun toggleMute() = repo.toggleMute()
     fun speakLastMessage() = repo.speakLastMessage()
-
-    // webhook
     fun saveToWebhookClipboard(webhookUrl: String) = repo.saveToClipboard(webhookUrl)
+    fun showQuote(isChecked: Boolean) = repo.showQuote(isChecked)
+    fun setFuturesWebhooks(isChecked: Boolean) = repo.setFuturesWebhooks(isChecked)
 
     // dark mode
     var isDarkMode by mutableStateOf(true)
@@ -150,11 +145,7 @@ class MainViewModel @Inject constructor(
         else { windowInsetsController.show(WindowInsetsCompat.Type.systemBars()) }
     }
 
-    // quote
-    fun showQuote(isChecked: Boolean) = repo.showQuote(isChecked)
 
-    //
-    fun setFuturesWebhooks(isChecked: Boolean) = repo.setFuturesWebhooks(isChecked)
 
 
 
