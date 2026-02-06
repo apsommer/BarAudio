@@ -12,19 +12,15 @@ import com.sommerengineering.baraudio.hilt.readFromDataStore
 import com.sommerengineering.baraudio.hilt.writeToDataStore
 import com.sommerengineering.baraudio.messages.Message
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.collections.emptyList
+import kotlin.collections.forEachIndexed
+import kotlin.collections.groupBy
 import kotlin.math.roundToInt
 
 class MainRepository @Inject constructor(
@@ -39,17 +35,17 @@ class MainRepository @Inject constructor(
     private val _messages = SnapshotStateList<Message>()
     val messages = _messages
 
-    private var _voiceDescription by mutableStateOf("")
-    val voiceDescription get() = _voiceDescription
+    private val _voiceDescription = MutableStateFlow("")
+    val voiceDescription = _voiceDescription.asStateFlow()
 
-    private var _speedDescription by mutableStateOf("")
-    val speedDescription get() = _speedDescription
+    private var _speedDescription = MutableStateFlow("")
+    val speedDescription = _speedDescription.asStateFlow()
 
-    private var _pitchDescription by mutableStateOf("")
-    val pitchDescription get() = _pitchDescription
+    private var _pitchDescription = MutableStateFlow("")
+    val pitchDescription = _pitchDescription.asStateFlow()
 
-    private var _queueDescription by mutableStateOf("")
-    val queueDescription get() = _queueDescription
+    private var _queueDescription = MutableStateFlow("")
+    val queueDescription = _queueDescription.asStateFlow()
 
     private var _isMute by mutableStateOf(false) // default unmuted
     val isMute get() = _isMute
@@ -68,7 +64,26 @@ class MainRepository @Inject constructor(
         val voices = tts.getVoices().sortedBy { it.locale.displayName }
         _voices.value = voices
 
+        // add roman numerals to voice locale groups
+        createBeautifulVoices()
+
+        _voiceDescription.update { beautifyVoiceName(tts.voice.value.name) }
+        _speedDescription.update { tts.speed.toString() }
+        _pitchDescription.update { tts.pitch.toString() }
+        _queueDescription.update {
+            if (tts.isQueueAdd) queueBehaviorAddDescription
+            else queueBehaviorFlushDescription
+        }
+
+        // todo mute button ui must be faster
+        tts.volume = readFromDataStore(context, volumeKey)?.toFloat() ?: 0f
+        _isMute = tts.volume == 0f
+    }
+
+    private fun createBeautifulVoices() {
+
         // group voices by locale
+        val voices = voices.value
         val groupedByLocaleVoices = voices.groupBy { it.locale.displayName }
 
         // add roman numeral to name
@@ -79,17 +94,6 @@ class MainRepository @Inject constructor(
                     beautifulVoiceNames[voice.name] = enumerateVoices(voice, i)
                 }
             }
-
-        _voiceDescription = beautifyVoiceName(tts.voice.value.name)
-        _speedDescription = tts.speed.toString()
-        _pitchDescription = tts.pitch.toString()
-        _queueDescription =
-            if (tts.isQueueAdd) queueBehaviorAddDescription
-            else queueBehaviorFlushDescription
-
-        // todo mute button ui must be faster
-        tts.volume = readFromDataStore(context, volumeKey)?.toFloat() ?: 0f
-        _isMute = tts.volume == 0f
     }
 
     private fun enumerateVoices(
@@ -137,7 +141,7 @@ class MainRepository @Inject constructor(
 
         tts.voice.value = voice
         writeToDataStore(context, voiceKey, voice.name)
-        _voiceDescription = beautifyVoiceName(voice.name)
+        _voiceDescription.update { beautifyVoiceName(voice.name) }
         speakLastMessage()
     }
 
@@ -177,7 +181,7 @@ class MainRepository @Inject constructor(
         val selectedSpeed = ((rawSpeed * 10).roundToInt()).toFloat() / 10
         tts.speed = selectedSpeed
         writeToDataStore(context, speedKey, selectedSpeed.toString())
-        _speedDescription = selectedSpeed.toString()
+        _speedDescription.update { selectedSpeed.toString() }
     }
 
     fun getPitch() = tts.pitch
@@ -187,7 +191,7 @@ class MainRepository @Inject constructor(
         val selectedPitch = ((rawPitch * 10).roundToInt()).toFloat() / 10
         tts.pitch = selectedPitch
         writeToDataStore(context, pitchKey, selectedPitch.toString())
-        _pitchDescription = selectedPitch.toString()
+        _pitchDescription.update { selectedPitch.toString() }
     }
 
     fun isQueueAdd() = tts.isQueueAdd
@@ -197,9 +201,10 @@ class MainRepository @Inject constructor(
         tts.isQueueAdd = isChecked
         writeToDataStore(context, isQueueFlushKey, isChecked.toString())
 
-        _queueDescription =
+        _queueDescription.update {
             if (tts.isQueueAdd) queueBehaviorAddDescription
             else queueBehaviorFlushDescription
+        }
     }
 
 

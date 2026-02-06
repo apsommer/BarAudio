@@ -16,6 +16,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -68,6 +69,11 @@ fun SettingsDrawer(
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
 
+    val voiceDescription by viewModel.voiceDescription.collectAsState()
+    val speedDescription by viewModel.speedDescription.collectAsState()
+    val pitchDescription by viewModel.pitchDescription.collectAsState()
+    val queueDescription by viewModel.queueDescription.collectAsState()
+
     Scaffold { padding ->
 
         var isShowVoiceDialog by remember { mutableStateOf(false) }
@@ -86,7 +92,7 @@ fun SettingsDrawer(
                 DialogSettingItem (
                     icon = R.drawable.voice,
                     title = voiceTitle,
-                    description = viewModel.voiceDescription,
+                    description = voiceDescription,
                     onClick = { isShowVoiceDialog = true }) {
 
                     IconButton(
@@ -115,7 +121,7 @@ fun SettingsDrawer(
                 SliderSettingItem(
                     icon = R.drawable.speed,
                     title = speedTitle,
-                    description = viewModel.speedDescription) {
+                    description = speedDescription) {
 
                         SliderImpl(
                             initPosition = viewModel.getSpeed(),
@@ -129,7 +135,7 @@ fun SettingsDrawer(
                 SliderSettingItem(
                     icon = R.drawable.pitch,
                     title = pitchTitle,
-                    description = viewModel.pitchDescription) {
+                    description = pitchDescription) {
 
                         SliderImpl(
                             initPosition = viewModel.getPitch(),
@@ -143,7 +149,7 @@ fun SettingsDrawer(
                 SwitchSettingItem(
                     icon = R.drawable.text_to_speech,
                     title = queueBehaviorTitle,
-                    description = viewModel.queueDescription) {
+                    description = queueDescription) {
 
                         Switch(
                             checked = viewModel.isQueueAdd(),

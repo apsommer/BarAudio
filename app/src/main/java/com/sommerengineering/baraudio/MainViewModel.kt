@@ -9,7 +9,6 @@ import android.widget.Toast
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.view.WindowInsetsCompat
@@ -17,22 +16,22 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.credentials.CredentialManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
-import com.sommerengineering.baraudio.messages.MindfulnessQuoteState
-import com.sommerengineering.baraudio.messages.tradingviewWhitelistIps
-import com.sommerengineering.baraudio.messages.trendspiderWhitelistIp
-import com.sommerengineering.baraudio.hilt.writeWhitelistToDatabase
 import com.sommerengineering.baraudio.hilt.TextToSpeechImpl
 import com.sommerengineering.baraudio.hilt.readFromDataStore
 import com.sommerengineering.baraudio.hilt.writeToDataStore
+import com.sommerengineering.baraudio.hilt.writeWhitelistToDatabase
+import com.sommerengineering.baraudio.messages.MindfulnessQuoteState
+import com.sommerengineering.baraudio.messages.tradingviewWhitelistIps
+import com.sommerengineering.baraudio.messages.trendspiderWhitelistIp
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -80,7 +79,7 @@ class MainViewModel @Inject constructor(
 
     val voices = repo.voices
     val messages = repo.messages
-    var voiceDescription = repo.voiceDescription
+    val voiceDescription = repo.voiceDescription
     var speedDescription = repo.speedDescription
     var pitchDescription = repo.pitchDescription
     var queueDescription = repo.queueDescription
