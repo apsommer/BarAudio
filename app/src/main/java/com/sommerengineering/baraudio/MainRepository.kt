@@ -1,7 +1,11 @@
 package com.sommerengineering.baraudio
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
+import android.content.Context.CLIPBOARD_SERVICE
 import android.speech.tts.Voice
+import android.widget.Toast
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.sommerengineering.baraudio.hilt.RapidApi
 import com.sommerengineering.baraudio.hilt.TextToSpeechImpl
@@ -243,6 +247,24 @@ class MainRepository @Inject constructor(
         _queueDescription.update {
             if (tts.isQueueAdd) queueBehaviorAddDescription
             else queueBehaviorFlushDescription
+        }
+    }
+
+    fun saveToClipboard(
+        webhookUrl: String) {
+
+        // save url to clipboard
+        val clipboardManager = context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipData.newPlainText("", webhookUrl)
+        clipboardManager.setPrimaryClip(clip)
+
+        // toast for older api
+        if (31 > android.os.Build.VERSION.SDK_INT) {
+            Toast.makeText(
+                context,
+                webhookUrl,
+                Toast.LENGTH_SHORT)
+                .show()
         }
     }
 

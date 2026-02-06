@@ -19,7 +19,6 @@ import com.google.firebase.auth.auth
 import com.sommerengineering.baraudio.hilt.TextToSpeechImpl
 import com.sommerengineering.baraudio.hilt.readFromDataStore
 import com.sommerengineering.baraudio.hilt.writeToDataStore
-import com.sommerengineering.baraudio.hilt.writeWhitelistToDatabase
 import com.sommerengineering.baraudio.messages.MindfulnessQuoteState
 import com.sommerengineering.baraudio.messages.tradingviewWhitelistIps
 import com.sommerengineering.baraudio.messages.trendspiderWhitelistIp
@@ -86,24 +85,7 @@ class MainViewModel @Inject constructor(
     fun speakLastMessage() = repo.speakLastMessage()
 
     // webhook
-    fun saveToWebhookClipboard(
-        context: Context,
-        webhookUrl: String) {
-
-        // save url to clipboard
-        val clipboardManager = context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
-        val clip = ClipData.newPlainText("", webhookUrl)
-        clipboardManager.setPrimaryClip(clip)
-
-        // toast for older api
-        if (31 > android.os.Build.VERSION.SDK_INT) {
-            Toast.makeText(
-                context,
-                webhookUrl,
-                Toast.LENGTH_SHORT)
-                .show()
-        }
-    }
+    fun saveToWebhookClipboard(webhookUrl: String) = repo.saveToClipboard(webhookUrl)
 
     // dark mode
     var isDarkMode by mutableStateOf(true)

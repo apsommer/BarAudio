@@ -201,16 +201,10 @@ fun SettingsDrawer(
                     icon = R.drawable.webhook,
                     title = webhookTitle,
                     description = webhookUrl,
-                    onClick = {
-                        viewModel.saveToWebhookClipboard(
-                            context = context,
-                            webhookUrl = webhookUrl) }) {
+                    onClick = { viewModel.saveToWebhookClipboard(webhookUrl) }) {
 
                     IconButton(
-                        onClick = {
-                            viewModel.saveToWebhookClipboard(
-                                context = context,
-                                webhookUrl = webhookUrl) }) {
+                        onClick = { viewModel.saveToWebhookClipboard(webhookUrl) }) {
                         Icon(
                             painter = painterResource(R.drawable.copy),
                             contentDescription = null)
