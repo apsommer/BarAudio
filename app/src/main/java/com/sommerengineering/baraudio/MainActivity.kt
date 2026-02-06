@@ -14,6 +14,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -22,10 +23,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.sommerengineering.baraudio.hilt.readFromDataStore
 import com.sommerengineering.baraudio.hilt.token
+import com.sommerengineering.baraudio.hilt.writeToDataStore
 import com.sommerengineering.baraudio.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -92,9 +96,14 @@ class MainActivity : ComponentActivity() {
 
         // launch app
         setContent {
-            App(
-                viewModel = viewModel
-            )
+
+            // toggle full screen
+            val isFullScreen = viewModel.isFullScreen
+            LaunchedEffect(isFullScreen) {
+                applyFullScreen(isFullScreen)
+            }
+
+            App(viewModel)
         }
     }
 
@@ -127,6 +136,20 @@ class MainActivity : ComponentActivity() {
         // init notification channel
         initNotificationChannel()
     }
+
+    private fun applyFullScreen(
+        isFullScreen: Boolean) {
+
+        // expand
+        if (isFullScreen) {
+            windowInsetsController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
+            return
+        }
+
+        // collapse
+        windowInsetsController.show(WindowInsetsCompat.Type.systemBars())
+    }
 }
 
 fun cancelAllNotifications(
@@ -137,16 +160,11 @@ fun cancelAllNotifications(
 
 @Composable
 fun App(
-    viewModel: MainViewModel
-) {
+    viewModel: MainViewModel) {
 
     // track ui mode todo simplify
     viewModel.isSystemInDarkTheme = isSystemInDarkTheme()
     viewModel.setUiMode()
-
-    // toggle fullscreen todo simplify
-    val isFullScreen = readFromDataStore(LocalContext.current, isFullScreenKey)?.toBoolean() == true
-    viewModel.setFullScreen(LocalContext.current, isFullScreen)
 
     AppTheme(viewModel.isDarkMode) {
         Scaffold(
@@ -158,4 +176,6 @@ fun App(
         }
     }
 }
+
+
 

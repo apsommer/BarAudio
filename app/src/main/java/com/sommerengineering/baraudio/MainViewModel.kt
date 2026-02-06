@@ -1,16 +1,10 @@
 package com.sommerengineering.baraudio
 
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.Context
-import android.content.Context.CLIPBOARD_SERVICE
 import android.speech.tts.Voice
-import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
 import androidx.credentials.CredentialManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -52,9 +46,17 @@ class MainViewModel @Inject constructor(
     private var _mindfulnessQuoteState: MutableStateFlow<MindfulnessQuoteState> = MutableStateFlow(MindfulnessQuoteState.Idle)
     val mindfulnessQuoteState = _mindfulnessQuoteState.asStateFlow()
 
+    // fullscreen
+    var isFullScreen by mutableStateOf(
+        readFromDataStore(context, isFullScreenKey)?.toBoolean() == true)
+
+    var fullScreenDescription by mutableStateOf(
+        if (isFullScreen) screenFullDescription
+        else screenWindowedDescription)
+
     init {
 
-        // observe initialization of tts engine, takes a few seconds
+        // wait for system initialization of tts engine, takes a few seconds
         viewModelScope.launch(Dispatchers.Main) {
             repo.observeTtsInit { repo.initTtsSettings() }.collect()
         }
@@ -110,12 +112,7 @@ class MainViewModel @Inject constructor(
             else uiModeLightDescription
     }
 
-    // fullscreen
-    var isFullScreen by mutableStateOf(false)
-    var fullScreenDescription by mutableStateOf("")
-
-    fun setFullScreen(
-        context: Context,
+    fun setIsFullScreen(
         isChecked: Boolean) {
 
         isFullScreen = isChecked
@@ -124,25 +121,6 @@ class MainViewModel @Inject constructor(
         fullScreenDescription =
             if (isFullScreen) screenFullDescription
             else screenWindowedDescription
-
-        // expand or collapse layout
-        toggleFullScreen(context, isFullScreen)
-    }
-
-    fun toggleFullScreen(
-        context: Context,
-        isFullScreen: Boolean) {
-
-        val windowInsetsController = (context as MainActivity).windowInsetsController
-
-        // expand
-        if (isFullScreen) {
-            windowInsetsController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
-        }
-
-        // collapse
-        else { windowInsetsController.show(WindowInsetsCompat.Type.systemBars()) }
     }
 
 

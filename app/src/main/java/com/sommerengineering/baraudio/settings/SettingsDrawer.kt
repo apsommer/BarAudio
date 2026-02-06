@@ -1,13 +1,8 @@
 package com.sommerengineering.baraudio.settings
 
 import android.content.Intent
-import android.provider.Settings
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -30,7 +25,6 @@ import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.auth
 import com.google.firebase.Firebase
 import com.sommerengineering.baraudio.BuildConfig
-import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.dataDividerTitle
@@ -234,7 +228,7 @@ fun SettingsDrawer(
 
                     Switch(
                         checked = viewModel.isFullScreen,
-                        onCheckedChange = { viewModel.setFullScreen(context, it) })
+                        onCheckedChange = { viewModel.setIsFullScreen(it) })
                 }
             }
 
