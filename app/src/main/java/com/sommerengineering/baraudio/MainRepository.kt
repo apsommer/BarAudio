@@ -82,7 +82,7 @@ class MainRepository @Inject constructor(
     fun showQuote(
         isChecked: Boolean) {
 
-        _isShowQuote.value = isChecked
+        _isShowQuote.update { isChecked }
         writeToDataStore(context, showQuoteKey, isChecked.toString())
     }
 
@@ -173,8 +173,8 @@ class MainRepository @Inject constructor(
         voice: Voice) {
 
         tts.voice.value = voice
-        writeToDataStore(context, voiceKey, voice.name)
         _voiceDescription.update { beautifyVoiceName(voice.name) }
+        writeToDataStore(context, voiceKey, voice.name)
         speakLastMessage()
     }
 
@@ -217,20 +217,20 @@ class MainRepository @Inject constructor(
     fun setSpeed(
         rawSpeed: Float) {
 
-        val selectedSpeed = ((rawSpeed * 10).roundToInt()).toFloat() / 10
-        tts.speed = selectedSpeed
-        writeToDataStore(context, speedKey, selectedSpeed.toString())
-        _speedDescription.update { selectedSpeed.toString() }
+        val roundedSpeed = ((rawSpeed * 10).roundToInt()).toFloat() / 10
+        tts.speed = roundedSpeed
+        writeToDataStore(context, speedKey, roundedSpeed.toString())
+        _speedDescription.update { roundedSpeed.toString() }
     }
 
     fun getPitch() = tts.pitch
     fun setPitch(
         rawPitch: Float) {
 
-        val selectedPitch = ((rawPitch * 10).roundToInt()).toFloat() / 10
-        tts.pitch = selectedPitch
-        writeToDataStore(context, pitchKey, selectedPitch.toString())
-        _pitchDescription.update { selectedPitch.toString() }
+        val roundedPitch = ((rawPitch * 10).roundToInt()).toFloat() / 10
+        tts.pitch = roundedPitch
+        writeToDataStore(context, pitchKey, roundedPitch.toString())
+        _pitchDescription.update { roundedPitch.toString() }
     }
 
     fun isQueueAdd() = tts.isQueueAdd
