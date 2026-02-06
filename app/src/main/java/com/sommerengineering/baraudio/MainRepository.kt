@@ -7,6 +7,7 @@ import com.sommerengineering.baraudio.hilt.RapidApi
 import com.sommerengineering.baraudio.hilt.TextToSpeechImpl
 import com.sommerengineering.baraudio.hilt.readFromDataStore
 import com.sommerengineering.baraudio.hilt.writeToDataStore
+import com.sommerengineering.baraudio.hilt.writeWhitelistToDatabase
 import com.sommerengineering.baraudio.messages.Message
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -51,10 +52,30 @@ class MainRepository @Inject constructor(
     private val _isShowQuote = MutableStateFlow(false)
     val isShowQuote = _isShowQuote.asStateFlow()
 
+    private val _isFullScreen = MutableStateFlow(false)
+    val isFullScreen = _isFullScreen.asStateFlow()
+
+    private val _isDarkMode = MutableStateFlow(false)
+    val isDarkMode = _isDarkMode.asStateFlow()
+
+    private val _isFuturesWebhooks = MutableStateFlow(false)
+    val isFuturesWebhooks = _isFuturesWebhooks.asStateFlow()
+
     // load local cache from data store
     init {
         _isMute.update { readFromDataStore(context, volumeKey)?.toFloat() == 0f }
         _isShowQuote.update { readFromDataStore(context, showQuoteKey)?.toBooleanStrictOrNull() ?: true }
+        _isFuturesWebhooks.update { readFromDataStore(context, isFuturesWebhooksKey)?.toBooleanStrictOrNull() ?: true }
+    }
+
+    //
+    fun setFuturesWebhooks(
+        isChecked: Boolean
+    ) {
+
+        _isFuturesWebhooks.update { isChecked }
+        writeToDataStore(context, isFuturesWebhooksKey, isChecked.toString())
+        writeWhitelistToDatabase(isChecked)
     }
 
     // quote

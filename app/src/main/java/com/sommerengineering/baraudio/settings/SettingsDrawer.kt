@@ -73,6 +73,8 @@ fun SettingsDrawer(
     val speedDescription by viewModel.speedDescription.collectAsState()
     val pitchDescription by viewModel.pitchDescription.collectAsState()
     val queueDescription by viewModel.queueDescription.collectAsState()
+    val isShowQuote by viewModel.isShowQuote.collectAsState()
+    val isFuturesWebhooks by viewModel.isFuturesWebhooks.collectAsState()
 
     Scaffold { padding ->
 
@@ -184,7 +186,7 @@ fun SettingsDrawer(
                     description = futuresWebhookDescription) {
 
                     Switch(
-                        checked = viewModel.isFuturesWebhooks,
+                        checked = isFuturesWebhooks,
                         onCheckedChange = { viewModel.setFuturesWebhooks(it)})
                 }
             }
@@ -262,7 +264,7 @@ fun SettingsDrawer(
                     title = showQuoteTitle) {
 
                     Switch(
-                        checked = viewModel.showQuote,
+                        checked = isShowQuote,
                         onCheckedChange = { viewModel.showQuote(it)})
                 }
             }

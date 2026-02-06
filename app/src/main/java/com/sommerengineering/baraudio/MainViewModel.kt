@@ -43,16 +43,11 @@ class MainViewModel @Inject constructor(
     private var _mindfulnessQuoteState: MutableStateFlow<MindfulnessQuoteState> = MutableStateFlow(MindfulnessQuoteState.Idle)
     val mindfulnessQuoteState = _mindfulnessQuoteState.asStateFlow()
 
-    private var _isFuturesWebhooks by mutableStateOf(true)
-    val isFuturesWebhooks get() = _isFuturesWebhooks
-
     init {
 
         // observe initialization of tts engine, takes a few seconds
         viewModelScope.launch(Dispatchers.Main) {
-            repo.observeTtsInit {
-                repo.initTtsSettings()
-            }.collect()
+            repo.observeTtsInit { repo.initTtsSettings() }.collect()
         }
 
         // request mindfulness quote from network
@@ -61,10 +56,6 @@ class MainViewModel @Inject constructor(
             try { _mindfulnessQuoteState.value = MindfulnessQuoteState.Success(repo.getMindfulnessQuote()) }
             catch (e: Exception) { _mindfulnessQuoteState.value = MindfulnessQuoteState.Error(e.message) }
         }
-
-        // futures webhooks
-        val isFuturesWebhooksKey = readFromDataStore(context, isFuturesWebhooksKey)?.toBooleanStrictOrNull() ?: true
-        setFuturesWebhooks(isFuturesWebhooksKey)
     }
 
     val voices = repo.voices
@@ -76,6 +67,7 @@ class MainViewModel @Inject constructor(
     var isMute = repo.isMute
 
     var isShowQuote = repo.isShowQuote
+    var isFuturesWebhooks = repo.isFuturesWebhooks
 
     fun setVoice(voice: Voice) = repo.setVoice(voice)
     fun beautifyVoiceName(name: String) = repo.beautifyVoiceName(name)
@@ -179,14 +171,21 @@ class MainViewModel @Inject constructor(
     // quote
     fun showQuote(isChecked: Boolean) = repo.showQuote(isChecked)
 
-    // futures
-    fun setFuturesWebhooks(
-        isChecked: Boolean) {
+    //
+    fun setFuturesWebhooks(isChecked: Boolean) = repo.setFuturesWebhooks(isChecked)
 
-        _isFuturesWebhooks = isChecked
-        writeToDataStore(context, isFuturesWebhooksKey, isChecked.toString())
-        writeWhitelistToDatabase(_isFuturesWebhooks)
-    }
+
+
+
+
+
+
+
+
+
+
+
+
 
     // images //////////////////////////////////////////////////////////////////////////////////////
 
