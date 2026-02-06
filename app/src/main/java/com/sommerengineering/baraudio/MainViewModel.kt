@@ -227,16 +227,6 @@ class MainViewModel @Inject constructor(
         if (isDarkMode) R.drawable.background_skyline_dark
         else R.drawable.background_skyline
 
-    @Composable
-    fun getFabIconColor() =
-        if (isMute) MaterialTheme.colorScheme.outline
-        else MaterialTheme.colorScheme.onPrimaryContainer
-
-    @Composable
-    fun getFabBackgroundColor() =
-        if (isMute) MaterialTheme.colorScheme.surfaceVariant
-        else MaterialTheme.colorScheme.primaryContainer
-
     fun getOriginImageId(
         origin: String): Int? {
 

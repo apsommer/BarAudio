@@ -100,7 +100,6 @@ fun MessagesScreen(
             // fab, mute button
             floatingActionButton = {
                 MessagesFloatingActionButton(
-                    context = context,
                     viewModel = viewModel)
             },
 

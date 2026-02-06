@@ -38,17 +38,17 @@ class MainRepository @Inject constructor(
     private val _voiceDescription = MutableStateFlow("")
     val voiceDescription = _voiceDescription.asStateFlow()
 
-    private var _speedDescription = MutableStateFlow("")
+    private val _speedDescription = MutableStateFlow("")
     val speedDescription = _speedDescription.asStateFlow()
 
-    private var _pitchDescription = MutableStateFlow("")
+    private val _pitchDescription = MutableStateFlow("")
     val pitchDescription = _pitchDescription.asStateFlow()
 
-    private var _queueDescription = MutableStateFlow("")
+    private val _queueDescription = MutableStateFlow("")
     val queueDescription = _queueDescription.asStateFlow()
 
-    private var _isMute by mutableStateOf(false) // default unmuted
-    val isMute get() = _isMute
+    private val _isMute = MutableStateFlow(false) // default unmuted
+    val isMute = _isMute.asStateFlow()
 
     private val beautifulVoiceNames = hashMapOf<String, String>()
 
@@ -77,7 +77,7 @@ class MainRepository @Inject constructor(
 
         // todo mute button ui must be faster
         tts.volume = readFromDataStore(context, volumeKey)?.toFloat() ?: 0f
-        _isMute = tts.volume == 0f
+        _isMute.update { tts.volume == 0f }
     }
 
     private fun createBeautifulVoices() {
@@ -159,17 +159,23 @@ class MainRepository @Inject constructor(
             isForceVolume = true)
     }
 
-    fun toggleMute() = setMute(!_isMute)
+    fun toggleMute() {
+
+        val currentMute = _isMute.value
+        setMute(!currentMute) // swap
+    }
 
     private fun setMute(
         newMute: Boolean) {
 
-        _isMute = newMute
+        _isMute.update { newMute }
 
-        if (_isMute) { tts.volume = 0f }
+        // set volume
+        if (newMute) { tts.volume = 0f }
         else { tts.volume = 1f }
 
-        if (_isMute && tts.isSpeaking()) { tts.stop() }
+        // stop current speaking
+        if (newMute && tts.isSpeaking()) { tts.stop() }
 
         writeToDataStore(context, volumeKey, tts.volume.toString())
     }
@@ -206,15 +212,6 @@ class MainRepository @Inject constructor(
             else queueBehaviorFlushDescription
         }
     }
-
-
-
-
-
-
-
-
-
 
     suspend fun getMindfulnessQuote() = rapidApi.getMindfulnessQuote()
 }
