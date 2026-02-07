@@ -35,9 +35,6 @@ class MainRepository @Inject constructor(
     val tts: TextToSpeechImpl,
 ) {
 
-    // todo move?
-    private val beautifulVoiceNames = hashMapOf<String, String>()
-
     private val _voices = MutableStateFlow<List<Voice>>(emptyList())
     val voices = _voices.asStateFlow()
 
@@ -116,10 +113,7 @@ class MainRepository @Inject constructor(
         val voices = tts.getVoices().sortedBy { it.locale.displayName }
         _voices.value = voices
 
-        // add roman numerals to voice locale groups
-        createBeautifulVoices()
-
-        _voiceDescription.update { beautifyVoiceName(tts.voice.value.name) }
+        _voiceDescription.update { tts.voice.value.name } // todo _voiceDescription.update { beautifyVoiceName(tts.voice.value.name) }
         _speedDescription.update { tts.speed.toString() }
         _pitchDescription.update { tts.pitch.toString() }
         _queueDescription.update {
@@ -130,54 +124,6 @@ class MainRepository @Inject constructor(
         val isMute = _isMute.value
         tts.volume = if (isMute) 0f else 1f
     }
-
-    private fun createBeautifulVoices() {
-
-        // group voices by locale
-        val voices = voices.value
-        val groupedByLocaleVoices = voices.groupBy { it.locale.displayName }
-
-        // add roman numeral to name
-        groupedByLocaleVoices.keys
-            .forEach { localeGroup ->
-                val localeVoices = groupedByLocaleVoices[localeGroup] ?: return@forEach
-                localeVoices.forEachIndexed { i, voice ->
-                    beautifulVoiceNames[voice.name] = enumerateVoices(voice, i)
-                }
-            }
-    }
-
-    private fun enumerateVoices(
-        voice: Voice,
-        number: Int): String {
-
-        val displayName = voice.locale.displayName
-        var romanNumeral = "I"
-
-        if (number == 1) romanNumeral = "II"
-        if (number == 2) romanNumeral = "III"
-        if (number == 3) romanNumeral = "IV"
-        if (number == 4) romanNumeral = "V"
-        if (number == 5) romanNumeral = "VI"
-        if (number == 6) romanNumeral = "VII"
-        if (number == 7) romanNumeral = "VIII"
-        if (number == 8) romanNumeral = "IX"
-        if (number == 9) romanNumeral = "X"
-        if (number == 10) romanNumeral = "XI"
-        if (number == 11) romanNumeral = "XII"
-        if (number == 12) romanNumeral = "XIII"
-        if (number == 13) romanNumeral = "XIV"
-        if (number == 14) romanNumeral = "XV"
-        if (number == 15) romanNumeral = "XVI"
-        if (number == 16) romanNumeral = "XVII"
-        if (number == 17) romanNumeral = "XVIII"
-        if (number == 18) romanNumeral = "XIX"
-        if (number == 19) romanNumeral = "XX"
-
-        return "$displayName • Voice $romanNumeral"
-    }
-
-    fun beautifyVoiceName(name: String) = beautifulVoiceNames[name] ?: ""
 
     fun getVoiceIndex() : Int {
         val voices = _voices.value
@@ -191,7 +137,7 @@ class MainRepository @Inject constructor(
         voice: Voice) {
 
         tts.voice.value = voice
-        _voiceDescription.update { beautifyVoiceName(voice.name) }
+        _voiceDescription.update { voice.name } // todo _voiceDescription.update { beautifyVoiceName(voice.name) }
         writeToDataStore(context, voiceKey, voice.name)
         speakLastMessage()
     }

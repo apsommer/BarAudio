@@ -27,6 +27,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.collections.set
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
@@ -64,7 +65,10 @@ class MainViewModel @Inject constructor(
 
         // wait for system initialization of tts engine, takes a few seconds
         viewModelScope.launch(Dispatchers.Main) {
-            repo.observeTtsInit { repo.initTtsSettings() }.collect()
+            repo.observeTtsInit {
+                repo.initTtsSettings() // config text to speech with store preferences
+                createBeautifulVoices() // add roman numerals to voice locale groups for ui
+            }.collect()
         }
 
         // request mindfulness quote from network
@@ -76,7 +80,6 @@ class MainViewModel @Inject constructor(
     }
 
     fun setVoice(voice: Voice) = repo.setVoice(voice)
-    fun beautifyVoiceName(name: String) = repo.beautifyVoiceName(name)
     fun getVoiceIndex() = repo.getVoiceIndex()
     fun getSpeed() = repo.getSpeed()
     fun setSpeed(rawSpeed: Float) { repo.setSpeed(rawSpeed) }
@@ -122,6 +125,55 @@ class MainViewModel @Inject constructor(
 
 
 
+    private val beautifulVoiceNames = hashMapOf<String, String>()
+
+    private fun createBeautifulVoices() {
+
+        // group voices by locale
+        val voices = voices.value
+        val groupedByLocaleVoices = voices.groupBy { it.locale.displayName }
+
+        // add roman numeral to name
+        groupedByLocaleVoices.keys
+            .forEach { localeGroup ->
+                val localeVoices = groupedByLocaleVoices[localeGroup] ?: return@forEach
+                localeVoices.forEachIndexed { i, voice ->
+                    beautifulVoiceNames[voice.name] = enumerateVoices(voice, i)
+                }
+            }
+    }
+
+    private fun enumerateVoices(
+        voice: Voice,
+        number: Int): String {
+
+        val displayName = voice.locale.displayName
+        var romanNumeral = "I"
+
+        if (number == 1) romanNumeral = "II"
+        if (number == 2) romanNumeral = "III"
+        if (number == 3) romanNumeral = "IV"
+        if (number == 4) romanNumeral = "V"
+        if (number == 5) romanNumeral = "VI"
+        if (number == 6) romanNumeral = "VII"
+        if (number == 7) romanNumeral = "VIII"
+        if (number == 8) romanNumeral = "IX"
+        if (number == 9) romanNumeral = "X"
+        if (number == 10) romanNumeral = "XI"
+        if (number == 11) romanNumeral = "XII"
+        if (number == 12) romanNumeral = "XIII"
+        if (number == 13) romanNumeral = "XIV"
+        if (number == 14) romanNumeral = "XV"
+        if (number == 15) romanNumeral = "XVI"
+        if (number == 16) romanNumeral = "XVII"
+        if (number == 17) romanNumeral = "XVIII"
+        if (number == 18) romanNumeral = "XIX"
+        if (number == 19) romanNumeral = "XX"
+
+        return "$displayName • Voice $romanNumeral"
+    }
+
+    fun beautifyVoiceName(name: String) = beautifulVoiceNames[name] ?: ""
 
 
 
@@ -135,6 +187,9 @@ class MainViewModel @Inject constructor(
 
 
 
+
+
+    // todo move these into composables
     // images //////////////////////////////////////////////////////////////////////////////////////
 
     fun getGitHubImageId() =
