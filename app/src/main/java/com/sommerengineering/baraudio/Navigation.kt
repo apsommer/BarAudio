@@ -86,7 +86,7 @@ fun Navigation(
                 onNextClick = {
                     controller.navigate(OnboardingNotificationsScreenRoute)
                 },
-                isNextEnabled = viewModel.tts.isInit.collectAsState().value)
+                isNextEnabled = viewModel.tts._isInit.collectAsState().value)
         }
 
         // onboarding screen: notifications

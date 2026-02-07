@@ -3,6 +3,7 @@ package com.sommerengineering.baraudio
 import android.content.Context
 import android.speech.tts.Voice
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.credentials.CredentialManager
@@ -23,9 +24,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import kotlin.collections.set
 
@@ -37,9 +41,45 @@ class MainViewModel @Inject constructor(
     @ApplicationContext val context: Context
 ) : ViewModel() {
 
-    val voices = repo.voices
+    var voiceDescription by mutableStateOf("")
+
+    var voice
+        get() = repo.voice
+        set(value) {
+            repo.voice = value
+            voiceDescription = beautifyVoiceName(value.name)
+        }
+
+    var voices by mutableStateOf<List<Voice>>(emptyList())
+
+    init {
+
+        // wait for system initialization of tts engine, takes a few seconds
+        viewModelScope.launch {
+
+            repo.isTtsInit
+                .filter { it }
+                .first()
+
+            repo.initTtsSettings() // config text to speech with store preferences
+            createBeautifulVoices() // add roman numerals to voice locale groups for ui
+            refreshTtsSettingDescriptions() // update descriptions for ui
+        }
+
+        // request mindfulness quote from network
+        viewModelScope.launch(Dispatchers.IO) {
+            _mindfulnessQuoteState.value = MindfulnessQuoteState.Loading
+            try { _mindfulnessQuoteState.value = MindfulnessQuoteState.Success(repo.getMindfulnessQuote()) }
+            catch (e: Exception) { _mindfulnessQuoteState.value = MindfulnessQuoteState.Error(e.message) }
+        }
+    }
+
+    private fun refreshTtsSettingDescriptions() {
+        voiceDescription = beautifyVoiceName(repo.voice.name)
+    }
+
     val messages = repo.messages
-    val voiceDescription = repo.voiceDescription
+
     var speedDescription = repo.speedDescription
     var pitchDescription = repo.pitchDescription
     var queueDescription = repo.queueDescription
@@ -61,25 +101,6 @@ class MainViewModel @Inject constructor(
     fun setIsFullScreen(enabled: Boolean) =
         viewModelScope.launch { repo.setFullScreen(enabled) }
 
-    init {
-
-        // wait for system initialization of tts engine, takes a few seconds
-        viewModelScope.launch(Dispatchers.Main) {
-            repo.observeTtsInit {
-                repo.initTtsSettings() // config text to speech with store preferences
-                createBeautifulVoices() // add roman numerals to voice locale groups for ui
-            }.collect()
-        }
-
-        // request mindfulness quote from network
-        viewModelScope.launch(Dispatchers.IO) {
-            _mindfulnessQuoteState.value = MindfulnessQuoteState.Loading
-            try { _mindfulnessQuoteState.value = MindfulnessQuoteState.Success(repo.getMindfulnessQuote()) }
-            catch (e: Exception) { _mindfulnessQuoteState.value = MindfulnessQuoteState.Error(e.message) }
-        }
-    }
-
-    fun setVoice(voice: Voice) = repo.setVoice(voice)
     fun getVoiceIndex() = repo.getVoiceIndex()
     fun getSpeed() = repo.getSpeed()
     fun setSpeed(rawSpeed: Float) { repo.setSpeed(rawSpeed) }
@@ -121,17 +142,12 @@ class MainViewModel @Inject constructor(
             else uiModeLightDescription
     }
 
-
-
-
-
     private val beautifulVoiceNames = hashMapOf<String, String>()
-
     private fun createBeautifulVoices() {
 
         // group voices by locale
-        val voices = voices.value
-        val groupedByLocaleVoices = voices.groupBy { it.locale.displayName }
+        voices = repo.voices.sortedBy { it.locale.displayName }
+        val groupedByLocaleVoices = voices.groupBy { it.locale.toLanguageTag() }
 
         // add roman numeral to name
         groupedByLocaleVoices.keys

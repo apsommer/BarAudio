@@ -63,7 +63,7 @@ fun SettingsDrawer(
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
 
-    val voiceDescription by viewModel.voiceDescription.collectAsState()
+    val voiceDescription = viewModel.voiceDescription
     val speedDescription by viewModel.speedDescription.collectAsState()
     val pitchDescription by viewModel.pitchDescription.collectAsState()
     val queueDescription by viewModel.queueDescription.collectAsState()
@@ -104,7 +104,7 @@ fun SettingsDrawer(
                             VoiceDialog(
                                 viewModel = viewModel,
                                 onItemSelected = {
-                                    viewModel.setVoice(it)
+                                    viewModel.voice = it
                                     isShowVoiceDialog = false
                                 },
                                 onDismiss = {

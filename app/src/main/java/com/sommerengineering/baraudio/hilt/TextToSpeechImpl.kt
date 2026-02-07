@@ -1,6 +1,8 @@
 package com.sommerengineering.baraudio.hilt
 
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.speech.tts.Voice
@@ -13,9 +15,10 @@ import com.sommerengineering.baraudio.cancelAllNotifications
 import com.sommerengineering.baraudio.isQueueFlushKey
 import com.sommerengineering.baraudio.pitchKey
 import com.sommerengineering.baraudio.speedKey
-import com.sommerengineering.baraudio.voiceKey
 import com.sommerengineering.baraudio.volumeKey
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 class TextToSpeechImpl(
     private val context: Context
@@ -23,22 +26,25 @@ class TextToSpeechImpl(
 
     private val textToSpeech = TextToSpeech(context, this)
 
-    val voice by lazy { mutableStateOf(textToSpeech.voice) }
+    var _isInit = MutableStateFlow(false)
+    val isInit = _isInit.asStateFlow()
+
+    var voices: List<Voice> = emptyList()
+        private set
+
+    var voice
+        get() = textToSpeech.voice
+        set(value) { textToSpeech.voice = value }
+
     var speed by mutableFloatStateOf(1f)
     var pitch by mutableFloatStateOf(1f)
     var isQueueAdd by mutableStateOf(true)
     var volume by mutableFloatStateOf(0f)
-    var isInit = MutableStateFlow(false)
 
     override fun onInit(status: Int) {
 
-        if (status != TextToSpeech.SUCCESS) { return }
-
-        // init voice
-        voice.value = readFromDataStore(context, voiceKey)
-            ?.let { preference -> textToSpeech.voices.firstOrNull { it.name == preference }}
-            ?: textToSpeech.voices.firstOrNull { it.name == "en-gb-x-gbd-local" } // british, male
-            ?: textToSpeech.voice
+        // initialization complete
+        if (status != TextToSpeech.SUCCESS) return
 
         speed = readFromDataStore(context, speedKey)?.toFloat() ?: 1f
         pitch = readFromDataStore(context, pitchKey)?.toFloat() ?: 1f
@@ -55,21 +61,22 @@ class TextToSpeechImpl(
             override fun onError(utteranceId: String?) { }
         })
 
-        isInit.value = true
+        // voices can appear after onInit! so delay snapshot
+        Handler(Looper.getMainLooper()).postDelayed({
+            voices = textToSpeech.voices.toList()
+            _isInit.update { true }
+        }, 200)
     }
-
-    fun getVoices(): Set<Voice> =
-        textToSpeech.voices
 
     fun speak(
         timestamp: String,
         message: String,
         isForceVolume: Boolean = false) {
 
-        if (message.isBlank() || !isInit.value) return
+        if (message.isBlank() || !_isInit.value) return
 
         // config engine params
-        textToSpeech.setVoice(voice.value)
+//        textToSpeech.setVoice(voice)
         textToSpeech.setSpeechRate(speed)
         textToSpeech.setPitch(pitch)
         val params =

@@ -7,7 +7,6 @@ import android.content.Context.CLIPBOARD_SERVICE
 import android.speech.tts.Voice
 import android.widget.Toast
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.datastore.dataStore
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import com.sommerengineering.baraudio.hilt.RapidApi
@@ -35,14 +34,40 @@ class MainRepository @Inject constructor(
     val tts: TextToSpeechImpl,
 ) {
 
-    private val _voices = MutableStateFlow<List<Voice>>(emptyList())
-    val voices = _voices.asStateFlow()
+    val isTtsInit = tts.isInit
+
+    val voices
+        get() = tts.voices
+
+    var voice
+        get() = tts.voice
+        set(value) {
+            tts.voice = value
+            writeToDataStore(context, voiceKey, value.name)
+            speakLastMessage()
+        }
+
+    fun initTtsSettings() {
+
+        // get voice from preferences, or default
+        tts.voice = readFromDataStore(context, voiceKey)
+            ?.let { preference -> tts.voices.firstOrNull { it.name == preference }}
+            ?: tts.voices.firstOrNull { it.name == "en-gb-x-gbd-local" } // british, male
+                    ?: tts.voice
+
+        _speedDescription.update { tts.speed.toString() }
+        _pitchDescription.update { tts.pitch.toString() }
+        _queueDescription.update {
+            if (tts.isQueueAdd) queueBehaviorAddDescription
+            else queueBehaviorFlushDescription
+        }
+
+        val isMute = _isMute.value
+        tts.volume = if (isMute) 0f else 1f
+    }
 
     private val _messages = SnapshotStateList<Message>()
     val messages = _messages
-
-    private val _voiceDescription = MutableStateFlow("")
-    val voiceDescription = _voiceDescription.asStateFlow()
 
     private val _speedDescription = MutableStateFlow("")
     val speedDescription = _speedDescription.asStateFlow()
@@ -78,6 +103,7 @@ class MainRepository @Inject constructor(
 
     // load local cache from data store
     init {
+
         _isMute.update { readFromDataStore(context, volumeKey)?.toFloat() == 0f }
         _isShowQuote.update { readFromDataStore(context, showQuoteKey)?.toBooleanStrictOrNull() ?: true }
         _isFuturesWebhooks.update { readFromDataStore(context, isFuturesWebhooksKey)?.toBooleanStrictOrNull() ?: true }
@@ -101,45 +127,13 @@ class MainRepository @Inject constructor(
         writeToDataStore(context, showQuoteKey, isChecked.toString())
     }
 
-    fun observeTtsInit(onInit: () -> Unit) =
-        tts.isInit
-            .filter { it }
-            .distinctUntilChanged()
-            .onEach { onInit() }
 
-    fun initTtsSettings() {
-
-        // get voices from engine
-        val voices = tts.getVoices().sortedBy { it.locale.displayName }
-        _voices.value = voices
-
-        _voiceDescription.update { tts.voice.value.name } // todo _voiceDescription.update { beautifyVoiceName(tts.voice.value.name) }
-        _speedDescription.update { tts.speed.toString() }
-        _pitchDescription.update { tts.pitch.toString() }
-        _queueDescription.update {
-            if (tts.isQueueAdd) queueBehaviorAddDescription
-            else queueBehaviorFlushDescription
-        }
-
-        val isMute = _isMute.value
-        tts.volume = if (isMute) 0f else 1f
-    }
 
     fun getVoiceIndex() : Int {
-        val voices = _voices.value
         return voices.indexOf(
             voices.find {
-                it == tts.voice.value
+                it == tts.voice
             })
-    }
-
-    fun setVoice(
-        voice: Voice) {
-
-        tts.voice.value = voice
-        _voiceDescription.update { voice.name } // todo _voiceDescription.update { beautifyVoiceName(voice.name) }
-        writeToDataStore(context, voiceKey, voice.name)
-        speakLastMessage()
     }
 
     fun speakLastMessage() {
