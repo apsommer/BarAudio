@@ -55,7 +55,7 @@ class MainViewModel @Inject constructor(
     init {
 
         // wait for system initialization of tts engine, takes a few seconds
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Default) {
 
             repo.isTtsInit
                 .filter { it }
@@ -101,7 +101,7 @@ class MainViewModel @Inject constructor(
     fun setIsFullScreen(enabled: Boolean) =
         viewModelScope.launch { repo.setFullScreen(enabled) }
 
-    fun getVoiceIndex() = repo.getVoiceIndex()
+
     fun getSpeed() = repo.getSpeed()
     fun setSpeed(rawSpeed: Float) { repo.setSpeed(rawSpeed) }
     fun getPitch() = repo.getPitch()
@@ -142,11 +142,14 @@ class MainViewModel @Inject constructor(
             else uiModeLightDescription
     }
 
+    var voiceIndex = 0
     private val beautifulVoiceNames = hashMapOf<String, String>()
     private fun createBeautifulVoices() {
 
         // group voices by locale
-        voices = repo.voices.sortedBy { it.locale.displayName }
+        voices = repo.voices.sortedBy { it.locale.toLanguageTag() }
+        voiceIndex = voices.indexOfFirst { it.name == voice.name }
+
         val groupedByLocaleVoices = voices.groupBy { it.locale.toLanguageTag() }
 
         // add roman numeral to name
@@ -158,7 +161,7 @@ class MainViewModel @Inject constructor(
                 }
             }
     }
-
+    
     private fun enumerateVoices(
         voice: Voice,
         number: Int): String {
