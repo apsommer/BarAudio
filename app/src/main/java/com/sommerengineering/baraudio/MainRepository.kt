@@ -42,10 +42,21 @@ class MainRepository @Inject constructor(
     var voice
         get() = tts.voice
         set(value) {
+
             tts.voice = value
             writeToDataStore(context, voiceKey, value.name)
             speakLastMessage()
         }
+
+    var speed
+        get() = tts.speed
+        set(value) {
+
+            val roundedSpeed = ((value* 10).roundToInt()).toFloat() / 10
+            tts.speed = roundedSpeed
+            writeToDataStore(context, speedKey, roundedSpeed.toString())
+        }
+
 
     fun initTtsSettings() {
 
@@ -53,9 +64,10 @@ class MainRepository @Inject constructor(
         tts.voice = readFromDataStore(context, voiceKey)
             ?.let { preference -> tts.voices.firstOrNull { it.name == preference }}
             ?: tts.voices.firstOrNull { it.name == "en-gb-x-gbd-local" } // british, male
-                    ?: tts.voice
+            ?: tts.voice
 
-        _speedDescription.update { tts.speed.toString() }
+        tts.speed = readFromDataStore(context, speedKey)?.toFloat() ?: 1f
+
         _pitchDescription.update { tts.pitch.toString() }
         _queueDescription.update {
             if (tts.isQueueAdd) queueBehaviorAddDescription
@@ -68,9 +80,6 @@ class MainRepository @Inject constructor(
 
     private val _messages = SnapshotStateList<Message>()
     val messages = _messages
-
-    private val _speedDescription = MutableStateFlow("")
-    val speedDescription = _speedDescription.asStateFlow()
 
     private val _pitchDescription = MutableStateFlow("")
     val pitchDescription = _pitchDescription.asStateFlow()
@@ -171,15 +180,7 @@ class MainRepository @Inject constructor(
         writeToDataStore(context, volumeKey, tts.volume.toString())
     }
 
-    fun getSpeed() = tts.speed
-    fun setSpeed(
-        rawSpeed: Float) {
 
-        val roundedSpeed = ((rawSpeed * 10).roundToInt()).toFloat() / 10
-        tts.speed = roundedSpeed
-        writeToDataStore(context, speedKey, roundedSpeed.toString())
-        _speedDescription.update { roundedSpeed.toString() }
-    }
 
     fun getPitch() = tts.pitch
     fun setPitch(

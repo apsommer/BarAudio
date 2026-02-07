@@ -64,7 +64,8 @@ fun SettingsDrawer(
     val uriHandler = LocalUriHandler.current
 
     val voiceDescription = viewModel.voiceDescription
-    val speedDescription by viewModel.speedDescription.collectAsState()
+    val speedDescription = viewModel.speedDescription
+
     val pitchDescription by viewModel.pitchDescription.collectAsState()
     val queueDescription by viewModel.queueDescription.collectAsState()
     val isShowQuote by viewModel.isShowQuote.collectAsState()
@@ -122,8 +123,8 @@ fun SettingsDrawer(
                     description = speedDescription) {
 
                         SliderImpl(
-                            initPosition = viewModel.getSpeed(),
-                            onValueChanged = { viewModel.setSpeed(it) },
+                            initPosition = viewModel.speed,
+                            onValueChanged = { viewModel.speed = it },
                             onValueChangeFinished = { viewModel.speakLastMessage() })
                     }
             }

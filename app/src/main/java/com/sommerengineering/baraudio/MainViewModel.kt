@@ -42,6 +42,9 @@ class MainViewModel @Inject constructor(
 ) : ViewModel() {
 
     var voiceDescription by mutableStateOf("")
+    var speedDescription by mutableStateOf("")
+
+    var voices by mutableStateOf<List<Voice>>(emptyList())
 
     var voice
         get() = repo.voice
@@ -50,7 +53,12 @@ class MainViewModel @Inject constructor(
             voiceDescription = beautifyVoiceName(value.name)
         }
 
-    var voices by mutableStateOf<List<Voice>>(emptyList())
+    var speed
+        get() = repo.speed
+        set(value) {
+            repo.speed = value
+            speedDescription = repo.speed.toString()
+        }
 
     init {
 
@@ -76,11 +84,11 @@ class MainViewModel @Inject constructor(
 
     private fun refreshTtsSettingDescriptions() {
         voiceDescription = beautifyVoiceName(repo.voice.name)
+        speedDescription = repo.speed.toString()
     }
 
     val messages = repo.messages
 
-    var speedDescription = repo.speedDescription
     var pitchDescription = repo.pitchDescription
     var queueDescription = repo.queueDescription
     var isMute = repo.isMute
@@ -101,9 +109,6 @@ class MainViewModel @Inject constructor(
     fun setIsFullScreen(enabled: Boolean) =
         viewModelScope.launch { repo.setFullScreen(enabled) }
 
-
-    fun getSpeed() = repo.getSpeed()
-    fun setSpeed(rawSpeed: Float) { repo.setSpeed(rawSpeed) }
     fun getPitch() = repo.getPitch()
     fun setPitch(rawPitch: Float) = repo.setPitch(rawPitch)
     fun isQueueAdd() = repo.isQueueAdd()
@@ -161,7 +166,7 @@ class MainViewModel @Inject constructor(
                 }
             }
     }
-    
+
     private fun enumerateVoices(
         voice: Voice,
         number: Int): String {

@@ -33,11 +33,24 @@ class TextToSpeechImpl(
     var voices: List<Voice> = emptyList()
         private set
 
-    var voice
-        get() = textToSpeech.voice
-        set(value) { textToSpeech.voice = value }
+    private lateinit var _voice: Voice
+    private var _speed = 1f
+    private var _pitch = 1f
 
-    var speed by mutableFloatStateOf(1f)
+    var voice
+        get() = _voice
+        set(value) {
+            _voice = value
+            textToSpeech.voice = value
+        }
+
+    var speed
+        get() = _speed
+        set(value) {
+            _speed = value
+            textToSpeech.setSpeechRate(value)
+        }
+
     var pitch by mutableFloatStateOf(1f)
     var isQueueAdd by mutableStateOf(true)
     var volume by mutableFloatStateOf(0f)
@@ -47,7 +60,6 @@ class TextToSpeechImpl(
         // initialization complete
         if (status != TextToSpeech.SUCCESS) return
 
-        speed = readFromDataStore(context, speedKey)?.toFloat() ?: 1f
         pitch = readFromDataStore(context, pitchKey)?.toFloat() ?: 1f
         isQueueAdd = readFromDataStore(context, isQueueFlushKey)?.toBooleanStrictOrNull() ?: true
 
@@ -62,11 +74,8 @@ class TextToSpeechImpl(
             override fun onError(utteranceId: String?) { }
         })
 
-        // voices can appear after onInit! so delay snapshot
-        Handler(Looper.getMainLooper()).postDelayed({
-            voices = textToSpeech.voices.toList()
-            _isInit.update { true }
-        }, 200)
+        voices = textToSpeech.voices.toList()
+        _isInit.update { true }
     }
 
     fun speak(
