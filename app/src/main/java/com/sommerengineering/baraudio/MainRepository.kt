@@ -68,7 +68,6 @@ class MainRepository @Inject constructor(
             writeToDataStore(context, isQueueFlushKey, value.toString())
         }
 
-
     fun initTtsSettings() {
 
         // get voice from preferences, or default
@@ -81,25 +80,13 @@ class MainRepository @Inject constructor(
         tts.pitch = readFromDataStore(context, pitchKey)?.toFloat() ?: 1f
         tts.isQueueAdd = readFromDataStore(context, isQueueFlushKey)?.toBooleanStrictOrNull() ?: true
 
-        _pitchDescription.update { tts.pitch.toString() }
-        _queueDescription.update {
-            if (tts.isQueueAdd) queueBehaviorAddDescription
-            else queueBehaviorFlushDescription
-        }
-
         val isMute = _isMute.value
         tts.volume = if (isMute) 0f else 1f
     }
 
     private val _messages = SnapshotStateList<Message>()
     val messages = _messages
-
-    private val _pitchDescription = MutableStateFlow("")
-    val pitchDescription = _pitchDescription.asStateFlow()
-
-    private val _queueDescription = MutableStateFlow("")
-    val queueDescription = _queueDescription.asStateFlow()
-
+    
     private val _isMute = MutableStateFlow(false) // default unmuted
     val isMute = _isMute.asStateFlow()
 
