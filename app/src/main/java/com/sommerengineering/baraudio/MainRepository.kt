@@ -4,7 +4,6 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
-import android.speech.tts.Voice
 import android.widget.Toast
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -20,10 +19,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 import kotlin.math.roundToInt
@@ -65,6 +61,14 @@ class MainRepository @Inject constructor(
             writeToDataStore(context, pitchKey, roundedPitch.toString())
         }
 
+    var isQueueAdd
+        get() = tts.isQueueAdd
+        set(value) {
+            tts.isQueueAdd = value
+            writeToDataStore(context, isQueueFlushKey, value.toString())
+        }
+
+
     fun initTtsSettings() {
 
         // get voice from preferences, or default
@@ -75,6 +79,7 @@ class MainRepository @Inject constructor(
 
         tts.speed = readFromDataStore(context, speedKey)?.toFloat() ?: 1f
         tts.pitch = readFromDataStore(context, pitchKey)?.toFloat() ?: 1f
+        tts.isQueueAdd = readFromDataStore(context, isQueueFlushKey)?.toBooleanStrictOrNull() ?: true
 
         _pitchDescription.update { tts.pitch.toString() }
         _queueDescription.update {
@@ -177,19 +182,6 @@ class MainRepository @Inject constructor(
         if (newMute && tts.isSpeaking()) { tts.stop() }
 
         writeToDataStore(context, volumeKey, tts.volume.toString())
-    }
-
-    fun isQueueAdd() = tts.isQueueAdd
-    fun setIsQueueAdd(
-        isChecked: Boolean) {
-
-        tts.isQueueAdd = isChecked
-        writeToDataStore(context, isQueueFlushKey, isChecked.toString())
-
-        _queueDescription.update {
-            if (tts.isQueueAdd) queueBehaviorAddDescription
-            else queueBehaviorFlushDescription
-        }
     }
 
     fun saveToClipboard(

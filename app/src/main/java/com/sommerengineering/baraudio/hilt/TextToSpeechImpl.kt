@@ -6,12 +6,9 @@ import android.speech.tts.UtteranceProgressListener
 import android.speech.tts.Voice
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.os.bundleOf
 import com.sommerengineering.baraudio.cancelAllNotifications
-import com.sommerengineering.baraudio.isQueueFlushKey
-import com.sommerengineering.baraudio.pitchKey
 import com.sommerengineering.baraudio.volumeKey
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -34,6 +31,7 @@ class TextToSpeechImpl(
     private lateinit var _voice: Voice
     private var _speed = 1f
     private var _pitch = 1f
+    private var _isQueueAdd = true
 
     var voice
         get() = _voice
@@ -56,7 +54,12 @@ class TextToSpeechImpl(
             textToSpeech.setPitch(value)
         }
 
-    var isQueueAdd by mutableStateOf(true)
+    var isQueueAdd
+        get() = _isQueueAdd
+        set(value) {
+            _isQueueAdd = value
+        }
+
     var volume by mutableFloatStateOf(0f)
 
     override fun onInit(status: Int) {
@@ -64,7 +67,7 @@ class TextToSpeechImpl(
         // initialization complete
         if (status != TextToSpeech.SUCCESS) return
 
-        isQueueAdd = readFromDataStore(context, isQueueFlushKey)?.toBooleanStrictOrNull() ?: true
+
 
         // attach progress listener to clear notifications
         textToSpeech.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
@@ -89,9 +92,6 @@ class TextToSpeechImpl(
         if (message.isBlank() || !_isInit.value) return
 
         // config engine params
-//        textToSpeech.setVoice(voice)
-        textToSpeech.setSpeechRate(speed)
-        textToSpeech.setPitch(pitch)
         val params =
             if (isForceVolume) bundleOf(volumeKey to 1f)
             else bundleOf(volumeKey to volume)
@@ -99,7 +99,7 @@ class TextToSpeechImpl(
         // speak message
         textToSpeech.speak(
             message,
-            isQueueAdd.compareTo(false),
+            _isQueueAdd.compareTo(false),
             params,
             timestamp)
     }

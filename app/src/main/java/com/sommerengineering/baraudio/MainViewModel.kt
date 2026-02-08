@@ -3,7 +3,6 @@ package com.sommerengineering.baraudio
 import android.content.Context
 import android.speech.tts.Voice
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.credentials.CredentialManager
@@ -23,13 +22,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import kotlin.collections.set
 
@@ -46,6 +43,7 @@ class MainViewModel @Inject constructor(
     var voiceDescription by mutableStateOf("")
     var speedDescription by mutableStateOf("")
     var pitchDescription by mutableStateOf("")
+    var queueDescription by mutableStateOf("")
 
     var voices by mutableStateOf<List<Voice>>(emptyList())
 
@@ -68,6 +66,15 @@ class MainViewModel @Inject constructor(
         set(value) {
             repo.pitch = value
             pitchDescription = repo.pitch.toString()
+        }
+
+    var isQueueAdd
+        get() = repo.isQueueAdd
+        set(value) {
+            repo.isQueueAdd = value
+            queueDescription =
+                if (value) queueBehaviorAddDescription
+                else queueBehaviorFlushDescription
         }
 
     init {
@@ -96,9 +103,11 @@ class MainViewModel @Inject constructor(
         voiceDescription = beautifyVoiceName(repo.voice.name)
         speedDescription = repo.speed.toString()
         pitchDescription = repo.pitch.toString()
+        queueDescription =
+            if (tts.isQueueAdd) queueBehaviorAddDescription
+            else queueBehaviorFlushDescription
     }
 
-    var queueDescription = repo.queueDescription
     var isMute = repo.isMute
     var isShowQuote = repo.isShowQuote
     var isFuturesWebhooks = repo.isFuturesWebhooks
@@ -117,8 +126,6 @@ class MainViewModel @Inject constructor(
     fun setIsFullScreen(enabled: Boolean) =
         viewModelScope.launch { repo.setFullScreen(enabled) }
 
-    fun isQueueAdd() = repo.isQueueAdd()
-    fun setIsQueueAdd(isChecked: Boolean) = repo.setIsQueueAdd(isChecked)
     fun toggleMute() = repo.toggleMute()
     fun speakLastMessage() = repo.speakLastMessage()
     fun saveToWebhookClipboard(webhookUrl: String) = repo.saveToClipboard(webhookUrl)

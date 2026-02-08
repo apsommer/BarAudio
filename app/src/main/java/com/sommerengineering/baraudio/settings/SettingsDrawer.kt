@@ -66,7 +66,8 @@ fun SettingsDrawer(
     val voiceDescription = viewModel.voiceDescription
     val speedDescription = viewModel.speedDescription
     val pitchDescription = viewModel.pitchDescription
-    val queueDescription by viewModel.queueDescription.collectAsState()
+    val queueDescription = viewModel.queueDescription
+
     val isShowQuote by viewModel.isShowQuote.collectAsState()
     val isFuturesWebhooks by viewModel.isFuturesWebhooks.collectAsState()
     val isFullScreen by viewModel.isFullScreen.collectAsState()
@@ -150,8 +151,8 @@ fun SettingsDrawer(
                     description = queueDescription) {
 
                         Switch(
-                            checked = viewModel.isQueueAdd(),
-                            onCheckedChange = { viewModel.setIsQueueAdd(it) })
+                            checked = viewModel.isQueueAdd,
+                            onCheckedChange = { viewModel.isQueueAdd = it })
                     }
             }
 
