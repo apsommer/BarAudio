@@ -70,11 +70,11 @@ class MainRepository @Inject constructor(
 
     fun initTtsSettings() {
 
-        // get voice from preferences, or default
+        // config tts with saved preferences
         tts.voice = readFromDataStore(context, voiceKey)
-            ?.let { preference -> tts.voices.firstOrNull { it.name == preference }}
-            ?: tts.voices.firstOrNull { it.name == defaultVoice }
-            ?: tts.voice
+            ?.let { preference -> voices.firstOrNull { it.name == preference }}
+            ?: voices.firstOrNull { it.name == defaultVoice }
+            ?: voice
 
         tts.speed = readFromDataStore(context, speedKey)?.toFloat() ?: 1f
         tts.pitch = readFromDataStore(context, pitchKey)?.toFloat() ?: 1f
@@ -86,7 +86,7 @@ class MainRepository @Inject constructor(
 
     private val _messages = SnapshotStateList<Message>()
     val messages = _messages
-    
+
     private val _isMute = MutableStateFlow(false) // default unmuted
     val isMute = _isMute.asStateFlow()
 

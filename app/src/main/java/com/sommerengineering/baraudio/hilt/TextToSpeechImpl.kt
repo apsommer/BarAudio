@@ -20,38 +20,38 @@ class TextToSpeechImpl(
     private val context: Context
 ) : TextToSpeech.OnInitListener {
 
-    private val textToSpeech = TextToSpeech(context, this)
-
-    var _isInit = MutableStateFlow(false)
-    val isInit = _isInit.asStateFlow()
-
-    var voices: List<Voice> = emptyList()
-        private set
-
+    private val _textToSpeech = TextToSpeech(context, this)
+    private var _isInit = MutableStateFlow(false)
+    private lateinit var _voices: List<Voice>
     private lateinit var _voice: Voice
     private var _speed = 1f
     private var _pitch = 1f
     private var _isQueueAdd = true
 
+    val isInit = _isInit.asStateFlow()
+
+    val voices
+        get() = _voices
+
     var voice
         get() = _voice
         set(value) {
             _voice = value
-            textToSpeech.voice = value
+            _textToSpeech.voice = value
         }
 
     var speed
         get() = _speed
         set(value) {
             _speed = value
-            textToSpeech.setSpeechRate(value)
+            _textToSpeech.setSpeechRate(value)
         }
 
     var pitch
         get() = _pitch
         set(value) {
             _pitch = value
-            textToSpeech.setPitch(value)
+            _textToSpeech.setPitch(value)
         }
 
     var isQueueAdd
@@ -67,10 +67,11 @@ class TextToSpeechImpl(
         // initialization complete
         if (status != TextToSpeech.SUCCESS) return
 
-
+        _voices = _textToSpeech.voices.toList()
+        _isInit.update { true }
 
         // attach progress listener to clear notifications
-        textToSpeech.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+        _textToSpeech.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
 
             override fun onStart(utteranceId: String?) = cancelAllNotifications(context)
 
@@ -79,9 +80,6 @@ class TextToSpeechImpl(
             override fun onStop(timestamp: String?, isInterupted: Boolean) { }
             override fun onError(utteranceId: String?) { }
         })
-
-        voices = textToSpeech.voices.toList()
-        _isInit.update { true }
     }
 
     fun speak(
@@ -97,7 +95,7 @@ class TextToSpeechImpl(
             else bundleOf(volumeKey to volume)
 
         // speak message
-        textToSpeech.speak(
+        _textToSpeech.speak(
             message,
             _isQueueAdd.compareTo(false),
             params,
@@ -105,6 +103,6 @@ class TextToSpeechImpl(
     }
 
     // mute
-    fun isSpeaking() = textToSpeech.isSpeaking
-    fun stop() = textToSpeech.stop()
+    fun isSpeaking() = _textToSpeech.isSpeaking
+    fun stop() = _textToSpeech.stop()
 }
