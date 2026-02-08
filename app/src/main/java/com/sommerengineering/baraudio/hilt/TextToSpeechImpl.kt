@@ -14,25 +14,23 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-
-
 class TextToSpeechImpl(
     private val context: Context
 ) : TextToSpeech.OnInitListener {
 
+    // system text to speech engine
     private val _textToSpeech = TextToSpeech(context, this)
-    private var _isInit = MutableStateFlow(false)
-    private lateinit var _voices: List<Voice>
-    private lateinit var _voice: Voice
-    private var _speed = 1f
-    private var _pitch = 1f
-    private var _isQueueAdd = true
 
+    // flow state of initialization
+    private var _isInit = MutableStateFlow(false)
     val isInit = _isInit.asStateFlow()
 
+    // properties
+    private lateinit var _voices: List<Voice>
     val voices
         get() = _voices
 
+    private lateinit var _voice: Voice
     var voice
         get() = _voice
         set(value) {
@@ -40,6 +38,7 @@ class TextToSpeechImpl(
             _textToSpeech.voice = value
         }
 
+    private var _speed = 1f
     var speed
         get() = _speed
         set(value) {
@@ -47,6 +46,7 @@ class TextToSpeechImpl(
             _textToSpeech.setSpeechRate(value)
         }
 
+    private var _pitch = 1f
     var pitch
         get() = _pitch
         set(value) {
@@ -54,28 +54,30 @@ class TextToSpeechImpl(
             _textToSpeech.setPitch(value)
         }
 
+    private var _isQueueAdd = true
     var isQueueAdd
         get() = _isQueueAdd
         set(value) {
             _isQueueAdd = value
         }
 
-    var volume by mutableFloatStateOf(0f)
+    private var _volume = 1f
+    var volume
+        get() = _volume
+        set(value) {
+            _volume = value
+        }
 
     override fun onInit(status: Int) {
 
         // initialization complete
         if (status != TextToSpeech.SUCCESS) return
-
-        _voices = _textToSpeech.voices.toList()
         _isInit.update { true }
+        _voices = _textToSpeech.voices.toList()
 
         // attach progress listener to clear notifications
         _textToSpeech.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
-
             override fun onStart(utteranceId: String?) = cancelAllNotifications(context)
-
-            // ignore
             override fun onDone(timestamp: String?) { }
             override fun onStop(timestamp: String?, isInterupted: Boolean) { }
             override fun onError(utteranceId: String?) { }
@@ -87,12 +89,12 @@ class TextToSpeechImpl(
         message: String,
         isForceVolume: Boolean = false) {
 
-        if (message.isBlank() || !_isInit.value) return
+        if (message.isBlank()) return
 
-        // config engine params
+        // config volume
         val params =
             if (isForceVolume) bundleOf(volumeKey to 1f)
-            else bundleOf(volumeKey to volume)
+            else bundleOf(volumeKey to _volume)
 
         // speak message
         _textToSpeech.speak(

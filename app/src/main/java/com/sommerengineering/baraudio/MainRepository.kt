@@ -38,7 +38,6 @@ class MainRepository @Inject constructor(
     var voice
         get() = tts.voice
         set(value) {
-
             tts.voice = value
             writeToDataStore(context, voiceKey, value.name)
             speakLastMessage()
@@ -47,7 +46,6 @@ class MainRepository @Inject constructor(
     var speed
         get() = tts.speed
         set(value) {
-
             val roundedSpeed = ((value* 10).roundToInt()).toFloat() / 10
             tts.speed = roundedSpeed
             writeToDataStore(context, speedKey, roundedSpeed.toString())
@@ -147,23 +145,18 @@ class MainRepository @Inject constructor(
             isForceVolume = true)
     }
 
-    fun toggleMute() {
-
-        val currentMute = _isMute.value
-        setMute(!currentMute) // swap
-    }
-
+    fun toggleMute() = setMute(!_isMute.value)
     private fun setMute(
-        newMute: Boolean) {
+        isMute: Boolean) {
 
-        _isMute.update { newMute }
+        _isMute.update { isMute }
 
         // set volume
-        if (newMute) { tts.volume = 0f }
+        if (isMute) { tts.volume = 0f }
         else { tts.volume = 1f }
 
-        // stop current speaking
-        if (newMute && tts.isSpeaking()) { tts.stop() }
+        // stop any current speech
+        if (isMute && tts.isSpeaking()) { tts.stop() }
 
         writeToDataStore(context, volumeKey, tts.volume.toString())
     }
