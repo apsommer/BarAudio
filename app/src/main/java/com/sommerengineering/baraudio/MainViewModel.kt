@@ -33,11 +33,11 @@ import kotlin.collections.set
 @HiltViewModel
 class MainViewModel @Inject constructor(
     val repo: MainRepository,
-    val tts: TextToSpeechImpl,
     val credentialManager: CredentialManager,
     @ApplicationContext val context: Context
 ) : ViewModel() {
 
+    val isTtsInit = repo.isTtsInit
     val messages = repo.messages
 
     var voiceDescription by mutableStateOf("")
@@ -104,7 +104,7 @@ class MainViewModel @Inject constructor(
         speedDescription = repo.speed.toString()
         pitchDescription = repo.pitch.toString()
         queueDescription =
-            if (tts.isQueueAdd) queueBehaviorAddDescription
+            if (isQueueAdd) queueBehaviorAddDescription
             else queueBehaviorFlushDescription
     }
 
@@ -212,41 +212,4 @@ class MainViewModel @Inject constructor(
 
     fun beautifyVoiceName(name: String) = beautifulVoiceNames[name] ?: ""
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // todo move these into composables
-    // images //////////////////////////////////////////////////////////////////////////////////////
-    
-    fun getBackgroundId() =
-        if (isDarkMode) R.drawable.background_skyline_dark
-        else R.drawable.background_skyline
-
-    fun getOriginImageId(
-        origin: String): Int? {
-
-        return when (origin) {
-            in tradingviewWhitelistIps -> {
-                if (isDarkMode) R.drawable.tradingview_light
-                else R.drawable.tradingview_dark
-            }
-            trendspiderWhitelistIp -> R.drawable.trendspider
-            com.sommerengineering.baraudio.messages.error -> R.drawable.error
-            else -> {
-                if (BuildConfig.BUILD_TYPE == buildTypeDebug) R.drawable.insomnia
-                else null
-            }
-        }
-    }
 }

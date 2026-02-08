@@ -40,6 +40,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainViewModel
+import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.areNotificationsEnabled
 import com.sommerengineering.baraudio.backgroundPadding
 import com.sommerengineering.baraudio.colorTransitionTimeMillis
@@ -63,8 +64,11 @@ fun MessagesScreen(
     var isRefreshing by remember { mutableStateOf(false) }
     val pullToRefreshState = rememberPullToRefreshState()
     val quoteState by viewModel.mindfulnessQuoteState.collectAsState()
-
     val isShowQuote by viewModel.isShowQuote.collectAsState()
+
+    val backgroundImageId =
+        if (viewModel.isDarkMode) R.drawable.background_skyline_dark
+        else R.drawable.background_skyline
 
     // side drawer
     ModalNavigationDrawer(
@@ -151,7 +155,7 @@ fun MessagesScreen(
                             bottom = 64.dp
                         )
                         .align(Alignment.Center),
-                    painter = painterResource(viewModel.getBackgroundId()),
+                    painter = painterResource(backgroundImageId),
                     contentDescription = null,
                     alpha = animatedAlpha
                 )

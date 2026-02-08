@@ -26,7 +26,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.sommerengineering.baraudio.BuildConfig
 import com.sommerengineering.baraudio.MainViewModel
+import com.sommerengineering.baraudio.R
+import com.sommerengineering.baraudio.buildTypeDebug
 import com.sommerengineering.baraudio.edgePadding
 import com.sommerengineering.baraudio.settingsIconSize
 
@@ -37,6 +40,18 @@ fun MessageItem(
     modifier: Modifier,
     message: Message,
     onRemove: () -> Unit) {
+
+    // origin image
+    val webhookOriginImageId: Int = when (message.origin) {
+        in tradingviewWhitelistIps -> {
+            if (viewModel.isDarkMode) R.drawable.tradingview_light
+            else R.drawable.tradingview_dark
+        }
+        trendspiderWhitelistIp -> R.drawable.trendspider
+        insomniaIp -> R.drawable.insomnia
+        error -> R.drawable.error
+        else -> android.R.drawable.presence_online
+    }
 
     SwipeToDismissBox(
         state = rememberSwipeToDismissBoxState(),
@@ -58,19 +73,24 @@ fun MessageItem(
                 Row(
                     modifier = Modifier
                         .clip(RoundedCornerShape(8.dp))
-                        .border(BorderStroke(
-                            width = 1.dp,
-                            color =
-                                if (isRecent) MaterialTheme.colorScheme.outlineVariant
-                                else MaterialTheme.colorScheme.outlineVariant),
-                            shape = RoundedCornerShape(8.dp))
+                        .border(
+                            BorderStroke(
+                                width = 1.dp,
+                                color =
+                                    if (isRecent) MaterialTheme.colorScheme.outlineVariant
+                                    else MaterialTheme.colorScheme.outlineVariant
+                            ),
+                            shape = RoundedCornerShape(8.dp)
+                        )
                         .background(
                             color =
                                 if (isRecent) MaterialTheme.colorScheme.surfaceBright
-                                else MaterialTheme.colorScheme.surfaceContainer)
+                                else MaterialTheme.colorScheme.surfaceContainer
+                        )
                         .padding(
                             horizontal = 16.dp,
-                            vertical = 12.dp),
+                            vertical = 12.dp
+                        ),
                     verticalAlignment = Alignment.CenterVertically) {
 
                     Column(
@@ -99,16 +119,14 @@ fun MessageItem(
                             .padding(edgePadding))
 
                     // origin
-                    viewModel
-                        .getOriginImageId(message.origin)?.let {
-                            Image(
-                                modifier = Modifier
-                                    .size(settingsIconSize),
-                                painter = painterResource(it),
-                                contentDescription = null)
-                        }
+                    Image(
+                        modifier = Modifier
+                            .size(settingsIconSize),
+                        painter = painterResource(webhookOriginImageId),
+                        contentDescription = null)
                 }
             }
         }
     }
 }
+

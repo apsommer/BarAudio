@@ -8,6 +8,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.sommerengineering.baraudio.hilt.getDatabaseReference
 import com.sommerengineering.baraudio.logException
+import com.sommerengineering.baraudio.logMessage
 import com.sommerengineering.baraudio.messageKey
 import com.sommerengineering.baraudio.messageMaxSize
 import com.sommerengineering.baraudio.messagesNode
@@ -49,6 +50,7 @@ fun listenToDatabase(
                 val json = JSONObject(rawMessage)
                 message = json.getString(messageKey)
                 origin = json.getString(originKey)
+                logMessage(origin)
 
             } catch (e: JSONException) {
 

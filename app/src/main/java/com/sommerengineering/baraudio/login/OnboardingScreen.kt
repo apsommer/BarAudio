@@ -117,7 +117,7 @@ fun OnboardingText(
 
             0 -> {
                 val text =
-                    if (viewModel.tts._isInit.collectAsState().value) ttsInstalledTitle
+                    if (viewModel.isTtsInit.collectAsState().value) ttsInstalledTitle
                     else ttsNotInstalledTitle
                 append(text)
             }
