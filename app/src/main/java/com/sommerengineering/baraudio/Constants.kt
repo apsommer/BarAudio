@@ -14,8 +14,9 @@ fun logException(e: Exception) {
 }
 
 // durations
-const val colorTransitionTimeMillis = 1000
+const val colorTransitionTimeMillis = 100
 const val recentMessageTimeMillis = 3000
+const val bottomBarTransitionTimeMillis = 1000
 
 // urls
 const val setupUrl = "https://sommerengineering.com/baraud.io"

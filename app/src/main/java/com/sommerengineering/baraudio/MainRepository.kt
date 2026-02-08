@@ -27,7 +27,6 @@ import kotlin.math.roundToInt
 
 class MainRepository @Inject constructor(
     @ApplicationContext val context: Context,
-    @ApplicationScope val appScope: ApplicationScope,
     val rapidApi: RapidApi,
     val tts: TextToSpeechImpl,
 ) {
@@ -101,6 +100,17 @@ class MainRepository @Inject constructor(
     suspend fun setFullScreen(enabled: Boolean) {
         context.dataStore.edit {
             it[booleanPreferencesKey(isFullScreenKey)] = enabled
+        }
+    }
+
+    val isDarkMode: Flow<Boolean> =
+        context.dataStore.data.map {
+            it[booleanPreferencesKey(isDarkModeKey)] ?: false
+        }
+
+    suspend fun setDarkMode(enabled: Boolean) {
+        context.dataStore.edit {
+            it[booleanPreferencesKey(isDarkModeKey)] = enabled
         }
     }
 

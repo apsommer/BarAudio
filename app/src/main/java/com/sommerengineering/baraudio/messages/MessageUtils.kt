@@ -22,14 +22,12 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-lateinit var dbListener: ChildEventListener
-
 fun listenToDatabase(
     messages: SnapshotStateList<Message>,
     listState: LazyListState,
-    coroutine: CoroutineScope) {
+    coroutine: CoroutineScope): ChildEventListener {
 
-    dbListener = object: ChildEventListener {
+    val listener = object: ChildEventListener {
 
         override fun onChildAdded(
             snapshot: DataSnapshot,
@@ -46,14 +44,12 @@ fun listenToDatabase(
             var origin: String
 
             try {
-
                 val json = JSONObject(rawMessage)
                 message = json.getString(messageKey)
                 origin = json.getString(originKey)
                 logMessage(origin)
 
             } catch (e: JSONException) {
-
                 logException(e)
                 message = parsingError
                 origin = error
@@ -72,7 +68,6 @@ fun listenToDatabase(
 
             // limit size
             if (messages.size > messageMaxSize) {
-
                 deleteMessage(
                     messages = messages,
                     message = messages[messageMaxSize])
@@ -86,10 +81,13 @@ fun listenToDatabase(
         override fun onCancelled(error: DatabaseError) { }
     }
 
+    // attach listener to database
     // triggers once for every child on initial connection
     getDatabaseReference(messagesNode)
         .limitToLast(100)
-        .addChildEventListener(dbListener)
+        .addChildEventListener(listener)
+
+    return listener
 }
 
 fun deleteMessage(

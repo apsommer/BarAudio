@@ -134,6 +134,7 @@ fun Navigation(
 
                     // onboarding complete
                     writeToDataStore(context, onboardingKey, true.toString())
+                    isOnboardingComplete = true
 
                     controller.navigate(MessagesScreenRoute) {
                         popUpTo(OnboardingTextToSpeechScreenRoute) { inclusive = true }

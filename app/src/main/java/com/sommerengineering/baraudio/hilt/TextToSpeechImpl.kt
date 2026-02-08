@@ -72,8 +72,8 @@ class TextToSpeechImpl(
 
         // initialization complete
         if (status != TextToSpeech.SUCCESS) return
-        _isInit.update { true }
         _voices = _textToSpeech.voices.toList()
+        _isInit.update { true }
 
         // attach progress listener to clear notifications
         _textToSpeech.setOnUtteranceProgressListener(object : UtteranceProgressListener() {

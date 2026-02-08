@@ -17,15 +17,12 @@ import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.MessagesScreenRoute
 import com.sommerengineering.baraudio.OnboardingTextToSpeechScreenRoute
-import com.sommerengineering.baraudio.isOnboardingComplete
-import com.sommerengineering.baraudio.isUpdateRequired
-import com.sommerengineering.baraudio.messages.dbListener
-import com.sommerengineering.baraudio.messagesNode
-import com.sommerengineering.baraudio.hilt.getDatabaseReference
-import com.sommerengineering.baraudio.logException
-import com.sommerengineering.baraudio.logMessage
 import com.sommerengineering.baraudio.hilt.signOut
 import com.sommerengineering.baraudio.hilt.writeTokenToDatabase
+import com.sommerengineering.baraudio.isOnboardingComplete
+import com.sommerengineering.baraudio.isUpdateRequired
+import com.sommerengineering.baraudio.logException
+import com.sommerengineering.baraudio.logMessage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -60,10 +57,6 @@ fun onSignOut(
         credentialManager.clearCredentialState(
             ClearCredentialStateRequest())
     }
-
-    // clear local cache by detaching database listener
-    getDatabaseReference(messagesNode)
-        .removeEventListener(dbListener)
 
     // navigate to login screen
     controller.navigate(LoginScreenRoute) {
@@ -106,8 +99,7 @@ fun checkForcedUpdate(
             // sign out, if needed
             onSignOut(
                 credentialManager = credentialManager,
-                controller = controller,
-                viewModel = viewModel)
+                controller = controller)
 
             // launch system update flow ui
             onForcedUpdate(

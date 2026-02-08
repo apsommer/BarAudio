@@ -22,8 +22,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.BuildConfig
 import com.sommerengineering.baraudio.allowNotificationsTitle
+import com.sommerengineering.baraudio.bottomBarTransitionTimeMillis
 import com.sommerengineering.baraudio.channelId
-import com.sommerengineering.baraudio.colorTransitionTimeMillis
 import com.sommerengineering.baraudio.edgePadding
 
 @Composable
@@ -37,10 +37,10 @@ fun AllowNotificationsBottomBar(
         visible = !areNotificationsAllowed,
         enter = slideInVertically(
             initialOffsetY = { it },
-            animationSpec = tween(colorTransitionTimeMillis)),
+            animationSpec = tween(bottomBarTransitionTimeMillis)),
         exit = slideOutVertically(
             targetOffsetY = { it },
-            animationSpec = tween(colorTransitionTimeMillis))) {
+            animationSpec = tween(bottomBarTransitionTimeMillis))) {
 
         Row(
             modifier = Modifier

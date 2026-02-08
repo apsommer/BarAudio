@@ -126,39 +126,22 @@ class MainViewModel @Inject constructor(
     fun setIsFullScreen(enabled: Boolean) =
         viewModelScope.launch { repo.setFullScreen(enabled) }
 
+    // dark mode
+    val isDarkMode = repo.isDarkMode
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    val uiModeDescription = isDarkMode
+        .map { if (it) uiModeDarkDescription else uiModeLightDescription }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, uiModeLightDescription)
+
+    fun setIsDarkMode(enabled: Boolean) =
+        viewModelScope.launch { repo.setDarkMode(enabled) }
+
     fun toggleMute() = repo.toggleMute()
     fun speakLastMessage() = repo.speakLastMessage()
     fun saveToWebhookClipboard(webhookUrl: String) = repo.saveToClipboard(webhookUrl)
     fun showQuote(isChecked: Boolean) = repo.showQuote(isChecked)
     fun setFuturesWebhooks(isChecked: Boolean) = repo.setFuturesWebhooks(isChecked)
-
-    // dark mode
-    var isDarkMode by mutableStateOf(true)
-    var isSystemInDarkTheme = false
-    var uiModeDescription by mutableStateOf("")
-
-    fun setUiMode() {
-
-        isDarkMode =
-            if (Firebase.auth.currentUser == null) isSystemInDarkTheme
-            else readFromDataStore(context, isDarkModeKey)?.toBooleanStrictOrNull() ?: true
-
-        uiModeDescription =
-            if (isDarkMode) uiModeDarkDescription
-            else uiModeLightDescription
-    }
-
-    fun setIsDarkMode(
-        context: Context,
-        isChecked: Boolean) {
-
-        isDarkMode = isChecked
-        writeToDataStore(context, isDarkModeKey, isChecked.toString())
-
-        uiModeDescription =
-            if (isDarkMode) uiModeDarkDescription
-            else uiModeLightDescription
-    }
 
     var voiceIndex = 0
     private val beautifulVoiceNames = hashMapOf<String, String>()

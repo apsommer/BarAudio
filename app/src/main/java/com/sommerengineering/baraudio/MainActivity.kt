@@ -163,7 +163,9 @@ fun cancelAllNotifications(
 fun App(
     viewModel: MainViewModel) {
 
-    AppTheme(viewModel.isDarkMode) {
+    val isDarkMode by viewModel.isDarkMode.collectAsState()
+
+    AppTheme(isDarkMode) {
         Scaffold(
             modifier = Modifier.fillMaxSize()) { padding -> padding
             Navigation(

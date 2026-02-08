@@ -73,6 +73,9 @@ fun SettingsDrawer(
     val isFullScreen by viewModel.isFullScreen.collectAsState()
     val fullScreenDescription by viewModel.fullScreenDescription.collectAsState()
 
+    val isDarkMode by viewModel.isDarkMode.collectAsState()
+    val uiModeDescription by viewModel.uiModeDescription.collectAsState()
+
     Scaffold { padding ->
 
         var isShowVoiceDialog by remember { mutableStateOf(false) }
@@ -240,11 +243,11 @@ fun SettingsDrawer(
                 SwitchSettingItem(
                     icon = R.drawable.contrast,
                     title = uiModeTitle,
-                    description = viewModel.uiModeDescription) {
+                    description = uiModeDescription) {
 
                     Switch(
-                        checked = viewModel.isDarkMode,
-                        onCheckedChange = { viewModel.setIsDarkMode(context, it) })
+                        checked = isDarkMode,
+                        onCheckedChange = { viewModel.setIsDarkMode(it) })
                 }
             }
 

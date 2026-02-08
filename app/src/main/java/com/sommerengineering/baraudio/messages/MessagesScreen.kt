@@ -25,6 +25,7 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -66,8 +67,10 @@ fun MessagesScreen(
     val quoteState by viewModel.mindfulnessQuoteState.collectAsState()
     val isShowQuote by viewModel.isShowQuote.collectAsState()
 
+    val isDarkMode by viewModel.isDarkMode.collectAsState()
+
     val backgroundImageId =
-        if (viewModel.isDarkMode) R.drawable.background_skyline_dark
+        if (isDarkMode) R.drawable.background_skyline_dark
         else R.drawable.background_skyline
 
     // side drawer
@@ -85,8 +88,15 @@ fun MessagesScreen(
             alpha = 0.5f)) {
 
         // listen to database
-        LaunchedEffect(Unit) {
-            listenToDatabase(messages, listState, coroutine)
+        DisposableEffect(Unit) {
+
+            val listener = listenToDatabase(messages, listState, coroutine)
+
+            // remove listener when done
+            onDispose {
+                getDatabaseReference(messagesNode)
+                    .removeEventListener(listener)
+            }
         }
 
         Scaffold(
@@ -169,15 +179,7 @@ fun MessagesScreen(
                         // start spinner
                         isRefreshing = true
 
-                        // remove listener
-                        getDatabaseReference(messagesNode)
-                            .removeEventListener(dbListener)
-
-                        // clear list
-                        messages.clear()
-
-                        // reattach listener
-                        listenToDatabase(messages, listState, coroutine)
+                        // todo
 
                         // dismiss indicator
                         coroutine.launch {
