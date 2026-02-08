@@ -57,16 +57,24 @@ class MainRepository @Inject constructor(
             writeToDataStore(context, speedKey, roundedSpeed.toString())
         }
 
+    var pitch
+        get() = tts.pitch
+        set(value) {
+            val roundedPitch = ((value * 10).roundToInt()).toFloat() / 10
+            tts.pitch = roundedPitch
+            writeToDataStore(context, pitchKey, roundedPitch.toString())
+        }
 
     fun initTtsSettings() {
 
         // get voice from preferences, or default
         tts.voice = readFromDataStore(context, voiceKey)
             ?.let { preference -> tts.voices.firstOrNull { it.name == preference }}
-            ?: tts.voices.firstOrNull { it.name == "en-gb-x-gbd-local" } // british, male
+            ?: tts.voices.firstOrNull { it.name == defaultVoice }
             ?: tts.voice
 
         tts.speed = readFromDataStore(context, speedKey)?.toFloat() ?: 1f
+        tts.pitch = readFromDataStore(context, pitchKey)?.toFloat() ?: 1f
 
         _pitchDescription.update { tts.pitch.toString() }
         _queueDescription.update {
@@ -136,15 +144,6 @@ class MainRepository @Inject constructor(
         writeToDataStore(context, showQuoteKey, isChecked.toString())
     }
 
-
-
-    fun getVoiceIndex() : Int {
-        return voices.indexOf(
-            voices.find {
-                it == tts.voice
-            })
-    }
-
     fun speakLastMessage() {
 
         val messages = _messages
@@ -178,18 +177,6 @@ class MainRepository @Inject constructor(
         if (newMute && tts.isSpeaking()) { tts.stop() }
 
         writeToDataStore(context, volumeKey, tts.volume.toString())
-    }
-
-
-
-    fun getPitch() = tts.pitch
-    fun setPitch(
-        rawPitch: Float) {
-
-        val roundedPitch = ((rawPitch * 10).roundToInt()).toFloat() / 10
-        tts.pitch = roundedPitch
-        writeToDataStore(context, pitchKey, roundedPitch.toString())
-        _pitchDescription.update { roundedPitch.toString() }
     }
 
     fun isQueueAdd() = tts.isQueueAdd

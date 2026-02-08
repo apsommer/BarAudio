@@ -125,3 +125,6 @@ const val period = "."
 const val soundAnimation = "sound.json"
 const val notificationAnimation = "notification.json"
 const val linkAnimation = "link.json"
+
+// tts
+const val defaultVoice = "en-gb-x-gbd-local"  // british, male

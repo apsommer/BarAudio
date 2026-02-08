@@ -1,8 +1,6 @@
 package com.sommerengineering.baraudio.hilt
 
 import android.content.Context
-import android.os.Handler
-import android.os.Looper
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.speech.tts.Voice
@@ -13,13 +11,13 @@ import androidx.compose.runtime.setValue
 import androidx.core.os.bundleOf
 import com.sommerengineering.baraudio.cancelAllNotifications
 import com.sommerengineering.baraudio.isQueueFlushKey
-import com.sommerengineering.baraudio.logMessage
 import com.sommerengineering.baraudio.pitchKey
-import com.sommerengineering.baraudio.speedKey
 import com.sommerengineering.baraudio.volumeKey
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+
+
 
 class TextToSpeechImpl(
     private val context: Context
@@ -51,7 +49,13 @@ class TextToSpeechImpl(
             textToSpeech.setSpeechRate(value)
         }
 
-    var pitch by mutableFloatStateOf(1f)
+    var pitch
+        get() = _pitch
+        set(value) {
+            _pitch = value
+            textToSpeech.setPitch(value)
+        }
+
     var isQueueAdd by mutableStateOf(true)
     var volume by mutableFloatStateOf(0f)
 
@@ -60,7 +64,6 @@ class TextToSpeechImpl(
         // initialization complete
         if (status != TextToSpeech.SUCCESS) return
 
-        pitch = readFromDataStore(context, pitchKey)?.toFloat() ?: 1f
         isQueueAdd = readFromDataStore(context, isQueueFlushKey)?.toBooleanStrictOrNull() ?: true
 
         // attach progress listener to clear notifications

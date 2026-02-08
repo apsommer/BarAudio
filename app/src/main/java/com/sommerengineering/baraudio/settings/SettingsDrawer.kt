@@ -65,8 +65,7 @@ fun SettingsDrawer(
 
     val voiceDescription = viewModel.voiceDescription
     val speedDescription = viewModel.speedDescription
-
-    val pitchDescription by viewModel.pitchDescription.collectAsState()
+    val pitchDescription = viewModel.pitchDescription
     val queueDescription by viewModel.queueDescription.collectAsState()
     val isShowQuote by viewModel.isShowQuote.collectAsState()
     val isFuturesWebhooks by viewModel.isFuturesWebhooks.collectAsState()
@@ -137,8 +136,8 @@ fun SettingsDrawer(
                     description = pitchDescription) {
 
                         SliderImpl(
-                            initPosition = viewModel.getPitch(),
-                            onValueChanged = { viewModel.setPitch(it) },
+                            initPosition = viewModel.pitch,
+                            onValueChanged = { viewModel.pitch = it },
                             onValueChangeFinished = { viewModel.speakLastMessage() })
                         }
             }
