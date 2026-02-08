@@ -228,11 +228,7 @@ class MainViewModel @Inject constructor(
 
     // todo move these into composables
     // images //////////////////////////////////////////////////////////////////////////////////////
-
-    fun getGitHubImageId() =
-        if (isDarkMode) R.drawable.github_light
-        else R.drawable.github_dark
-
+    
     fun getBackgroundId() =
         if (isDarkMode) R.drawable.background_skyline_dark
         else R.drawable.background_skyline

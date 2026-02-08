@@ -112,6 +112,7 @@ val fabButtonSize = 72.dp
 val edgePadding = 24.dp
 val backgroundPadding = 48.dp
 val settingsIconSize = edgePadding
+val loginLogoPadding = 64.dp
 
 // onboarding
 const val onboardingTotalPages = 3

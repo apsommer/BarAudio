@@ -104,9 +104,6 @@ class MainRepository @Inject constructor(
         }
     }
 
-    private val _isDarkMode = MutableStateFlow(false)
-    val isDarkMode = _isDarkMode.asStateFlow()
-
     private val _isFuturesWebhooks = MutableStateFlow(false)
     val isFuturesWebhooks = _isFuturesWebhooks.asStateFlow()
 

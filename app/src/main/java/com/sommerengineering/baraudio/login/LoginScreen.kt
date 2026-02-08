@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,6 +27,7 @@ import androidx.credentials.CredentialManager
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.loginButtonSize
+import com.sommerengineering.baraudio.loginLogoPadding
 
 @Composable
 fun LoginScreen (
@@ -34,11 +36,12 @@ fun LoginScreen (
     onForceUpdate: () -> Unit) {
 
     // inject viewmodel
-    val context = LocalContext.current
+    val context = LocalContext.current // todo remove
 
-    // size composables
-    val githubImageSize = 50.dp // touch over half circularButtonSize to align with google
-    val logoPadding = 64.dp
+    // ephemeral elements
+    val gitHubImageId =
+        if (viewModel.isDarkMode) R.drawable.github_light
+        else R.drawable.github_dark
 
     Surface {
         Column(
@@ -50,7 +53,7 @@ fun LoginScreen (
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(logoPadding),
+                    .padding(loginLogoPadding),
                 verticalArrangement = Arrangement.Center) {
                 Image(
                     painter = painterResource(R.drawable.logo_full),
@@ -111,11 +114,11 @@ fun LoginScreen (
                     Box(
                         modifier = Modifier
                             .align(Alignment.Center)
-                            .size(githubImageSize)
+                            .size(loginButtonSize + 2.dp) // touch over half circularButtonSize to align with google
                             .clip(CircleShape)) {
 
                         Image(
-                            painter = painterResource(viewModel.getGitHubImageId()),
+                            painter = painterResource(gitHubImageId),
                             contentDescription = null)
                     }
                 }
