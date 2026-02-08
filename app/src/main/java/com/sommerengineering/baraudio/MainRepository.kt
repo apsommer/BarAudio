@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import com.sommerengineering.baraudio.hilt.ApplicationScope
 import com.sommerengineering.baraudio.hilt.RapidApi
 import com.sommerengineering.baraudio.hilt.TextToSpeechImpl
 import com.sommerengineering.baraudio.hilt.dataStore
@@ -26,6 +27,7 @@ import kotlin.math.roundToInt
 
 class MainRepository @Inject constructor(
     @ApplicationContext val context: Context,
+    @ApplicationScope val appScope: ApplicationScope,
     val rapidApi: RapidApi,
     val tts: TextToSpeechImpl,
 ) {

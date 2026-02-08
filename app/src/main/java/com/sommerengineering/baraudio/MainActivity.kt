@@ -163,10 +163,6 @@ fun cancelAllNotifications(
 fun App(
     viewModel: MainViewModel) {
 
-    // track ui mode todo simplify
-    viewModel.isSystemInDarkTheme = isSystemInDarkTheme()
-    viewModel.setUiMode()
-
     AppTheme(viewModel.isDarkMode) {
         Scaffold(
             modifier = Modifier.fillMaxSize()) { padding -> padding

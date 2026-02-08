@@ -61,8 +61,6 @@ fun Navigation(
                 viewModel = viewModel,
                 onAuthentication = {
                     onAuthentication(
-                        context = context,
-                        viewModel = viewModel,
                         controller = controller)
                 },
                 onForceUpdate = {
@@ -159,8 +157,7 @@ fun Navigation(
                 onSignOut = {
                     onSignOut(
                         credentialManager = viewModel.credentialManager,
-                        controller = controller,
-                        viewModel = viewModel)
+                        controller = controller)
                 })
         }
     }

@@ -31,12 +31,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 fun onAuthentication(
-    context: Context,
-    viewModel: MainViewModel,
     controller: NavHostController) {
-
-    // reset dark mode to previous preference, if available
-    viewModel.setUiMode()
 
     // write to database, if needed
     writeTokenToDatabase()
@@ -53,8 +48,7 @@ fun onAuthentication(
 
 fun onSignOut(
     credentialManager: CredentialManager,
-    controller: NavHostController,
-    viewModel: MainViewModel) {
+    controller: NavHostController) {
 
     // user already signed-out
     if (Firebase.auth.currentUser == null) { return }
@@ -66,12 +60,6 @@ fun onSignOut(
         credentialManager.clearCredentialState(
             ClearCredentialStateRequest())
     }
-
-    // todo why clear messages?
-//    viewModel.messages.clear()
-
-    // reset dark mode to system default
-    viewModel.setUiMode()
 
     // clear local cache by detaching database listener
     getDatabaseReference(messagesNode)
