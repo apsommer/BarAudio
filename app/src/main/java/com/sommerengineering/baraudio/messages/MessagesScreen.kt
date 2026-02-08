@@ -73,6 +73,10 @@ fun MessagesScreen(
         if (isDarkMode) R.drawable.background_skyline_dark
         else R.drawable.background_skyline
 
+    LaunchedEffect(Unit) {
+        viewModel.listenToDatabase(messages)
+    }
+
     // side drawer
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -86,18 +90,6 @@ fun MessagesScreen(
         gesturesEnabled = true,
         scrimColor = DrawerDefaults.scrimColor.copy(
             alpha = 0.5f)) {
-
-        // listen to database
-        DisposableEffect(Unit) {
-
-            val listener = listenToDatabase(messages, listState, coroutine)
-
-            // remove listener when done
-            onDispose {
-                getDatabaseReference(messagesNode)
-                    .removeEventListener(listener)
-            }
-        }
 
         Scaffold(
 
@@ -202,10 +194,11 @@ fun MessagesScreen(
 
                     // messages list
                     LazyColumn(
-                        state = listState) {
+                        state = listState,
+                        reverseLayout = true) {
 
                         items(
-                            items = messages.reversed(),
+                            items = messages,
                             key = { it.timestamp }) { message ->
 
                             // highlight recent messages
