@@ -22,8 +22,8 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.google.firebase.auth.auth
 import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import com.sommerengineering.baraudio.BuildConfig
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
@@ -31,15 +31,15 @@ import com.sommerengineering.baraudio.dataDividerTitle
 import com.sommerengineering.baraudio.edgePadding
 import com.sommerengineering.baraudio.futuresWebhookDescription
 import com.sommerengineering.baraudio.futuresWebhooksTitle
-import com.sommerengineering.baraudio.screenTitle
 import com.sommerengineering.baraudio.howToSetupTitle
 import com.sommerengineering.baraudio.legalDividerTitle
-import com.sommerengineering.baraudio.setupUrl
 import com.sommerengineering.baraudio.manageSubscriptionTitle
 import com.sommerengineering.baraudio.pitchTitle
 import com.sommerengineering.baraudio.privacyTitle
 import com.sommerengineering.baraudio.privacyUrl
 import com.sommerengineering.baraudio.queueBehaviorTitle
+import com.sommerengineering.baraudio.screenTitle
+import com.sommerengineering.baraudio.setupUrl
 import com.sommerengineering.baraudio.showQuoteTitle
 import com.sommerengineering.baraudio.signOutTitle
 import com.sommerengineering.baraudio.speedTitle
@@ -73,8 +73,8 @@ fun SettingsDrawer(
     val isFullScreen by viewModel.isFullScreen.collectAsState()
     val fullScreenDescription by viewModel.fullScreenDescription.collectAsState()
 
-    val isDarkMode by viewModel.isDarkMode.collectAsState()
-    val uiModeDescription by viewModel.darkModeDescription.collectAsState()
+    val isDarkMode = viewModel.isDarkMode
+    val uiModeDescription = viewModel.darkModeDescription
 
     Scaffold { padding ->
 
@@ -247,7 +247,7 @@ fun SettingsDrawer(
 
                     Switch(
                         checked = isDarkMode,
-                        onCheckedChange = { viewModel.setDarkMode(it) })
+                        onCheckedChange = { viewModel.setIsDarkMode(it) })
                 }
             }
 

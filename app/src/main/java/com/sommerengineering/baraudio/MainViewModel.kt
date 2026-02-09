@@ -131,16 +131,21 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch { repo.setFullScreen(enabled) }
 
     // dark mode
-    var isSystemInDarkMode = false
-    val isDarkMode = repo.isDarkMode
-        .stateIn(viewModelScope, SharingStarted.Eagerly, isSystemInDarkMode)
+    var isDarkMode by mutableStateOf(false)
+        private set
 
-    fun setDarkMode(enabled: Boolean) =
-        viewModelScope.launch { repo.setDarkMode(enabled) }
+    fun initDarkMode(systemDefault: Boolean) {
+        viewModelScope.launch {
+            isDarkMode = repo.loadDarkMode(systemDefault) }
+    }
 
-    val darkModeDescription = isDarkMode
-        .map { if (it) uiDarkDescription else uiLightDescription }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, uiLightDescription)
+    fun setIsDarkMode(enabled: Boolean) {
+        isDarkMode = enabled
+        viewModelScope.launch { repo.setIsDarkMode(enabled) }
+    }
+
+    val darkModeDescription
+        get() = if (isDarkMode) uiDarkDescription else uiLightDescription
 
     fun toggleMute() = repo.toggleMute()
     fun speakLastMessage() {

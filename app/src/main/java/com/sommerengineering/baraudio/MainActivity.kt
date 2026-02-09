@@ -4,7 +4,6 @@ import android.app.NotificationChannel
 import android.app.NotificationChannelGroup
 import android.app.NotificationManager
 import android.content.Context
-import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -94,7 +93,7 @@ class MainActivity : ComponentActivity() {
         init()
 
         // get system theme
-        viewModel.isSystemInDarkMode = this.isSystemInDarkMode()
+        viewModel.initDarkMode(this.isSystemInDarkMode())
 
         // launch app
         setContent {
@@ -164,7 +163,7 @@ fun cancelAllNotifications(
 fun App(
     viewModel: MainViewModel) {
 
-    val isDarkMode by viewModel.isDarkMode.collectAsState()
+    val isDarkMode = viewModel.isDarkMode
 
     AppTheme(isDarkMode) {
         Scaffold(

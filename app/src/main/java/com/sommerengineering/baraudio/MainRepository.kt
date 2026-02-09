@@ -19,6 +19,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
@@ -112,12 +113,12 @@ class MainRepository @Inject constructor(
         }
     }
 
-    val isDarkMode: Flow<Boolean> =
-        context.dataStore.data.map {
-            it[booleanPreferencesKey(isDarkModeKey)] ?: true
-        }
+    suspend fun loadDarkMode(systemDefault: Boolean): Boolean {
+        val key = booleanPreferencesKey(isDarkModeKey)
+        return context.dataStore.data.first()[key] ?: systemDefault
+    }
 
-    suspend fun setDarkMode(enabled: Boolean) {
+    suspend fun setIsDarkMode(enabled: Boolean) {
         context.dataStore.edit {
             it[booleanPreferencesKey(isDarkModeKey)] = enabled
         }

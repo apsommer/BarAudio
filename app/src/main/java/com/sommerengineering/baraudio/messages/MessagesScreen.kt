@@ -25,7 +25,6 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -36,7 +35,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -45,10 +43,8 @@ import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.areNotificationsEnabled
 import com.sommerengineering.baraudio.backgroundPadding
 import com.sommerengineering.baraudio.colorTransitionTimeMillis
-import com.sommerengineering.baraudio.messagesNode
 import com.sommerengineering.baraudio.recentMessageTimeMillis
 import com.sommerengineering.baraudio.settings.SettingsDrawer
-import com.sommerengineering.baraudio.hilt.getDatabaseReference
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -67,7 +63,7 @@ fun MessagesScreen(
     val quoteState by viewModel.mindfulnessQuoteState.collectAsState()
     val isShowQuote by viewModel.isShowQuote.collectAsState()
 
-    val isDarkMode by viewModel.isDarkMode.collectAsState()
+    val isDarkMode = viewModel.isDarkMode
 
     val backgroundImageId =
         if (isDarkMode) R.drawable.background_skyline_dark
