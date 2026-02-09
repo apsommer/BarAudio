@@ -14,12 +14,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -30,26 +27,20 @@ class MainViewModel @Inject constructor(
     val credentialManager: CredentialManager, // todo remove
 ) : ViewModel() {
 
+    // database
+    val messages = repo.messages
     fun startListening() = repo.startListening()
     fun deleteAllMessages() = repo.deleteAllMessages()
     fun deleteMessage(message: Message) = repo.deleteMessage(message)
+    override fun onCleared() { repo.stopListening() }
 
-    override fun onCleared() {
-        super.onCleared()
-        repo.stopListening()
-    }
-
-    val messages = repo.messages
-
+    // text-to-speech
     val isTtsInit = repo.isTtsInit
 
-    var voiceDescription by mutableStateOf("")
-    var speedDescription by mutableStateOf("")
-    var pitchDescription by mutableStateOf("")
-    var queueDescription by mutableStateOf("")
-
+    // voice
     var voices by mutableStateOf<List<Voice>>(emptyList())
-
+    private val beautifulVoiceNames = hashMapOf<String, String>()
+    var voiceIndex = 0
     var voice
         get() = repo.voice
         set(value) {
@@ -57,21 +48,27 @@ class MainViewModel @Inject constructor(
             voiceDescription = beautifyVoiceName(value.name)
             speakLastMessage()
         }
+    var voiceDescription by mutableStateOf("")
 
+    // speed
     var speed
         get() = repo.speed
         set(value) {
             repo.speed = value
             speedDescription = repo.speed.toString()
         }
+    var speedDescription by mutableStateOf("")
 
+    // pitch
     var pitch
         get() = repo.pitch
         set(value) {
             repo.pitch = value
             pitchDescription = repo.pitch.toString()
         }
+    var pitchDescription by mutableStateOf("")
 
+    // queue behavior
     var isQueueAdd
         get() = repo.isQueueAdd
         set(value) {
@@ -80,73 +77,10 @@ class MainViewModel @Inject constructor(
                 if (value) queueBehaviorAddDescription
                 else queueBehaviorFlushDescription
         }
+    var queueDescription by mutableStateOf("")
 
-    init {
-
-        // wait for system initialization of tts engine, takes a few seconds
-        viewModelScope.launch(Dispatchers.Default) {
-
-            repo.isTtsInit
-                .filter { it }
-                .first()
-
-            repo.initTtsSettings() // config text to speech with store preferences
-            createBeautifulVoices() // add roman numerals to voice locale groups for ui
-            refreshTtsSettingDescriptions() // update descriptions for ui
-        }
-
-        // request mindfulness quote from network
-        viewModelScope.launch(Dispatchers.IO) {
-            _mindfulnessQuoteState.value = MindfulnessQuoteState.Loading
-            try { _mindfulnessQuoteState.value = MindfulnessQuoteState.Success(repo.getMindfulnessQuote()) }
-            catch (e: Exception) { _mindfulnessQuoteState.value = MindfulnessQuoteState.Error(e.message) }
-        }
-    }
-
-    private fun refreshTtsSettingDescriptions() {
-        voiceDescription = beautifyVoiceName(repo.voice.name)
-        speedDescription = repo.speed.toString()
-        pitchDescription = repo.pitch.toString()
-        queueDescription =
-            if (isQueueAdd) queueBehaviorAddDescription
-            else queueBehaviorFlushDescription
-    }
-
+    // mute button
     var isMute = repo.isMute
-    var isShowQuote = repo.isShowQuote
-    var isFuturesWebhooks = repo.isFuturesWebhooks
-
-    private var _mindfulnessQuoteState: MutableStateFlow<MindfulnessQuoteState> = MutableStateFlow(MindfulnessQuoteState.Idle)
-    val mindfulnessQuoteState = _mindfulnessQuoteState.asStateFlow()
-
-    // fullscreen
-    val isFullScreen = repo.isFullScreen
-        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
-
-    var fullScreenDescription = isFullScreen
-        .map { if (it) screenFullDescription else screenWindowedDescription }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, screenWindowedDescription)
-
-    fun setIsFullScreen(enabled: Boolean) =
-        viewModelScope.launch { repo.setFullScreen(enabled) }
-
-    // dark mode
-    var isDarkMode by mutableStateOf(false)
-        private set
-
-    fun initDarkMode(systemDefault: Boolean) {
-        viewModelScope.launch {
-            isDarkMode = repo.loadDarkMode(systemDefault) }
-    }
-
-    fun setIsDarkMode(enabled: Boolean) {
-        isDarkMode = enabled
-        viewModelScope.launch { repo.setIsDarkMode(enabled) }
-    }
-
-    val darkModeDescription
-        get() = if (isDarkMode) uiDarkDescription else uiLightDescription
-
     fun toggleMute() = repo.toggleMute()
     fun speakLastMessage() {
 
@@ -156,12 +90,81 @@ class MainViewModel @Inject constructor(
 
         repo.speakMessage(lastMessage)
     }
-    fun saveToWebhookClipboard(webhookUrl: String) = repo.saveToClipboard(webhookUrl)
-    fun showQuote(isChecked: Boolean) = repo.showQuote(isChecked)
+
+    // mindfulness quote
+    var isShowQuote = repo.isShowQuote
+    fun setIsShowQuote(isChecked: Boolean) = repo.showQuote(isChecked)
+    private var _mindfulnessQuoteState: MutableStateFlow<MindfulnessQuoteState> = MutableStateFlow(MindfulnessQuoteState.Idle)
+    val mindfulnessQuoteState = _mindfulnessQuoteState.asStateFlow()
+
+    // futures webhooks
+    var isFuturesWebhooks = repo.isFuturesWebhooks
     fun setFuturesWebhooks(isChecked: Boolean) = repo.setFuturesWebhooks(isChecked)
 
-    var voiceIndex = 0
-    private val beautifulVoiceNames = hashMapOf<String, String>()
+    init {
+
+        viewModelScope.launch(Dispatchers.Default) {
+
+            // wait for system initialization of tts engine, takes a few seconds
+            repo.isTtsInit.filter { it }.first()
+
+            repo.initTtsSettings() // config text to speech with store preferences
+            createBeautifulVoices() // add roman numerals to voice locale groups for ui
+            setTtsDescriptions() // update descriptions for ui
+        }
+
+        // request mindfulness quote from network
+        viewModelScope.launch(Dispatchers.IO) {
+
+            _mindfulnessQuoteState.value = MindfulnessQuoteState.Loading
+            try { _mindfulnessQuoteState.value = MindfulnessQuoteState.Success(repo.getMindfulnessQuote()) }
+            catch (e: Exception) { _mindfulnessQuoteState.value = MindfulnessQuoteState.Error(e.message) }
+        }
+    }
+
+    private fun setTtsDescriptions() {
+
+        voiceDescription = beautifyVoiceName(repo.voice.name)
+        speedDescription = repo.speed.toString()
+        pitchDescription = repo.pitch.toString()
+        queueDescription =
+            if (isQueueAdd) queueBehaviorAddDescription
+            else queueBehaviorFlushDescription
+    }
+
+    // fullscreen
+    var isFullScreen by mutableStateOf(false)
+        private set
+
+    fun initFullScreen() =
+        viewModelScope.launch { isFullScreen = repo.loadFullScreen() }
+
+    fun setIsFullScreen(enabled: Boolean) {
+        isFullScreen = enabled
+        viewModelScope.launch { repo.setFullScreen(enabled) }
+    }
+
+    val fullScreenDescription
+        get() = if (isFullScreen) screenFullDescription else screenWindowedDescription
+
+    // dark mode
+    var isDarkMode by mutableStateOf(false)
+        private set
+
+    fun initDarkMode(systemDefault: Boolean) =
+        viewModelScope.launch { isDarkMode = repo.loadDarkMode(systemDefault) }
+
+    fun setIsDarkMode(enabled: Boolean) {
+        isDarkMode = enabled
+        viewModelScope.launch { repo.setIsDarkMode(enabled) }
+    }
+
+    val darkModeDescription
+        get() = if (isDarkMode) uiDarkDescription else uiLightDescription
+
+    fun saveToWebhookClipboard(webhookUrl: String) = repo.saveToClipboard(webhookUrl)
+
+    // todo refactor these beautiful voice name methods
     private fun createBeautifulVoices() {
 
         // group voices by locale
@@ -211,5 +214,4 @@ class MainViewModel @Inject constructor(
     }
 
     fun beautifyVoiceName(name: String) = beautifulVoiceNames[name] ?: ""
-
 }

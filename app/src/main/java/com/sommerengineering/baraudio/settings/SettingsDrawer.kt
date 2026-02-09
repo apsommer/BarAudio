@@ -70,8 +70,8 @@ fun SettingsDrawer(
 
     val isShowQuote by viewModel.isShowQuote.collectAsState()
     val isFuturesWebhooks by viewModel.isFuturesWebhooks.collectAsState()
-    val isFullScreen by viewModel.isFullScreen.collectAsState()
-    val fullScreenDescription by viewModel.fullScreenDescription.collectAsState()
+    val isFullScreen = viewModel.isFullScreen
+    val fullScreenDescription = viewModel.fullScreenDescription
 
     val isDarkMode = viewModel.isDarkMode
     val uiModeDescription = viewModel.darkModeDescription
@@ -259,7 +259,7 @@ fun SettingsDrawer(
 
                     Switch(
                         checked = isShowQuote,
-                        onCheckedChange = { viewModel.showQuote(it)})
+                        onCheckedChange = { viewModel.setIsShowQuote(it)})
                 }
             }
 

@@ -102,16 +102,15 @@ class MainRepository @Inject constructor(
     private val _isShowQuote = MutableStateFlow(false)
     val isShowQuote = _isShowQuote.asStateFlow()
 
-    val isFullScreen: Flow<Boolean> =
-        context.dataStore.data.map {
-            it[booleanPreferencesKey(isFullScreenKey)] ?: false
-        }
+    suspend fun loadFullScreen(): Boolean {
+        val key = booleanPreferencesKey(isFullScreenKey)
+        return context.dataStore.data.first()[key] ?: false
+    }
 
-    suspend fun setFullScreen(enabled: Boolean) {
+    suspend fun setFullScreen(enabled: Boolean) =
         context.dataStore.edit {
             it[booleanPreferencesKey(isFullScreenKey)] = enabled
         }
-    }
 
     suspend fun loadDarkMode(systemDefault: Boolean): Boolean {
         val key = booleanPreferencesKey(isDarkModeKey)
@@ -152,7 +151,6 @@ class MainRepository @Inject constructor(
         _isShowQuote.update { isChecked }
         writeToDataStore(context, showQuoteKey, isChecked.toString())
     }
-
 
 
     fun toggleMute() = setMute(!_isMute.value)

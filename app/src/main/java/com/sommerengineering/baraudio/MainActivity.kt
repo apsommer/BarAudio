@@ -94,15 +94,14 @@ class MainActivity : ComponentActivity() {
 
         // get system theme
         viewModel.initDarkMode(this.isSystemInDarkMode())
+        viewModel.initFullScreen()
 
         // launch app
         setContent {
 
             // toggle full screen
-            val isFullScreen by viewModel.isFullScreen.collectAsState()
-            LaunchedEffect(isFullScreen) {
-                applyFullScreen(isFullScreen)
-            }
+            val isFullScreen = viewModel.isFullScreen
+            LaunchedEffect(isFullScreen) { applyFullScreen(isFullScreen) }
 
             App(viewModel)
         }
