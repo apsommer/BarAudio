@@ -74,7 +74,7 @@ fun SettingsDrawer(
     val fullScreenDescription by viewModel.fullScreenDescription.collectAsState()
 
     val isDarkMode by viewModel.isDarkMode.collectAsState()
-    val uiModeDescription by viewModel.uiModeDescription.collectAsState()
+    val uiModeDescription by viewModel.darkModeDescription.collectAsState()
 
     Scaffold { padding ->
 
@@ -247,7 +247,7 @@ fun SettingsDrawer(
 
                     Switch(
                         checked = isDarkMode,
-                        onCheckedChange = { viewModel.setIsDarkMode(it) })
+                        onCheckedChange = { viewModel.setDarkMode(it) })
                 }
             }
 

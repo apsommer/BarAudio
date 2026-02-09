@@ -4,13 +4,13 @@ import android.app.NotificationChannel
 import android.app.NotificationChannelGroup
 import android.app.NotificationManager
 import android.content.Context
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -20,19 +20,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.sommerengineering.baraudio.hilt.readFromDataStore
 import com.sommerengineering.baraudio.hilt.token
-import com.sommerengineering.baraudio.hilt.writeToDataStore
 import com.sommerengineering.baraudio.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.runBlocking
 
 var isAppOpen = false
 var isUpdateRequired = false
@@ -94,6 +92,13 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         init()
+
+        // get system theme
+        val isSystemInDarkMode = resources.configuration.uiMode and
+            Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
+
+        // one time blocking call to resolve theme
+        viewModel.setSystemThemeDefault(isSystemInDarkMode)
 
         // launch app
         setContent {

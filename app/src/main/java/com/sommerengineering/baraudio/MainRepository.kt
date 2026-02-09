@@ -112,9 +112,11 @@ class MainRepository @Inject constructor(
         }
     }
 
+    val defaultDarkMode = false
+
     val isDarkMode: Flow<Boolean> =
         context.dataStore.data.map {
-            it[booleanPreferencesKey(isDarkModeKey)] ?: false
+            it[booleanPreferencesKey(isDarkModeKey)] ?: defaultDarkMode
         }
 
     suspend fun setDarkMode(enabled: Boolean) {

@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -131,15 +132,20 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch { repo.setFullScreen(enabled) }
 
     // dark mode
+    private var systemThemeDefault = false
+    fun setSystemThemeDefault(isSystemInDarkMode: Boolean) {
+        systemThemeDefault = isSystemInDarkMode
+    }
+
     val isDarkMode = repo.isDarkMode
-        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+        .stateIn(viewModelScope, SharingStarted.Eagerly, systemThemeDefault)
 
-    val uiModeDescription = isDarkMode
-        .map { if (it) uiModeDarkDescription else uiModeLightDescription }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, uiModeLightDescription)
-
-    fun setIsDarkMode(enabled: Boolean) =
+    fun setDarkMode(enabled: Boolean) =
         viewModelScope.launch { repo.setDarkMode(enabled) }
+
+    val darkModeDescription = isDarkMode
+        .map { if (it) uiDarkDescription else uiLightDescription }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, uiLightDescription)
 
     fun toggleMute() = repo.toggleMute()
     fun speakLastMessage() {
