@@ -5,10 +5,9 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
 import android.widget.Toast
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
-import com.sommerengineering.baraudio.hilt.ApplicationScope
+import com.sommerengineering.baraudio.hilt.FirebaseDatabaseImpl
 import com.sommerengineering.baraudio.hilt.RapidApi
 import com.sommerengineering.baraudio.hilt.TextToSpeechImpl
 import com.sommerengineering.baraudio.hilt.dataStore
@@ -29,7 +28,21 @@ class MainRepository @Inject constructor(
     @ApplicationContext val context: Context,
     val rapidApi: RapidApi,
     val tts: TextToSpeechImpl,
+    val firebaseDatabase: FirebaseDatabaseImpl,
 ) {
+
+    val messages = firebaseDatabase.messages
+
+    fun startListening() = firebaseDatabase.startListening()
+    fun deleteMessage(message: Message) = firebaseDatabase.deleteMessage(message)
+    fun deleteAllMessages() = firebaseDatabase.deleteAllMessages()
+    fun stopListening() = firebaseDatabase.stopListening()
+
+    fun speakMessage(
+        message: String) = tts.speak(
+            timestamp = "",
+            message = message,
+            isForceVolume = true)
 
     val isTtsInit = tts.isInit
 
@@ -41,7 +54,6 @@ class MainRepository @Inject constructor(
         set(value) {
             tts.voice = value
             writeToDataStore(context, voiceKey, value.name)
-            speakLastMessage()
         }
 
     var speed
@@ -82,9 +94,6 @@ class MainRepository @Inject constructor(
         val isMute = _isMute.value
         tts.volume = if (isMute) 0f else 1f
     }
-
-    private val _messages = SnapshotStateList<Message>()
-    val messages = _messages
 
     private val _isMute = MutableStateFlow(false) // default unmuted
     val isMute = _isMute.asStateFlow()
@@ -143,19 +152,7 @@ class MainRepository @Inject constructor(
         writeToDataStore(context, showQuoteKey, isChecked.toString())
     }
 
-    fun speakLastMessage() {
 
-        val messages = _messages
-
-        val lastMessage =
-            if (messages.isEmpty()) defaultMessage
-            else messages.last().message
-
-        tts.speak(
-            timestamp = "",
-            message = lastMessage,
-            isForceVolume = true)
-    }
 
     fun toggleMute() = setMute(!_isMute.value)
     private fun setMute(

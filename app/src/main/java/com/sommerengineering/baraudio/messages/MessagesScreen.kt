@@ -58,7 +58,7 @@ fun MessagesScreen(
     viewModel: MainViewModel,
     onSignOut: () -> Unit) {
 
-    val messages = viewModel.messages
+    val messages by viewModel.messages.collectAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val listState = rememberLazyListState()
     val coroutine = rememberCoroutineScope()
@@ -74,7 +74,7 @@ fun MessagesScreen(
         else R.drawable.background_skyline
 
     LaunchedEffect(Unit) {
-        viewModel.listenToDatabase(messages)
+        viewModel.startListening()
     }
 
     // side drawer
@@ -96,7 +96,7 @@ fun MessagesScreen(
             // top bar
             topBar = {
                 MessagesTopBar(
-                    messages = messages,
+                    viewModel = viewModel,
                     onSettingsClick = {
                         coroutine.launch {
                             drawerState.open()
@@ -216,9 +216,7 @@ fun MessagesScreen(
                                     ),
                                 message = message,
                                 onRemove = {
-                                    deleteMessage(
-                                        messages = messages,
-                                        message = message)
+                                    viewModel.deleteMessage(message)
                                 }
                             )
                         }

@@ -2,32 +2,16 @@ package com.sommerengineering.baraudio
 
 import android.content.Context
 import android.speech.tts.Voice
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.credentials.CredentialManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
-import com.google.firebase.database.ChildEventListener
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.sommerengineering.baraudio.hilt.TextToSpeechImpl
-import com.sommerengineering.baraudio.hilt.getDatabaseReference
-import com.sommerengineering.baraudio.hilt.readFromDataStore
-import com.sommerengineering.baraudio.hilt.writeToDataStore
 import com.sommerengineering.baraudio.messages.Message
 import com.sommerengineering.baraudio.messages.MindfulnessQuoteState
-import com.sommerengineering.baraudio.messages.deleteMessage
-import com.sommerengineering.baraudio.messages.error
-import com.sommerengineering.baraudio.messages.tradingviewWhitelistIps
-import com.sommerengineering.baraudio.messages.trendspiderWhitelistIp
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -37,102 +21,27 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import org.json.JSONException
-import org.json.JSONObject
 import javax.inject.Inject
-import kotlin.collections.set
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
+    @ApplicationContext val context: Context,
     val repo: MainRepository,
-    val credentialManager: CredentialManager,
-    @ApplicationContext val context: Context
+    val credentialManager: CredentialManager, // todo remove
 ) : ViewModel() {
 
-    private var dbListener: ChildEventListener? = null
-
-    fun listenToDatabase(
-        messages: SnapshotStateList<Message>) {
-
-        // ensure only one listener exists
-        if (dbListener != null) return
-
-        val listener = object: ChildEventListener {
-
-            override fun onChildAdded(
-                snapshot: DataSnapshot,
-                previousChildName: String?) {
-
-                // extract attributes
-                val timestamp = snapshot.key
-                val rawMessage = snapshot.value.toString()
-
-                // global unique guarantee to never duplicate messages
-                if (messages.any { it.timestamp == timestamp }) return
-
-                // reject malformed message
-                if (timestamp.isNullOrEmpty() || rawMessage.isEmpty()) return
-
-                // parse json
-                var message: String
-                var origin: String
-
-                try {
-                    val json = JSONObject(rawMessage)
-                    message = json.getString(messageKey)
-                    origin = json.getString(originKey)
-                    logMessage(origin)
-
-                } catch (e: JSONException) {
-                    logException(e)
-                    message = parsingError
-                    origin = error
-                }
-
-                // add message to list
-                messages.add(
-                    Message(
-                        timestamp = timestamp,
-                        message = message,
-                        origin = origin))
-
-                // limit size
-                if (messages.size > messageMaxSize) {
-                    deleteMessage(
-                        messages = messages,
-                        message = messages[messageMaxSize])
-                }
-            }
-
-            // do nothing
-            override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) { }
-            override fun onChildRemoved(snapshot: DataSnapshot) { }
-            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) { }
-            override fun onCancelled(error: DatabaseError) { }
-        }
-
-        // attach listener to database, triggers once for every child on initial connection
-        getDatabaseReference(messagesNode)
-            .limitToLast(100)
-            .addChildEventListener(listener)
-
-        dbListener = listener
-    }
+    fun startListening() = repo.startListening()
+    fun deleteAllMessages() = repo.deleteAllMessages()
+    fun deleteMessage(message: Message) = repo.deleteMessage(message)
 
     override fun onCleared() {
         super.onCleared()
-
-        // detach database listener
-        dbListener?.let {
-            getDatabaseReference(messagesNode)
-                .removeEventListener(it)
-        }
-
-        dbListener = null
+        repo.stopListening()
     }
 
-    val isTtsInit = repo.isTtsInit
     val messages = repo.messages
+
+    val isTtsInit = repo.isTtsInit
 
     var voiceDescription by mutableStateOf("")
     var speedDescription by mutableStateOf("")
@@ -146,6 +55,7 @@ class MainViewModel @Inject constructor(
         set(value) {
             repo.voice = value
             voiceDescription = beautifyVoiceName(value.name)
+            speakLastMessage()
         }
 
     var speed
@@ -232,7 +142,14 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch { repo.setDarkMode(enabled) }
 
     fun toggleMute() = repo.toggleMute()
-    fun speakLastMessage() = repo.speakLastMessage()
+    fun speakLastMessage() {
+
+        val lastMessage =
+            if (messages.value.isEmpty()) defaultMessage
+            else messages.value.first().message
+
+        repo.speakMessage(lastMessage)
+    }
     fun saveToWebhookClipboard(webhookUrl: String) = repo.saveToClipboard(webhookUrl)
     fun showQuote(isChecked: Boolean) = repo.showQuote(isChecked)
     fun setFuturesWebhooks(isChecked: Boolean) = repo.setFuturesWebhooks(isChecked)

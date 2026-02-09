@@ -48,5 +48,11 @@ object ApplicationModule {
     fun provideApplicationScope(): CoroutineScope {
         return CoroutineScope(SupervisorJob() + Dispatchers.IO)
     }
+
+    @Provides
+    @Singleton
+    fun provideFirebaseDatabase(): FirebaseDatabaseImpl {
+        return FirebaseDatabaseImpl()
+    }
 }
 

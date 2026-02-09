@@ -23,29 +23,9 @@ import java.util.Date
 import java.util.Locale
 
 
-fun deleteMessage(
-    messages: SnapshotStateList<Message>,
-    message: Message) {
-
-    getDatabaseReference(messagesNode)
-        .child(message.timestamp)
-        .removeValue()
-
-    messages.remove(message)
-}
-
-fun deleteAllMessages(
-    messages: SnapshotStateList<Message>) {
-
-    // remove the entire node to remove all children
-    getDatabaseReference(messagesNode).removeValue()
-
-    messages.clear()
-}
 
 fun beautifyTimestamp(
-    timestamp: String
-): String {
+    timestamp: String): String {
 
     val isToday = DateUtils.isToday(timestamp.toLong())
 

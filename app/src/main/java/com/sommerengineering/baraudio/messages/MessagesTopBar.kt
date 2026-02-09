@@ -16,6 +16,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,18 +26,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.deleteAllFadeDurationMillis
+import kotlinx.coroutines.flow.compose
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MessagesTopBar(
-    messages: SnapshotStateList<Message>,
+    viewModel: MainViewModel,
     onSettingsClick: () -> Unit) {
 
     // animate color of "delete all" button
-    var isEmpty by remember { mutableStateOf(true) }
-    isEmpty = messages.isEmpty()
+    val messages by viewModel.messages.collectAsState()
+    val isEmpty = messages.isEmpty()
 
     CenterAlignedTopAppBar(
 
@@ -68,8 +71,8 @@ fun MessagesTopBar(
         // delete all
         actions = {
             IconButton(
-                onClick = { deleteAllMessages(messages) },
-                enabled = !messages.isEmpty()) {
+                onClick = { viewModel.deleteAllMessages() },
+                enabled = !isEmpty) {
                 Icon(
                     painter = painterResource(R.drawable.delete_sweep),
                     tint = animateColorAsState(
