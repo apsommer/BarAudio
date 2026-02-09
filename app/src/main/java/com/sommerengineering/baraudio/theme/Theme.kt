@@ -1,5 +1,7 @@
 package com.sommerengineering.baraudio.theme
 
+import android.content.Context
+import android.content.res.Configuration
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.material3.ColorScheme
@@ -72,3 +74,6 @@ fun ColorScheme.switch() =
         surfaceContainerHigh = animateColor(surfaceContainerHigh),
         surfaceContainerHighest = animateColor(surfaceContainerHighest))
 
+fun Context.isSystemInDarkMode() =
+    resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK ==
+        Configuration.UI_MODE_NIGHT_YES

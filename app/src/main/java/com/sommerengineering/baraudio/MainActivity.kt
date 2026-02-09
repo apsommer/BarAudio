@@ -29,8 +29,8 @@ import androidx.navigation.compose.rememberNavController
 import com.sommerengineering.baraudio.hilt.readFromDataStore
 import com.sommerengineering.baraudio.hilt.token
 import com.sommerengineering.baraudio.theme.AppTheme
+import com.sommerengineering.baraudio.theme.isSystemInDarkMode
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.runBlocking
 
 var isAppOpen = false
 var isUpdateRequired = false
@@ -94,11 +94,7 @@ class MainActivity : ComponentActivity() {
         init()
 
         // get system theme
-        val isSystemInDarkMode = resources.configuration.uiMode and
-            Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
-
-        // one time blocking call to resolve theme
-        viewModel.setSystemThemeDefault(isSystemInDarkMode)
+        viewModel.isSystemInDarkMode = this.isSystemInDarkMode()
 
         // launch app
         setContent {
