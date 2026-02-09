@@ -47,7 +47,7 @@ const val messageKey = "message"
 const val originKey = "origin"
 const val defaultMessage = "Thank you for using bar audio, please setup your webhook to continue!"
 const val unauthenticatedTimestampNote = ", sign-in to hear message!"
-const val parsingError = "Error parsing message"
+const val messageParsingError = "Error parsing message"
 const val buildTypeDebug = "debug"
 
 // navigation

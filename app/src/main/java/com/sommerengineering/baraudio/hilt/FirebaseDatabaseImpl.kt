@@ -4,14 +4,13 @@ import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.sommerengineering.baraudio.logException
-import com.sommerengineering.baraudio.logMessage
 import com.sommerengineering.baraudio.messageKey
 import com.sommerengineering.baraudio.messageMaxSize
 import com.sommerengineering.baraudio.messages.Message
-import com.sommerengineering.baraudio.messages.error
+import com.sommerengineering.baraudio.messages.originParsingError
 import com.sommerengineering.baraudio.messagesNode
 import com.sommerengineering.baraudio.originKey
-import com.sommerengineering.baraudio.parsingError
+import com.sommerengineering.baraudio.messageParsingError
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -55,12 +54,11 @@ class FirebaseDatabaseImpl {
                     val json = JSONObject(rawMessage)
                     message = json.getString(messageKey)
                     origin = json.getString(originKey)
-                    logMessage(origin)
 
                 } catch (e: JSONException) {
                     logException(e)
-                    message = parsingError
-                    origin = error
+                    message = messageParsingError
+                    origin = originParsingError
                 }
 
                 // add message to list

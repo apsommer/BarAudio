@@ -1,5 +1,6 @@
 package com.sommerengineering.baraudio.messages
 
+import android.text.format.DateUtils
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -28,12 +29,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.sommerengineering.baraudio.BuildConfig
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.buildTypeDebug
 import com.sommerengineering.baraudio.edgePadding
 import com.sommerengineering.baraudio.settingsIconSize
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun MessageItem(
@@ -53,8 +55,8 @@ fun MessageItem(
         }
         trendspiderWhitelistIp -> R.drawable.trendspider
         insomniaIp -> R.drawable.insomnia
-        error -> R.drawable.error
-        else -> android.R.drawable.presence_online
+        originParsingError -> R.drawable.error
+        else -> R.drawable.webhook
     }
 
     SwipeToDismissBox(
@@ -134,3 +136,18 @@ fun MessageItem(
     }
 }
 
+// must be top level so firebase messaging can access
+fun beautifyTimestamp(
+    timestamp: String): String {
+
+    val isToday = DateUtils.isToday(timestamp.toLong())
+
+    val pattern =
+        if (isToday) "h:mm:ss a" // 6:27:53 PM
+        else "h:mm:ss a • MMMM dd, yyyy" //  6:27:53 PM • October 30, 2024
+
+    return SimpleDateFormat(
+        pattern,
+        Locale.getDefault())
+        .format(Date(timestamp.toLong()))
+}
