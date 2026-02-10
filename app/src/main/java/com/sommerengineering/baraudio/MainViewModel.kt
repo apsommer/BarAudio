@@ -115,7 +115,7 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch { isFullScreen = repo.loadFullScreen() }
     fun setIsFullScreen(enabled: Boolean) {
         isFullScreen = enabled
-        viewModelScope.launch { repo.setFullScreen(enabled) }
+        repo.setFullScreen(enabled)
     }
 
     // dark mode
@@ -127,7 +127,8 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch { isDarkMode = repo.loadDarkMode(systemDefault) }
     fun setIsDarkMode(enabled: Boolean) {
         isDarkMode = enabled
-        viewModelScope.launch { repo.setIsDarkMode(enabled) } }
+        repo.setIsDarkMode(enabled)
+    }
 
     init {
 

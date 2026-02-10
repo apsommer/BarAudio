@@ -147,25 +147,18 @@ class MainRepository @Inject constructor(
     }
 
     // full screen
-    suspend fun loadFullScreen(): Boolean {
-        val key = booleanPreferencesKey(isFullScreenKey)
-        return context.dataStore.data.first()[key] ?: false
-    }
-    suspend fun setFullScreen(enabled: Boolean) =
-        context.dataStore.edit {
-            it[booleanPreferencesKey(isFullScreenKey)] = enabled
-        }
+    suspend fun loadFullScreen() =
+        readPreference(booleanPreferencesKey(isFullScreenKey)) ?: false
+    fun setFullScreen(enabled: Boolean) =
+        writePreference(booleanPreferencesKey(isFullScreenKey), enabled)
 
     // dark mode
     suspend fun loadDarkMode(systemDefault: Boolean): Boolean {
         val key = booleanPreferencesKey(isDarkModeKey)
         return context.dataStore.data.first()[key] ?: systemDefault
     }
-    suspend fun setIsDarkMode(enabled: Boolean) {
-        context.dataStore.edit {
-            it[booleanPreferencesKey(isDarkModeKey)] = enabled
-        }
-    }
+    fun setIsDarkMode(enabled: Boolean) =
+        writePreference(booleanPreferencesKey(isDarkModeKey), enabled)
 
     init {
 
