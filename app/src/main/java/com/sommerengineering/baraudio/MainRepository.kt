@@ -8,14 +8,13 @@ import android.widget.Toast
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.sommerengineering.baraudio.hilt.ApplicationScope
 import com.sommerengineering.baraudio.hilt.FirebaseDatabaseImpl
 import com.sommerengineering.baraudio.hilt.RapidApi
 import com.sommerengineering.baraudio.hilt.TextToSpeechImpl
 import com.sommerengineering.baraudio.hilt.dataStore
-import com.sommerengineering.baraudio.hilt.readFromDataStore
-import com.sommerengineering.baraudio.hilt.writeToDataStore
 import com.sommerengineering.baraudio.hilt.writeWhitelistToDatabase
 import com.sommerengineering.baraudio.messages.Message
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -57,23 +56,6 @@ class MainRepository @Inject constructor(
         }
     }
 
-    fun initTtsSettings() {
-
-        // config tts with saved preferences
-        tts.voice = readFromDataStore(context, voiceKey)
-            ?.let { preference -> voices.firstOrNull { it.name == preference }}
-            ?: voices.firstOrNull { it.name == defaultVoice }
-                    ?: voice
-
-        tts.speed = readFromDataStore(context, speedKey)?.toFloat() ?: 1f
-        tts.pitch = readFromDataStore(context, pitchKey)?.toFloat() ?: 1f
-        tts.isQueueAdd = readFromDataStore(context, isQueueAddKey)?.toBooleanStrictOrNull() ?: true
-
-        appScope.launch {
-            tts.isMute = readPreference(booleanPreferencesKey(isMuteKey)) ?: false
-        }
-    }
-
     // voice
     val voices
         get() = tts.voices
@@ -81,10 +63,7 @@ class MainRepository @Inject constructor(
         get() = tts.voice
         set(value) {
             tts.voice = value
-            appScope.launch { writePreference(
-                stringPreferencesKey(voiceKey),
-                value.name)
-            }
+            writePreference(stringPreferencesKey(voiceNameKey), value.name)
         }
 
     // speed
@@ -93,7 +72,7 @@ class MainRepository @Inject constructor(
         set(value) {
             val roundedSpeed = ((value* 10).roundToInt()).toFloat() / 10
             tts.speed = roundedSpeed
-            writeToDataStore(context, speedKey, roundedSpeed.toString())
+            writePreference(floatPreferencesKey(speedKey), roundedSpeed)
         }
 
     // pitch
@@ -102,7 +81,7 @@ class MainRepository @Inject constructor(
         set(value) {
             val roundedPitch = ((value * 10).roundToInt()).toFloat() / 10
             tts.pitch = roundedPitch
-            writeToDataStore(context, pitchKey, roundedPitch.toString())
+            writePreference(floatPreferencesKey(pitchKey), roundedPitch)
         }
 
     // queue behavior
@@ -110,7 +89,7 @@ class MainRepository @Inject constructor(
         get() = tts.isQueueAdd
         set(value) {
             tts.isQueueAdd = value
-            writeToDataStore(context, isQueueAddKey, value.toString())
+            writePreference(booleanPreferencesKey(isQueueAddKey), value)
         }
 
     // mute
@@ -127,6 +106,19 @@ class MainRepository @Inject constructor(
         timestamp = "",
         message = message,
         isForceVolume = true)
+
+    suspend fun initTtsSettings() {
+
+        tts.voice = readPreference(stringPreferencesKey(voiceNameKey))
+            ?.let { preference -> voices.firstOrNull { it.name == preference }}
+            ?: voices.firstOrNull { it.name == defaultVoice }
+                    ?: voice
+        tts.speed = readPreference(floatPreferencesKey(speedKey)) ?: 1f
+        tts.pitch = readPreference(floatPreferencesKey(pitchKey)) ?: 1f
+        tts.isQueueAdd = readPreference(booleanPreferencesKey(isQueueAddKey)) ?: true
+        tts.isMute = readPreference(booleanPreferencesKey(isMuteKey)) ?: false
+
+    }
 
     // mindfulness quote
     suspend fun getMindfulnessQuote() = rapidApi.getMindfulnessQuote()
