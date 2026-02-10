@@ -65,13 +65,14 @@ class TextToSpeechImpl(
 
     // volume (mute)
     private var _volume = 1f
-    var volume
-        get() = _volume
+    var isMute
+        get() = _volume == 0f
         set(value) {
-            _volume = value
+            _volume = if (value) 0f else 1f
         }
     fun isSpeaking() = _textToSpeech.isSpeaking
     fun stop() = _textToSpeech.stop()
+
     fun speak(
         timestamp: String,
         message: String,

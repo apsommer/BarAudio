@@ -81,9 +81,13 @@ class MainViewModel @Inject constructor(
         }
     var queueDescription by mutableStateOf("")
 
-    // mute button
-    var isMute = repo.isMute
-    fun toggleMute() = repo.toggleMute()
+    // mute
+    var isMute by mutableStateOf(false)
+        private set
+    fun toggleMute() {
+        isMute = !isMute
+        repo.isMute = isMute
+    }
     fun speakLastMessage() {
         val lastMessage =
             if (messages.value.isEmpty()) defaultMessage
@@ -98,8 +102,7 @@ class MainViewModel @Inject constructor(
         private set
     fun setIsShowQuote(enabled: Boolean) {
         isShowQuote = enabled
-        repo.setIsShowQuote(enabled)
-    }
+        repo.setIsShowQuote(enabled) }
     fun initShowQuote() =
         viewModelScope.launch { isShowQuote = repo.loadIsShowQuote() }
 
@@ -146,7 +149,7 @@ class MainViewModel @Inject constructor(
 
             repo.initTtsSettings() // config text to speech with store preferences
             createBeautifulVoices() // add roman numerals to voice locale groups for ui
-            setTtsDescriptions() // update descriptions for ui
+            refreshTtsSettingsUi() // update descriptions for ui
         }
 
         // request mindfulness quote from network
@@ -158,7 +161,9 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    private fun setTtsDescriptions() {
+    private fun refreshTtsSettingsUi() {
+
+        isMute = repo.isMute
 
         voiceDescription = beautifyVoiceName(repo.voice.name)
         speedDescription = repo.speed.toString()

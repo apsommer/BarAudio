@@ -56,10 +56,11 @@ class MainRepository @Inject constructor(
 
         tts.speed = readFromDataStore(context, speedKey)?.toFloat() ?: 1f
         tts.pitch = readFromDataStore(context, pitchKey)?.toFloat() ?: 1f
-        tts.isQueueAdd = readFromDataStore(context, isQueueFlushKey)?.toBooleanStrictOrNull() ?: true
+        tts.isQueueAdd = readFromDataStore(context, isQueueAddKey)?.toBooleanStrictOrNull() ?: true
 
-        val isMute = _isMute.value
-        tts.volume = if (isMute) 0f else 1f
+        appScope.launch {
+            tts.isMute = readPreference(booleanPreferencesKey(isMuteKey)) ?: false
+        }
     }
 
     fun speakMessage(
@@ -104,27 +105,17 @@ class MainRepository @Inject constructor(
         get() = tts.isQueueAdd
         set(value) {
             tts.isQueueAdd = value
-            writeToDataStore(context, isQueueFlushKey, value.toString())
+            writeToDataStore(context, isQueueAddKey, value.toString())
         }
 
-    // mute button
-    private val _isMute = MutableStateFlow(false) // default unmuted
-    val isMute = _isMute.asStateFlow()
-    fun toggleMute() = setMute(!_isMute.value)
-    private fun setMute(
-        isMute: Boolean) {
-
-        _isMute.update { isMute }
-
-        // set volume
-        if (isMute) { tts.volume = 0f }
-        else { tts.volume = 1f }
-
-        // stop any current speech
-        if (isMute && tts.isSpeaking()) { tts.stop() }
-
-        writeToDataStore(context, volumeKey, tts.volume.toString())
-    }
+    // mute
+    var isMute
+        get() = tts.isMute
+        set(value) {
+            tts.isMute = value
+            if (value && tts.isSpeaking()) { tts.stop() } // stop any current speech
+            writePreference(booleanPreferencesKey(isMuteKey), value)
+        }
 
     // mindfulness quote
     suspend fun getMindfulnessQuote() = rapidApi.getMindfulnessQuote()
@@ -154,12 +145,6 @@ class MainRepository @Inject constructor(
     }
     fun setIsDarkMode(enabled: Boolean) =
         writePreference(booleanPreferencesKey(isDarkModeKey), enabled)
-
-    init {
-
-        // todo load from prefs
-        _isMute.update { readFromDataStore(context, volumeKey)?.toFloat() == 0f }
-   }
 
     fun saveToClipboard(
         webhookUrl: String) {

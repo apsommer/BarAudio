@@ -117,7 +117,7 @@ class MainActivity : ComponentActivity() {
 
         isAppOpen = true
 
-        // get system theme
+        // todo collect all in init() method
         viewModel.initDarkMode(this.isSystemInDarkMode())
         viewModel.initFullScreen()
         viewModel.initFuturesWebhooks()
