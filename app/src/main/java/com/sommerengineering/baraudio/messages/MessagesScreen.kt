@@ -48,7 +48,6 @@ import com.sommerengineering.baraudio.settings.SettingsDrawer
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun MessagesScreen(
     viewModel: MainViewModel,
