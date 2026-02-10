@@ -5,8 +5,11 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
 import android.widget.Toast
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import com.sommerengineering.baraudio.hilt.ApplicationScope
 import com.sommerengineering.baraudio.hilt.FirebaseDatabaseImpl
 import com.sommerengineering.baraudio.hilt.RapidApi
 import com.sommerengineering.baraudio.hilt.TextToSpeechImpl
@@ -16,17 +19,20 @@ import com.sommerengineering.baraudio.hilt.writeToDataStore
 import com.sommerengineering.baraudio.hilt.writeWhitelistToDatabase
 import com.sommerengineering.baraudio.messages.Message
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.math.roundToInt
 
 class MainRepository @Inject constructor(
     @ApplicationContext val context: Context,
+    @ApplicationScope val appScope: CoroutineScope,
     val rapidApi: RapidApi,
     val tts: TextToSpeechImpl,
     val firebaseDatabase: FirebaseDatabaseImpl,
@@ -71,7 +77,10 @@ class MainRepository @Inject constructor(
         get() = tts.voice
         set(value) {
             tts.voice = value
-            writeToDataStore(context, voiceKey, value.name)
+            appScope.launch { writePreference(
+                stringPreferencesKey(voiceKey),
+                value.name)
+            }
         }
 
     // speed
@@ -183,5 +192,10 @@ class MainRepository @Inject constructor(
                 .show()
         }
     }
+
+    suspend fun <T> writePreference(
+        key: Preferences.Key<T>,
+        value: T) =
+        context.dataStore.edit { it[key] = value }
 
 }
