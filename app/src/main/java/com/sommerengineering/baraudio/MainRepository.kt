@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.math.roundToInt
+import kotlin.text.set
 
 class MainRepository @Inject constructor(
     @ApplicationContext val context: Context,
@@ -193,9 +194,14 @@ class MainRepository @Inject constructor(
         }
     }
 
-    suspend fun <T> writePreference(
+    suspend fun <T> readPreference(
+        key: Preferences.Key<T>) =
+        context.dataStore.data.first()[key]
+
+    fun <T> writePreference(
         key: Preferences.Key<T>,
         value: T) =
-        context.dataStore.edit { it[key] = value }
-
+        appScope.launch {
+            context.dataStore.edit { it[key] = value }
+        }
 }
