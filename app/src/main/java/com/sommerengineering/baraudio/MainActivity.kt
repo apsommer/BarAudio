@@ -121,6 +121,7 @@ class MainActivity : ComponentActivity() {
         viewModel.initDarkMode(this.isSystemInDarkMode())
         viewModel.initFullScreen()
         viewModel.initFuturesWebhooks()
+        viewModel.initShowQuote()
 
         // load key:values from preferences
         token = readFromDataStore(this, tokenKey) ?: unauthenticatedToken

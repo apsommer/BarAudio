@@ -55,14 +55,13 @@ fun MessagesScreen(
     onSignOut: () -> Unit) {
 
     val messages by viewModel.messages.collectAsState()
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
     val listState = rememberLazyListState()
     val coroutine = rememberCoroutineScope()
     var isRefreshing by remember { mutableStateOf(false) }
     val pullToRefreshState = rememberPullToRefreshState()
     val quoteState by viewModel.mindfulnessQuoteState.collectAsState()
-    val isShowQuote by viewModel.isShowQuote.collectAsState()
-
+    val isShowQuote = viewModel.isShowQuote
     val isDarkMode = viewModel.isDarkMode
 
     val backgroundImageId =
@@ -70,7 +69,7 @@ fun MessagesScreen(
         else R.drawable.background_skyline
 
     LaunchedEffect(Unit) {
-        viewModel.startListening()
+        viewModel.startListeningToDatabase()
     }
 
     // side drawer

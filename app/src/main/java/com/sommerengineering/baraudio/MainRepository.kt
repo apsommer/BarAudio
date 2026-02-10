@@ -20,16 +20,13 @@ import com.sommerengineering.baraudio.hilt.writeWhitelistToDatabase
 import com.sommerengineering.baraudio.messages.Message
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.math.roundToInt
-import kotlin.text.set
 
 class MainRepository @Inject constructor(
     @ApplicationContext val context: Context,
@@ -41,7 +38,7 @@ class MainRepository @Inject constructor(
 
     // database
     val messages = firebaseDatabase.messages
-    fun startListening() = firebaseDatabase.startListening()
+    fun startListeningToDatabase() = firebaseDatabase.startListening()
     fun deleteMessage(message: Message) = firebaseDatabase.deleteMessage(message)
     fun deleteAllMessages() = firebaseDatabase.deleteAllMessages()
     fun stopListening() = firebaseDatabase.stopListening()
@@ -130,13 +127,11 @@ class MainRepository @Inject constructor(
     }
 
     // mindfulness quote
-    private val _isShowQuote = MutableStateFlow(false)
-    val isShowQuote = _isShowQuote.asStateFlow()
-    fun showQuote(isChecked: Boolean) {
-        _isShowQuote.update { isChecked }
-        writeToDataStore(context, showQuoteKey, isChecked.toString())
-    }
     suspend fun getMindfulnessQuote() = rapidApi.getMindfulnessQuote()
+    suspend fun loadIsShowQuote() =
+        readPreference(booleanPreferencesKey(isShowQuoteKey)) ?: true
+    fun setIsShowQuote(enabled: Boolean) =
+        writePreference(booleanPreferencesKey(isShowQuoteKey), enabled)
 
     // futures webhooks
     suspend fun loadIsFuturesWebhooks() =
@@ -164,8 +159,7 @@ class MainRepository @Inject constructor(
 
         // todo load from prefs
         _isMute.update { readFromDataStore(context, volumeKey)?.toFloat() == 0f }
-        _isShowQuote.update { readFromDataStore(context, showQuoteKey)?.toBooleanStrictOrNull() ?: true }
-    }
+   }
 
     fun saveToClipboard(
         webhookUrl: String) {

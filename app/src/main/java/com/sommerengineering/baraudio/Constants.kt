@@ -67,7 +67,7 @@ const val pitchKey = "pitch"
 const val isQueueFlushKey = "isQueueFlush"
 const val isDarkModeKey = "isDarkMode"
 const val isFullScreenKey = "isFullScreen"
-const val showQuoteKey = "showQuote"
+const val isShowQuoteKey = "showQuote"
 const val isFuturesWebhooksKey = "isFuturesWebhooks"
 const val volumeKey = android.speech.tts.TextToSpeech.Engine.KEY_PARAM_VOLUME
 

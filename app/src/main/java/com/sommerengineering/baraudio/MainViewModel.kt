@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -29,7 +30,7 @@ class MainViewModel @Inject constructor(
 
     // database
     val messages = repo.messages
-    fun startListening() = repo.startListening()
+    fun startListeningToDatabase() = repo.startListeningToDatabase()
     fun deleteAllMessages() = repo.deleteAllMessages()
     fun deleteMessage(message: Message) = repo.deleteMessage(message)
     override fun onCleared() { repo.stopListening() }
@@ -91,10 +92,16 @@ class MainViewModel @Inject constructor(
     }
 
     // mindfulness quote
-    var isShowQuote = repo.isShowQuote
-    fun setIsShowQuote(isChecked: Boolean) = repo.showQuote(isChecked)
     private var _mindfulnessQuoteState: MutableStateFlow<MindfulnessQuoteState> = MutableStateFlow(MindfulnessQuoteState.Idle)
     val mindfulnessQuoteState = _mindfulnessQuoteState.asStateFlow()
+    var isShowQuote by mutableStateOf(true)
+        private set
+    fun setIsShowQuote(enabled: Boolean) {
+        isShowQuote = enabled
+        repo.setIsShowQuote(enabled)
+    }
+    fun initShowQuote() =
+        viewModelScope.launch { isShowQuote = repo.loadIsShowQuote() }
 
     // futures webhooks
     var isFuturesWebhooks by mutableStateOf(true)
@@ -145,9 +152,9 @@ class MainViewModel @Inject constructor(
         // request mindfulness quote from network
         viewModelScope.launch(Dispatchers.IO) {
 
-            _mindfulnessQuoteState.value = MindfulnessQuoteState.Loading
-            try { _mindfulnessQuoteState.value = MindfulnessQuoteState.Success(repo.getMindfulnessQuote()) }
-            catch (e: Exception) { _mindfulnessQuoteState.value = MindfulnessQuoteState.Error(e.message) }
+            _mindfulnessQuoteState.update { MindfulnessQuoteState.Loading }
+            try { _mindfulnessQuoteState.update { MindfulnessQuoteState.Success(repo.getMindfulnessQuote()) }}
+            catch (e: Exception) { _mindfulnessQuoteState.update { MindfulnessQuoteState.Error(e.message) }}
         }
     }
 

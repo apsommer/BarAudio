@@ -68,7 +68,7 @@ fun SettingsDrawer(
     val pitchDescription = viewModel.pitchDescription
     val queueDescription = viewModel.queueDescription
 
-    val isShowQuote by viewModel.isShowQuote.collectAsState()
+    val isShowQuote = viewModel.isShowQuote
     val isFuturesWebhooks = viewModel.isFuturesWebhooks
     val isFullScreen = viewModel.isFullScreen
     val fullScreenDescription = viewModel.fullScreenDescription
