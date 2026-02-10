@@ -31,11 +31,11 @@ fun VoiceDialog(
 
     val listState = rememberLazyListState()
     val voices = viewModel.voices
+    val voiceIndex = viewModel.voiceIndex
 
     // scroll to current voice
-    LaunchedEffect(viewModel.voiceIndex) {
-        listState.scrollToItem(
-            viewModel.voiceIndex)
+    LaunchedEffect(voiceIndex) {
+        listState.scrollToItem(voiceIndex)
     }
 
     Dialog (

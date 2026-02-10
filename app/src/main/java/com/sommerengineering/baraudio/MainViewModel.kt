@@ -40,11 +40,12 @@ class MainViewModel @Inject constructor(
     // voice
     var voices by mutableStateOf<List<Voice>>(emptyList())
     private val beautifulVoiceNames = hashMapOf<String, String>()
-    var voiceIndex = 0
+    var voiceIndex by mutableStateOf(0)
     var voice
         get() = repo.voice
         set(value) {
             repo.voice = value
+            voiceIndex = voices.indexOfFirst { it.name == voice.name }
             voiceDescription = beautifyVoiceName(value.name)
             speakLastMessage()
         }
