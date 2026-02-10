@@ -20,7 +20,11 @@ import com.sommerengineering.baraudio.hilt.writeWhitelistToDatabase
 import com.sommerengineering.baraudio.messages.Message
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.math.roundToInt
@@ -42,6 +46,16 @@ class MainRepository @Inject constructor(
 
     // text-to-speech
     val isTtsInit = tts.isInit
+    private val _isTtsReady = MutableStateFlow(false)
+    val isTtsReady = _isTtsReady.asStateFlow()
+
+    init {
+        appScope.launch {
+            isTtsInit.filter { it }.first()
+            initTtsSettings()
+            _isTtsReady.update { true }
+        }
+    }
 
     fun initTtsSettings() {
 

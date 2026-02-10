@@ -151,19 +151,14 @@ class MainViewModel @Inject constructor(
 
     init {
 
+        // wait for system initialization of tts engine, takes a few seconds
         viewModelScope.launch(Dispatchers.Default) {
-
-            // wait for system initialization of tts engine, takes a few seconds
-            repo.isTtsInit.filter { it }.first()
-
-            repo.initTtsSettings() // config text to speech with store preferences
-            createBeautifulVoices() // add roman numerals to voice locale groups for ui
-            refreshTtsSettingsUi() // update descriptions for ui
+            repo.isTtsReady.filter { it }.first()
+            refreshTtsSettingsUi()
         }
 
         // request mindfulness quote from network
         viewModelScope.launch(Dispatchers.IO) {
-
             _mindfulnessQuoteState.update { MindfulnessQuoteState.Loading }
             try { _mindfulnessQuoteState.update { MindfulnessQuoteState.Success(repo.getMindfulnessQuote()) }}
             catch (e: Exception) { _mindfulnessQuoteState.update { MindfulnessQuoteState.Error(e.message) }}
@@ -172,6 +167,10 @@ class MainViewModel @Inject constructor(
 
     private fun refreshTtsSettingsUi() {
 
+        // add roman numerals to voice locale groups
+        createBeautifulVoices()
+
+        // voices and voice exposed by tts engine after initialization
         speed = repo.speed
         pitch = repo.pitch
         isQueueAdd = repo.isQueueAdd
@@ -186,8 +185,6 @@ class MainViewModel @Inject constructor(
 
     fun saveToWebhookClipboard(webhookUrl: String) = repo.saveToClipboard(webhookUrl)
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    // todo refactor these beautiful voice name methods
     private fun createBeautifulVoices() {
 
         // group voices by locale
