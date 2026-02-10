@@ -60,13 +60,15 @@ fun MessagesScreen(
     val coroutine = rememberCoroutineScope()
     var isRefreshing by remember { mutableStateOf(false) }
     val pullToRefreshState = rememberPullToRefreshState()
-    val quoteState by viewModel.mindfulnessQuoteState.collectAsState()
-    val isShowQuote = viewModel.isShowQuote
-    val isDarkMode = viewModel.isDarkMode
 
+    val isDarkMode = viewModel.isDarkMode
     val backgroundImageId =
         if (isDarkMode) R.drawable.background_skyline_dark
         else R.drawable.background_skyline
+
+    val quoteState by viewModel.mindfulnessQuoteState.collectAsState()
+    val quote = (quoteState as? MindfulnessQuoteState.Success)?.mindfulnessQuote?.quote
+    val isShowQuote = viewModel.isShowQuote
 
     LaunchedEffect(Unit) {
         viewModel.startListeningToDatabase()
@@ -126,10 +128,10 @@ fun MessagesScreen(
                     animationSpec = tween(colorTransitionTimeMillis))
 
                 // mindfulness quote
-                if (isShowQuote && quoteState is MindfulnessQuoteState.Success) {
+                if (isShowQuote && quote != null) {
 
                     Text(
-                        text = (quoteState as MindfulnessQuoteState.Success).mindfulnessQuote.quote,
+                        text = quote,
                         style = MaterialTheme.typography.titleLarge,
                         textAlign = TextAlign.Center,
                         modifier = Modifier
