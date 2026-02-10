@@ -21,15 +21,14 @@ class TextToSpeechImpl(
     // system text to speech engine
     private val _textToSpeech = TextToSpeech(context, this)
 
-    // flow state of initialization
+    // flow initialization
     private var _isInit = MutableStateFlow(false)
     val isInit = _isInit.asStateFlow()
 
-    // properties
+    // voice
     private lateinit var _voices: List<Voice>
     val voices
         get() = _voices
-
     private lateinit var _voice: Voice
     var voice
         get() = _voice
@@ -38,6 +37,7 @@ class TextToSpeechImpl(
             _textToSpeech.voice = value
         }
 
+    // speed
     private var _speed = 1f
     var speed
         get() = _speed
@@ -46,6 +46,7 @@ class TextToSpeechImpl(
             _textToSpeech.setSpeechRate(value)
         }
 
+    // pitch
     private var _pitch = 1f
     var pitch
         get() = _pitch
@@ -54,6 +55,7 @@ class TextToSpeechImpl(
             _textToSpeech.setPitch(value)
         }
 
+    // queue behavior
     private var _isQueueAdd = true
     var isQueueAdd
         get() = _isQueueAdd
@@ -61,29 +63,15 @@ class TextToSpeechImpl(
             _isQueueAdd = value
         }
 
+    // volume (mute)
     private var _volume = 1f
     var volume
         get() = _volume
         set(value) {
             _volume = value
         }
-
-    override fun onInit(status: Int) {
-
-        // initialization complete
-        if (status != TextToSpeech.SUCCESS) return
-        _voices = _textToSpeech.voices.toList()
-        _isInit.update { true }
-
-        // attach progress listener to clear notifications
-        _textToSpeech.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
-            override fun onStart(utteranceId: String?) = cancelAllNotifications(context)
-            override fun onDone(timestamp: String?) { }
-            override fun onStop(timestamp: String?, isInterupted: Boolean) { }
-            override fun onError(utteranceId: String?) { }
-        })
-    }
-
+    fun isSpeaking() = _textToSpeech.isSpeaking
+    fun stop() = _textToSpeech.stop()
     fun speak(
         timestamp: String,
         message: String,
@@ -104,7 +92,19 @@ class TextToSpeechImpl(
             timestamp)
     }
 
-    // mute
-    fun isSpeaking() = _textToSpeech.isSpeaking
-    fun stop() = _textToSpeech.stop()
+    override fun onInit(status: Int) {
+
+        // initialization complete
+        if (status != TextToSpeech.SUCCESS) return
+        _voices = _textToSpeech.voices.toList()
+        _isInit.update { true }
+
+        // attach progress listener to clear notifications
+        _textToSpeech.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+            override fun onStart(utteranceId: String?) = cancelAllNotifications(context)
+            override fun onDone(timestamp: String?) { }
+            override fun onStop(timestamp: String?, isInterupted: Boolean) { }
+            override fun onError(utteranceId: String?) { }
+        })
+    }
 }
