@@ -83,11 +83,9 @@ class MainViewModel @Inject constructor(
     var isMute = repo.isMute
     fun toggleMute() = repo.toggleMute()
     fun speakLastMessage() {
-
         val lastMessage =
             if (messages.value.isEmpty()) defaultMessage
             else messages.value.first().message
-
         repo.speakMessage(lastMessage)
     }
 
@@ -100,6 +98,29 @@ class MainViewModel @Inject constructor(
     // futures webhooks
     var isFuturesWebhooks = repo.isFuturesWebhooks
     fun setFuturesWebhooks(isChecked: Boolean) = repo.setFuturesWebhooks(isChecked)
+
+    // fullscreen
+    var isFullScreen by mutableStateOf(false)
+        private set
+    val fullScreenDescription
+        get() = if (isFullScreen) screenFullDescription else screenWindowedDescription
+    fun initFullScreen() =
+        viewModelScope.launch { isFullScreen = repo.loadFullScreen() }
+    fun setIsFullScreen(enabled: Boolean) {
+        isFullScreen = enabled
+        viewModelScope.launch { repo.setFullScreen(enabled) }
+    }
+
+    // dark mode
+    var isDarkMode by mutableStateOf(false)
+        private set
+    val darkModeDescription
+        get() = if (isDarkMode) uiDarkDescription else uiLightDescription
+    fun initDarkMode(systemDefault: Boolean) =
+        viewModelScope.launch { isDarkMode = repo.loadDarkMode(systemDefault) }
+    fun setIsDarkMode(enabled: Boolean) {
+        isDarkMode = enabled
+        viewModelScope.launch { repo.setIsDarkMode(enabled) } }
 
     init {
 
@@ -132,38 +153,9 @@ class MainViewModel @Inject constructor(
             else queueBehaviorFlushDescription
     }
 
-    // fullscreen
-    var isFullScreen by mutableStateOf(false)
-        private set
-
-    fun initFullScreen() =
-        viewModelScope.launch { isFullScreen = repo.loadFullScreen() }
-
-    fun setIsFullScreen(enabled: Boolean) {
-        isFullScreen = enabled
-        viewModelScope.launch { repo.setFullScreen(enabled) }
-    }
-
-    val fullScreenDescription
-        get() = if (isFullScreen) screenFullDescription else screenWindowedDescription
-
-    // dark mode
-    var isDarkMode by mutableStateOf(false)
-        private set
-
-    fun initDarkMode(systemDefault: Boolean) =
-        viewModelScope.launch { isDarkMode = repo.loadDarkMode(systemDefault) }
-
-    fun setIsDarkMode(enabled: Boolean) {
-        isDarkMode = enabled
-        viewModelScope.launch { repo.setIsDarkMode(enabled) }
-    }
-
-    val darkModeDescription
-        get() = if (isDarkMode) uiDarkDescription else uiLightDescription
-
     fun saveToWebhookClipboard(webhookUrl: String) = repo.saveToClipboard(webhookUrl)
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////
     // todo refactor these beautiful voice name methods
     private fun createBeautifulVoices() {
 

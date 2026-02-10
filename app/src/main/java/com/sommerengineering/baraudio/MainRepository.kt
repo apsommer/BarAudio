@@ -32,53 +32,15 @@ class MainRepository @Inject constructor(
     val firebaseDatabase: FirebaseDatabaseImpl,
 ) {
 
+    // database
     val messages = firebaseDatabase.messages
-
     fun startListening() = firebaseDatabase.startListening()
     fun deleteMessage(message: Message) = firebaseDatabase.deleteMessage(message)
     fun deleteAllMessages() = firebaseDatabase.deleteAllMessages()
     fun stopListening() = firebaseDatabase.stopListening()
 
-    fun speakMessage(
-        message: String) = tts.speak(
-            timestamp = "",
-            message = message,
-            isForceVolume = true)
-
+    // text-to-speech
     val isTtsInit = tts.isInit
-
-    val voices
-        get() = tts.voices
-
-    var voice
-        get() = tts.voice
-        set(value) {
-            tts.voice = value
-            writeToDataStore(context, voiceKey, value.name)
-        }
-
-    var speed
-        get() = tts.speed
-        set(value) {
-            val roundedSpeed = ((value* 10).roundToInt()).toFloat() / 10
-            tts.speed = roundedSpeed
-            writeToDataStore(context, speedKey, roundedSpeed.toString())
-        }
-
-    var pitch
-        get() = tts.pitch
-        set(value) {
-            val roundedPitch = ((value * 10).roundToInt()).toFloat() / 10
-            tts.pitch = roundedPitch
-            writeToDataStore(context, pitchKey, roundedPitch.toString())
-        }
-
-    var isQueueAdd
-        get() = tts.isQueueAdd
-        set(value) {
-            tts.isQueueAdd = value
-            writeToDataStore(context, isQueueFlushKey, value.toString())
-        }
 
     fun initTtsSettings() {
 
@@ -86,7 +48,7 @@ class MainRepository @Inject constructor(
         tts.voice = readFromDataStore(context, voiceKey)
             ?.let { preference -> voices.firstOrNull { it.name == preference }}
             ?: voices.firstOrNull { it.name == defaultVoice }
-            ?: voice
+                    ?: voice
 
         tts.speed = readFromDataStore(context, speedKey)?.toFloat() ?: 1f
         tts.pitch = readFromDataStore(context, pitchKey)?.toFloat() ?: 1f
@@ -96,63 +58,51 @@ class MainRepository @Inject constructor(
         tts.volume = if (isMute) 0f else 1f
     }
 
+    fun speakMessage(
+        message: String) = tts.speak(
+            timestamp = "",
+            message = message,
+            isForceVolume = true)
+
+    // voice
+    val voices
+        get() = tts.voices
+    var voice
+        get() = tts.voice
+        set(value) {
+            tts.voice = value
+            writeToDataStore(context, voiceKey, value.name)
+        }
+
+    // speed
+    var speed
+        get() = tts.speed
+        set(value) {
+            val roundedSpeed = ((value* 10).roundToInt()).toFloat() / 10
+            tts.speed = roundedSpeed
+            writeToDataStore(context, speedKey, roundedSpeed.toString())
+        }
+
+    // pitch
+    var pitch
+        get() = tts.pitch
+        set(value) {
+            val roundedPitch = ((value * 10).roundToInt()).toFloat() / 10
+            tts.pitch = roundedPitch
+            writeToDataStore(context, pitchKey, roundedPitch.toString())
+        }
+
+    // queue behavior
+    var isQueueAdd
+        get() = tts.isQueueAdd
+        set(value) {
+            tts.isQueueAdd = value
+            writeToDataStore(context, isQueueFlushKey, value.toString())
+        }
+
+    // mute button
     private val _isMute = MutableStateFlow(false) // default unmuted
     val isMute = _isMute.asStateFlow()
-
-    private val _isShowQuote = MutableStateFlow(false)
-    val isShowQuote = _isShowQuote.asStateFlow()
-
-    suspend fun loadFullScreen(): Boolean {
-        val key = booleanPreferencesKey(isFullScreenKey)
-        return context.dataStore.data.first()[key] ?: false
-    }
-
-    suspend fun setFullScreen(enabled: Boolean) =
-        context.dataStore.edit {
-            it[booleanPreferencesKey(isFullScreenKey)] = enabled
-        }
-
-    suspend fun loadDarkMode(systemDefault: Boolean): Boolean {
-        val key = booleanPreferencesKey(isDarkModeKey)
-        return context.dataStore.data.first()[key] ?: systemDefault
-    }
-
-    suspend fun setIsDarkMode(enabled: Boolean) {
-        context.dataStore.edit {
-            it[booleanPreferencesKey(isDarkModeKey)] = enabled
-        }
-    }
-
-    private val _isFuturesWebhooks = MutableStateFlow(false)
-    val isFuturesWebhooks = _isFuturesWebhooks.asStateFlow()
-
-    // load local cache from data store
-    init {
-
-        _isMute.update { readFromDataStore(context, volumeKey)?.toFloat() == 0f }
-        _isShowQuote.update { readFromDataStore(context, showQuoteKey)?.toBooleanStrictOrNull() ?: true }
-        _isFuturesWebhooks.update { readFromDataStore(context, isFuturesWebhooksKey)?.toBooleanStrictOrNull() ?: true }
-    }
-
-    //
-    fun setFuturesWebhooks(
-        isChecked: Boolean
-    ) {
-
-        _isFuturesWebhooks.update { isChecked }
-        writeToDataStore(context, isFuturesWebhooksKey, isChecked.toString())
-        writeWhitelistToDatabase(isChecked)
-    }
-
-    // quote
-    fun showQuote(
-        isChecked: Boolean) {
-
-        _isShowQuote.update { isChecked }
-        writeToDataStore(context, showQuoteKey, isChecked.toString())
-    }
-
-
     fun toggleMute() = setMute(!_isMute.value)
     private fun setMute(
         isMute: Boolean) {
@@ -167,6 +117,53 @@ class MainRepository @Inject constructor(
         if (isMute && tts.isSpeaking()) { tts.stop() }
 
         writeToDataStore(context, volumeKey, tts.volume.toString())
+    }
+
+    // mindfulness quote
+    private val _isShowQuote = MutableStateFlow(false)
+    val isShowQuote = _isShowQuote.asStateFlow()
+    fun showQuote(isChecked: Boolean) {
+        _isShowQuote.update { isChecked }
+        writeToDataStore(context, showQuoteKey, isChecked.toString())
+    }
+    suspend fun getMindfulnessQuote() = rapidApi.getMindfulnessQuote()
+
+    // futures webhooks
+    private val _isFuturesWebhooks = MutableStateFlow(false)
+    val isFuturesWebhooks = _isFuturesWebhooks.asStateFlow()
+    fun setFuturesWebhooks(isChecked: Boolean) {
+        _isFuturesWebhooks.update { isChecked }
+        writeToDataStore(context, isFuturesWebhooksKey, isChecked.toString())
+        writeWhitelistToDatabase(isChecked)
+    }
+
+    // full screen
+    suspend fun loadFullScreen(): Boolean {
+        val key = booleanPreferencesKey(isFullScreenKey)
+        return context.dataStore.data.first()[key] ?: false
+    }
+    suspend fun setFullScreen(enabled: Boolean) =
+        context.dataStore.edit {
+            it[booleanPreferencesKey(isFullScreenKey)] = enabled
+        }
+
+    // dark mode
+    suspend fun loadDarkMode(systemDefault: Boolean): Boolean {
+        val key = booleanPreferencesKey(isDarkModeKey)
+        return context.dataStore.data.first()[key] ?: systemDefault
+    }
+    suspend fun setIsDarkMode(enabled: Boolean) {
+        context.dataStore.edit {
+            it[booleanPreferencesKey(isDarkModeKey)] = enabled
+        }
+    }
+
+    init {
+
+        // todo load from prefs
+        _isMute.update { readFromDataStore(context, volumeKey)?.toFloat() == 0f }
+        _isShowQuote.update { readFromDataStore(context, showQuoteKey)?.toBooleanStrictOrNull() ?: true }
+        _isFuturesWebhooks.update { readFromDataStore(context, isFuturesWebhooksKey)?.toBooleanStrictOrNull() ?: true }
     }
 
     fun saveToClipboard(
@@ -186,6 +183,5 @@ class MainRepository @Inject constructor(
                 .show()
         }
     }
-
-    suspend fun getMindfulnessQuote() = rapidApi.getMindfulnessQuote()
+    
 }
