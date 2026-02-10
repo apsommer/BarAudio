@@ -57,7 +57,7 @@ fun MessagesFloatingActionButton(
             },
             label = "") { targetState ->
 
-            // mute
+            // mute todo combine
             if (targetState) {
                 Icon(
                     modifier = Modifier

@@ -3,6 +3,7 @@ package com.sommerengineering.baraudio
 import android.content.Context
 import android.speech.tts.Voice
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.credentials.CredentialManager
@@ -40,46 +41,53 @@ class MainViewModel @Inject constructor(
 
     // voice
     var voices by mutableStateOf<List<Voice>>(emptyList())
-    private val beautifulVoiceNames = hashMapOf<String, String>()
+        private set
     var voiceIndex by mutableStateOf(0)
-    var voice
-        get() = repo.voice
-        set(value) {
-            repo.voice = value
-            voiceIndex = voices.indexOfFirst { it.name == voice.name }
-            voiceDescription = beautifyVoiceName(value.name)
-            speakLastMessage()
-        }
+        private set
     var voiceDescription by mutableStateOf("")
+        private set
+    fun setVoice(value: Voice) {
+        repo.voice = value
+        voiceIndex = voices.indexOfFirst { it.name == value.name }
+        voiceDescription = beautifyVoiceName(value.name)
+        speakLastMessage()
+    }
+    private val beautifulVoiceNames = hashMapOf<String, String>()
 
     // speed
-    var speed
-        get() = repo.speed
-        set(value) {
-            repo.speed = value
-            speedDescription = repo.speed.toString()
-        }
+    var speed by mutableFloatStateOf(1f)
+        private set
     var speedDescription by mutableStateOf("")
+        private set
+    fun updateSpeed(value: Float) {
+        speed = value
+        repo.speed = value
+        speedDescription = repo.speed.toString()
+    }
 
     // pitch
-    var pitch
-        get() = repo.pitch
-        set(value) {
-            repo.pitch = value
-            pitchDescription = repo.pitch.toString()
-        }
+    var pitch by mutableFloatStateOf(1f)
+        private set
     var pitchDescription by mutableStateOf("")
+        private set
+    fun updatePitch(value: Float) {
+        pitch = value
+        repo.pitch = value
+        pitchDescription = repo.pitch.toString()
+    }
 
     // queue behavior
-    var isQueueAdd
-        get() = repo.isQueueAdd
-        set(value) {
-            repo.isQueueAdd = value
-            queueDescription =
-                if (value) queueBehaviorAddDescription
-                else queueBehaviorFlushDescription
-        }
+    var isQueueAdd by mutableStateOf(true)
+        private set
     var queueDescription by mutableStateOf("")
+        private set
+    fun updateQueueAdd(enabled: Boolean) {
+        isQueueAdd = enabled
+        repo.isQueueAdd = enabled
+        queueDescription =
+            if (enabled) queueBehaviorAddDescription
+            else queueBehaviorFlushDescription
+    }
 
     // mute
     var isMute by mutableStateOf(false)
@@ -100,20 +108,21 @@ class MainViewModel @Inject constructor(
     val mindfulnessQuoteState = _mindfulnessQuoteState.asStateFlow()
     var isShowQuote by mutableStateOf(true)
         private set
-    fun setIsShowQuote(enabled: Boolean) {
+    fun updateShowQuote(enabled: Boolean) {
         isShowQuote = enabled
-        repo.setIsShowQuote(enabled) }
+        repo.updateShowQuote(enabled)
+    }
     fun initShowQuote() =
-        viewModelScope.launch { isShowQuote = repo.loadIsShowQuote() }
+        viewModelScope.launch { isShowQuote = repo.loadShowQuote() }
 
     // futures webhooks
     var isFuturesWebhooks by mutableStateOf(true)
         private set
     fun initFuturesWebhooks() =
-        viewModelScope.launch { isFuturesWebhooks = repo.loadIsFuturesWebhooks() }
-    fun setIsFuturesWebhooks(enabled: Boolean) {
+        viewModelScope.launch { isFuturesWebhooks = repo.loadFuturesWebhooks() }
+    fun updateFuturesWebhooks(enabled: Boolean) {
         isFuturesWebhooks = enabled
-        repo.setIsFuturesWebhooks(enabled)
+        repo.updateFuturesWebhooks(enabled)
     }
 
     // fullscreen
@@ -123,9 +132,9 @@ class MainViewModel @Inject constructor(
         get() = if (isFullScreen) screenFullDescription else screenWindowedDescription
     fun initFullScreen() =
         viewModelScope.launch { isFullScreen = repo.loadFullScreen() }
-    fun setIsFullScreen(enabled: Boolean) {
+    fun updateFullScreen(enabled: Boolean) {
         isFullScreen = enabled
-        repo.setFullScreen(enabled)
+        repo.updateFullScreen(enabled)
     }
 
     // dark mode
@@ -135,9 +144,9 @@ class MainViewModel @Inject constructor(
         get() = if (isDarkMode) uiDarkDescription else uiLightDescription
     fun initDarkMode(systemDefault: Boolean) =
         viewModelScope.launch { isDarkMode = repo.loadDarkMode(systemDefault) }
-    fun setIsDarkMode(enabled: Boolean) {
+    fun updateDarkMode(enabled: Boolean) {
         isDarkMode = enabled
-        repo.setIsDarkMode(enabled)
+        repo.updateDarkMode(enabled)
     }
 
     init {
@@ -163,8 +172,10 @@ class MainViewModel @Inject constructor(
 
     private fun refreshTtsSettingsUi() {
 
+        speed = repo.speed
+        pitch = repo.pitch
+        isQueueAdd = repo.isQueueAdd
         isMute = repo.isMute
-
         voiceDescription = beautifyVoiceName(repo.voice.name)
         speedDescription = repo.speed.toString()
         pitchDescription = repo.pitch.toString()
@@ -181,7 +192,7 @@ class MainViewModel @Inject constructor(
 
         // group voices by locale
         voices = repo.voices.sortedBy { it.locale.toLanguageTag() }
-        voiceIndex = voices.indexOfFirst { it.name == voice.name }
+        voiceIndex = voices.indexOfFirst { it.name == repo.voice.name }
 
         val groupedByLocaleVoices = voices.groupBy { it.locale.toLanguageTag() }
 

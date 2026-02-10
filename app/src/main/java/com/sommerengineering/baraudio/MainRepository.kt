@@ -20,10 +20,7 @@ import com.sommerengineering.baraudio.hilt.writeWhitelistToDatabase
 import com.sommerengineering.baraudio.messages.Message
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.math.roundToInt
@@ -62,12 +59,6 @@ class MainRepository @Inject constructor(
             tts.isMute = readPreference(booleanPreferencesKey(isMuteKey)) ?: false
         }
     }
-
-    fun speakMessage(
-        message: String) = tts.speak(
-            timestamp = "",
-            message = message,
-            isForceVolume = true)
 
     // voice
     val voices
@@ -117,17 +108,23 @@ class MainRepository @Inject constructor(
             writePreference(booleanPreferencesKey(isMuteKey), value)
         }
 
+    fun speakMessage(
+        message: String) = tts.speak(
+        timestamp = "",
+        message = message,
+        isForceVolume = true)
+
     // mindfulness quote
     suspend fun getMindfulnessQuote() = rapidApi.getMindfulnessQuote()
-    suspend fun loadIsShowQuote() =
+    suspend fun loadShowQuote() =
         readPreference(booleanPreferencesKey(isShowQuoteKey)) ?: true
-    fun setIsShowQuote(enabled: Boolean) =
+    fun updateShowQuote(enabled: Boolean) =
         writePreference(booleanPreferencesKey(isShowQuoteKey), enabled)
 
     // futures webhooks
-    suspend fun loadIsFuturesWebhooks() =
+    suspend fun loadFuturesWebhooks() =
         readPreference(booleanPreferencesKey(isFuturesWebhooksKey)) ?: true
-    fun setIsFuturesWebhooks(enabled: Boolean) {
+    fun updateFuturesWebhooks(enabled: Boolean) {
         writePreference(booleanPreferencesKey(isFuturesWebhooksKey), enabled)
         writeWhitelistToDatabase(enabled)
     }
@@ -135,7 +132,7 @@ class MainRepository @Inject constructor(
     // full screen
     suspend fun loadFullScreen() =
         readPreference(booleanPreferencesKey(isFullScreenKey)) ?: false
-    fun setFullScreen(enabled: Boolean) =
+    fun updateFullScreen(enabled: Boolean) =
         writePreference(booleanPreferencesKey(isFullScreenKey), enabled)
 
     // dark mode
@@ -143,7 +140,7 @@ class MainRepository @Inject constructor(
         val key = booleanPreferencesKey(isDarkModeKey)
         return context.dataStore.data.first()[key] ?: systemDefault
     }
-    fun setIsDarkMode(enabled: Boolean) =
+    fun updateDarkMode(enabled: Boolean) =
         writePreference(booleanPreferencesKey(isDarkModeKey), enabled)
 
     fun saveToClipboard(

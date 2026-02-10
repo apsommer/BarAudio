@@ -63,6 +63,12 @@ fun SettingsDrawer(
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
 
+
+
+    val speed = viewModel.speed
+    val pitch = viewModel.pitch
+    val isQueueAdd = viewModel.isQueueAdd
+
     val voiceDescription = viewModel.voiceDescription
     val speedDescription = viewModel.speedDescription
     val pitchDescription = viewModel.pitchDescription
@@ -76,9 +82,9 @@ fun SettingsDrawer(
     val isDarkMode = viewModel.isDarkMode
     val uiModeDescription = viewModel.darkModeDescription
 
-    Scaffold { padding ->
+    var isShowVoiceDialog by remember { mutableStateOf(false) }
 
-        var isShowVoiceDialog by remember { mutableStateOf(false) }
+    Scaffold { padding ->
 
         LazyColumn(
             modifier = Modifier
@@ -104,17 +110,17 @@ fun SettingsDrawer(
                             contentDescription = null)
                     }
 
-                        if (isShowVoiceDialog) {
-                            VoiceDialog(
-                                viewModel = viewModel,
-                                onItemSelected = {
-                                    viewModel.voice = it
-                                    isShowVoiceDialog = false
-                                },
-                                onDismiss = {
-                                    isShowVoiceDialog = false
-                                })
-                        }
+                    if (isShowVoiceDialog) {
+                        VoiceDialog(
+                            viewModel = viewModel,
+                            onItemSelected = {
+                                viewModel.setVoice(it)
+                                isShowVoiceDialog = false
+                            },
+                            onDismiss = {
+                                isShowVoiceDialog = false
+                            })
+                    }
                 }
             }
 
@@ -126,8 +132,8 @@ fun SettingsDrawer(
                     description = speedDescription) {
 
                         SliderImpl(
-                            initPosition = viewModel.speed,
-                            onValueChanged = { viewModel.speed = it },
+                            initPosition = speed,
+                            onValueChanged = { viewModel.updateSpeed(it) },
                             onValueChangeFinished = { viewModel.speakLastMessage() })
                     }
             }
@@ -140,8 +146,8 @@ fun SettingsDrawer(
                     description = pitchDescription) {
 
                         SliderImpl(
-                            initPosition = viewModel.pitch,
-                            onValueChanged = { viewModel.pitch = it },
+                            initPosition = pitch,
+                            onValueChanged = { viewModel.updatePitch(it) },
                             onValueChangeFinished = { viewModel.speakLastMessage() })
                         }
             }
@@ -154,8 +160,8 @@ fun SettingsDrawer(
                     description = queueDescription) {
 
                         Switch(
-                            checked = viewModel.isQueueAdd,
-                            onCheckedChange = { viewModel.isQueueAdd = it })
+                            checked = isQueueAdd,
+                            onCheckedChange = { viewModel.updateQueueAdd(it) })
                     }
             }
 
@@ -187,7 +193,7 @@ fun SettingsDrawer(
 
                     Switch(
                         checked = isFuturesWebhooks,
-                        onCheckedChange = { viewModel.setIsFuturesWebhooks(it)})
+                        onCheckedChange = { viewModel.updateFuturesWebhooks(it)})
                 }
             }
 
@@ -234,7 +240,7 @@ fun SettingsDrawer(
 
                     Switch(
                         checked = isFullScreen,
-                        onCheckedChange = { viewModel.setIsFullScreen(it) })
+                        onCheckedChange = { viewModel.updateFullScreen(it) })
                 }
             }
 
@@ -247,7 +253,7 @@ fun SettingsDrawer(
 
                     Switch(
                         checked = isDarkMode,
-                        onCheckedChange = { viewModel.setIsDarkMode(it) })
+                        onCheckedChange = { viewModel.updateDarkMode(it) })
                 }
             }
 
@@ -259,7 +265,7 @@ fun SettingsDrawer(
 
                     Switch(
                         checked = isShowQuote,
-                        onCheckedChange = { viewModel.setIsShowQuote(it)})
+                        onCheckedChange = { viewModel.updateShowQuote(it)})
                 }
             }
 
