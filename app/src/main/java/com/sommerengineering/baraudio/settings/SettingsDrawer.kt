@@ -69,7 +69,7 @@ fun SettingsDrawer(
     val queueDescription = viewModel.queueDescription
 
     val isShowQuote by viewModel.isShowQuote.collectAsState()
-    val isFuturesWebhooks by viewModel.isFuturesWebhooks.collectAsState()
+    val isFuturesWebhooks = viewModel.isFuturesWebhooks
     val isFullScreen = viewModel.isFullScreen
     val fullScreenDescription = viewModel.fullScreenDescription
 
@@ -187,7 +187,7 @@ fun SettingsDrawer(
 
                     Switch(
                         checked = isFuturesWebhooks,
-                        onCheckedChange = { viewModel.setFuturesWebhooks(it)})
+                        onCheckedChange = { viewModel.setIsFuturesWebhooks(it)})
                 }
             }
 

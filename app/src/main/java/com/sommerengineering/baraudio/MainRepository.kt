@@ -139,12 +139,11 @@ class MainRepository @Inject constructor(
     suspend fun getMindfulnessQuote() = rapidApi.getMindfulnessQuote()
 
     // futures webhooks
-    private val _isFuturesWebhooks = MutableStateFlow(false)
-    val isFuturesWebhooks = _isFuturesWebhooks.asStateFlow()
-    fun setFuturesWebhooks(isChecked: Boolean) {
-        _isFuturesWebhooks.update { isChecked }
-        writeToDataStore(context, isFuturesWebhooksKey, isChecked.toString())
-        writeWhitelistToDatabase(isChecked)
+    suspend fun loadIsFuturesWebhooks() =
+        readPreference(booleanPreferencesKey(isFuturesWebhooksKey)) ?: true
+    fun setIsFuturesWebhooks(enabled: Boolean) {
+        writePreference(booleanPreferencesKey(isFuturesWebhooksKey), enabled)
+        writeWhitelistToDatabase(enabled)
     }
 
     // full screen
@@ -173,7 +172,6 @@ class MainRepository @Inject constructor(
         // todo load from prefs
         _isMute.update { readFromDataStore(context, volumeKey)?.toFloat() == 0f }
         _isShowQuote.update { readFromDataStore(context, showQuoteKey)?.toBooleanStrictOrNull() ?: true }
-        _isFuturesWebhooks.update { readFromDataStore(context, isFuturesWebhooksKey)?.toBooleanStrictOrNull() ?: true }
     }
 
     fun saveToClipboard(
@@ -195,7 +193,7 @@ class MainRepository @Inject constructor(
     }
 
     suspend fun <T> readPreference(
-        key: Preferences.Key<T>) =
+        key: Preferences.Key<T>) : T? =
         context.dataStore.data.first()[key]
 
     fun <T> writePreference(

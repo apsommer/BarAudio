@@ -97,8 +97,14 @@ class MainViewModel @Inject constructor(
     val mindfulnessQuoteState = _mindfulnessQuoteState.asStateFlow()
 
     // futures webhooks
-    var isFuturesWebhooks = repo.isFuturesWebhooks
-    fun setFuturesWebhooks(isChecked: Boolean) = repo.setFuturesWebhooks(isChecked)
+    var isFuturesWebhooks by mutableStateOf(true)
+        private set
+    fun initFuturesWebhooks() =
+        viewModelScope.launch { isFuturesWebhooks = repo.loadIsFuturesWebhooks() }
+    fun setIsFuturesWebhooks(enabled: Boolean) {
+        isFuturesWebhooks = enabled
+        repo.setIsFuturesWebhooks(enabled)
+    }
 
     // fullscreen
     var isFullScreen by mutableStateOf(false)
