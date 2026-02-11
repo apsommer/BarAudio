@@ -14,7 +14,7 @@ uid_admin = 'GxZTktT079Rf3vwDWLdSUFnUBs52' # todo hide in local
 
 # https://us-central1-com-sommerengineering-baraudio.cloudfunctions.net/baraudio?uid=...
 @https_fn.on_request()
-def main(req: https_fn.Request) -> https_fn.Response:
+def baraudio(req: https_fn.Request) -> https_fn.Response:
 
     # extract attributes from request
     uid = req.args.get(key='uid', type=str) # uid as query param
