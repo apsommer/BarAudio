@@ -107,10 +107,11 @@ class FirebaseDatabaseImpl {
     }
 
     fun deleteMessage(message: Message) {
-
         cache.remove(message)
         _messages.update { cache.toList() }
+        val uid = Firebase.auth.currentUser?.uid ?: return
         messagesNode
+            .child(uid)
             .child(message.timestamp)
             .removeValue()
     }
@@ -118,7 +119,8 @@ class FirebaseDatabaseImpl {
     fun deleteAllMessages() {
         cache.clear()
         _messages.update { cache.toList() }
-        messagesNode.removeValue()
+        val uid = Firebase.auth.currentUser?.uid ?: return
+        messagesNode.child(uid).removeValue()
     }
 
     fun stopListening() {

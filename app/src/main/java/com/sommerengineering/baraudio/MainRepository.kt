@@ -173,6 +173,7 @@ class MainRepository @Inject constructor(
     fun onNewToken(token: String) {
         lastToken = token
         db.writeToken(token)
+        db.writeWhitelist(true)
     }
     private fun listenToAuthState() =
         FirebaseAuth.getInstance().addAuthStateListener { auth ->
