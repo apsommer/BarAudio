@@ -1,22 +1,20 @@
 package com.sommerengineering.baraudio.hilt
 
 import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.database
 import com.sommerengineering.baraudio.databaseUrl
 import com.sommerengineering.baraudio.logException
 import com.sommerengineering.baraudio.messageKey
 import com.sommerengineering.baraudio.messageMaxSize
+import com.sommerengineering.baraudio.messageParsingError
 import com.sommerengineering.baraudio.messages.Message
 import com.sommerengineering.baraudio.messages.originParsingError
 import com.sommerengineering.baraudio.messagesNodeId
 import com.sommerengineering.baraudio.originKey
-import com.sommerengineering.baraudio.messageParsingError
-import com.sommerengineering.baraudio.uid
 import com.sommerengineering.baraudio.usersNodeId
 import com.sommerengineering.baraudio.whitelistNodeId
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,30 +25,21 @@ import org.json.JSONObject
 
 class FirebaseDatabaseImpl {
 
-    private val db: FirebaseDatabase
-    private val messagesNode: DatabaseReference
+    private val db = Firebase.database(databaseUrl)
+    private val messagesNode = db.getReference(messagesNodeId)
     private var listener: ChildEventListener? = null
 
     val _messages = MutableStateFlow<List<Message>>(emptyList())
     val messages = _messages.asStateFlow()
     private val cache = mutableListOf<Message>()
 
-    init {
-
-        // enable offline mode with local persistence
-        Firebase
-            .database(databaseUrl)
-            .setPersistenceEnabled(true)
-
-        db = Firebase.database(databaseUrl)
-        messagesNode = db.getReference(messagesNodeId).child(uid)
-        messagesNode.keepSynced(true)
-    }
-
     fun startListening() {
 
         // ensure only one listener exists
         if (listener != null) return
+
+        // ensure user is authenticated
+        val uid = Firebase.auth.currentUser?.uid ?: return
 
         val newListener = object: ChildEventListener {
 
@@ -109,10 +98,10 @@ class FirebaseDatabaseImpl {
             override fun onCancelled(error: DatabaseError) { }
         }
 
-        // attach listener to database
-        messagesNode
-            .limitToLast(100)
-            .addChildEventListener(newListener)
+        // attach listener to messages/user node
+        val messagesUserNode = messagesNode.child(uid)
+        messagesUserNode.limitToLast(1000).addChildEventListener(newListener)
+        messagesUserNode.keepSynced(true)
 
         listener = newListener
     }
@@ -127,23 +116,23 @@ class FirebaseDatabaseImpl {
     }
 
     fun deleteAllMessages() {
-
         cache.clear()
         _messages.update { cache.toList() }
         messagesNode.removeValue()
     }
 
     fun stopListening() {
-
         listener?.let { messagesNode.removeEventListener(it) }
         listener = null
     }
 
     fun writeToken(token: String) {
-        db.getReference(usersNodeId).setValue(token)
+        val uid = Firebase.auth.currentUser?.uid ?: return
+        db.getReference(usersNodeId).child(uid).setValue(token)
     }
 
     fun writeWhitelist(enabled: Boolean) {
-        db.getReference(whitelistNodeId).setValue(enabled)
+        val uid = Firebase.auth.currentUser?.uid ?: return
+        db.getReference(whitelistNodeId).child(uid).setValue(enabled)
     }
 }

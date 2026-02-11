@@ -35,13 +35,7 @@ class FirebaseServiceImpl: FirebaseMessagingService() {
     @Inject lateinit var tts: TextToSpeechImpl // todo remove
     @Inject lateinit var repo: MainRepository
 
-    override fun onNewToken(token: String) {
-
-        repo.writePreference(stringPreferencesKey(tokenKey), token)
-        repo.writeTokenToDatabase(token)
-
-        logMessage("onNewToken: $token")
-    }
+    override fun onNewToken(token: String) = repo.onNewToken(token)
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
 
@@ -116,5 +110,4 @@ class FirebaseServiceImpl: FirebaseMessagingService() {
             .toInt()
 }
 
-fun signOut() =
-    Firebase.auth.signOut()
+fun signOut() = Firebase.auth.signOut()

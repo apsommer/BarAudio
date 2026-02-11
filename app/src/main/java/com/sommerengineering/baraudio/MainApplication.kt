@@ -6,6 +6,7 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.crashlytics.crashlytics
+import com.google.firebase.database.database
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
@@ -19,11 +20,9 @@ class MainApplication : Application() {
             Firebase.crashlytics.isCrashlyticsCollectionEnabled = false
         }
 
-        FirebaseAuth.getInstance().addAuthStateListener {
-            it.currentUser?.let {
-                uid = it.uid
-            }
-        }
+        // enable offline mode with local persistence
+        Firebase
+            .database(databaseUrl)
+            .setPersistenceEnabled(true)
     }
 }
-var uid = unauthenticatedUser

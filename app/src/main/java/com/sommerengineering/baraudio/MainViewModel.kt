@@ -149,7 +149,7 @@ class MainViewModel @Inject constructor(
             isShowQuote = repo.loadShowQuote()
         }
 
-        // wait for system initialization of tts engine, takes a few seconds
+        // wait for repo to finish initializing tts engine, takes a few seconds
         viewModelScope.launch {
             repo.isTtsReady.filter { it }.first()
             refreshTtsSettingsUi()

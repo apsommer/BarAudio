@@ -10,6 +10,8 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
 import com.sommerengineering.baraudio.hilt.ApplicationScope
 import com.sommerengineering.baraudio.hilt.FirebaseDatabaseImpl
 import com.sommerengineering.baraudio.hilt.RapidApi
@@ -35,6 +37,11 @@ class MainRepository @Inject constructor(
     val rapidApi: RapidApi,
 ) {
 
+    // text-to-speech
+    val isTtsInit = tts.isInit
+    private val _isTtsReady = MutableStateFlow(false)
+    val isTtsReady = _isTtsReady.asStateFlow()
+
     // database
     val messages = db.messages
     fun startListeningToDatabase() = db.startListening()
@@ -42,16 +49,19 @@ class MainRepository @Inject constructor(
     fun deleteAllMessages() = db.deleteAllMessages()
     fun stopListening() = db.stopListening()
 
-    // text-to-speech
-    val isTtsInit = tts.isInit
-    private val _isTtsReady = MutableStateFlow(false)
-    val isTtsReady = _isTtsReady.asStateFlow()
-
     init {
+
+        // wait for system initialization of tts engine, takes a few seconds
         appScope.launch {
             isTtsInit.filter { it }.first()
             initTtsSettings()
             _isTtsReady.update { true }
+        }
+
+        // wait for firebase to initialize
+        FirebaseAuth.getInstance().addAuthStateListener {
+            it.currentUser?.uid ?: return@addAuthStateListener
+            lastToken?.let { token -> db.writeToken(token) }
         }
     }
 
@@ -116,7 +126,6 @@ class MainRepository @Inject constructor(
         tts.pitch = readPreference(floatPreferencesKey(pitchKey)) ?: 1f
         tts.isQueueAdd = readPreference(booleanPreferencesKey(isQueueAddKey)) ?: true
         tts.isMute = readPreference(booleanPreferencesKey(isMuteKey)) ?: false
-
     }
 
     // mindfulness quote
@@ -131,7 +140,7 @@ class MainRepository @Inject constructor(
         readPreference(booleanPreferencesKey(isFuturesWebhooksKey)) ?: true
     fun updateFuturesWebhooks(enabled: Boolean) {
         writePreference(booleanPreferencesKey(isFuturesWebhooksKey), enabled)
-        // todo writeWhitelistToDatabase(enabled)
+        db.writeWhitelist(enabled)
     }
 
     // full screen
@@ -177,6 +186,9 @@ class MainRepository @Inject constructor(
             context.dataStore.edit { it[key] = value }
         }
 
-    fun writeTokenToDatabase(token: String) =
+    private var lastToken: String? = null
+    fun onNewToken(token: String) {
+        lastToken = token
         db.writeToken(token)
+    }
 }

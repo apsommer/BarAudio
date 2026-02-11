@@ -10,7 +10,7 @@ app = initialize_app(
     options = { 'databaseURL': 'https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/' })
 
 # drew@baraud.io
-uid_admin = 'GxZTktT079Rf3vwDWLdSUFnUBs52'
+uid_admin = 'GxZTktT079Rf3vwDWLdSUFnUBs52' # todo hide in local
 
 # https://us-central1-com-sommerengineering-baraudio.cloudfunctions.net/baraudio?uid=...
 @https_fn.on_request()
