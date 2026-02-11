@@ -18,7 +18,6 @@ import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.MessagesScreenRoute
 import com.sommerengineering.baraudio.OnboardingTextToSpeechScreenRoute
 import com.sommerengineering.baraudio.hilt.signOut
-import com.sommerengineering.baraudio.hilt.writeTokenToDatabase
 import com.sommerengineering.baraudio.isOnboardingComplete
 import com.sommerengineering.baraudio.isUpdateRequired
 import com.sommerengineering.baraudio.logException
@@ -31,7 +30,7 @@ fun onAuthentication(
     controller: NavHostController) {
 
     // write to database, if needed
-    writeTokenToDatabase()
+    // todo writeTokenToDatabase()
 
     // navigate to next destination
     val nextDestination =

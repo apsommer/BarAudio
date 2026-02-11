@@ -25,7 +25,6 @@ import com.sommerengineering.baraudio.login.checkForcedUpdate
 import com.sommerengineering.baraudio.login.onAuthentication
 import com.sommerengineering.baraudio.login.onSignOut
 import com.sommerengineering.baraudio.messages.MessagesScreen
-import com.sommerengineering.baraudio.hilt.token
 
 @Composable
 fun Navigation(
@@ -169,12 +168,7 @@ fun getStartDestination(): String {
     // skip login screen if user already authenticated
     if (Firebase.auth.currentUser == null) return LoginScreenRoute
 
-    // log for development
-    logMessage("User already authenticated, sign-in flow skipped.")
-    logMessage("    uid: ${Firebase.auth.currentUser?.uid}")
-    logMessage("  token: ${token}")
-
+    // skip onboarding if user already completed
     if (!isOnboardingComplete) return OnboardingTextToSpeechScreenRoute
-
     return MessagesScreenRoute
 }

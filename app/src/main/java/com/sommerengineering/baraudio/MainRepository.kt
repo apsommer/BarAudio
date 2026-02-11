@@ -15,7 +15,6 @@ import com.sommerengineering.baraudio.hilt.FirebaseDatabaseImpl
 import com.sommerengineering.baraudio.hilt.RapidApi
 import com.sommerengineering.baraudio.hilt.TextToSpeechImpl
 import com.sommerengineering.baraudio.hilt.dataStore
-import com.sommerengineering.baraudio.hilt.writeWhitelistToDatabase
 import com.sommerengineering.baraudio.messages.Message
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -31,17 +30,17 @@ import kotlin.math.roundToInt
 class MainRepository @Inject constructor(
     @ApplicationContext val context: Context,
     @ApplicationScope val appScope: CoroutineScope,
-    val rapidApi: RapidApi,
+    val db: FirebaseDatabaseImpl,
     val tts: TextToSpeechImpl,
-    val firebaseDatabase: FirebaseDatabaseImpl,
+    val rapidApi: RapidApi,
 ) {
 
     // database
-    val messages = firebaseDatabase.messages
-    fun startListeningToDatabase() = firebaseDatabase.startListening()
-    fun deleteMessage(message: Message) = firebaseDatabase.deleteMessage(message)
-    fun deleteAllMessages() = firebaseDatabase.deleteAllMessages()
-    fun stopListening() = firebaseDatabase.stopListening()
+    val messages = db.messages
+    fun startListeningToDatabase() = db.startListening()
+    fun deleteMessage(message: Message) = db.deleteMessage(message)
+    fun deleteAllMessages() = db.deleteAllMessages()
+    fun stopListening() = db.stopListening()
 
     // text-to-speech
     val isTtsInit = tts.isInit
@@ -132,7 +131,7 @@ class MainRepository @Inject constructor(
         readPreference(booleanPreferencesKey(isFuturesWebhooksKey)) ?: true
     fun updateFuturesWebhooks(enabled: Boolean) {
         writePreference(booleanPreferencesKey(isFuturesWebhooksKey), enabled)
-        writeWhitelistToDatabase(enabled)
+        // todo writeWhitelistToDatabase(enabled)
     }
 
     // full screen
@@ -177,4 +176,7 @@ class MainRepository @Inject constructor(
         appScope.launch {
             context.dataStore.edit { it[key] = value }
         }
+
+    fun writeTokenToDatabase(token: String) =
+        db.writeToken(token)
 }

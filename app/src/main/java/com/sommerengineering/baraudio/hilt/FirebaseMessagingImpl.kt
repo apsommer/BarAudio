@@ -8,16 +8,15 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import androidx.datastore.preferences.core.stringPreferencesKey
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.database
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.sommerengineering.baraudio.MainActivity
+import com.sommerengineering.baraudio.MainRepository
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.channelId
-import com.sommerengineering.baraudio.databaseUrl
 import com.sommerengineering.baraudio.isAppOpen
 import com.sommerengineering.baraudio.isLaunchFromNotification
 import com.sommerengineering.baraudio.logMessage
@@ -27,29 +26,21 @@ import com.sommerengineering.baraudio.timestampKey
 import com.sommerengineering.baraudio.tokenKey
 import com.sommerengineering.baraudio.uidKey
 import com.sommerengineering.baraudio.unauthenticatedTimestampNote
-import com.sommerengineering.baraudio.unauthenticatedToken
-import com.sommerengineering.baraudio.unauthenticatedUser
-import com.sommerengineering.baraudio.usersNode
-import com.sommerengineering.baraudio.whitelistNode
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
-
-var token = unauthenticatedToken
 
 @AndroidEntryPoint
 class FirebaseServiceImpl: FirebaseMessagingService() {
 
-    @Inject lateinit var tts: TextToSpeechImpl
+    @Inject lateinit var tts: TextToSpeechImpl // todo remove
+    @Inject lateinit var repo: MainRepository
 
-    override fun onNewToken(newToken: String) {
+    override fun onNewToken(token: String) {
 
-        token = newToken
-        writeToDataStore(
-            applicationContext,
-            tokenKey,
-            token
-        )
-        logMessage("New token: $token")
+        repo.writePreference(stringPreferencesKey(tokenKey), token)
+        repo.writeTokenToDatabase(token)
+
+        logMessage("onNewToken: $token")
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
@@ -127,50 +118,3 @@ class FirebaseServiceImpl: FirebaseMessagingService() {
 
 fun signOut() =
     Firebase.auth.signOut()
-
-var isDatabaseInitialized = false
-fun getDatabaseReference(
-    node: String)
-: DatabaseReference {
-
-    // singleton, enable local persistence can only be set once
-    if (!isDatabaseInitialized) {
-
-        // enable local cache
-        Firebase
-            .database(databaseUrl)
-            .setPersistenceEnabled(true)
-
-        isDatabaseInitialized = true
-    }
-
-    val uid = Firebase.auth.currentUser?.uid ?: unauthenticatedUser
-
-    return Firebase
-        .database(databaseUrl)
-        .getReference(node)
-        .child(uid)
-}
-
-fun writeTokenToDatabase() {
-
-    val user = Firebase.auth.currentUser ?: return
-
-    // write user:token pair to database, no write occurs if correct token already present
-    getDatabaseReference(usersNode)
-        .setValue(token)
-
-    logMessage("Sign-in success")
-    logMessage("    uid: ${user.uid}")
-    logMessage("  token: $token")
-}
-
-fun writeWhitelistToDatabase(
-    isWhitelist: Boolean) {
-
-    // write user to whitelist database, no write occurs if correct value already present
-    getDatabaseReference(whitelistNode)
-        .setValue(isWhitelist)
-
-    logMessage("isWhitelist: ${isWhitelist}")
-}

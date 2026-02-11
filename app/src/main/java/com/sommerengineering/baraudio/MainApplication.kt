@@ -3,6 +3,8 @@ package com.sommerengineering.baraudio
 import android.app.Application
 import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
 import com.google.firebase.crashlytics.crashlytics
 import dagger.hilt.android.HiltAndroidApp
 
@@ -16,5 +18,12 @@ class MainApplication : Application() {
             FirebaseAnalytics.getInstance(this).setAnalyticsCollectionEnabled(false)
             Firebase.crashlytics.isCrashlyticsCollectionEnabled = false
         }
+
+        FirebaseAuth.getInstance().addAuthStateListener {
+            it.currentUser?.let {
+                uid = it.uid
+            }
+        }
     }
 }
+var uid = unauthenticatedUser

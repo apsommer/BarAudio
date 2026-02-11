@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -26,7 +25,6 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.navigation.compose.rememberNavController
 import com.sommerengineering.baraudio.hilt.readFromDataStore
-import com.sommerengineering.baraudio.hilt.token
 import com.sommerengineering.baraudio.theme.AppTheme
 import com.sommerengineering.baraudio.theme.isSystemInDarkMode
 import dagger.hilt.android.AndroidEntryPoint
@@ -119,12 +117,6 @@ class MainActivity : ComponentActivity() {
 
         // todo collect all in init() method
         viewModel.initDarkMode(this.isSystemInDarkMode())
-        viewModel.initFullScreen()
-        viewModel.initFuturesWebhooks()
-        viewModel.initShowQuote()
-
-        // load key:values from preferences
-        token = readFromDataStore(this, tokenKey) ?: unauthenticatedToken
         isOnboardingComplete = readFromDataStore(this, onboardingKey).toBoolean()
 
         // dismiss all notifications on launch

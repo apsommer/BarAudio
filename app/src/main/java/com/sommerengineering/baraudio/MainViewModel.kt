@@ -1,6 +1,5 @@
 package com.sommerengineering.baraudio
 
-import android.content.Context
 import android.speech.tts.Voice
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -12,7 +11,6 @@ import androidx.lifecycle.viewModelScope
 import com.sommerengineering.baraudio.messages.Message
 import com.sommerengineering.baraudio.messages.MindfulnessQuoteState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,7 +22,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    @ApplicationContext val context: Context,
     val repo: MainRepository,
     val credentialManager: CredentialManager, // todo remove
 ) : ViewModel() {
@@ -112,14 +109,10 @@ class MainViewModel @Inject constructor(
         isShowQuote = enabled
         repo.updateShowQuote(enabled)
     }
-    fun initShowQuote() =
-        viewModelScope.launch { isShowQuote = repo.loadShowQuote() }
 
     // futures webhooks
     var isFuturesWebhooks by mutableStateOf(true)
         private set
-    fun initFuturesWebhooks() =
-        viewModelScope.launch { isFuturesWebhooks = repo.loadFuturesWebhooks() }
     fun updateFuturesWebhooks(enabled: Boolean) {
         isFuturesWebhooks = enabled
         repo.updateFuturesWebhooks(enabled)
@@ -130,8 +123,6 @@ class MainViewModel @Inject constructor(
         private set
     val fullScreenDescription
         get() = if (isFullScreen) screenFullDescription else screenWindowedDescription
-    fun initFullScreen() =
-        viewModelScope.launch { isFullScreen = repo.loadFullScreen() }
     fun updateFullScreen(enabled: Boolean) {
         isFullScreen = enabled
         repo.updateFullScreen(enabled)
@@ -151,8 +142,15 @@ class MainViewModel @Inject constructor(
 
     init {
 
+        // load settings from preferences
+        viewModelScope.launch {
+            isFuturesWebhooks = repo.loadFuturesWebhooks()
+            isFullScreen = repo.loadFullScreen()
+            isShowQuote = repo.loadShowQuote()
+        }
+
         // wait for system initialization of tts engine, takes a few seconds
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch {
             repo.isTtsReady.filter { it }.first()
             refreshTtsSettingsUi()
         }
