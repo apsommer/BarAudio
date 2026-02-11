@@ -47,13 +47,13 @@ fun MessageItem(
 
     // origin image
     val webhookOriginImageId: Int = when (message.origin) {
-        in tradingviewWhitelistIps -> {
+        in tradingview -> {
             if (isDarkMode) R.drawable.tradingview_light
             else R.drawable.tradingview_dark
         }
-        trendspiderWhitelistIp -> R.drawable.trendspider
-        insomniaIp -> R.drawable.insomnia
-        originParsingError -> R.drawable.error
+        trendspider -> R.drawable.trendspider
+        insomnia -> R.drawable.insomnia
+        parsingErrorOrigin -> R.drawable.error
         else -> R.drawable.webhook
     }
 

@@ -73,25 +73,13 @@ class TextToSpeechImpl(
     fun isSpeaking() = _textToSpeech.isSpeaking
     fun stop() = _textToSpeech.stop()
 
-    fun speak(
-        timestamp: String,
-        message: String,
-        isForceVolume: Boolean = false) {
-
-        if (message.isBlank()) return
-
-        // config volume
-        val params =
-            if (isForceVolume) bundleOf(volumeKey to 1f)
-            else bundleOf(volumeKey to _volume)
-
-        // speak message
+    fun speak(timestamp: String, message: String) =
         _textToSpeech.speak(
             message,
             _isQueueAdd.compareTo(false),
-            params,
+            bundleOf(volumeKey to _volume),
             timestamp)
-    }
+
 
     override fun onInit(status: Int) {
 

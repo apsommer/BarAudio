@@ -12,7 +12,7 @@ import com.sommerengineering.baraudio.messageKey
 import com.sommerengineering.baraudio.messageMaxSize
 import com.sommerengineering.baraudio.messageParsingError
 import com.sommerengineering.baraudio.messages.Message
-import com.sommerengineering.baraudio.messages.originParsingError
+import com.sommerengineering.baraudio.messages.parsingErrorOrigin
 import com.sommerengineering.baraudio.messagesNodeId
 import com.sommerengineering.baraudio.originKey
 import com.sommerengineering.baraudio.usersNodeId
@@ -69,7 +69,7 @@ class FirebaseDatabaseImpl {
                 } catch (e: JSONException) {
                     logException(e)
                     message = messageParsingError
-                    origin = originParsingError
+                    origin = parsingErrorOrigin
                 }
 
                 // add message to cache
@@ -100,7 +100,7 @@ class FirebaseDatabaseImpl {
 
         // attach listener to messages/user node
         val messagesUserNode = messagesNode.child(uid)
-        messagesUserNode.limitToLast(1000).addChildEventListener(newListener)
+        messagesUserNode.limitToLast(messageMaxSize).addChildEventListener(newListener)
         messagesUserNode.keepSynced(true)
 
         listener = newListener

@@ -29,8 +29,6 @@ const val webhookBaseUrl = "https://us-central1-com-sommerengineering-baraudio.c
 const val messagesNodeId = "messages"
 const val whitelistNodeId = "whitelist"
 const val usersNodeId = "users"
-const val unauthenticatedUser = "unauthenticatedUser"
-const val unauthenticatedToken = "unauthenticatedToken"
 const val gitHubProviderId = "github.com"
 const val messageMaxSize = 1000
 
@@ -45,10 +43,9 @@ const val uidKey = "uid"
 const val timestampKey = "timestamp"
 const val messageKey = "message"
 const val originKey = "origin"
-const val defaultMessage = "Thank you for using bar audio, please setup your webhook to continue!"
+const val defaultUtterance = "Thank you for using bar audio, please customize your webhook to continue!"
 const val unauthenticatedTimestampNote = ", sign-in to hear message!"
 const val messageParsingError = "Error parsing message"
-const val buildTypeDebug = "debug"
 
 // navigation
 const val LoginScreenRoute = "LoginScreen"
@@ -60,7 +57,6 @@ const val MessagesScreenRoute = "MessagesScreen"
 // datastore
 const val localCache = "localCache"
 const val onboardingKey = "onboarding"
-const val tokenKey = "token"
 const val voiceNameKey = "voice"
 const val speedKey = "speed"
 const val pitchKey = "pitch"

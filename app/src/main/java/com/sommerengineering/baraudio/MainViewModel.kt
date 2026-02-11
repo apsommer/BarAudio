@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sommerengineering.baraudio.messages.Message
 import com.sommerengineering.baraudio.messages.MindfulnessQuoteState
+import com.sommerengineering.baraudio.messages.localOrigin
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -94,10 +95,12 @@ class MainViewModel @Inject constructor(
         repo.isMute = isMute
     }
     fun speakLastMessage() {
-        val lastMessage =
-            if (messages.value.isEmpty()) defaultMessage
-            else messages.value.first().message
-        repo.speakMessage(lastMessage)
+        val message = messages.value.lastOrNull() ?:
+            Message(
+                timestamp = System.currentTimeMillis().toString(),
+                message = defaultUtterance,
+                origin = localOrigin)
+        repo.speakMessage(message)
     }
 
     // mindfulness quote

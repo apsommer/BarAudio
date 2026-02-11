@@ -8,7 +8,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
-import androidx.datastore.preferences.core.stringPreferencesKey
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.messaging.FirebaseMessagingService
@@ -19,11 +18,11 @@ import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.channelId
 import com.sommerengineering.baraudio.isAppOpen
 import com.sommerengineering.baraudio.isLaunchFromNotification
-import com.sommerengineering.baraudio.logMessage
 import com.sommerengineering.baraudio.messageKey
+import com.sommerengineering.baraudio.messages.Message
 import com.sommerengineering.baraudio.messages.beautifyTimestamp
+import com.sommerengineering.baraudio.originKey
 import com.sommerengineering.baraudio.timestampKey
-import com.sommerengineering.baraudio.tokenKey
 import com.sommerengineering.baraudio.uidKey
 import com.sommerengineering.baraudio.unauthenticatedTimestampNote
 import dagger.hilt.android.AndroidEntryPoint
@@ -32,10 +31,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class FirebaseServiceImpl: FirebaseMessagingService() {
 
-    @Inject lateinit var tts: TextToSpeechImpl // todo remove
     @Inject lateinit var repo: MainRepository
-
-    override fun onNewToken(token: String) = repo.onNewToken(token)
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
 
@@ -43,6 +39,7 @@ class FirebaseServiceImpl: FirebaseMessagingService() {
         val uid = remoteMessage.data[uidKey] ?: return
         val timestamp = remoteMessage.data[timestampKey] ?: return
         val message = remoteMessage.data[messageKey] ?: return
+        val origin = remoteMessage.data[originKey] ?: return
 
         // either speak, or show notification
         var isShowNotification =
@@ -56,18 +53,19 @@ class FirebaseServiceImpl: FirebaseMessagingService() {
                 unauthenticatedTimestampNote
             } else { "" }
 
-        // either speak, or show notification
+        // show notification
         if (isShowNotification) {
-            showNotification(
-                timestamp,
-                message,
-                note)
-
-        } else {
-            tts.speak(
-                timestamp,
-                message)
+            showNotification(timestamp, message, note)
+            return
         }
+
+        // speak message
+        repo.speakMessage(
+            Message(
+                timestamp = timestamp,
+                message = message,
+                origin = origin))
+
     }
 
     private fun showNotification(
@@ -108,6 +106,8 @@ class FirebaseServiceImpl: FirebaseMessagingService() {
         timestamp
             .substring(timestamp.length - 9, timestamp.length)
             .toInt()
+
+    override fun onNewToken(token: String) = repo.onNewToken(token)
 }
 
 fun signOut() = Firebase.auth.signOut()

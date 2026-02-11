@@ -10,7 +10,6 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
-import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.sommerengineering.baraudio.hilt.ApplicationScope
 import com.sommerengineering.baraudio.hilt.FirebaseDatabaseImpl
@@ -58,11 +57,8 @@ class MainRepository @Inject constructor(
             _isTtsReady.update { true }
         }
 
-        // wait for firebase to initialize
-        FirebaseAuth.getInstance().addAuthStateListener {
-            it.currentUser?.uid ?: return@addAuthStateListener
-            lastToken?.let { token -> db.writeToken(token) }
-        }
+        // wait for firebase to initialize before writing token to database
+        listenToAuthState()
     }
 
     // voice
@@ -110,11 +106,8 @@ class MainRepository @Inject constructor(
             writePreference(booleanPreferencesKey(isMuteKey), value)
         }
 
-    fun speakMessage(
-        message: String) = tts.speak(
-        timestamp = "",
-        message = message,
-        isForceVolume = true)
+    fun speakMessage(message: Message) =
+        tts.speak(message.timestamp, message.message)
 
     suspend fun initTtsSettings() {
 
@@ -175,6 +168,19 @@ class MainRepository @Inject constructor(
         }
     }
 
+    // token
+    private var lastToken: String? = null
+    fun onNewToken(token: String) {
+        lastToken = token
+        db.writeToken(token)
+    }
+    private fun listenToAuthState() =
+        FirebaseAuth.getInstance().addAuthStateListener { auth ->
+            if (auth.currentUser == null) return@addAuthStateListener
+            lastToken?.let { token -> db.writeToken(token) }
+        }
+
+    // preference data store
     suspend fun <T> readPreference(
         key: Preferences.Key<T>) : T? =
         context.dataStore.data.first()[key]
@@ -185,10 +191,4 @@ class MainRepository @Inject constructor(
         appScope.launch {
             context.dataStore.edit { it[key] = value }
         }
-
-    private var lastToken: String? = null
-    fun onNewToken(token: String) {
-        lastToken = token
-        db.writeToken(token)
-    }
 }
