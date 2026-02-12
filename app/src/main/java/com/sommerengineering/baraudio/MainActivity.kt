@@ -14,9 +14,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -42,18 +39,12 @@ class MainActivity : ComponentActivity() {
     }
 
     val updateLauncher =
-        registerForActivityResult(
-            ActivityResultContracts.StartIntentSenderForResult()) { result ->
+        registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
             if (result.resultCode != RESULT_OK) {
                 logMessage("Update flow failed with code: ${result.resultCode}")
             }
-            // system update and restart when update is required/immediate
+            // system handles update and restart
         }
-
-    // controller to toggle fullscreen
-    val windowInsetsController by lazy {
-        WindowCompat.getInsetsController(window, window.decorView)
-    }
 
     private fun initNotificationChannel() {
 
@@ -82,7 +73,14 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        init()
+        // initialize dark mode
+        viewModel.initDarkMode(isSystemInDarkMode())
+
+        // enable layout resizing into system designated screen space
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        initNotificationChannel()
+        checkForcedUpdate()
 
         // launch compose tree
         setContent {
@@ -109,30 +107,14 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         viewModel.updateNotificationsEnabled(areNotificationsEnabled())
-    }
-
-    private fun init() {
-
-        // todo collect all in init() method of viewmodel
-        viewModel.initOnboarding()
-        viewModel.initDarkMode(isSystemInDarkMode())
-
-        // dismiss all notifications on launch
-        val isLaunchFromNotification = intent.extras?.getBoolean(isLaunchFromNotification) ?: false
-        if (isLaunchFromNotification) { cancelAllNotifications(this) }
-
-        // enable layout resizing into system designated screen space
-        // can not get behind front camera "notch" of pixel 6a, other apps also can't!
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-
-        // init notification channel
-        initNotificationChannel()
-
-        checkForcedUpdate()
+        NotificationManagerCompat.from(this).cancelAll()
     }
 
     private fun applyFullScreen(
         isFullScreen: Boolean) {
+
+        // controller to toggle fullscreen
+        val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
 
         // expand
         if (isFullScreen) {
@@ -175,9 +157,6 @@ class MainActivity : ComponentActivity() {
             }
     }
 }
-
-fun cancelAllNotifications(context: Context) =
-    NotificationManagerCompat.from(context).cancelAll()
 
 @Composable
 fun App(

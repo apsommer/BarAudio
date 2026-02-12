@@ -16,7 +16,6 @@ import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainRepository
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.channelId
-import com.sommerengineering.baraudio.isAppOpen
 import com.sommerengineering.baraudio.isLaunchFromNotification
 import com.sommerengineering.baraudio.messageKey
 import com.sommerengineering.baraudio.messages.Message

@@ -1,5 +1,7 @@
 package com.sommerengineering.baraudio
 
+import android.content.Context
+import android.content.res.Configuration
 import android.speech.tts.Voice
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -11,6 +13,7 @@ import androidx.lifecycle.viewModelScope
 import com.sommerengineering.baraudio.messages.Message
 import com.sommerengineering.baraudio.messages.MindfulnessQuoteState
 import com.sommerengineering.baraudio.messages.localOrigin
+import com.sommerengineering.baraudio.theme.isSystemInDarkMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -105,8 +108,6 @@ class MainViewModel @Inject constructor(
     // onboarding
     var isOnboardingComplete by mutableStateOf(false)
         private set
-    fun initOnboarding() =
-        viewModelScope.launch { isOnboardingComplete = repo.loadOnboarding() }
     fun updateOnboarding(enabled: Boolean) {
         isOnboardingComplete = enabled
         repo.updateOnboarding(enabled)
@@ -166,6 +167,7 @@ class MainViewModel @Inject constructor(
 
         // load settings from preferences
         viewModelScope.launch {
+            isOnboardingComplete = repo.loadOnboarding()
             isFuturesWebhooks = repo.loadFuturesWebhooks()
             isFullScreen = repo.loadFullScreen()
             isShowQuote = repo.loadShowQuote()
