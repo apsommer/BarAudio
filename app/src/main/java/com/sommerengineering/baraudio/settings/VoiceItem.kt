@@ -21,13 +21,15 @@ fun VoiceItem(
     voice: Voice,
     onItemSelected: (Voice) -> Unit) {
 
+    val name = viewModel.beautifyVoiceName(voice.name)
+
     Column (
         modifier = Modifier.clickable { onItemSelected(voice) }) {
         Row(
             modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically) {
             Text(
-                text = viewModel.beautifyVoiceName(voice.name),
+                text = name,
                 style = MaterialTheme.typography.bodyLarge,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis)

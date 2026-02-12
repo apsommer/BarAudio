@@ -1,162 +1,227 @@
 package com.sommerengineering.baraudio
 
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
-import android.content.Context.CLIPBOARD_SERVICE
 import android.speech.tts.Voice
-import android.widget.Toast
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
 import androidx.credentials.CredentialManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.auth
-import com.google.firebase.Firebase
 import com.sommerengineering.baraudio.messages.Message
-import com.sommerengineering.baraudio.messages.MindfullnessQuoteState
-import com.sommerengineering.baraudio.messages.tradingviewWhitelistIps
-import com.sommerengineering.baraudio.messages.trendspiderWhitelistIp
-import com.sommerengineering.baraudio.login.BillingClientImpl
-import com.sommerengineering.baraudio.login.BillingState
-import com.sommerengineering.baraudio.messages.RapidApiService
-import com.sommerengineering.baraudio.TextToSpeechImpl
+import com.sommerengineering.baraudio.messages.MindfulnessQuoteState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-import kotlin.math.roundToInt
-
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    val tts: TextToSpeechImpl,
-    val rapidApiService: RapidApiService,
-    val billing: BillingClientImpl,
-    val credentialManager: CredentialManager
+    val repo: MainRepository,
+    val credentialManager: CredentialManager, // todo remove
 ) : ViewModel() {
 
-    var mindfullnessQuoteState = MutableStateFlow<MindfullnessQuoteState>(MindfullnessQuoteState.Loading)
+    // database
+    val messages = repo.messages
+    fun deleteAllMessages() = repo.deleteAllMessages()
+    fun deleteMessage(message: Message) = repo.deleteMessage(message)
+    override fun onCleared() { repo.stopListening() }
+
+    // text-to-speech
+    val isTtsInit = repo.isTtsInit
+
+    // voice
+    var voices by mutableStateOf<List<Voice>>(emptyList())
+        private set
+    var voiceIndex by mutableStateOf(0)
+        private set
+    var voiceDescription by mutableStateOf("")
+        private set
+    fun setVoice(value: Voice) {
+        repo.voice = value
+        voiceIndex = voices.indexOfFirst { it.name == value.name }
+        voiceDescription = beautifyVoiceName(value.name)
+        speakLastMessage()
+    }
+    private val beautifulVoiceNames = hashMapOf<String, String>()
+
+    // speed
+    var speed by mutableFloatStateOf(1f)
+        private set
+    var speedDescription by mutableStateOf("")
+        private set
+    fun updateSpeed(value: Float) {
+        speed = value
+        repo.speed = value
+        speedDescription = repo.speed.toString()
+    }
+
+    // pitch
+    var pitch by mutableFloatStateOf(1f)
+        private set
+    var pitchDescription by mutableStateOf("")
+        private set
+    fun updatePitch(value: Float) {
+        pitch = value
+        repo.pitch = value
+        pitchDescription = repo.pitch.toString()
+    }
+
+    // queue behavior
+    var isQueueAdd by mutableStateOf(true)
+        private set
+    var queueDescription by mutableStateOf("")
+        private set
+    fun updateQueueAdd(enabled: Boolean) {
+        isQueueAdd = enabled
+        repo.isQueueAdd = enabled
+        queueDescription =
+            if (enabled) queueBehaviorAddDescription
+            else queueBehaviorFlushDescription
+    }
+
+    // mute
+    var isMute by mutableStateOf(false)
+        private set
+    fun toggleMute() {
+        isMute = !isMute
+        repo.isMute = isMute
+    }
+    fun speakLastMessage() {
+        val message = messages.value.lastOrNull() ?:
+            Message(
+                timestamp = System.currentTimeMillis().toString(),
+                message = defaultUtterance,
+                origin = localOrigin)
+        repo.speakMessage(message)
+    }
+
+    // onboarding
+    var isOnboardingComplete by mutableStateOf(false)
+        private set
+    fun updateOnboarding(enabled: Boolean) {
+        isOnboardingComplete = enabled
+        repo.updateOnboarding(enabled)
+    }
+    val postLoginDestination get() =
+        if (isOnboardingComplete) MessagesScreenRoute
+        else OnboardingTextToSpeechScreenRoute
+
+    // notifications
+    var areNotificationsEnabled by mutableStateOf(false)
+        private set
+    fun updateNotificationsEnabled(enabled: Boolean) {
+        areNotificationsEnabled = enabled
+    }
+
+    // mindfulness quote
+    private var _mindfulnessQuoteState: MutableStateFlow<MindfulnessQuoteState> = MutableStateFlow(MindfulnessQuoteState.Idle)
+    val mindfulnessQuoteState = _mindfulnessQuoteState.asStateFlow()
+    var isShowQuote by mutableStateOf(true)
+        private set
+    fun updateShowQuote(enabled: Boolean) {
+        isShowQuote = enabled
+        repo.updateShowQuote(enabled)
+    }
+
+    // futures webhooks
+    var isFuturesWebhooks by mutableStateOf(true)
+        private set
+    fun updateFuturesWebhooks(enabled: Boolean) {
+        isFuturesWebhooks = enabled
+        repo.updateFuturesWebhooks(enabled)
+    }
+
+    // fullscreen
+    var isFullScreen by mutableStateOf(false)
+        private set
+    val fullScreenDescription
+        get() = if (isFullScreen) screenFullDescription else screenWindowedDescription
+    fun updateFullScreen(enabled: Boolean) {
+        isFullScreen = enabled
+        repo.updateFullScreen(enabled)
+    }
+
+    // dark mode
+    var isDarkMode by mutableStateOf(false)
+        private set
+    val darkModeDescription
+        get() = if (isDarkMode) uiDarkDescription else uiLightDescription
+    fun initDarkMode(systemDefault: Boolean) =
+        viewModelScope.launch { isDarkMode = repo.loadDarkMode(systemDefault) }
+    fun updateDarkMode(enabled: Boolean) {
+        isDarkMode = enabled
+        repo.updateDarkMode(enabled)
+    }
 
     init {
 
-        // init tts engine, takes a few seconds ...
-        viewModelScope.launch(Dispatchers.Main) {
-            tts.isInit
-                .onEach { if (it) initTtsSettings() }
-                .collect()
+        // load settings from preferences
+        viewModelScope.launch {
+            isOnboardingComplete = repo.loadOnboarding()
+            isFuturesWebhooks = repo.loadFuturesWebhooks()
+            isFullScreen = repo.loadFullScreen()
+            isShowQuote = repo.loadShowQuote()
         }
 
-        // init network call for mindfulness quote
+        // wait for repo to finish initializing tts engine, takes a few seconds
+        viewModelScope.launch {
+            repo.isTtsReady.filter { it }.first()
+            refreshTtsSettingsUi()
+        }
+
+        // request mindfulness quote from network
         viewModelScope.launch(Dispatchers.IO) {
-            getMindfulnessQuote()
+            _mindfulnessQuoteState.update { MindfulnessQuoteState.Loading }
+            try { _mindfulnessQuoteState.update { MindfulnessQuoteState.Success(repo.getMindfulnessQuote()) }}
+            catch (e: Exception) { _mindfulnessQuoteState.update { MindfulnessQuoteState.Error(e.message) }}
         }
     }
 
-    suspend fun getMindfulnessQuote() {
+    private fun refreshTtsSettingsUi() {
 
-        mindfullnessQuoteState.value = MindfullnessQuoteState.Loading
-        try { mindfullnessQuoteState.value = MindfullnessQuoteState.Success(rapidApiService.getQuote()) }
-        catch (e: Exception) { mindfullnessQuoteState.value = MindfullnessQuoteState.Error(e.message) }
-    }
+        // add roman numerals to voice locale groups
+        createBeautifulVoices()
 
-    private fun initTtsSettings() {
-
-        voices.addAll(
-            tts.getVoices()
-                .toList()
-                .sortedBy { it.locale.displayName })
-
-        initBeautifulVoiceNames()
-
-        voiceDescription =
-            beautifyVoiceName(
-                tts.voice.value.name)
-
-        speedDescription =
-            tts.speed.toString()
-
-        pitchDescription =
-            tts.pitch.toString()
-
+        // voices and voice exposed by tts engine after initialization
+        speed = repo.speed
+        pitch = repo.pitch
+        isQueueAdd = repo.isQueueAdd
+        isMute = repo.isMute
+        voiceDescription = beautifyVoiceName(repo.voice.name)
+        speedDescription = repo.speed.toString()
+        pitchDescription = repo.pitch.toString()
         queueDescription =
-            if (tts.isQueueAdd) queueBehaviorAddDescription
+            if (isQueueAdd) queueBehaviorAddDescription
             else queueBehaviorFlushDescription
-
-        // todo remove this line on resume subscription requirement 310125
-        billing.billingState.value = BillingState.Subscribed
     }
 
-    // webhook
-    fun saveToWebhookClipboard(
-        context: Context,
-        webhookUrl: String) {
+    fun signOut() = repo.signOut()
 
-        // save url to clipboard
-        val clipboardManager = context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
-        val clip = ClipData.newPlainText("", webhookUrl)
-        clipboardManager.setPrimaryClip(clip)
+    fun saveToWebhookClipboard(webhookUrl: String) = repo.saveToClipboard(webhookUrl)
 
-        // toast for older api
-        if (31 > android.os.Build.VERSION.SDK_INT) {
-            Toast.makeText(
-                context,
-                webhookUrl,
-                Toast.LENGTH_SHORT)
-                .show()
-        }
-    }
-    
-    // voice
-    val voices = mutableListOf<Voice>()
-    var voiceDescription by mutableStateOf("")
-    private val beautifulVoiceNames = hashMapOf<String, String>()
+    private fun createBeautifulVoices() {
 
-    fun setVoice(
-        context: Context,
-        voice: Voice) {
+        // group voices by locale
+        voices = repo.voices.sortedBy { it.locale.toLanguageTag() }
+        voiceIndex = voices.indexOfFirst { it.name == repo.voice.name }
 
-        tts.voice.value = voice
-        writeToDataStore(context, voiceKey, voice.name)
-        voiceDescription = beautifyVoiceName(voice.name)
-        speakLastMessage()
-    }
+        val groupedByLocaleVoices = voices.groupBy { it.locale.toLanguageTag() }
 
-    private fun initBeautifulVoiceNames() {
-
-        // group voices by combined language/country
-        val groupedVoices = voices
-            .groupBy {
-                it.locale.displayName
-            }
-
-        // add roman numeral to display name
-        groupedVoices.keys
-            .forEach { languageCountryGroup ->
-
-                val voices =
-                    groupedVoices[languageCountryGroup]
-                        ?: return@forEach
-
-                voices
-                    .forEachIndexed { i, voice ->
-                        beautifulVoiceNames[voice.name] = enumerateVoices(voice, i)
-                    }
+        // add roman numeral to name
+        groupedByLocaleVoices.keys
+            .forEach { localeGroup ->
+                val localeVoices = groupedByLocaleVoices[localeGroup] ?: return@forEach
+                localeVoices.forEachIndexed { i, voice ->
+                    beautifulVoiceNames[voice.name] = enumerateVoices(voice, i)
+                }
             }
     }
-
-    fun beautifyVoiceName(name: String) =
-        beautifulVoiceNames[name] ?: ""
 
     private fun enumerateVoices(
         voice: Voice,
@@ -188,282 +253,16 @@ class MainViewModel @Inject constructor(
         return "$displayName • Voice $romanNumeral"
     }
 
-    fun getVoiceIndex() =
-        voices.indexOf(
-            voices.find {
-                it == tts.voice.value })
+    fun beautifyVoiceName(name: String) = beautifulVoiceNames[name] ?: ""
 
-    // speed
-    var speedDescription by mutableStateOf("")
-
-    fun getSpeed() =
-        tts.speed
-    
-    fun setSpeed(
-        context: Context,
-        rawSpeed: Float) {
-
-        // round to nearest tenth
-        val selectedSpeed = ((rawSpeed * 10).roundToInt()).toFloat() / 10
-
-        tts.speed = selectedSpeed
-        writeToDataStore(context, speedKey, selectedSpeed.toString())
-        speedDescription = selectedSpeed.toString()
-    }
-
-    // pitch
-    var pitchDescription by mutableStateOf("")
-
-    fun getPitch() =
-        tts.pitch
-    
-    fun setPitch(
-        context: Context,
-        rawPitch: Float) {
-
-        // round to nearest tenth
-        val selectedPitch = ((rawPitch * 10).roundToInt()).toFloat() / 10
-
-        tts.pitch = selectedPitch
-        writeToDataStore(context, pitchKey, selectedPitch.toString())
-        pitchDescription = selectedPitch.toString()
-    }
-
-    // queue behavior
-    var queueDescription by mutableStateOf("")
-
-    fun isQueueAdd() =
-        tts.isQueueAdd
-    
-    fun setIsQueueAdd(
-        context: Context,
-        isChecked: Boolean) {
-
-        tts.isQueueAdd = isChecked
-        writeToDataStore(context, isQueueFlushKey, isChecked.toString())
-
-        queueDescription =
-            if (tts.isQueueAdd) queueBehaviorAddDescription
-            else queueBehaviorFlushDescription
-    }
-
-    // dark mode
-    var isDarkMode by mutableStateOf(true)
-    var isSystemInDarkTheme = false
-    var uiModeDescription by mutableStateOf("")
-
-    fun setUiMode(
-        context: Context) {
-
-        isDarkMode =
-            if (Firebase.auth.currentUser == null) isSystemInDarkTheme
-            else readFromDataStore(context, isDarkModeKey)?.toBooleanStrictOrNull() ?: true
-
-        uiModeDescription =
-            if (isDarkMode) uiModeDarkDescription
-            else uiModeLightDescription
-    }
-
-    fun setIsDarkMode(
-        context: Context,
-        isChecked: Boolean) {
-
-        isDarkMode = isChecked
-        writeToDataStore(context, isDarkModeKey, isChecked.toString())
-
-        uiModeDescription =
-            if (isDarkMode) uiModeDarkDescription
-            else uiModeLightDescription
-    }
-
-    // fullscreen
-    var isFullScreen by mutableStateOf(false)
-    var fullScreenDescription by mutableStateOf("")
-
-    fun setFullScreen(
-        context: Context,
-        isChecked: Boolean) {
-
-        isFullScreen = isChecked
-        writeToDataStore(context, isFullScreenKey, isChecked.toString())
-
-        fullScreenDescription =
-            if (isFullScreen) screenFullDescription
-            else screenWindowedDescription
-
-        // expand or collapse layout
-        toggleFullScreen(context, isFullScreen)
-    }
-
-    fun toggleFullScreen(
-        context: Context,
-        isFullScreen: Boolean) {
-
-        val windowInsetsController = (context as MainActivity).windowInsetsController
-
-        // expand
-        if (isFullScreen) {
-            windowInsetsController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
+    fun getOriginImage(origin: String) = when (origin) {
+        in tradingview -> {
+            if (isDarkMode) R.drawable.tradingview_light
+            else R.drawable.tradingview_dark
         }
-
-        // collapse
-        else { windowInsetsController.show(WindowInsetsCompat.Type.systemBars()) }
-    }
-
-    // quote
-    var showQuote by mutableStateOf(true)
-
-    fun showQuote(
-        context: Context,
-        isChecked: Boolean) {
-
-        showQuote = isChecked
-        writeToDataStore(context, showQuoteKey, isChecked.toString())
-    }
-
-    // futures
-    var isFuturesWebhooks by mutableStateOf(true)
-    fun setFuturesWebhooks(
-        context: Context,
-        isChecked: Boolean) {
-
-        isFuturesWebhooks = isChecked
-        writeToDataStore(context, isFuturesWebhooksKey, isChecked.toString())
-        writeWhitelistToDatabase(isFuturesWebhooks)
-    }
-
-    // todo billing client, purchase subscription flow ui triggered by mute button
-    fun initBilling() {
-
-        // initialize connection to google play
-        billing.connect()
-
-        val context = billing.context
-
-        // listen to subscription status
-        CoroutineScope(Dispatchers.Main).launch {
-            billing.billingState
-                .onEach {
-                    when (it) {
-
-                        // show spinner
-                        BillingState.Loading -> {
-                            shouldShowSpinner = true
-                        }
-
-                        BillingState.NewSubscription -> {
-                            setMute(context, false)
-                            this@MainViewModel.speakLastMessage()
-                        }
-
-                        BillingState.Subscribed -> {
-                            tts.volume = readFromDataStore(context, volumeKey)?.toFloat() ?: 0f // todo revert this to "1f" on resume subscription requirement 310125
-                            isMute = tts.volume == 0f
-                        }
-
-                        BillingState.Unsubscribed, BillingState.Error -> { }
-                    }
-
-                    // hide spinner
-                    if (it != BillingState.Loading) {
-                        shouldShowSpinner = false
-                    }
-                }
-                .collect()
-        }
-    }
-
-    // mute
-    var shouldShowSpinner by mutableStateOf(false)
-    var isMute by mutableStateOf(false) // default unmuted
-
-    fun toggleMute(
-        context: Context) {
-
-        // todo disable subscription requirement 310125
-        // unmute only allowed for paid user
-//        val isUserPaid =
-//            billing.billingState.value == BillingState.NewSubscription ||
-//            billing.billingState.value == BillingState.Subscribed
-//
-//        if (isMute && !isUserPaid) {
-//
-//            billing.launchBillingFlowUi(context)
-//            return
-//        }
-
-        // todo remove this block on resume subscription requirement 310125
-        if (isFirstLaunch) {
-            speakLastMessage()
-            isFirstLaunch = false
-            writeToDataStore(context, isFirstLaunchKey, isFirstLaunch.toString())
-        }
-
-        setMute(context, !isMute)
-    }
-
-    private fun setMute(
-        context: Context,
-        newMute: Boolean) {
-
-        isMute = newMute
-
-        if (isMute) { tts.volume = 0f }
-        else { tts.volume = 1f }
-
-        if (isMute && tts.isSpeaking()) { tts.stop() }
-
-        writeToDataStore(context, volumeKey, tts.volume.toString())
-    }
-
-    val messages = mutableStateListOf<Message>()
-    fun speakLastMessage() {
-
-        val lastMessage =
-            if (messages.isEmpty()) defaultMessage
-            else messages.last().message
-
-        tts.speak(
-            timestamp = "",
-            message = lastMessage,
-            isForceVolume = true)
-    }
-
-    // images //////////////////////////////////////////////////////////////////////////////////////
-
-    fun getGitHubImageId() =
-        if (isDarkMode) R.drawable.github_light
-        else R.drawable.github_dark
-
-    fun getBackgroundId() =
-        if (isDarkMode) R.drawable.background_skyline_dark
-        else R.drawable.background_skyline
-
-    @Composable
-    fun getFabIconColor() =
-        if (isMute) MaterialTheme.colorScheme.outline
-        else MaterialTheme.colorScheme.onPrimaryContainer
-
-    @Composable
-    fun getFabBackgroundColor() =
-        if (isMute) MaterialTheme.colorScheme.surfaceVariant
-        else MaterialTheme.colorScheme.primaryContainer
-
-    fun getOriginImageId(
-        origin: String): Int? {
-
-        return when (origin) {
-            in tradingviewWhitelistIps -> {
-                if (isDarkMode) R.drawable.tradingview_light
-                else R.drawable.tradingview_dark
-            }
-            trendspiderWhitelistIp -> R.drawable.trendspider
-            com.sommerengineering.baraudio.messages.error -> R.drawable.error
-            else -> {
-                if (BuildConfig.BUILD_TYPE == buildTypeDebug) R.drawable.insomnia
-                else null
-            }
-        }
+        trendspider -> R.drawable.trendspider
+        insomnia -> R.drawable.insomnia
+        parsingErrorOrigin -> R.drawable.error
+        else -> R.drawable.webhook
     }
 }

@@ -1,5 +1,6 @@
 package com.sommerengineering.baraudio.messages
 
+import android.text.format.DateUtils
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -27,8 +28,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainViewModel
+import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.edgePadding
 import com.sommerengineering.baraudio.settingsIconSize
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun MessageItem(
@@ -37,6 +42,10 @@ fun MessageItem(
     modifier: Modifier,
     message: Message,
     onRemove: () -> Unit) {
+
+    val timestamp = beautifyTimestamp(message.timestamp)
+    val text = message.message
+    val webhookOriginImageId = viewModel.getOriginImage(message.origin)
 
     SwipeToDismissBox(
         state = rememberSwipeToDismissBoxState(),
@@ -58,19 +67,24 @@ fun MessageItem(
                 Row(
                     modifier = Modifier
                         .clip(RoundedCornerShape(8.dp))
-                        .border(BorderStroke(
-                            width = 1.dp,
-                            color =
-                                if (isRecent) MaterialTheme.colorScheme.outlineVariant
-                                else MaterialTheme.colorScheme.outlineVariant),
-                            shape = RoundedCornerShape(8.dp))
+                        .border(
+                            BorderStroke(
+                                width = 1.dp,
+                                color =
+                                    if (isRecent) MaterialTheme.colorScheme.outlineVariant
+                                    else MaterialTheme.colorScheme.outlineVariant
+                            ),
+                            shape = RoundedCornerShape(8.dp)
+                        )
                         .background(
                             color =
                                 if (isRecent) MaterialTheme.colorScheme.surfaceBright
-                                else MaterialTheme.colorScheme.surfaceContainer)
+                                else MaterialTheme.colorScheme.surfaceContainer
+                        )
                         .padding(
                             horizontal = 16.dp,
-                            vertical = 12.dp),
+                            vertical = 12.dp
+                        ),
                     verticalAlignment = Alignment.CenterVertically) {
 
                     Column(
@@ -81,7 +95,7 @@ fun MessageItem(
 
                         // message
                         Text(
-                            text = message.message,
+                            text = text,
                             style = MaterialTheme.typography.titleMedium)
 
                         Spacer(
@@ -90,7 +104,7 @@ fun MessageItem(
 
                         // timestamp
                         Text(
-                            text = beautifyTimestamp(message.timestamp),
+                            text = timestamp,
                             style = MaterialTheme.typography.bodyMedium)
                     }
 
@@ -99,16 +113,29 @@ fun MessageItem(
                             .padding(edgePadding))
 
                     // origin
-                    viewModel
-                        .getOriginImageId(message.origin)?.let {
-                            Image(
-                                modifier = Modifier
-                                    .size(settingsIconSize),
-                                painter = painterResource(it),
-                                contentDescription = null)
-                        }
+                    Image(
+                        modifier = Modifier
+                            .size(settingsIconSize),
+                        painter = painterResource(webhookOriginImageId),
+                        contentDescription = null)
                 }
             }
         }
     }
+}
+
+// must be top level so firebase messaging can access
+fun beautifyTimestamp(
+    timestamp: String): String {
+
+    val isToday = DateUtils.isToday(timestamp.toLong())
+
+    val pattern =
+        if (isToday) "h:mm:ss a" // 6:27:53 PM
+        else "h:mm:ss a • MMMM dd, yyyy" //  6:27:53 PM • October 30, 2024
+
+    return SimpleDateFormat(
+        pattern,
+        Locale.getDefault())
+        .format(Date(timestamp.toLong()))
 }

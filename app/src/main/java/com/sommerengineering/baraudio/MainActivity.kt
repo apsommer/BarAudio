@@ -9,53 +9,42 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.compose.rememberNavController
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory
+import com.google.android.play.core.appupdate.AppUpdateOptions
+import com.google.android.play.core.install.model.AppUpdateType
+import com.google.android.play.core.install.model.UpdateAvailability
 import com.sommerengineering.baraudio.theme.AppTheme
+import com.sommerengineering.baraudio.theme.isSystemInDarkMode
 import dagger.hilt.android.AndroidEntryPoint
-
-var isAppOpen = false
-var isUpdateRequired = false
-var isFirstLaunch = true // todo remove this var on resume subscription requirement 310125
-var isOnboardingComplete = false
-var areNotificationsEnabled by mutableStateOf(false)
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    val context = this
+    private val viewModel: MainViewModel by viewModels()
 
     val requestNotificationPermissionLauncher =
-        registerForActivityResult(
-            ActivityResultContracts.RequestPermission()) {
-            areNotificationsEnabled = areNotificationsEnabled()
-        }
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+        viewModel.updateNotificationsEnabled(areNotificationsEnabled())
+    }
 
     val updateLauncher =
-        registerForActivityResult(
-            ActivityResultContracts.StartIntentSenderForResult()) { result ->
+        registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
             if (result.resultCode != RESULT_OK) {
                 logMessage("Update flow failed with code: ${result.resultCode}")
             }
-            // if update is required/immediate (not flexible) play updates and restarts app
+            // system handles update and restart
         }
-
-    // controller to toggle fullscreen
-    val windowInsetsController by lazy {
-        WindowCompat.getInsetsController(window, window.decorView)
-    }
 
     private fun initNotificationChannel() {
 
@@ -76,97 +65,112 @@ class MainActivity : ComponentActivity() {
                     channelGroupId,
                     channelGroupName))
         manager.createNotificationChannel(channel)
-
-        areNotificationsEnabled = areNotificationsEnabled()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
         installSplashScreen()
         super.onCreate(savedInstanceState)
-
-        init()
-        
-        // push layout boundary to full screen
         enableEdgeToEdge()
 
-        // launch app
+        // initialize dark mode
+        viewModel.initDarkMode(isSystemInDarkMode())
+
+        // enable layout resizing into system designated screen space
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        initNotificationChannel()
+        checkForcedUpdate()
+
+        // launch compose tree
         setContent {
-            App()
+
+            // toggle full screen
+            val isFullScreen = viewModel.isFullScreen
+            LaunchedEffect(isFullScreen) { applyFullScreen(isFullScreen) }
+
+            App(viewModel)
         }
     }
 
     fun areNotificationsEnabled() : Boolean {
 
-        // get notification channel
-        val manager = context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         val channel = manager.getNotificationChannel(channelId)
 
-        return manager.areNotificationsEnabled()
+        val areNotificationsEnabled = manager.areNotificationsEnabled()
             && channel.importance > NotificationManager.IMPORTANCE_NONE
+
+        return areNotificationsEnabled
     }
 
-    private fun init() {
+    override fun onResume() {
+        super.onResume()
+        viewModel.updateNotificationsEnabled(areNotificationsEnabled())
+        NotificationManagerCompat.from(this).cancelAll()
+    }
 
-        isAppOpen = true
+    private fun applyFullScreen(
+        isFullScreen: Boolean) {
 
-        // load key:values from preferences
-        token = readFromDataStore(context, tokenKey) ?: unauthenticatedToken
-        isFirstLaunch = readFromDataStore(context, isFirstLaunchKey)?.toBooleanStrictOrNull() ?: true // todo remove this var on resume subscription requirement 310125
-        isOnboardingComplete = readFromDataStore(context, onboardingKey).toBoolean()
+        // controller to toggle fullscreen
+        val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
 
-        // dismiss all notifications on launch
-        val isLaunchFromNotification = intent.extras?.getBoolean(isLaunchFromNotification) ?: false
-        if (isLaunchFromNotification) { cancelAllNotifications(context) }
+        // expand
+        if (isFullScreen) {
+            windowInsetsController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
+            return
+        }
 
-        // enable layout resizing into system designated screen space
-        // can not get behind front camera "notch" of pixel 6a, other apps also can't!
-        WindowCompat.setDecorFitsSystemWindows(window, false)
+        // collapse
+        windowInsetsController.show(WindowInsetsCompat.Type.systemBars())
+    }
 
-        // init notification channel
-        initNotificationChannel()
+    fun checkForcedUpdate() {
+
+        val updateManager = AppUpdateManagerFactory.create(this)
+
+        // request update from play store
+        updateManager.appUpdateInfo
+            .addOnSuccessListener { updateInfo ->
+
+                // check that update is available, and forced
+                if (updateInfo.updateAvailability() != UpdateAvailability.UPDATE_AVAILABLE
+                    || 4 >= updateInfo.updatePriority()) {
+                    return@addOnSuccessListener
+                }
+
+                // todo sign out?
+
+                // launch system update flow ui
+                updateManager.startUpdateFlowForResult(
+                    updateInfo,
+                    updateLauncher,
+                    AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build()) }
+
+            .addOnFailureListener { exception ->
+
+                // skip exception log for debug build
+                if (exception.message?.contains("The app is not owned") == true) return@addOnFailureListener
+                logException(exception)
+            }
     }
 }
 
-fun cancelAllNotifications(
-    context: Context) =
-        NotificationManagerCompat
-            .from(context)
-            .cancelAll()
-
 @Composable
-fun App() {
+fun App(
+    viewModel: MainViewModel) {
 
-    // inject viewmodel
-    val context = LocalContext.current
-    val viewModel: MainViewModel = viewModel()
+    val isDarkMode = viewModel.isDarkMode
 
-    // track ui mode
-    viewModel.isSystemInDarkTheme = isSystemInDarkTheme()
-    viewModel.setUiMode(context)
-
-    // toggle fullscreen
-    val isFullScreen = readFromDataStore(context, isFullScreenKey)?.toBoolean() == true
-    viewModel.setFullScreen(context, isFullScreen)
-
-    // toggle show quote
-    val showQuote = readFromDataStore(context, showQuoteKey)?.toBooleanStrictOrNull() ?: true
-    viewModel.showQuote(context, showQuote)
-
-    // futures webhooks
-    val isFuturesWebhooksKey = readFromDataStore(context, isFuturesWebhooksKey)?.toBooleanStrictOrNull() ?: true
-    viewModel.setFuturesWebhooks(context, isFuturesWebhooksKey)
-
-    viewModel.initBilling()
-
-    AppTheme(viewModel.isDarkMode) {
+    AppTheme(isDarkMode) {
         Scaffold(
             modifier = Modifier.fillMaxSize()) { padding -> padding
-            Navigation(
-                controller = rememberNavController(),
-                viewModel = viewModel
-            )
+            Navigation(viewModel)
         }
     }
 }
+
+
 

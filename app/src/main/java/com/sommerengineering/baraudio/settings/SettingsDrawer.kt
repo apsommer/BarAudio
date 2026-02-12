@@ -1,13 +1,8 @@
 package com.sommerengineering.baraudio.settings
 
 import android.content.Intent
-import android.provider.Settings
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -16,6 +11,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,25 +22,24 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.google.firebase.auth.auth
 import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import com.sommerengineering.baraudio.BuildConfig
-import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.dataDividerTitle
 import com.sommerengineering.baraudio.edgePadding
 import com.sommerengineering.baraudio.futuresWebhookDescription
 import com.sommerengineering.baraudio.futuresWebhooksTitle
-import com.sommerengineering.baraudio.screenTitle
 import com.sommerengineering.baraudio.howToSetupTitle
 import com.sommerengineering.baraudio.legalDividerTitle
-import com.sommerengineering.baraudio.setupUrl
 import com.sommerengineering.baraudio.manageSubscriptionTitle
 import com.sommerengineering.baraudio.pitchTitle
 import com.sommerengineering.baraudio.privacyTitle
 import com.sommerengineering.baraudio.privacyUrl
 import com.sommerengineering.baraudio.queueBehaviorTitle
+import com.sommerengineering.baraudio.screenTitle
+import com.sommerengineering.baraudio.setupUrl
 import com.sommerengineering.baraudio.showQuoteTitle
 import com.sommerengineering.baraudio.signOutTitle
 import com.sommerengineering.baraudio.speedTitle
@@ -68,9 +63,26 @@ fun SettingsDrawer(
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
 
-    Scaffold { padding ->
+    val speed = viewModel.speed
+    val pitch = viewModel.pitch
+    val isQueueAdd = viewModel.isQueueAdd
 
-        var isShowVoiceDialog by remember { mutableStateOf(false) }
+    val voiceDescription = viewModel.voiceDescription
+    val speedDescription = viewModel.speedDescription
+    val pitchDescription = viewModel.pitchDescription
+    val queueDescription = viewModel.queueDescription
+
+    val isShowQuote = viewModel.isShowQuote
+    val isFuturesWebhooks = viewModel.isFuturesWebhooks
+    val isFullScreen = viewModel.isFullScreen
+    val fullScreenDescription = viewModel.fullScreenDescription
+
+    val isDarkMode = viewModel.isDarkMode
+    val uiModeDescription = viewModel.darkModeDescription
+
+    var isShowVoiceDialog by remember { mutableStateOf(false) }
+
+    Scaffold { padding ->
 
         LazyColumn(
             modifier = Modifier
@@ -86,7 +98,7 @@ fun SettingsDrawer(
                 DialogSettingItem (
                     icon = R.drawable.voice,
                     title = voiceTitle,
-                    description = viewModel.voiceDescription,
+                    description = voiceDescription,
                     onClick = { isShowVoiceDialog = true }) {
 
                     IconButton(
@@ -96,17 +108,17 @@ fun SettingsDrawer(
                             contentDescription = null)
                     }
 
-                        if (isShowVoiceDialog) {
-                            VoiceDialog(
-                                viewModel = viewModel,
-                                onItemSelected = {
-                                    viewModel.setVoice(context, it)
-                                    isShowVoiceDialog = false
-                                },
-                                onDismiss = {
-                                    isShowVoiceDialog = false
-                                })
-                        }
+                    if (isShowVoiceDialog) {
+                        VoiceDialog(
+                            viewModel = viewModel,
+                            onItemSelected = {
+                                viewModel.setVoice(it)
+                                isShowVoiceDialog = false
+                            },
+                            onDismiss = {
+                                isShowVoiceDialog = false
+                            })
+                    }
                 }
             }
 
@@ -115,11 +127,11 @@ fun SettingsDrawer(
                 SliderSettingItem(
                     icon = R.drawable.speed,
                     title = speedTitle,
-                    description = viewModel.speedDescription) {
+                    description = speedDescription) {
 
                         SliderImpl(
-                            initPosition = viewModel.getSpeed(),
-                            onValueChanged = { viewModel.setSpeed(context, it) },
+                            initPosition = speed,
+                            onValueChanged = { viewModel.updateSpeed(it) },
                             onValueChangeFinished = { viewModel.speakLastMessage() })
                     }
             }
@@ -129,11 +141,11 @@ fun SettingsDrawer(
                 SliderSettingItem(
                     icon = R.drawable.pitch,
                     title = pitchTitle,
-                    description = viewModel.pitchDescription) {
+                    description = pitchDescription) {
 
                         SliderImpl(
-                            initPosition = viewModel.getPitch(),
-                            onValueChanged = { viewModel.setPitch(context, it) },
+                            initPosition = pitch,
+                            onValueChanged = { viewModel.updatePitch(it) },
                             onValueChangeFinished = { viewModel.speakLastMessage() })
                         }
             }
@@ -143,11 +155,11 @@ fun SettingsDrawer(
                 SwitchSettingItem(
                     icon = R.drawable.text_to_speech,
                     title = queueBehaviorTitle,
-                    description = viewModel.queueDescription) {
+                    description = queueDescription) {
 
                         Switch(
-                            checked = viewModel.isQueueAdd(),
-                            onCheckedChange = { viewModel.setIsQueueAdd(context, it) })
+                            checked = isQueueAdd,
+                            onCheckedChange = { viewModel.updateQueueAdd(it) })
                     }
             }
 
@@ -178,8 +190,8 @@ fun SettingsDrawer(
                     description = futuresWebhookDescription) {
 
                     Switch(
-                        checked = viewModel.isFuturesWebhooks,
-                        onCheckedChange = { viewModel.setFuturesWebhooks(context, it)})
+                        checked = isFuturesWebhooks,
+                        onCheckedChange = { viewModel.updateFuturesWebhooks(it)})
                 }
             }
 
@@ -193,16 +205,10 @@ fun SettingsDrawer(
                     icon = R.drawable.webhook,
                     title = webhookTitle,
                     description = webhookUrl,
-                    onClick = {
-                        viewModel.saveToWebhookClipboard(
-                            context = context,
-                            webhookUrl = webhookUrl) }) {
+                    onClick = { viewModel.saveToWebhookClipboard(webhookUrl) }) {
 
                     IconButton(
-                        onClick = {
-                            viewModel.saveToWebhookClipboard(
-                                context = context,
-                                webhookUrl = webhookUrl) }) {
+                        onClick = { viewModel.saveToWebhookClipboard(webhookUrl) }) {
                         Icon(
                             painter = painterResource(R.drawable.copy),
                             contentDescription = null)
@@ -228,11 +234,11 @@ fun SettingsDrawer(
                 SwitchSettingItem(
                     icon = R.drawable.fullscreen,
                     title = screenTitle,
-                    description = viewModel.fullScreenDescription) {
+                    description = fullScreenDescription) {
 
                     Switch(
-                        checked = viewModel.isFullScreen,
-                        onCheckedChange = { viewModel.setFullScreen(context, it) })
+                        checked = isFullScreen,
+                        onCheckedChange = { viewModel.updateFullScreen(it) })
                 }
             }
 
@@ -241,11 +247,11 @@ fun SettingsDrawer(
                 SwitchSettingItem(
                     icon = R.drawable.contrast,
                     title = uiModeTitle,
-                    description = viewModel.uiModeDescription) {
+                    description = uiModeDescription) {
 
                     Switch(
-                        checked = viewModel.isDarkMode,
-                        onCheckedChange = { viewModel.setIsDarkMode(context, it) })
+                        checked = isDarkMode,
+                        onCheckedChange = { viewModel.updateDarkMode(it) })
                 }
             }
 
@@ -256,8 +262,8 @@ fun SettingsDrawer(
                     title = showQuoteTitle) {
 
                     Switch(
-                        checked = viewModel.showQuote,
-                        onCheckedChange = { viewModel.showQuote(context, it)})
+                        checked = isShowQuote,
+                        onCheckedChange = { viewModel.updateShowQuote(it)})
                 }
             }
 

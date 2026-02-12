@@ -12,10 +12,9 @@ import androidx.compose.runtime.setValue
 fun SliderImpl(
     initPosition: Float,
     onValueChanged: (Float) -> Unit,
-    onValueChangeFinished: () -> Unit
-) {
+    onValueChangeFinished: () -> Unit) {
 
-    var position by remember { mutableFloatStateOf(initPosition) }
+    var position = initPosition
 
     Column{
         Slider(

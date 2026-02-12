@@ -6,7 +6,6 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,7 +13,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.DrawerDefaults
 import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
@@ -25,7 +23,6 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,35 +32,38 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainViewModel
-import com.sommerengineering.baraudio.areNotificationsEnabled
+import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.backgroundPadding
 import com.sommerengineering.baraudio.colorTransitionTimeMillis
-import com.sommerengineering.baraudio.messagesNode
 import com.sommerengineering.baraudio.recentMessageTimeMillis
 import com.sommerengineering.baraudio.settings.SettingsDrawer
-import com.sommerengineering.baraudio.getDatabaseReference
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun MessagesScreen(
     viewModel: MainViewModel,
     onSignOut: () -> Unit) {
 
-    val context = LocalContext.current
-    val messages = remember { viewModel.messages }
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val messages by viewModel.messages.collectAsState()
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
     val listState = rememberLazyListState()
     val coroutine = rememberCoroutineScope()
     var isRefreshing by remember { mutableStateOf(false) }
     val pullToRefreshState = rememberPullToRefreshState()
-    val quoteState = viewModel.mindfullnessQuoteState.collectAsState().value
+
+    val isDarkMode = viewModel.isDarkMode
+    val backgroundImageId =
+        if (isDarkMode) R.drawable.background_skyline_dark
+        else R.drawable.background_skyline
+
+    val quoteState by viewModel.mindfulnessQuoteState.collectAsState()
+    val quote = (quoteState as? MindfulnessQuoteState.Success)?.mindfulnessQuote?.quote
+    val isShowQuote = viewModel.isShowQuote
 
     // side drawer
     ModalNavigationDrawer(
@@ -79,17 +79,12 @@ fun MessagesScreen(
         scrimColor = DrawerDefaults.scrimColor.copy(
             alpha = 0.5f)) {
 
-        // listen to database
-        LaunchedEffect(Unit) {
-            listenToDatabase(messages, listState, coroutine)
-        }
-
         Scaffold(
 
             // top bar
             topBar = {
                 MessagesTopBar(
-                    messages = messages,
+                    viewModel = viewModel,
                     onSettingsClick = {
                         coroutine.launch {
                             drawerState.open()
@@ -100,13 +95,12 @@ fun MessagesScreen(
             // fab, mute button
             floatingActionButton = {
                 MessagesFloatingActionButton(
-                    context = context,
                     viewModel = viewModel)
             },
 
             bottomBar = {
-                AllowNotificationsBottomBar(
-                    areNotificationsAllowed = areNotificationsEnabled)
+                val areNotificationsEnabled = viewModel.areNotificationsEnabled
+                AllowNotificationsBottomBar(areNotificationsEnabled)
             }
 
         ) { padding ->
@@ -124,12 +118,11 @@ fun MessagesScreen(
                         else { (1 - 0.2 * messages.size).toFloat() },
                     animationSpec = tween(colorTransitionTimeMillis))
 
-                // inspirational quote
-                val showQuote = quoteState is MindfullnessQuoteState.Success && viewModel.showQuote
-                if (showQuote) {
+                // mindfulness quote
+                if (isShowQuote && quote != null) {
 
                     Text(
-                        text = quoteState.mindfullnessQuote.quote,
+                        text = quote,
                         style = MaterialTheme.typography.titleLarge,
                         textAlign = TextAlign.Center,
                         modifier = Modifier
@@ -137,8 +130,7 @@ fun MessagesScreen(
                             .padding(
                                 start = backgroundPadding,
                                 end = backgroundPadding,
-                                top = 64.dp
-                            )
+                                top = 64.dp)
                             .align(Alignment.Center)
                             .alpha(animatedAlpha)
                     )
@@ -153,7 +145,7 @@ fun MessagesScreen(
                             bottom = 64.dp
                         )
                         .align(Alignment.Center),
-                    painter = painterResource(viewModel.getBackgroundId()),
+                    painter = painterResource(backgroundImageId),
                     contentDescription = null,
                     alpha = animatedAlpha
                 )
@@ -166,16 +158,6 @@ fun MessagesScreen(
 
                         // start spinner
                         isRefreshing = true
-
-                        // remove listener
-                        getDatabaseReference(messagesNode)
-                            .removeEventListener(dbListener)
-
-                        // clear list
-                        messages.clear()
-
-                        // reattach listener
-                        listenToDatabase(messages, listState, coroutine)
 
                         // dismiss indicator
                         coroutine.launch {
@@ -198,10 +180,11 @@ fun MessagesScreen(
 
                     // messages list
                     LazyColumn(
-                        state = listState) {
+                        state = listState,
+                        reverseLayout = true) {
 
                         items(
-                            items = messages.reversed(),
+                            items = messages,
                             key = { it.timestamp }) { message ->
 
                             // highlight recent messages
@@ -219,11 +202,8 @@ fun MessagesScreen(
                                     ),
                                 message = message,
                                 onRemove = {
-                                    deleteMessage(
-                                        messages = messages,
-                                        message = message)
-                                }
-                            )
+                                    viewModel.deleteMessage(message)
+                                })
                         }
                     }
                 }

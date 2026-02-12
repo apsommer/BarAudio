@@ -14,7 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.edgePadding
-import kotlinx.coroutines.launch
 
 @Composable
 fun VoiceDialog(
@@ -31,7 +30,13 @@ fun VoiceDialog(
     onDismiss: () -> Unit) {
 
     val listState = rememberLazyListState()
-    val coroutine = rememberCoroutineScope()
+    val voices = viewModel.voices
+    val voiceIndex = viewModel.voiceIndex
+
+    // scroll to current voice
+    LaunchedEffect(voiceIndex) {
+        listState.scrollToItem(voiceIndex)
+    }
 
     Dialog (
         onDismissRequest = { onDismiss() }) {
@@ -59,17 +64,12 @@ fun VoiceDialog(
                 LazyColumn(
                     state = listState) {
 
-                    items(viewModel.voices) {
+                    items(voices) {
                         VoiceItem(
                             viewModel = viewModel,
                             voice = it,
                             onItemSelected = onItemSelected
                         )
-                    }
-
-                    coroutine.launch {
-                        listState.scrollToItem(
-                            viewModel.getVoiceIndex())
                     }
                 }
             }

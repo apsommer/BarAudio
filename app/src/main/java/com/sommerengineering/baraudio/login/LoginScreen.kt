@@ -22,23 +22,21 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.credentials.CredentialManager
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.loginButtonSize
+import com.sommerengineering.baraudio.loginLogoPadding
 
 @Composable
 fun LoginScreen (
     viewModel: MainViewModel,
-    onAuthentication: () -> Unit,
-    onForceUpdate: () -> Unit) {
+    onAuthentication: () -> Unit) {
 
-    // inject viewmodel
     val context = LocalContext.current
-
-    // size composables
-    val githubImageSize = 50.dp // touch over half circularButtonSize to align with google
-    val logoPadding = 64.dp
+    val isDarkMode = viewModel.isDarkMode
+    val gitHubImageId =
+        if (isDarkMode) R.drawable.github_light
+        else R.drawable.github_dark
 
     Surface {
         Column(
@@ -50,7 +48,7 @@ fun LoginScreen (
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(logoPadding),
+                    .padding(loginLogoPadding),
                 verticalArrangement = Arrangement.Center) {
                 Image(
                     painter = painterResource(R.drawable.logo_full),
@@ -71,8 +69,7 @@ fun LoginScreen (
                             signInWithGoogle(
                                 context = context,
                                 credentialManager = viewModel.credentialManager,
-                                onAuthentication = onAuthentication,
-                                onForceUpdate = onForceUpdate)
+                                onAuthentication = onAuthentication)
                         }
                         .border(
                             border = BorderStroke(
@@ -99,8 +96,7 @@ fun LoginScreen (
                         .clickable {
                             signInWithGitHub(
                                 context = context,
-                                onAuthentication = onAuthentication,
-                                onForceUpdate = onForceUpdate)
+                                onAuthentication = onAuthentication)
                         }
                         .border(
                             border = BorderStroke(
@@ -111,11 +107,11 @@ fun LoginScreen (
                     Box(
                         modifier = Modifier
                             .align(Alignment.Center)
-                            .size(githubImageSize)
+                            .size(loginButtonSize + 2.dp) // touch over half circularButtonSize to align with google
                             .clip(CircleShape)) {
 
                         Image(
-                            painter = painterResource(viewModel.getGitHubImageId()),
+                            painter = painterResource(gitHubImageId),
                             contentDescription = null)
                     }
                 }

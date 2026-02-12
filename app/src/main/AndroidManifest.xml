@@ -31,14 +31,14 @@
 
         <!-- firebase cloud messaging -->
         <service
-            android:name="com.sommerengineering.baraudio.FirebaseServiceImpl"
+            android:name="com.sommerengineering.baraudio.hilt.FirebaseServiceImpl"
             android:exported="true" >
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
 
-        <!-- fcm notification icon todo can remove fcm defaults? all notifications are custom push ... -->
+        <!-- fcm notification icon -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/logo_square" />

@@ -10,7 +10,7 @@ app = initialize_app(
     options = { 'databaseURL': 'https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/' })
 
 # drew@baraud.io
-uid_admin = 'GxZTktT079Rf3vwDWLdSUFnUBs52'
+uid_admin = 'GxZTktT079Rf3vwDWLdSUFnUBs52' # todo hide in local
 
 # https://us-central1-com-sommerengineering-baraudio.cloudfunctions.net/baraudio?uid=...
 @https_fn.on_request()
@@ -67,7 +67,7 @@ def send_message_to_single_device(uid, timestamp, message, origin):
 
     # set priority to high
     config = messaging.AndroidConfig(
-        priority="high",  # "normal" is default, "high" attempts to wake device in doze mode
+        priority='high',  # "normal" is default, "high" attempts to wake device in doze mode
         ttl=0)  # ttl is "time to live", 0 means "now or never" and fcm discards if can't be delivered immediately
 
     # construct notification
@@ -75,7 +75,8 @@ def send_message_to_single_device(uid, timestamp, message, origin):
         data={
             'uid': uid,
             'timestamp': timestamp,
-            'message': message},
+            'message': message,
+            'origin': origin},
         android=config,
         token=device_token)
 

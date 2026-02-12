@@ -11,43 +11,36 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LifecycleEventEffect
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.sommerengineering.baraudio.login.LoginScreen
 import com.sommerengineering.baraudio.login.OnboardingScreen
-import com.sommerengineering.baraudio.login.checkForcedUpdate
-import com.sommerengineering.baraudio.login.onAuthentication
-import com.sommerengineering.baraudio.login.onSignOut
 import com.sommerengineering.baraudio.messages.MessagesScreen
 
 @Composable
 fun Navigation(
-    controller: NavHostController,
     viewModel: MainViewModel) {
 
     val context = LocalContext.current
+    val controller = rememberNavController()
+
+    // determine start destination
+    val isOnboardingComplete = viewModel.isOnboardingComplete
+    val startDestination =
+        if (Firebase.auth.currentUser == null) LoginScreenRoute
+        else if (!isOnboardingComplete) OnboardingTextToSpeechScreenRoute
+        else MessagesScreenRoute
 
     // animate screen transitions
     val fadeIn = fadeIn(spring(stiffness = 10f))
     val fadeOut = fadeOut(spring(stiffness = 10f))
 
-    // check for forced updated
-    LaunchedEffect(Unit) {
-        checkForcedUpdate(
-            credentialManager = viewModel.credentialManager,
-            controller = controller,
-            viewModel = viewModel,
-            context = context)
-    }
-
     NavHost(
         navController = controller,
-        startDestination = getStartDestination()) {
+        startDestination = startDestination) {
 
         // login screen
         composable(
@@ -58,17 +51,10 @@ fun Navigation(
             LoginScreen(
                 viewModel = viewModel,
                 onAuthentication = {
-                    onAuthentication(
-                        context = context,
-                        viewModel = viewModel,
-                        controller = controller)
-                },
-                onForceUpdate = {
-                    checkForcedUpdate(
-                        credentialManager = viewModel.credentialManager,
-                        controller = controller,
-                        viewModel = viewModel,
-                        context = context)
+                    val nextDestination = viewModel.postLoginDestination
+                    controller.navigate(nextDestination) {
+                        popUpTo(LoginScreenRoute) { inclusive = true }
+                    }
                 })
         }
 
@@ -81,10 +67,8 @@ fun Navigation(
             OnboardingScreen(
                 viewModel = viewModel,
                 pageNumber = 0,
-                onNextClick = {
-                    controller.navigate(OnboardingNotificationsScreenRoute)
-                },
-                isNextEnabled = viewModel.tts.isInit.collectAsState().value)
+                onNextClick = { controller.navigate(OnboardingNotificationsScreenRoute) },
+                isNextEnabled = viewModel.isTtsInit.collectAsState().value)
         }
 
         // onboarding screen: notifications
@@ -94,9 +78,10 @@ fun Navigation(
             exitTransition = { fadeOut }) {
 
             // ask for permission again if the first request is declined
+            val areNotificationsEnabled = viewModel.areNotificationsEnabled
             val count = remember { mutableIntStateOf(0) }
 
-            // navigate forward
+            // navigate forward if notifications are granted
             LaunchedEffect(areNotificationsEnabled) {
                 if (areNotificationsEnabled && Build.VERSION.SDK_INT >= 33) {
                     controller.navigate(OnboardingWebhookScreenRoute)
@@ -114,7 +99,7 @@ fun Navigation(
                             .launch(Manifest.permission.POST_NOTIFICATIONS)
                         count.intValue ++
                     }
-                    
+
                     else {
                         controller.navigate(OnboardingWebhookScreenRoute)
                     }
@@ -133,8 +118,7 @@ fun Navigation(
                 onNextClick = {
 
                     // onboarding complete
-                    writeToDataStore(context, onboardingKey, true.toString())
-
+                    viewModel.updateOnboarding(true)
                     controller.navigate(MessagesScreenRoute) {
                         popUpTo(OnboardingTextToSpeechScreenRoute) { inclusive = true }
                     }
@@ -147,35 +131,15 @@ fun Navigation(
             enterTransition = { fadeIn },
             exitTransition = { fadeOut }) {
 
-            // check for notification permission
-            LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
-                areNotificationsEnabled =(context as MainActivity).areNotificationsEnabled()
-            }
-
             MessagesScreen(
                 viewModel = viewModel,
                 onSignOut = {
-                    onSignOut(
-                        credentialManager = viewModel.credentialManager,
-                        controller = controller,
-                        viewModel = viewModel,
-                        context = context)
+                    viewModel.signOut()
+                    controller.navigate(LoginScreenRoute) {
+                        popUpTo(MessagesScreenRoute) { inclusive = true }
+                    }
                 })
         }
     }
 }
 
-fun getStartDestination(): String {
-
-    // skip login screen if user already authenticated
-    if (Firebase.auth.currentUser == null) return LoginScreenRoute
-
-    // log for development
-    logMessage("User already authenticated, sign-in flow skipped.")
-    logMessage("    uid: ${Firebase.auth.currentUser?.uid}")
-    logMessage("  token: ${token}")
-
-    if (!isOnboardingComplete) return OnboardingTextToSpeechScreenRoute
-
-    return MessagesScreenRoute
-}

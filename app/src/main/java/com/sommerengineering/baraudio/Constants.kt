@@ -7,18 +7,16 @@ import com.google.firebase.crashlytics.crashlytics
 
 // logs
 const val TAG = "~~"
-
-fun logMessage(msg: String?) =
-    Log.v(TAG, "$msg")
-
+fun logMessage(msg: String?) = Log.v(TAG, "$msg")
 fun logException(e: Exception) {
     Log.e(TAG, "handleException: ${e.message}", e)
     Firebase.crashlytics.recordException(e)
 }
 
 // durations
-const val colorTransitionTimeMillis = 1000
+const val colorTransitionTimeMillis = 100
 const val recentMessageTimeMillis = 3000
+const val bottomBarTransitionTimeMillis = 1000
 
 // urls
 const val setupUrl = "https://sommerengineering.com/baraud.io"
@@ -28,11 +26,9 @@ const val termsUrl = "https://sommerengineering.com/terms_and_conditions"
 // firebase
 const val databaseUrl = "https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/"
 const val webhookBaseUrl = "https://us-central1-com-sommerengineering-baraudio.cloudfunctions.net/baraudio?uid="
-const val usersNode = "users"
-const val messagesNode = "messages"
-const val whitelistNode = "whitelist"
-const val unauthenticatedUser = "unauthenticatedUser"
-const val unauthenticatedToken = "unauthenticatedToken"
+const val messagesNodeId = "messages"
+const val whitelistNodeId = "whitelist"
+const val usersNodeId = "users"
 const val gitHubProviderId = "github.com"
 const val messageMaxSize = 1000
 
@@ -47,31 +43,28 @@ const val uidKey = "uid"
 const val timestampKey = "timestamp"
 const val messageKey = "message"
 const val originKey = "origin"
-const val defaultMessage = "Thank you for using bar audio, please setup your webhook to continue!"
+const val defaultUtterance = "Thank you for using bar audio, please customize your webhook to continue!"
 const val unauthenticatedTimestampNote = ", sign-in to hear message!"
-const val parsingError = "Error parsing message"
-const val buildTypeDebug = "debug"
+const val messageParsingError = "Error parsing message"
 
 // navigation
 const val LoginScreenRoute = "LoginScreen"
 const val OnboardingTextToSpeechScreenRoute = "OnboardingTextToSpeechScreen"
 const val OnboardingNotificationsScreenRoute = "OnboardingNotificationsScreen"
 const val OnboardingWebhookScreenRoute = "OnboardingWebhookScreen"
-const val OnboardingCompleteRoute = "complete"
 const val MessagesScreenRoute = "MessagesScreen"
 
 // datastore
 const val localCache = "localCache"
-const val isFirstLaunchKey = "isFirstLaunch"
 const val onboardingKey = "onboarding"
-const val tokenKey = "token"
-const val voiceKey = "voice"
+const val voiceNameKey = "voice"
 const val speedKey = "speed"
 const val pitchKey = "pitch"
-const val isQueueFlushKey = "isQueueFlush"
+const val isQueueAddKey = "isQueueAdd"
+const val isMuteKey = "isMuteKey"
 const val isDarkModeKey = "isDarkMode"
 const val isFullScreenKey = "isFullScreen"
-const val showQuoteKey = "showQuote"
+const val isShowQuoteKey = "showQuote"
 const val isFuturesWebhooksKey = "isFuturesWebhooks"
 const val volumeKey = android.speech.tts.TextToSpeech.Engine.KEY_PARAM_VOLUME
 
@@ -91,7 +84,7 @@ const val pitchTitle = "Pitch"
 const val queueBehaviorTitle = "Queue"
 const val uiModeTitle = "Theme"
 const val screenTitle = "Screen"
-const val showQuoteTitle = "Inspirational quote"
+const val showQuoteTitle = "Mindfulness quote"
 const val futuresWebhooksTitle = "Futures"
 const val systemTtsTitle = "System settings"
 const val privacyTitle = "Privacy policy"
@@ -100,10 +93,10 @@ const val manageSubscriptionTitle = "Manage subscription"
 const val signOutTitle = "Sign-out"
 const val queueBehaviorFlushDescription = "Play new alerts immediately"
 const val queueBehaviorAddDescription = "Add new alerts to queue"
-const val uiModeDarkDescription = "Dark"
-const val uiModeLightDescription = "Light"
+const val uiDarkDescription = "Dark"
+const val uiLightDescription = "Light"
 const val screenFullDescription = "Full screen"
-const val screenWindowedDescription = "Show system"
+const val screenWindowedDescription = "Show system bars"
 const val futuresWebhookDescription = "NQ, ES, and GC at 1min"
 const val voiceDividerTitle = "VOICE"
 const val uiDividerTitle = "THEME"
@@ -117,6 +110,7 @@ val fabButtonSize = 72.dp
 val edgePadding = 24.dp
 val backgroundPadding = 48.dp
 val settingsIconSize = edgePadding
+val loginLogoPadding = 64.dp
 
 // onboarding
 const val onboardingTotalPages = 3
@@ -130,3 +124,19 @@ const val period = "."
 const val soundAnimation = "sound.json"
 const val notificationAnimation = "notification.json"
 const val linkAnimation = "link.json"
+
+// tts
+const val defaultVoice = "en-gb-x-gbd-local"  // british, male
+
+// origin
+// https://www.tradingview.com/support/solutions/43000529348-about-webhooks/
+// https://help.trendspider.com/kb/alerts/webhooks
+val tradingview = listOf(
+    "52.89.214.238",
+    "34.212.75.30",
+    "54.218.53.128",
+    "52.32.178.7")
+const val trendspider = "3.12.143.24"
+const val insomnia = "84.123.224.196"
+const val parsingErrorOrigin = "error"
+const val localOrigin = "local"

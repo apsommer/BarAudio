@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.login
+package com.sommerengineering.baraudio.hilt
 
 import android.content.Context
 import com.android.billingclient.api.AcknowledgePurchaseParams
@@ -19,17 +19,14 @@ import com.android.billingclient.api.acknowledgePurchase
 import com.android.billingclient.api.queryProductDetails
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.freeTrial
-import com.sommerengineering.baraudio.productId
 import com.sommerengineering.baraudio.logMessage
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
+import com.sommerengineering.baraudio.productId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+
+// todo implementation archived 102226
 
 enum class BillingState {
     Loading,
@@ -219,3 +216,70 @@ class BillingClientImpl(
         logMessage("Billing error, code $responseCode: ${errorMap[responseCode]}")
     }
 }
+
+//    // todo billing client, purchase subscription flow ui was triggered by mute button
+
+//    fun initBilling() {
+//
+//        // initialize connection to google play
+//        billing.connect()
+//
+//        // listen to subscription status
+//        CoroutineScope(Dispatchers.Main).launch {
+//            billing.billingState
+//                .onEach {
+//                    when (it) {
+//
+//                        // show spinner
+//                        BillingState.Loading -> {
+//                            shouldShowSpinner = true
+//                        }
+//
+//                        BillingState.NewSubscription -> {
+//                            setMute(context, false)
+//                            this@MainViewModel.speakLastMessage()
+//                        }
+//
+//                        BillingState.Subscribed -> {
+//                            tts.volume = readFromDataStore(context, volumeKey)?.toFloat() ?: 0f
+//                            isMute = tts.volume == 0f
+//                        }
+//
+//                        BillingState.Unsubscribed, BillingState.Error -> { }
+//                    }
+//
+//                    // hide spinner
+//                    if (it != BillingState.Loading) {
+//                        shouldShowSpinner = false
+//                    }
+//                }
+//                .collect()
+//        }
+//    }
+
+
+
+
+
+//    fun toggleMute(
+//        context: Context) {
+//
+//        // unmute only allowed for paid user
+//        val isUserPaid =
+//            billing.billingState.value == BillingState.NewSubscription ||
+//            billing.billingState.value == BillingState.Subscribed
+//
+//        if (isMute && !isUserPaid) {
+//
+//            billing.launchBillingFlowUi(context)
+//            return
+//        }
+//
+//        if (isFirstLaunch) {
+//            speakLastMessage()
+//            isFirstLaunch = false
+//            writeToDataStore(context, isFirstLaunchKey, isFirstLaunch.toString())
+//        }
+//
+//        setMute(context, !isMute)
+//    }
