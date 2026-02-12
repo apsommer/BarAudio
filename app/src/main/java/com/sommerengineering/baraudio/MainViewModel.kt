@@ -29,7 +29,6 @@ class MainViewModel @Inject constructor(
 
     // database
     val messages = repo.messages
-    fun startListeningToDatabase() = repo.startListeningToDatabase()
     fun deleteAllMessages() = repo.deleteAllMessages()
     fun deleteMessage(message: Message) = repo.deleteMessage(message)
     override fun onCleared() { repo.stopListening() }

@@ -28,18 +28,28 @@ class FirebaseDatabaseImpl {
     private val db = Firebase.database(databaseUrl)
     private val messagesNode = db.getReference(messagesNodeId)
     private var listener: ChildEventListener? = null
+    private lateinit var uid: String
 
     val _messages = MutableStateFlow<List<Message>>(emptyList())
     val messages = _messages.asStateFlow()
     private val cache = mutableListOf<Message>()
 
+    fun setUid(newUid: String) {
+
+        // check if already set
+        if (::uid.isInitialized && uid == newUid) return
+
+        stopListening()
+        cache.clear()
+        _messages.update { cache.toList() }
+
+        uid = newUid
+    }
+
     fun startListening() {
 
         // ensure only one listener exists
         if (listener != null) return
-
-        // ensure user is authenticated
-        val uid = Firebase.auth.currentUser?.uid ?: return
 
         val newListener = object: ChildEventListener {
 
@@ -106,10 +116,14 @@ class FirebaseDatabaseImpl {
         listener = newListener
     }
 
+    fun stopListening() {
+        listener?.let { messagesNode.removeEventListener(it) }
+        listener = null
+    }
+
     fun deleteMessage(message: Message) {
         cache.remove(message)
         _messages.update { cache.toList() }
-        val uid = Firebase.auth.currentUser?.uid ?: return
         messagesNode
             .child(uid)
             .child(message.timestamp)
@@ -119,22 +133,14 @@ class FirebaseDatabaseImpl {
     fun deleteAllMessages() {
         cache.clear()
         _messages.update { cache.toList() }
-        val uid = Firebase.auth.currentUser?.uid ?: return
         messagesNode.child(uid).removeValue()
     }
 
-    fun stopListening() {
-        listener?.let { messagesNode.removeEventListener(it) }
-        listener = null
-    }
-
     fun writeToken(token: String) {
-        val uid = Firebase.auth.currentUser?.uid ?: return
         db.getReference(usersNodeId).child(uid).setValue(token)
     }
 
     fun writeWhitelist(enabled: Boolean) {
-        val uid = Firebase.auth.currentUser?.uid ?: return
         db.getReference(whitelistNodeId).child(uid).setValue(enabled)
     }
 }

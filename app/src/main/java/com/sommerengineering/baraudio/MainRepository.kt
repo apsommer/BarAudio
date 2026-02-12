@@ -43,7 +43,6 @@ class MainRepository @Inject constructor(
 
     // database
     val messages = db.messages
-    fun startListeningToDatabase() = db.startListening()
     fun deleteMessage(message: Message) = db.deleteMessage(message)
     fun deleteAllMessages() = db.deleteAllMessages()
     fun stopListening() = db.stopListening()
@@ -57,8 +56,14 @@ class MainRepository @Inject constructor(
             _isTtsReady.update { true }
         }
 
-        // wait for firebase to initialize before writing token to database
-        listenToAuthState()
+        // wait for firebase to initialize
+        FirebaseAuth.getInstance().addAuthStateListener { auth ->
+
+            val uid = auth.currentUser?.uid ?: return@addAuthStateListener
+            db.setUid(uid)
+            db.startListening()
+            newToken?.let { token -> writeNewToken(token) }
+        }
     }
 
     // voice
@@ -169,17 +174,12 @@ class MainRepository @Inject constructor(
     }
 
     // token
-    private var lastToken: String? = null
-    fun onNewToken(token: String) {
-        lastToken = token
+    var newToken: String? = null
+    fun onNewToken(token: String) { newToken = token }
+    fun writeNewToken(token: String) {
         db.writeToken(token)
         db.writeWhitelist(true)
     }
-    private fun listenToAuthState() =
-        FirebaseAuth.getInstance().addAuthStateListener { auth ->
-            if (auth.currentUser == null) return@addAuthStateListener
-            lastToken?.let { token -> db.writeToken(token) }
-        }
 
     // preference data store
     suspend fun <T> readPreference(

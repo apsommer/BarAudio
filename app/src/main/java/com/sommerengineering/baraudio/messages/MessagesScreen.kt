@@ -67,10 +67,6 @@ fun MessagesScreen(
     val quote = (quoteState as? MindfulnessQuoteState.Success)?.mindfulnessQuote?.quote
     val isShowQuote = viewModel.isShowQuote
 
-    LaunchedEffect(Unit) {
-        viewModel.startListeningToDatabase()
-    }
-
     // side drawer
     ModalNavigationDrawer(
         drawerState = drawerState,

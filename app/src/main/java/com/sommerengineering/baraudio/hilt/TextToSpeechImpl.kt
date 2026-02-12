@@ -80,7 +80,6 @@ class TextToSpeechImpl(
             bundleOf(volumeKey to _volume),
             timestamp)
 
-
     override fun onInit(status: Int) {
 
         // initialization complete
