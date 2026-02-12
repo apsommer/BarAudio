@@ -34,10 +34,6 @@ fun Navigation(
     val context = LocalContext.current
     val controller = rememberNavController()
 
-    // animate screen transitions
-    val fadeIn = fadeIn(spring(stiffness = 10f))
-    val fadeOut = fadeOut(spring(stiffness = 10f))
-
     // check for forced updated
     LaunchedEffect(Unit) {
         checkForcedUpdate(
@@ -47,12 +43,16 @@ fun Navigation(
             context = context)
     }
 
-    // skip login screen if user already authenticated
+    // determine start destination
     val isOnboardingComplete = viewModel.isOnboardingComplete
     val startDestination =
         if (Firebase.auth.currentUser == null) LoginScreenRoute
         else if (!isOnboardingComplete) OnboardingTextToSpeechScreenRoute
         else MessagesScreenRoute
+
+    // animate screen transitions
+    val fadeIn = fadeIn(spring(stiffness = 10f))
+    val fadeOut = fadeOut(spring(stiffness = 10f))
 
     NavHost(
         navController = controller,
@@ -67,9 +67,10 @@ fun Navigation(
             LoginScreen(
                 viewModel = viewModel,
                 onAuthentication = {
-                    onAuthentication(
-                        controller = controller,
-                        viewModel = viewModel)
+                    val nextDestination = viewModel.postLoginDestination
+                    controller.navigate(nextDestination) {
+                        popUpTo(LoginScreenRoute) { inclusive = true }
+                    }
                 },
                 onForceUpdate = {
                     checkForcedUpdate(
@@ -122,7 +123,7 @@ fun Navigation(
                             .launch(Manifest.permission.POST_NOTIFICATIONS)
                         count.intValue ++
                     }
-                    
+
                     else {
                         controller.navigate(OnboardingWebhookScreenRoute)
                     }

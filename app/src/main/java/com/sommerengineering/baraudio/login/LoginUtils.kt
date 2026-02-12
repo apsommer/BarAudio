@@ -25,21 +25,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-fun onAuthentication(
-    controller: NavHostController,
-    viewModel: MainViewModel) {
-
-    // navigate to next destination
-    val isOnboardingComplete = viewModel.isOnboardingComplete
-    val nextDestination =
-        if (isOnboardingComplete) MessagesScreenRoute
-        else OnboardingTextToSpeechScreenRoute
-
-    controller.navigate(nextDestination) {
-        popUpTo(LoginScreenRoute) { inclusive = true }
-    }
-}
-
 fun onSignOut(
     credentialManager: CredentialManager,
     controller: NavHostController) {

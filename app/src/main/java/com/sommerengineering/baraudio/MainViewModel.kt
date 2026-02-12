@@ -111,6 +111,10 @@ class MainViewModel @Inject constructor(
         isOnboardingComplete = enabled
         repo.updateOnboarding(enabled)
     }
+    val postLoginDestination get() =
+        if (isOnboardingComplete) MessagesScreenRoute
+        else OnboardingTextToSpeechScreenRoute
+
 
     // mindfulness quote
     private var _mindfulnessQuoteState: MutableStateFlow<MindfulnessQuoteState> = MutableStateFlow(MindfulnessQuoteState.Idle)
