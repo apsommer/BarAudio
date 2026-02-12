@@ -23,8 +23,6 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.credentials.CredentialManager
-import androidx.navigation.NavHostController
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.appupdate.AppUpdateOptions
 import com.google.android.play.core.install.model.AppUpdateType
@@ -34,7 +32,6 @@ import com.sommerengineering.baraudio.theme.isSystemInDarkMode
 import dagger.hilt.android.AndroidEntryPoint
 
 var isAppOpen = false
-var areNotificationsEnabled by mutableStateOf(false)
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -42,10 +39,9 @@ class MainActivity : ComponentActivity() {
     private val viewModel: MainViewModel by viewModels()
 
     val requestNotificationPermissionLauncher =
-        registerForActivityResult(
-            ActivityResultContracts.RequestPermission()) {
-            areNotificationsEnabled = areNotificationsEnabled()
-        }
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+        viewModel.updateNotificationsEnabled(areNotificationsEnabled())
+    }
 
     val updateLauncher =
         registerForActivityResult(
@@ -80,8 +76,6 @@ class MainActivity : ComponentActivity() {
                     channelGroupId,
                     channelGroupName))
         manager.createNotificationChannel(channel)
-
-        areNotificationsEnabled = areNotificationsEnabled()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -105,12 +99,18 @@ class MainActivity : ComponentActivity() {
 
     fun areNotificationsEnabled() : Boolean {
 
-        // get notification channel
         val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         val channel = manager.getNotificationChannel(channelId)
 
-        return manager.areNotificationsEnabled()
+        val areNotificationsEnabled = manager.areNotificationsEnabled()
             && channel.importance > NotificationManager.IMPORTANCE_NONE
+
+        return areNotificationsEnabled
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.updateNotificationsEnabled(areNotificationsEnabled())
     }
 
     private fun init() {

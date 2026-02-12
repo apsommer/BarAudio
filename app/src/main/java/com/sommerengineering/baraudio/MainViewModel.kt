@@ -115,6 +115,12 @@ class MainViewModel @Inject constructor(
         if (isOnboardingComplete) MessagesScreenRoute
         else OnboardingTextToSpeechScreenRoute
 
+    // notifications
+    var areNotificationsEnabled by mutableStateOf(false)
+        private set
+    fun updateNotificationsEnabled(enabled: Boolean) {
+        areNotificationsEnabled = enabled
+    }
 
     // mindfulness quote
     private var _mindfulnessQuoteState: MutableStateFlow<MindfulnessQuoteState> = MutableStateFlow(MindfulnessQuoteState.Idle)
@@ -198,9 +204,6 @@ class MainViewModel @Inject constructor(
     }
 
     fun signOut() = repo.signOut()
-
-
-
 
     fun saveToWebhookClipboard(webhookUrl: String) = repo.saveToClipboard(webhookUrl)
 

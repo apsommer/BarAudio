@@ -23,7 +23,6 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,7 +37,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.areNotificationsEnabled
 import com.sommerengineering.baraudio.backgroundPadding
 import com.sommerengineering.baraudio.colorTransitionTimeMillis
 import com.sommerengineering.baraudio.recentMessageTimeMillis
@@ -101,8 +99,8 @@ fun MessagesScreen(
             },
 
             bottomBar = {
-                AllowNotificationsBottomBar(
-                    areNotificationsAllowed = areNotificationsEnabled)
+                val areNotificationsEnabled = viewModel.areNotificationsEnabled
+                AllowNotificationsBottomBar(areNotificationsEnabled)
             }
 
         ) { padding ->

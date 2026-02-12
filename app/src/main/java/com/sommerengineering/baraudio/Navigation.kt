@@ -84,6 +84,8 @@ fun Navigation(
             // ask for permission again if the first request is declined
             val count = remember { mutableIntStateOf(0) }
 
+            val areNotificationsEnabled = viewModel.areNotificationsEnabled
+
             // navigate forward
             LaunchedEffect(areNotificationsEnabled) {
                 if (areNotificationsEnabled && Build.VERSION.SDK_INT >= 33) {
@@ -133,11 +135,6 @@ fun Navigation(
             route = MessagesScreenRoute,
             enterTransition = { fadeIn },
             exitTransition = { fadeOut }) {
-
-            // check for notification permission
-            LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
-                areNotificationsEnabled =(context as MainActivity).areNotificationsEnabled()
-            }
 
             MessagesScreen(
                 viewModel = viewModel,

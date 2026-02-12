@@ -32,11 +32,8 @@ fun LoginScreen (
     viewModel: MainViewModel,
     onAuthentication: () -> Unit) {
 
-    val context = LocalContext.current // todo remove
-
+    val context = LocalContext.current
     val isDarkMode = viewModel.isDarkMode
-
-    // ephemeral elements
     val gitHubImageId =
         if (isDarkMode) R.drawable.github_light
         else R.drawable.github_dark
