@@ -13,18 +13,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
-import com.sommerengineering.baraudio.hilt.writeToDataStore
 import com.sommerengineering.baraudio.login.LoginScreen
 import com.sommerengineering.baraudio.login.OnboardingScreen
-import com.sommerengineering.baraudio.login.checkForcedUpdate
-import com.sommerengineering.baraudio.login.onAuthentication
-import com.sommerengineering.baraudio.login.onSignOut
 import com.sommerengineering.baraudio.messages.MessagesScreen
 
 @Composable
@@ -33,15 +28,6 @@ fun Navigation(
 
     val context = LocalContext.current
     val controller = rememberNavController()
-
-    // check for forced updated
-    LaunchedEffect(Unit) {
-        checkForcedUpdate(
-            credentialManager = viewModel.credentialManager,
-            controller = controller,
-            viewModel = viewModel,
-            context = context)
-    }
 
     // determine start destination
     val isOnboardingComplete = viewModel.isOnboardingComplete
@@ -71,13 +57,6 @@ fun Navigation(
                     controller.navigate(nextDestination) {
                         popUpTo(LoginScreenRoute) { inclusive = true }
                     }
-                },
-                onForceUpdate = {
-                    checkForcedUpdate(
-                        credentialManager = viewModel.credentialManager,
-                        controller = controller,
-                        viewModel = viewModel,
-                        context = context)
                 })
         }
 
@@ -163,9 +142,10 @@ fun Navigation(
             MessagesScreen(
                 viewModel = viewModel,
                 onSignOut = {
-                    onSignOut(
-                        credentialManager = viewModel.credentialManager,
-                        controller = controller)
+                    viewModel.signOut()
+                    controller.navigate(LoginScreenRoute) {
+                        popUpTo(MessagesScreenRoute) { inclusive = true }
+                    }
                 })
         }
     }

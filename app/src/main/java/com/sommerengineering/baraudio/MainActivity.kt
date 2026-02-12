@@ -23,13 +23,17 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import com.sommerengineering.baraudio.hilt.readFromDataStore
+import androidx.credentials.CredentialManager
+import androidx.navigation.NavHostController
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory
+import com.google.android.play.core.appupdate.AppUpdateOptions
+import com.google.android.play.core.install.model.AppUpdateType
+import com.google.android.play.core.install.model.UpdateAvailability
 import com.sommerengineering.baraudio.theme.AppTheme
 import com.sommerengineering.baraudio.theme.isSystemInDarkMode
 import dagger.hilt.android.AndroidEntryPoint
 
 var isAppOpen = false
-var isUpdateRequired = false
 var areNotificationsEnabled by mutableStateOf(false)
 
 @AndroidEntryPoint
@@ -127,6 +131,8 @@ class MainActivity : ComponentActivity() {
 
         // init notification channel
         initNotificationChannel()
+
+        checkForcedUpdate()
     }
 
     private fun applyFullScreen(
@@ -142,13 +148,40 @@ class MainActivity : ComponentActivity() {
         // collapse
         windowInsetsController.show(WindowInsetsCompat.Type.systemBars())
     }
+
+    fun checkForcedUpdate() {
+
+        val updateManager = AppUpdateManagerFactory.create(this)
+
+        // request update from play store
+        updateManager.appUpdateInfo
+            .addOnSuccessListener { updateInfo ->
+
+                // check that update is available, and forced
+                if (updateInfo.updateAvailability() != UpdateAvailability.UPDATE_AVAILABLE
+                    || 4 >= updateInfo.updatePriority()) {
+                    return@addOnSuccessListener
+                }
+
+                // todo sign out?
+
+                // launch system update flow ui
+                updateManager.startUpdateFlowForResult(
+                    updateInfo,
+                    updateLauncher,
+                    AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build()) }
+
+            .addOnFailureListener { exception ->
+
+                // skip exception log for debug build
+                if (exception.message?.contains("The app is not owned") == true) return@addOnFailureListener
+                logException(exception)
+            }
+    }
 }
 
-fun cancelAllNotifications(
-    context: Context) =
-        NotificationManagerCompat
-            .from(context)
-            .cancelAll()
+fun cancelAllNotifications(context: Context) =
+    NotificationManagerCompat.from(context).cancelAll()
 
 @Composable
 fun App(

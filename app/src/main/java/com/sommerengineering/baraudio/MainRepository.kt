@@ -5,12 +5,16 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
 import android.widget.Toast
+import androidx.credentials.ClearCredentialStateRequest
+import androidx.credentials.CredentialManager
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
 import com.sommerengineering.baraudio.hilt.ApplicationScope
 import com.sommerengineering.baraudio.hilt.FirebaseDatabaseImpl
 import com.sommerengineering.baraudio.hilt.RapidApi
@@ -31,6 +35,7 @@ import kotlin.math.roundToInt
 class MainRepository @Inject constructor(
     @ApplicationContext val context: Context,
     @ApplicationScope val appScope: CoroutineScope,
+    val credentialManager: CredentialManager,
     val db: FirebaseDatabaseImpl,
     val tts: TextToSpeechImpl,
     val rapidApi: RapidApi,
@@ -185,6 +190,15 @@ class MainRepository @Inject constructor(
     fun writeNewToken(token: String) {
         db.writeToken(token)
         db.writeWhitelist(true)
+    }
+
+    fun signOut() {
+
+        Firebase.auth.signOut()
+
+        appScope.launch {
+            credentialManager.clearCredentialState(ClearCredentialStateRequest())
+        }
     }
 
     // preference data store

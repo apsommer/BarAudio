@@ -30,8 +30,7 @@ import com.sommerengineering.baraudio.loginLogoPadding
 @Composable
 fun LoginScreen (
     viewModel: MainViewModel,
-    onAuthentication: () -> Unit,
-    onForceUpdate: () -> Unit) {
+    onAuthentication: () -> Unit) {
 
     val context = LocalContext.current // todo remove
 
@@ -73,8 +72,7 @@ fun LoginScreen (
                             signInWithGoogle(
                                 context = context,
                                 credentialManager = viewModel.credentialManager,
-                                onAuthentication = onAuthentication,
-                                onForceUpdate = onForceUpdate)
+                                onAuthentication = onAuthentication)
                         }
                         .border(
                             border = BorderStroke(
@@ -101,8 +99,7 @@ fun LoginScreen (
                         .clickable {
                             signInWithGitHub(
                                 context = context,
-                                onAuthentication = onAuthentication,
-                                onForceUpdate = onForceUpdate)
+                                onAuthentication = onAuthentication)
                         }
                         .border(
                             border = BorderStroke(

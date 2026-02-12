@@ -197,6 +197,11 @@ class MainViewModel @Inject constructor(
             else queueBehaviorFlushDescription
     }
 
+    fun signOut() = repo.signOut()
+
+
+
+
     fun saveToWebhookClipboard(webhookUrl: String) = repo.saveToClipboard(webhookUrl)
 
     private fun createBeautifulVoices() {
