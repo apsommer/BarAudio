@@ -11,8 +11,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -69,9 +67,7 @@ fun Navigation(
             OnboardingScreen(
                 viewModel = viewModel,
                 pageNumber = 0,
-                onNextClick = {
-                    controller.navigate(OnboardingNotificationsScreenRoute)
-                },
+                onNextClick = { controller.navigate(OnboardingNotificationsScreenRoute) },
                 isNextEnabled = viewModel.isTtsInit.collectAsState().value)
         }
 
@@ -82,11 +78,10 @@ fun Navigation(
             exitTransition = { fadeOut }) {
 
             // ask for permission again if the first request is declined
+            val areNotificationsEnabled = viewModel.areNotificationsEnabled
             val count = remember { mutableIntStateOf(0) }
 
-            val areNotificationsEnabled = viewModel.areNotificationsEnabled
-
-            // navigate forward
+            // navigate forward if notifications are granted
             LaunchedEffect(areNotificationsEnabled) {
                 if (areNotificationsEnabled && Build.VERSION.SDK_INT >= 33) {
                     controller.navigate(OnboardingWebhookScreenRoute)

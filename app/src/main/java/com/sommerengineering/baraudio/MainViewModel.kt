@@ -1,7 +1,5 @@
 package com.sommerengineering.baraudio
 
-import android.content.Context
-import android.content.res.Configuration
 import android.speech.tts.Voice
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -12,8 +10,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sommerengineering.baraudio.messages.Message
 import com.sommerengineering.baraudio.messages.MindfulnessQuoteState
-import com.sommerengineering.baraudio.messages.localOrigin
-import com.sommerengineering.baraudio.theme.isSystemInDarkMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -258,4 +254,15 @@ class MainViewModel @Inject constructor(
     }
 
     fun beautifyVoiceName(name: String) = beautifulVoiceNames[name] ?: ""
+
+    fun getOriginImage(origin: String) = when (origin) {
+        in tradingview -> {
+            if (isDarkMode) R.drawable.tradingview_light
+            else R.drawable.tradingview_dark
+        }
+        trendspider -> R.drawable.trendspider
+        insomnia -> R.drawable.insomnia
+        parsingErrorOrigin -> R.drawable.error
+        else -> R.drawable.webhook
+    }
 }

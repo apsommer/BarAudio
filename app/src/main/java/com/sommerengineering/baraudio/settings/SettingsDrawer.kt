@@ -63,8 +63,6 @@ fun SettingsDrawer(
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
 
-
-
     val speed = viewModel.speed
     val pitch = viewModel.pitch
     val isQueueAdd = viewModel.isQueueAdd

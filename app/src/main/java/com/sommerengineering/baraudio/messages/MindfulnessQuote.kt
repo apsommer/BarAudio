@@ -9,4 +9,5 @@ sealed class MindfulnessQuoteState {
 
 data class MindfulnessQuote(
     val quote: String,
-    val category: String)
+    val category: String
+)

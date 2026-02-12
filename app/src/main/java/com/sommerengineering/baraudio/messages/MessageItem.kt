@@ -43,19 +43,9 @@ fun MessageItem(
     message: Message,
     onRemove: () -> Unit) {
 
-    val isDarkMode = viewModel.isDarkMode
-
-    // origin image
-    val webhookOriginImageId: Int = when (message.origin) {
-        in tradingview -> {
-            if (isDarkMode) R.drawable.tradingview_light
-            else R.drawable.tradingview_dark
-        }
-        trendspider -> R.drawable.trendspider
-        insomnia -> R.drawable.insomnia
-        parsingErrorOrigin -> R.drawable.error
-        else -> R.drawable.webhook
-    }
+    val timestamp = beautifyTimestamp(message.timestamp)
+    val text = message.message
+    val webhookOriginImageId = viewModel.getOriginImage(message.origin)
 
     SwipeToDismissBox(
         state = rememberSwipeToDismissBoxState(),
@@ -105,7 +95,7 @@ fun MessageItem(
 
                         // message
                         Text(
-                            text = message.message,
+                            text = text,
                             style = MaterialTheme.typography.titleMedium)
 
                         Spacer(
@@ -114,7 +104,7 @@ fun MessageItem(
 
                         // timestamp
                         Text(
-                            text = beautifyTimestamp(message.timestamp),
+                            text = timestamp,
                             style = MaterialTheme.typography.bodyMedium)
                     }
 

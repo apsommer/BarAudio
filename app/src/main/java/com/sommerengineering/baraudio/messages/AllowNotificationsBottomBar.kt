@@ -46,7 +46,11 @@ fun AllowNotificationsBottomBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable(
-                    onClick = { launchSystemNotificationSettings(context) })) {
+                    onClick = {
+                        context.startActivity(
+                        Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
+                            .putExtra(Settings.EXTRA_APP_PACKAGE, BuildConfig.APPLICATION_ID)
+                            .putExtra(Settings.EXTRA_CHANNEL_ID, channelId)) })) {
 
             Text(
                 modifier = Modifier
@@ -60,10 +64,3 @@ fun AllowNotificationsBottomBar(
         }
     }
 }
-
-fun launchSystemNotificationSettings(context: Context) =
-
-    context.startActivity(
-        Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
-            .putExtra(Settings.EXTRA_APP_PACKAGE, BuildConfig.APPLICATION_ID)
-            .putExtra(Settings.EXTRA_CHANNEL_ID, channelId))

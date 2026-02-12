@@ -1,7 +1,6 @@
 package com.sommerengineering.baraudio.hilt
 
 import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -12,9 +11,9 @@ import com.sommerengineering.baraudio.messageKey
 import com.sommerengineering.baraudio.messageMaxSize
 import com.sommerengineering.baraudio.messageParsingError
 import com.sommerengineering.baraudio.messages.Message
-import com.sommerengineering.baraudio.messages.parsingErrorOrigin
 import com.sommerengineering.baraudio.messagesNodeId
 import com.sommerengineering.baraudio.originKey
+import com.sommerengineering.baraudio.parsingErrorOrigin
 import com.sommerengineering.baraudio.usersNodeId
 import com.sommerengineering.baraudio.whitelistNodeId
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -127,3 +127,16 @@ const val linkAnimation = "link.json"
 
 // tts
 const val defaultVoice = "en-gb-x-gbd-local"  // british, male
+
+// origin
+// https://www.tradingview.com/support/solutions/43000529348-about-webhooks/
+// https://help.trendspider.com/kb/alerts/webhooks
+val tradingview = listOf(
+    "52.89.214.238",
+    "34.212.75.30",
+    "54.218.53.128",
+    "52.32.178.7")
+const val trendspider = "3.12.143.24"
+const val insomnia = "84.123.224.196"
+const val parsingErrorOrigin = "error"
+const val localOrigin = "local"
