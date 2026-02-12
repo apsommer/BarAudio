@@ -14,15 +14,15 @@ class MainApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
+        // enable offline mode with local persistence
+        Firebase
+            .database(databaseUrl)
+            .setPersistenceEnabled(true)
+
         // disable analytics for debug builds
         if (BuildConfig.DEBUG) {
             FirebaseAnalytics.getInstance(this).setAnalyticsCollectionEnabled(false)
             Firebase.crashlytics.isCrashlyticsCollectionEnabled = false
         }
-
-        // enable offline mode with local persistence
-        Firebase
-            .database(databaseUrl)
-            .setPersistenceEnabled(true)
     }
 }

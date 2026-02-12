@@ -16,6 +16,7 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.sommerengineering.baraudio.hilt.writeToDataStore
@@ -28,10 +29,10 @@ import com.sommerengineering.baraudio.messages.MessagesScreen
 
 @Composable
 fun Navigation(
-    controller: NavHostController,
     viewModel: MainViewModel) {
 
     val context = LocalContext.current
+    val controller = rememberNavController()
 
     // animate screen transitions
     val fadeIn = fadeIn(spring(stiffness = 10f))
@@ -46,9 +47,16 @@ fun Navigation(
             context = context)
     }
 
+    // skip login screen if user already authenticated
+    val isOnboardingComplete = viewModel.isOnboardingComplete
+    val startDestination =
+        if (Firebase.auth.currentUser == null) LoginScreenRoute
+        else if (!isOnboardingComplete) OnboardingTextToSpeechScreenRoute
+        else MessagesScreenRoute
+
     NavHost(
         navController = controller,
-        startDestination = getStartDestination()) {
+        startDestination = startDestination) {
 
         // login screen
         composable(
@@ -60,7 +68,8 @@ fun Navigation(
                 viewModel = viewModel,
                 onAuthentication = {
                     onAuthentication(
-                        controller = controller)
+                        controller = controller,
+                        viewModel = viewModel)
                 },
                 onForceUpdate = {
                     checkForcedUpdate(
@@ -132,9 +141,7 @@ fun Navigation(
                 onNextClick = {
 
                     // onboarding complete
-                    writeToDataStore(context, onboardingKey, true.toString())
-                    isOnboardingComplete = true
-
+                    viewModel.updateOnboarding(true)
                     controller.navigate(MessagesScreenRoute) {
                         popUpTo(OnboardingTextToSpeechScreenRoute) { inclusive = true }
                     }
@@ -163,12 +170,3 @@ fun Navigation(
     }
 }
 
-fun getStartDestination(): String {
-
-    // skip login screen if user already authenticated
-    if (Firebase.auth.currentUser == null) return LoginScreenRoute
-
-    // skip onboarding if user already completed
-    if (!isOnboardingComplete) return OnboardingTextToSpeechScreenRoute
-    return MessagesScreenRoute
-}

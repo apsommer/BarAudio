@@ -102,6 +102,16 @@ class MainViewModel @Inject constructor(
         repo.speakMessage(message)
     }
 
+    // onboarding
+    var isOnboardingComplete by mutableStateOf(false)
+        private set
+    fun initOnboarding() =
+        viewModelScope.launch { isOnboardingComplete = repo.loadOnboarding() }
+    fun updateOnboarding(enabled: Boolean) {
+        isOnboardingComplete = enabled
+        repo.updateOnboarding(enabled)
+    }
+
     // mindfulness quote
     private var _mindfulnessQuoteState: MutableStateFlow<MindfulnessQuoteState> = MutableStateFlow(MindfulnessQuoteState.Idle)
     val mindfulnessQuoteState = _mindfulnessQuoteState.asStateFlow()

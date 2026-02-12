@@ -126,6 +126,12 @@ class MainRepository @Inject constructor(
         tts.isMute = readPreference(booleanPreferencesKey(isMuteKey)) ?: false
     }
 
+    // onboarding
+    suspend fun loadOnboarding() =
+        readPreference(booleanPreferencesKey(onboardingKey)) ?: false
+    fun updateOnboarding(enabled: Boolean) =
+        writePreference(booleanPreferencesKey(onboardingKey), enabled)
+
     // mindfulness quote
     suspend fun getMindfulnessQuote() = rapidApi.getMindfulnessQuote()
     suspend fun loadShowQuote() =

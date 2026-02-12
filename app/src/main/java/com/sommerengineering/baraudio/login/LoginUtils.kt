@@ -18,7 +18,6 @@ import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.MessagesScreenRoute
 import com.sommerengineering.baraudio.OnboardingTextToSpeechScreenRoute
 import com.sommerengineering.baraudio.hilt.signOut
-import com.sommerengineering.baraudio.isOnboardingComplete
 import com.sommerengineering.baraudio.isUpdateRequired
 import com.sommerengineering.baraudio.logException
 import com.sommerengineering.baraudio.logMessage
@@ -27,15 +26,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 fun onAuthentication(
-    controller: NavHostController) {
-
-    // write to database, if needed
-    // todo writeTokenToDatabase()
+    controller: NavHostController,
+    viewModel: MainViewModel) {
 
     // navigate to next destination
+    val isOnboardingComplete = viewModel.isOnboardingComplete
     val nextDestination =
-        if (!isOnboardingComplete) OnboardingTextToSpeechScreenRoute
-        else MessagesScreenRoute
+        if (isOnboardingComplete) MessagesScreenRoute
+        else OnboardingTextToSpeechScreenRoute
 
     controller.navigate(nextDestination) {
         popUpTo(LoginScreenRoute) { inclusive = true }

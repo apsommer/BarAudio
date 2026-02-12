@@ -23,7 +23,6 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.navigation.compose.rememberNavController
 import com.sommerengineering.baraudio.hilt.readFromDataStore
 import com.sommerengineering.baraudio.theme.AppTheme
 import com.sommerengineering.baraudio.theme.isSystemInDarkMode
@@ -31,7 +30,6 @@ import dagger.hilt.android.AndroidEntryPoint
 
 var isAppOpen = false
 var isUpdateRequired = false
-var isOnboardingComplete = false
 var areNotificationsEnabled by mutableStateOf(false)
 
 @AndroidEntryPoint
@@ -115,9 +113,9 @@ class MainActivity : ComponentActivity() {
 
         isAppOpen = true
 
-        // todo collect all in init() method
-        viewModel.initDarkMode(this.isSystemInDarkMode())
-        isOnboardingComplete = readFromDataStore(this, onboardingKey).toBoolean()
+        // todo collect all in init() method of viewmodel
+        viewModel.initOnboarding()
+        viewModel.initDarkMode(isSystemInDarkMode())
 
         // dismiss all notifications on launch
         val isLaunchFromNotification = intent.extras?.getBoolean(isLaunchFromNotification) ?: false
@@ -161,10 +159,7 @@ fun App(
     AppTheme(isDarkMode) {
         Scaffold(
             modifier = Modifier.fillMaxSize()) { padding -> padding
-            Navigation(
-                controller = rememberNavController(),
-                viewModel = viewModel
-            )
+            Navigation(viewModel)
         }
     }
 }
