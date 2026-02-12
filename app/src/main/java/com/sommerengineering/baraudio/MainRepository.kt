@@ -12,6 +12,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
@@ -202,6 +203,7 @@ class MainRepository @Inject constructor(
     }
 
     // preference data store
+    val Context.dataStore by preferencesDataStore(localCache)
     suspend fun <T> readPreference(
         key: Preferences.Key<T>) : T? =
         context.dataStore.data.first()[key]
