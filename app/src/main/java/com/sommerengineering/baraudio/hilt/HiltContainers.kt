@@ -2,6 +2,10 @@ package com.sommerengineering.baraudio.hilt
 
 import android.content.Context
 import androidx.credentials.CredentialManager
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStore
+import com.sommerengineering.baraudio.localCache
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,6 +21,8 @@ import javax.inject.Singleton
 @Retention(AnnotationRetention.BINARY)
 annotation class ApplicationScope
 
+val Context.dataStore by preferencesDataStore(localCache)
+
 @Module
 @InstallIn(SingletonComponent::class)
 object ApplicationModule {
@@ -26,6 +32,12 @@ object ApplicationModule {
     fun provideCredentialManager(
         @ApplicationContext context: Context): CredentialManager {
         return CredentialManager.create(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
+        return context.dataStore
     }
 
     @Provides

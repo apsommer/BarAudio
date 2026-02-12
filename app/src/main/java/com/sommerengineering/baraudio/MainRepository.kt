@@ -7,6 +7,7 @@ import android.content.Context.CLIPBOARD_SERVICE
 import android.widget.Toast
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
+import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
@@ -20,7 +21,6 @@ import com.sommerengineering.baraudio.hilt.ApplicationScope
 import com.sommerengineering.baraudio.hilt.FirebaseDatabaseImpl
 import com.sommerengineering.baraudio.hilt.RapidApi
 import com.sommerengineering.baraudio.hilt.TextToSpeechImpl
-import com.sommerengineering.baraudio.hilt.dataStore
 import com.sommerengineering.baraudio.messages.Message
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -36,6 +36,7 @@ import kotlin.math.roundToInt
 class MainRepository @Inject constructor(
     @ApplicationContext val context: Context,
     @ApplicationScope val appScope: CoroutineScope,
+    val dataStore: DataStore<Preferences>,
     val credentialManager: CredentialManager,
     val db: FirebaseDatabaseImpl,
     val tts: TextToSpeechImpl,
@@ -160,10 +161,8 @@ class MainRepository @Inject constructor(
         writePreference(booleanPreferencesKey(isFullScreenKey), enabled)
 
     // dark mode
-    suspend fun loadDarkMode(systemDefault: Boolean): Boolean {
-        val key = booleanPreferencesKey(isDarkModeKey)
-        return context.dataStore.data.first()[key] ?: systemDefault
-    }
+    suspend fun loadDarkMode(systemDefault: Boolean) =
+        readPreference(booleanPreferencesKey(isDarkModeKey)) ?: systemDefault
     fun updateDarkMode(enabled: Boolean) =
         writePreference(booleanPreferencesKey(isDarkModeKey), enabled)
 
@@ -203,15 +202,14 @@ class MainRepository @Inject constructor(
     }
 
     // preference data store
-    val Context.dataStore by preferencesDataStore(localCache)
     suspend fun <T> readPreference(
         key: Preferences.Key<T>) : T? =
-        context.dataStore.data.first()[key]
+        dataStore.data.first()[key]
 
     fun <T> writePreference(
         key: Preferences.Key<T>,
         value: T) =
         appScope.launch {
-            context.dataStore.edit { it[key] = value }
+            dataStore.edit { it[key] = value }
         }
 }
