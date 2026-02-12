@@ -32,6 +32,7 @@ import javax.inject.Inject
 class FirebaseServiceImpl: FirebaseMessagingService() {
 
     @Inject lateinit var repo: MainRepository
+    @Inject lateinit var appVisibility: AppVisibility
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
 
@@ -44,7 +45,7 @@ class FirebaseServiceImpl: FirebaseMessagingService() {
         // either speak, or show notification
         var isShowNotification =
             Firebase.auth.currentUser == null || // user not signed-in
-            !isAppOpen // app closed
+            !appVisibility.isForeground // app closed
 
         // note for different user, same device
         val note =

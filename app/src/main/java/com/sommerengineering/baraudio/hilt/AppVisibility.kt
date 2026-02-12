@@ -8,7 +8,8 @@ import kotlin.concurrent.Volatile
 class AppVisibility @Inject constructor()
     : DefaultLifecycleObserver {
 
-    @Volatile // atomic variable, visible to all threads (service and UI)
+    // volatile means visible to all threads: service, UI, ...
+    @Volatile
     var isForeground = false
         private set
 

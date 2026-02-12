@@ -1,6 +1,7 @@
 package com.sommerengineering.baraudio
 
 import android.app.Application
+import androidx.lifecycle.ProcessLifecycleOwner
 import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.crashlytics
@@ -17,8 +18,10 @@ class MainApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
+        // track app visibility
+        ProcessLifecycleOwner.get().lifecycle.addObserver(appVisibility)
 
-        // enable offline mode with local persistence
+        // enable database offline mode with local persistence
         Firebase
             .database(databaseUrl)
             .setPersistenceEnabled(true)

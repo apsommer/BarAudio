@@ -31,8 +31,6 @@ import com.sommerengineering.baraudio.theme.AppTheme
 import com.sommerengineering.baraudio.theme.isSystemInDarkMode
 import dagger.hilt.android.AndroidEntryPoint
 
-var isAppOpen = false
-
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
@@ -114,8 +112,6 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun init() {
-
-        isAppOpen = true
 
         // todo collect all in init() method of viewmodel
         viewModel.initOnboarding()
