@@ -29,6 +29,12 @@ object ApplicationModule {
 
     @Provides
     @Singleton
+    fun provideAppVisibility() : AppVisibility {
+        return AppVisibility()
+    }
+
+    @Provides
+    @Singleton
     fun provideCredentialManager(
         @ApplicationContext context: Context): CredentialManager {
         return CredentialManager.create(context)
