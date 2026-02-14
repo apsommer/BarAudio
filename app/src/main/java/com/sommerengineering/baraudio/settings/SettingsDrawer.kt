@@ -11,7 +11,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,8 +28,8 @@ import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.dataDividerTitle
 import com.sommerengineering.baraudio.edgePadding
-import com.sommerengineering.baraudio.futuresWebhookDescription
-import com.sommerengineering.baraudio.futuresWebhooksTitle
+import com.sommerengineering.baraudio.nqTopicDescription
+import com.sommerengineering.baraudio.nqTopicTitle
 import com.sommerengineering.baraudio.howToSetupTitle
 import com.sommerengineering.baraudio.legalDividerTitle
 import com.sommerengineering.baraudio.manageSubscriptionTitle
@@ -186,8 +185,8 @@ fun SettingsDrawer(
             item {
                 SwitchSettingItem(
                     icon = R.drawable.ear_listen,
-                    title = futuresWebhooksTitle,
-                    description = futuresWebhookDescription) {
+                    title = nqTopicTitle,
+                    description = nqTopicDescription) {
 
                     Switch(
                         checked = isFuturesWebhooks,
