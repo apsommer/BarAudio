@@ -1,11 +1,13 @@
 package com.sommerengineering.baraudio.hilt
 
 import androidx.room.Dao
+import androidx.room.Database
 import androidx.room.Entity
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.PrimaryKey
 import androidx.room.Query
+import androidx.room.RoomDatabase
 import com.sommerengineering.baraudio.messages.Message
 import kotlinx.coroutines.flow.Flow
 
@@ -24,7 +26,7 @@ interface MessageDao {
     @Query(""" SELECT * FROM messages ORDER BY timestamp DESC LIMIT :limit """)
     fun observeMessages(limit: Int): Flow<List<MessageEntity>>
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert
     suspend fun insert(entity: MessageEntity)
 
     @Query(""" DELETE FROM messages WHERE timestamp
@@ -34,3 +36,13 @@ interface MessageDao {
     @Query("DELETE FROM messages")
     suspend fun deleteAll()
 }
+
+@Database(
+    entities = [MessageEntity::class],
+    version = 1,
+    exportSchema = false) // todo true for production and migration strategy
+abstract class MessageDatabase : RoomDatabase() {
+    abstract fun messageDao(): MessageDao
+}
+
+
