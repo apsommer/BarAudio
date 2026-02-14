@@ -87,13 +87,12 @@ class FirebaseServiceImpl: FirebaseMessagingService() {
             builder.build())
     }
 
-    private fun trimTimestamp(timestamp: String) =
-        timestamp
-            .substring(timestamp.length - 9, timestamp.length)
-            .toInt()
+    private fun trimTimestamp(timestamp: String) = timestamp
+        .substring(timestamp.length - 9, timestamp.length)
+        .toInt()
 
     override fun onNewToken(token: String) {
-        FirebaseMessaging.getInstance().subscribeToTopic(nqTopic)
         repo.onNewToken(token)
     }
 }
+

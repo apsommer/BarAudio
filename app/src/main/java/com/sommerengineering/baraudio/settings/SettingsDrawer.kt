@@ -28,8 +28,8 @@ import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.dataDividerTitle
 import com.sommerengineering.baraudio.edgePadding
-import com.sommerengineering.baraudio.nqTopicDescription
-import com.sommerengineering.baraudio.nqTopicTitle
+import com.sommerengineering.baraudio.nqDescription
+import com.sommerengineering.baraudio.nqTitle
 import com.sommerengineering.baraudio.howToSetupTitle
 import com.sommerengineering.baraudio.legalDividerTitle
 import com.sommerengineering.baraudio.manageSubscriptionTitle
@@ -72,7 +72,7 @@ fun SettingsDrawer(
     val queueDescription = viewModel.queueDescription
 
     val isShowQuote = viewModel.isShowQuote
-    val isFuturesWebhooks = viewModel.isFuturesWebhooks
+    val isFuturesWebhooks = viewModel.isNQ
     val isFullScreen = viewModel.isFullScreen
     val fullScreenDescription = viewModel.fullScreenDescription
 
@@ -185,12 +185,12 @@ fun SettingsDrawer(
             item {
                 SwitchSettingItem(
                     icon = R.drawable.ear_listen,
-                    title = nqTopicTitle,
-                    description = nqTopicDescription) {
+                    title = nqTitle,
+                    description = nqDescription) {
 
                     Switch(
                         checked = isFuturesWebhooks,
-                        onCheckedChange = { viewModel.updateFuturesWebhooks(it)})
+                        onCheckedChange = { viewModel.updateNQ(it)})
                 }
             }
 
