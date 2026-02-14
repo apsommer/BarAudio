@@ -39,13 +39,17 @@ const val channelDescription = "Realtime data connection for BarAudio"
 const val channelGroupId = "42"
 const val channelGroupName = "Webhook"
 const val isLaunchFromNotification = "isLaunchFromNotification"
+const val broadcastKey = "broadcast"
 const val uidKey = "uid"
 const val timestampKey = "timestamp"
 const val messageKey = "message"
 const val originKey = "origin"
-const val defaultUtterance = "Thank you for using bar audio, please customize your webhook to continue!"
+const val defaultUtterance = "Thank you for using Bar Audio, please customize your webhook to continue!"
 const val unauthenticatedTimestampNote = ", sign-in to hear message!"
 const val messageParsingError = "Error parsing message"
+
+// topics
+const val nqTopic = "NQ"
 
 // navigation
 const val LoginScreenRoute = "LoginScreen"

@@ -10,16 +10,19 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainRepository
 import com.sommerengineering.baraudio.R
+import com.sommerengineering.baraudio.broadcastKey
 import com.sommerengineering.baraudio.channelId
 import com.sommerengineering.baraudio.isLaunchFromNotification
 import com.sommerengineering.baraudio.messageKey
 import com.sommerengineering.baraudio.messages.Message
 import com.sommerengineering.baraudio.messages.beautifyTimestamp
+import com.sommerengineering.baraudio.nqTopic
 import com.sommerengineering.baraudio.originKey
 import com.sommerengineering.baraudio.timestampKey
 import com.sommerengineering.baraudio.uidKey
@@ -36,10 +39,14 @@ class FirebaseServiceImpl: FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
 
         // extract attributes
-        val uid = remoteMessage.data[uidKey] ?: return
+        val broadcast = remoteMessage.data[broadcastKey]
+        val uid = remoteMessage.data[uidKey]
         val timestamp = remoteMessage.data[timestampKey] ?: return
         val message = remoteMessage.data[messageKey] ?: return
         val origin = remoteMessage.data[originKey] ?: return
+
+        // catch malformed message
+        if (broadcast == null && uid == null) return
 
         // either speak, or show notification
         var isShowNotification =
@@ -107,5 +114,8 @@ class FirebaseServiceImpl: FirebaseMessagingService() {
             .substring(timestamp.length - 9, timestamp.length)
             .toInt()
 
-    override fun onNewToken(token: String) = repo.onNewToken(token)
+    override fun onNewToken(token: String) {
+        FirebaseMessaging.getInstance().subscribeToTopic(nqTopic)
+        repo.onNewToken(token)
+    }
 }

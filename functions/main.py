@@ -26,21 +26,21 @@ def baraudio(req: https_fn.Request) -> https_fn.Response:
 
     # catch malformed request
     if req.method != 'POST':
-        return https_fn.Response('Request must be POST and include uid as query parameter.')
+        return https_fn.Response('Request must be POST and include uid as query parameter')
 
     # catch empty message
     if message is None or len(message) == 0:
-        return https_fn.Response('The message is empty.')
+        return https_fn.Response('The message is empty')
 
     # broadcast to topic subscribers
     if topic:
 
         # prevent unauthorized broadcasts
         if topic not in topics:
-            return https_fn.Response(f"Topic '{topic}' does not exist.")
+            return https_fn.Response(f"Topic '{topic}' does not exist")
 
         broadcast_to_topic(topic, timestamp, message, origin)
-        return https_fn.Response(f"Broadcasted to topic: {topic}.")
+        return https_fn.Response(f"Broadcasted to topic: {topic}")
 
     # send message to single device
     if uid:
@@ -48,10 +48,10 @@ def baraudio(req: https_fn.Request) -> https_fn.Response:
         # ensure user is authenticated
         device_token = db.reference('users').child(uid).get()
         if device_token is None:
-            return https_fn.Response(f"Sign-in to hear message.")
+            return https_fn.Response(f"Sign-in to hear message")
 
         send_message_to_single_device(uid, device_token, timestamp, message, origin)
-        return https_fn.Response(f"Message sent to uid: {uid}.")
+        return https_fn.Response(f"Message sent to uid: {uid}")
 
     # respond with simple generic message, should never happen
     return https_fn.Response('Thank you for using BarAudio! :)')
@@ -66,7 +66,7 @@ def broadcast_to_topic(topic, timestamp, message, origin):
     # construct notification
     broadcast = messaging.Message(
         data={
-            'uid': topic, # todo refactor to 'broadcast' and parse in client
+            'broadcast': topic,
             'timestamp': timestamp,
             'message': message,
             'origin': origin
@@ -92,7 +92,7 @@ def broadcast_to_topic(topic, timestamp, message, origin):
 
     # catch error
     except FirebaseError as error:
-        print(f"Broadcast to: {topic}, failed with error: {error}.")
+        print(f"Broadcast to: {topic}, failed with error: {error}")
 
 def send_message_to_single_device(uid, device_token, timestamp, message, origin):
 
@@ -119,7 +119,7 @@ def send_message_to_single_device(uid, device_token, timestamp, message, origin)
 
     # catch error
     except FirebaseError as error:
-        print(f"Send to single device uid: {uid}, failed with error: {error}.")
+        print(f"Send to single device uid: {uid}, failed with error: {error}")
 
 def write_to_database(uid, timestamp, message, origin):
 

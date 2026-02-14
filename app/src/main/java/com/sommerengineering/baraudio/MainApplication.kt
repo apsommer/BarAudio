@@ -19,7 +19,8 @@ class MainApplication : Application() {
         super.onCreate()
 
         // track app visibility
-        ProcessLifecycleOwner.get().lifecycle.addObserver(appVisibility)
+        ProcessLifecycleOwner.get().lifecycle
+            .addObserver(appVisibility)
 
         // enable database offline mode with local persistence
         Firebase
