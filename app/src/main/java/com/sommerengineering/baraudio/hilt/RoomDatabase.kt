@@ -1,20 +1,36 @@
 package com.sommerengineering.baraudio.hilt
 
+import androidx.room.Dao
 import androidx.room.Entity
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.PrimaryKey
+import androidx.room.Query
 import com.sommerengineering.baraudio.messages.Message
+import kotlinx.coroutines.flow.Flow
 
 @Entity(tableName = "messages")
-data class MessageTable(
+data class MessageEntity(
     @PrimaryKey val timestamp: String,
     val message: String,
-    val origin: String
-) {
+    val origin: String)
 
-    fun toMessage() = Message(timestamp, message, origin)
+fun MessageEntity.toMessage() = Message(timestamp, message, origin)
+fun Message.toEntity() = MessageEntity(timestamp, message, origin)
 
-    companion object {
-        fun from(message: Message) =
-            MessageTable(message.timestamp, message.message, message.origin)
-    }
+@Dao
+interface MessageDao {
+
+    @Query(""" SELECT * FROM messages ORDER BY timestamp DESC LIMIT :limit """)
+    fun observeMessages(limit: Int): Flow<List<MessageEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(entity: MessageEntity)
+
+    @Query(""" DELETE FROM messages WHERE timestamp
+        NOT IN (SELECT timestamp FROM messages ORDER BY timestamp DESC LIMIT :limit) """)
+    suspend fun trimToLast(limit: Int)
+
+    @Query("DELETE FROM messages")
+    suspend fun deleteAll()
 }
