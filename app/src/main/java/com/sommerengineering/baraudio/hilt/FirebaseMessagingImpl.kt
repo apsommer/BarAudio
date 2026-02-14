@@ -26,7 +26,6 @@ import com.sommerengineering.baraudio.nqTopic
 import com.sommerengineering.baraudio.originKey
 import com.sommerengineering.baraudio.timestampKey
 import com.sommerengineering.baraudio.uidKey
-import com.sommerengineering.baraudio.unauthenticatedTimestampNote
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -48,37 +47,20 @@ class FirebaseServiceImpl: FirebaseMessagingService() {
         // catch malformed message
         if (broadcast == null && uid == null) return
 
-        // either speak, or show notification
-        var isShowNotification =
-            Firebase.auth.currentUser == null || // user not signed-in
-            !appVisibility.isForeground // app closed
+        // catch different user on same device
+        if (uid != null && uid != Firebase.auth.currentUser?.uid) return
 
-        // note for different user, same device
-        val note =
-            if (uid != Firebase.auth.currentUser?.uid) {
-                isShowNotification = true
-                unauthenticatedTimestampNote
-            } else { "" }
-
-        // show notification
-        if (isShowNotification) {
-            showNotification(timestamp, message, note)
-            return
-        }
-
-        // speak message
-        repo.speakMessage(
-            Message(
-                timestamp = timestamp,
-                message = message,
-                origin = origin))
-
+        // show notification if app closed or user not signed-in, else speak
+        val isShowNotification = !appVisibility.isForeground || Firebase.auth.currentUser == null
+        if (isShowNotification) { showNotification(timestamp, message) }
+        else { repo.speakMessage(Message(timestamp, message, origin)) }
     }
 
     private fun showNotification(
         timestamp: String,
-        message: String,
-        note: String) {
+        message: String) {
+
+        val beautifulTimestamp = beautifyTimestamp(timestamp)
 
         // confirm permission granted
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
@@ -90,16 +72,12 @@ class FirebaseServiceImpl: FirebaseMessagingService() {
         val pendingIntent= PendingIntent
             .getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
-        // configure options
-        val timestampWithNote =
-            beautifyTimestamp(timestamp) + note
-
         val builder = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.drawable.logo_square)
             .setColor(ContextCompat.getColor(this, R.color.logo_blue))
             .setContentTitle(message)
-            .setContentText(timestampWithNote) // collapsed
-            .setStyle(NotificationCompat.BigTextStyle().bigText(timestampWithNote)) // expanded
+            .setContentText(beautifulTimestamp) // collapsed
+            .setStyle(NotificationCompat.BigTextStyle().bigText(beautifulTimestamp)) // expanded
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
 

@@ -45,7 +45,7 @@ const val timestampKey = "timestamp"
 const val messageKey = "message"
 const val originKey = "origin"
 const val defaultUtterance = "Thank you for using Bar Audio, please customize your webhook to continue!"
-const val unauthenticatedTimestampNote = ", sign-in to hear message!"
+const val unauthenticatedNote = ", sign-in to hear message!"
 const val messageParsingError = "Error parsing message"
 
 // topics
