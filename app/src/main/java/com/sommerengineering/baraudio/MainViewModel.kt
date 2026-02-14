@@ -130,11 +130,11 @@ class MainViewModel @Inject constructor(
     }
 
     // futures webhooks
-    var isFuturesWebhooks by mutableStateOf(true)
+    var isNQ by mutableStateOf(true)
         private set
-    fun updateFuturesWebhooks(enabled: Boolean) {
-        isFuturesWebhooks = enabled
-        repo.updateFuturesWebhooks(enabled)
+    fun updateNQ(enabled: Boolean) {
+        isNQ = enabled
+        repo.updateNQ(enabled)
     }
 
     // fullscreen
@@ -164,7 +164,7 @@ class MainViewModel @Inject constructor(
         // load settings from preferences
         viewModelScope.launch {
             isOnboardingComplete = repo.loadOnboarding()
-            isFuturesWebhooks = repo.loadFuturesWebhooks()
+            isNQ = repo.loadNQ()
             isFullScreen = repo.loadFullScreen()
             isShowQuote = repo.loadShowQuote()
         }

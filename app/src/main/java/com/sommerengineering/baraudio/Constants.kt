@@ -39,13 +39,16 @@ const val channelDescription = "Realtime data connection for BarAudio"
 const val channelGroupId = "42"
 const val channelGroupName = "Webhook"
 const val isLaunchFromNotification = "isLaunchFromNotification"
+const val broadcastKey = "broadcast"
 const val uidKey = "uid"
 const val timestampKey = "timestamp"
 const val messageKey = "message"
 const val originKey = "origin"
-const val defaultUtterance = "Thank you for using bar audio, please customize your webhook to continue!"
-const val unauthenticatedTimestampNote = ", sign-in to hear message!"
+const val defaultUtterance = "Thank you for using Bar Audio, please customize your webhook to continue!"
 const val messageParsingError = "Error parsing message"
+
+// topics
+const val nqTopic = "NQ"
 
 // navigation
 const val LoginScreenRoute = "LoginScreen"
@@ -65,7 +68,7 @@ const val isMuteKey = "isMuteKey"
 const val isDarkModeKey = "isDarkMode"
 const val isFullScreenKey = "isFullScreen"
 const val isShowQuoteKey = "showQuote"
-const val isFuturesWebhooksKey = "isFuturesWebhooks"
+const val isNQKey = "isNQ"
 const val volumeKey = android.speech.tts.TextToSpeech.Engine.KEY_PARAM_VOLUME
 
 // billing
@@ -76,7 +79,7 @@ const val subscriptionUrl = "https://play.google.com/store/account/subscriptions
 
 // settings
 const val systemTtsPackageName = "com.android.settings.TTS_SETTINGS"
-const val howToSetupTitle = "How to customize"
+const val howToSetupTitle = "Customize your webhook"
 const val webhookTitle = "Webhook"
 const val voiceTitle = "Voice"
 const val speedTitle = "Speed"
@@ -85,19 +88,24 @@ const val queueBehaviorTitle = "Queue"
 const val uiModeTitle = "Theme"
 const val screenTitle = "Screen"
 const val showQuoteTitle = "Mindfulness quote"
-const val futuresWebhooksTitle = "Futures"
+const val nqTitle = "Nasdaq-100 (NQ)"
+const val esTitle = "S&P 500 (ES)"
+const val btcTitle = "Bitcoin (BTC)" // todo "spot" not futures
 const val systemTtsTitle = "System settings"
 const val privacyTitle = "Privacy policy"
 const val termsTitle = "Terms and conditions"
 const val manageSubscriptionTitle = "Manage subscription"
 const val signOutTitle = "Sign-out"
+
 const val queueBehaviorFlushDescription = "Play new alerts immediately"
 const val queueBehaviorAddDescription = "Add new alerts to queue"
 const val uiDarkDescription = "Dark"
 const val uiLightDescription = "Light"
 const val screenFullDescription = "Full screen"
 const val screenWindowedDescription = "Show system bars"
-const val futuresWebhookDescription = "NQ, ES, and GC at 1min"
+const val nqDescription = "Momentum & velocity"
+const val esDescription = "Market participation"
+const val btcDescription = "Volatility & extremes"
 const val voiceDividerTitle = "VOICE"
 const val uiDividerTitle = "THEME"
 const val dataDividerTitle = "DATA"

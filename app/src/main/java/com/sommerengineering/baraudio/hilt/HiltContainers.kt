@@ -5,7 +5,9 @@ import androidx.credentials.CredentialManager
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
+import com.sommerengineering.baraudio.MainRepository
 import com.sommerengineering.baraudio.localCache
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -73,4 +75,3 @@ object ApplicationModule {
         return FirebaseDatabaseImpl()
     }
 }
-

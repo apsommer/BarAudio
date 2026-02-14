@@ -13,10 +13,10 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
+import com.google.firebase.messaging.FirebaseMessaging
 import com.sommerengineering.baraudio.hilt.ApplicationScope
 import com.sommerengineering.baraudio.hilt.FirebaseDatabaseImpl
 import com.sommerengineering.baraudio.hilt.RapidApi
@@ -147,12 +147,17 @@ class MainRepository @Inject constructor(
         writePreference(booleanPreferencesKey(isShowQuoteKey), enabled)
 
     // futures webhooks
-    suspend fun loadFuturesWebhooks() =
-        readPreference(booleanPreferencesKey(isFuturesWebhooksKey)) ?: true
-    fun updateFuturesWebhooks(enabled: Boolean) {
-        writePreference(booleanPreferencesKey(isFuturesWebhooksKey), enabled)
+    suspend fun loadNQ() =
+        readPreference(booleanPreferencesKey(isNQKey)) ?: true
+    fun updateNQ(enabled: Boolean) {
+
+        FirebaseMessaging.getInstance().apply {
+            if (enabled) subscribeToTopic(nqTopic) else unsubscribeFromTopic(nqTopic)
+        }
+        writePreference(booleanPreferencesKey(isNQKey), enabled)
         db.writeWhitelist(enabled)
     }
+
 
     // full screen
     suspend fun loadFullScreen() =
@@ -188,6 +193,10 @@ class MainRepository @Inject constructor(
     var newToken: String? = null
     fun onNewToken(token: String) { newToken = token }
     fun writeNewToken(token: String) {
+
+        // todo get topic subscriptions from prefs
+        FirebaseMessaging.getInstance().subscribeToTopic(nqTopic)
+
         db.writeToken(token)
         db.writeWhitelist(true)
     }
