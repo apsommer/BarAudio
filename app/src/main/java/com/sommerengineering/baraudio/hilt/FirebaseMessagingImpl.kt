@@ -10,7 +10,6 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
-import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.sommerengineering.baraudio.MainActivity
@@ -22,7 +21,6 @@ import com.sommerengineering.baraudio.isLaunchFromNotification
 import com.sommerengineering.baraudio.messageKey
 import com.sommerengineering.baraudio.messages.Message
 import com.sommerengineering.baraudio.messages.beautifyTimestamp
-import com.sommerengineering.baraudio.nqTopic
 import com.sommerengineering.baraudio.originKey
 import com.sommerengineering.baraudio.timestampKey
 import com.sommerengineering.baraudio.uidKey

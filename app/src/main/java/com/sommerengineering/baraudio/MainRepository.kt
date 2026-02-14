@@ -151,10 +151,13 @@ class MainRepository @Inject constructor(
         readPreference(booleanPreferencesKey(isNQKey)) ?: true
     fun updateNQ(enabled: Boolean) {
 
-        if (enabled) { FirebaseMessaging.getInstance().subscribeToTopic(nqTopic) }
+        FirebaseMessaging.getInstance().apply {
+            if (enabled) subscribeToTopic(nqTopic) else unsubscribeFromTopic(nqTopic)
+        }
         writePreference(booleanPreferencesKey(isNQKey), enabled)
         db.writeWhitelist(enabled)
     }
+
 
     // full screen
     suspend fun loadFullScreen() =
