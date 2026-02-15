@@ -26,7 +26,7 @@ class MainViewModel @Inject constructor(
     val credentialManager: CredentialManager, // todo remove
 ) : ViewModel() {
 
-    // database
+    // room database
     val messages = repo.messages
     fun deleteAllMessages() = repo.deleteAllMessages()
     fun deleteMessage(message: Message) = repo.deleteMessage(message)
