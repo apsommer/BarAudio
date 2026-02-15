@@ -9,7 +9,6 @@ import androidx.compose.runtime.setValue
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialCancellationException
-import androidx.credentials.exceptions.GetCredentialException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
@@ -27,13 +26,13 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
     val repo: MainRepository,
-    val credentialManager: CredentialManager, // todo remove
-    val credentialRequest: GetCredentialRequest,
+    val credentialManager: CredentialManager,
 ) : ViewModel() {
 
     fun signInWithGoogle(
@@ -43,7 +42,7 @@ class MainViewModel @Inject constructor(
             try {
 
                 // launch system google sign-in dialog
-                val response = credentialManager.getCredential(context, credentialRequest)
+                val response = credentialManager.getCredential(context, buildGoogleRequest())
 
                 // extract google id token
                 val credential = response.credential
@@ -53,14 +52,30 @@ class MainViewModel @Inject constructor(
                 // sign-in to firebase with google id token
                 Firebase.auth
                     .signInWithCredential(GoogleAuthProvider.getCredential(googleToken, null))
-                    .addOnSuccessListener { onAuthentication() }
-                    .addOnFailureListener { logException(it) }
+                    .await()
 
-            } catch (e: GetCredentialException) {
-                if (e is GetCredentialCancellationException) return@launch // user canceled sign-in dialog
+                onAuthentication()
+
+            } catch (e: Exception) {
+
+                if (e is GetCredentialCancellationException) return@launch // user canceled dialog
                 logException(e)
             }
         }
+
+    private fun buildGoogleRequest() : GetCredentialRequest {
+
+        // bottom sheet ui
+        val signInOptions = GetGoogleIdOption.Builder()
+            .setFilterByAuthorizedAccounts(false) // false to initiate sign-up flow, if needed
+            .setServerClientId(BuildConfig.googleSignInWebClientId)
+            .setAutoSelectEnabled(true)
+            .build()
+
+        return GetCredentialRequest.Builder()
+            .addCredentialOption(signInOptions)
+            .build()
+    }
 
     // room database
     val messages = repo.messages

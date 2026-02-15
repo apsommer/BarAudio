@@ -48,22 +48,6 @@ object SingletonModule {
 
     @Provides
     @Singleton
-    fun provideGoogleCredentialRequest(): GetCredentialRequest {
-
-        // bottom sheet ui
-        val signInOptions = GetGoogleIdOption.Builder()
-            .setFilterByAuthorizedAccounts(false) // false to initiate sign-up flow, if needed
-            .setServerClientId(BuildConfig.googleSignInWebClientId)
-            .setAutoSelectEnabled(true)
-            .build()
-
-        return GetCredentialRequest.Builder()
-            .addCredentialOption(signInOptions)
-            .build()
-    }
-
-    @Provides
-    @Singleton
     fun provideDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
         return context.dataStore
     }
