@@ -9,7 +9,7 @@ import androidx.room.Room
 import com.sommerengineering.baraudio.room.MessageDao
 import com.sommerengineering.baraudio.room.MessageDatabase
 import com.sommerengineering.baraudio.firebase.FirebaseDatabaseImpl
-import com.sommerengineering.baraudio.network.RapidApi
+import com.sommerengineering.baraudio.messages.RapidApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

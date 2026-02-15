@@ -1,7 +1,6 @@
-package com.sommerengineering.baraudio.network
+package com.sommerengineering.baraudio.messages
 
 import com.sommerengineering.baraudio.BuildConfig
-import com.sommerengineering.baraudio.messages.MindfulnessQuote
 import retrofit2.http.GET
 import retrofit2.http.Headers
 
@@ -16,5 +15,3 @@ interface RapidApi {
     @GET("v1/mindfulness")
     suspend fun getMindfulnessQuote() : MindfulnessQuote
 }
-
-
