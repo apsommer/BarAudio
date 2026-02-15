@@ -68,7 +68,7 @@ fun Navigation(
                 viewModel = viewModel,
                 pageNumber = 0,
                 onNextClick = { controller.navigate(OnboardingNotificationsScreenRoute) },
-                isNextEnabled = viewModel.isTtsInit.collectAsState().value)
+                isNextEnabled = viewModel.isTtsReady.collectAsState().value) // todo remove?
         }
 
         // onboarding screen: notifications

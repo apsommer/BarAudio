@@ -45,16 +45,16 @@ class MainRepository @Inject constructor(
     val rapidApi: RapidApi) {
 
     // text-to-speech
-    val isTtsInit = tts.isInit
+    private val isTtsInit = tts.isInit
     private val _isTtsReady = MutableStateFlow(false)
     val isTtsReady = _isTtsReady.asStateFlow()
 
-    // room database
-    val messages = roomDb.messages
-        .stateIn(appScope, SharingStarted.Eagerly, emptyList())
-    fun deleteMessage(message: Message) = roomDb.deleteMessage(message)
-    fun deleteAllMessages() = roomDb.deleteAllMessages()
-    fun addMessage(message: Message) = roomDb.addMessage(message)
+    // wait for firebase to initialize to ensure uid is valid
+    private val authListener = FirebaseAuth.AuthStateListener { auth ->
+        val uid = auth.currentUser?.uid ?: return@AuthStateListener
+        firebaseDb.setUid(uid)
+        newToken?.let { token -> writeNewToken(token) }
+    }
 
     init {
 
@@ -65,14 +65,16 @@ class MainRepository @Inject constructor(
             _isTtsReady.update { true }
         }
 
-        // wait for firebase to initialize
-        FirebaseAuth.getInstance().addAuthStateListener { auth ->
-
-            val uid = auth.currentUser?.uid ?: return@addAuthStateListener
-            firebaseDb.setUid(uid)
-            newToken?.let { token -> writeNewToken(token) }
-        }
+        // attache auth listener
+        FirebaseAuth.getInstance().addAuthStateListener(authListener)
     }
+
+    // room database
+    val messages = roomDb.messages
+        .stateIn(appScope, SharingStarted.Eagerly, emptyList())
+    fun deleteMessage(message: Message) = roomDb.deleteMessage(message)
+    fun deleteAllMessages() = roomDb.deleteAllMessages()
+    fun addMessage(message: Message) = roomDb.addMessage(message)
 
     // voice
     val voices
@@ -147,17 +149,15 @@ class MainRepository @Inject constructor(
     fun updateShowQuote(enabled: Boolean) =
         writePreference(booleanPreferencesKey(isShowQuoteKey), enabled)
 
-    // futures webhooks
+    // stream NQ
     suspend fun loadNQ() =
         readPreference(booleanPreferencesKey(isNQKey)) ?: true
     fun updateNQ(enabled: Boolean) {
-
         FirebaseMessaging.getInstance().apply {
             if (enabled) subscribeToTopic(nqTopic) else unsubscribeFromTopic(nqTopic)
         }
         writePreference(booleanPreferencesKey(isNQKey), enabled)
     }
-
 
     // full screen
     suspend fun loadFullScreen() =
@@ -193,9 +193,11 @@ class MainRepository @Inject constructor(
     var newToken: String? = null
     fun onNewToken(token: String) { newToken = token }
     fun writeNewToken(token: String) {
-
-        // todo get topic subscriptions from prefs as token could be refresh, not new
-        FirebaseMessaging.getInstance().subscribeToTopic(nqTopic)
+        appScope.launch {
+            FirebaseMessaging.getInstance().apply {
+                if (loadNQ()) subscribeToTopic(nqTopic) else unsubscribeFromTopic(nqTopic)
+            }
+        }
         firebaseDb.writeToken(token)
     }
 

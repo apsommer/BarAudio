@@ -31,8 +31,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    val repo: MainRepository,
-    val credentialManager: CredentialManager,
+    private val repo: MainRepository,
+    private val credentialManager: CredentialManager,
 ) : ViewModel() {
 
     fun signInWithGoogle(
@@ -83,7 +83,7 @@ class MainViewModel @Inject constructor(
     fun deleteMessage(message: Message) = repo.deleteMessage(message)
 
     // text-to-speech
-    val isTtsInit = repo.isTtsInit
+    val isTtsReady = repo.isTtsReady
 
     // voice
     var voices by mutableStateOf<List<Voice>>(emptyList())
