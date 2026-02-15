@@ -30,7 +30,6 @@ class MainViewModel @Inject constructor(
     val messages = repo.messages
     fun deleteAllMessages() = repo.deleteAllMessages()
     fun deleteMessage(message: Message) = repo.deleteMessage(message)
-    override fun onCleared() { repo.stopListening() }
 
     // text-to-speech
     val isTtsInit = repo.isTtsInit

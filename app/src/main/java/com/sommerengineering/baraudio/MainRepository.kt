@@ -24,9 +24,11 @@ import com.sommerengineering.baraudio.room.RoomImpl
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -47,8 +49,9 @@ class MainRepository @Inject constructor(
     private val _isTtsReady = MutableStateFlow(false)
     val isTtsReady = _isTtsReady.asStateFlow()
 
-    // database
+    // room database
     val messages = roomDb.messages
+        .stateIn(appScope, SharingStarted.Eagerly, emptyList())
     fun deleteMessage(message: Message) = roomDb.deleteMessage(message)
     fun deleteAllMessages() = roomDb.deleteAllMessages()
     fun addMessage(message: Message) = roomDb.addMessage(message)
@@ -186,7 +189,7 @@ class MainRepository @Inject constructor(
         }
     }
 
-    // token
+    // firebase database (token)
     var newToken: String? = null
     fun onNewToken(token: String) { newToken = token }
     fun writeNewToken(token: String) {
@@ -197,9 +200,7 @@ class MainRepository @Inject constructor(
     }
 
     fun signOut() {
-
         Firebase.auth.signOut()
-
         appScope.launch {
             credentialManager.clearCredentialState(ClearCredentialStateRequest())
         }
