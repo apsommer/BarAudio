@@ -10,14 +10,14 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface MessageDao {
 
-    @Query(""" SELECT * FROM messages ORDER BY timestamp DESC LIMIT :limit """)
-    fun observeMessages(limit: Int): Flow<List<MessageEntity>>
+    @Query("SELECT * FROM messages ORDER BY timestamp DESC")
+    fun observeMessages(): Flow<List<MessageEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(entity: MessageEntity)
 
-    @Query(""" DELETE FROM messages WHERE timestamp
-        NOT IN (SELECT timestamp FROM messages ORDER BY timestamp DESC LIMIT :limit) """)
+    @Query("DELETE FROM messages WHERE timestamp NOT IN " +
+            "(SELECT timestamp FROM messages ORDER BY timestamp DESC LIMIT :limit)")
     suspend fun trimToLast(limit: Int)
 
     @Delete

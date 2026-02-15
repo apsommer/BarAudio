@@ -13,7 +13,7 @@ class RoomImpl @Inject constructor(
     private val dao: MessageDao) {
 
     val messages = dao
-        .observeMessages(messagesMaxSize)
+        .observeMessages()
         .map { entities -> entities.map { it.toMessage() } }
 
     fun addMessage(message: Message) =
