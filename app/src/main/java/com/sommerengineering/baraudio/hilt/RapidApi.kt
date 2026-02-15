@@ -23,18 +23,4 @@ interface RapidApi {
     suspend fun getMindfulnessQuote() : MindfulnessQuote
 }
 
-@Module
-@InstallIn(SingletonComponent::class)
-object RetrofitModule {
-
-    @Provides
-    fun provideRetrofit(): RapidApi {
-
-        return Retrofit.Builder()
-            .baseUrl("https://metaapi-mindfulness-quotes.p.rapidapi.com/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(RapidApi::class.java)
-    }
-}
 

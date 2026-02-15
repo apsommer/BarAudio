@@ -26,7 +26,7 @@ interface MessageDao {
     @Query(""" SELECT * FROM messages ORDER BY timestamp DESC LIMIT :limit """)
     fun observeMessages(limit: Int): Flow<List<MessageEntity>>
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(entity: MessageEntity)
 
     @Query(""" DELETE FROM messages WHERE timestamp
@@ -40,7 +40,7 @@ interface MessageDao {
 @Database(
     entities = [MessageEntity::class],
     version = 1,
-    exportSchema = false) // todo true for production and migration strategy
+    exportSchema = false) // todo true for production, plus create migration strategy
 abstract class MessageDatabase : RoomDatabase() {
     abstract fun messageDao(): MessageDao
 }
