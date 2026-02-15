@@ -17,10 +17,8 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.messaging.FirebaseMessaging
-import com.sommerengineering.baraudio.hilt.ApplicationScope
-import com.sommerengineering.baraudio.hilt.FirebaseDatabaseImpl
-import com.sommerengineering.baraudio.hilt.RapidApi
-import com.sommerengineering.baraudio.hilt.TextToSpeechImpl
+import com.sommerengineering.baraudio.firebase.FirebaseDatabaseImpl
+import com.sommerengineering.baraudio.network.RapidApi
 import com.sommerengineering.baraudio.messages.Message
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope

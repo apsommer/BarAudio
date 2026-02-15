@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.hilt
+package com.sommerengineering.baraudio.firebase
 
 import com.google.firebase.Firebase
 import com.google.firebase.database.ChildEventListener
@@ -86,7 +86,9 @@ class FirebaseDatabaseImpl {
                     Message(
                         timestamp = timestamp,
                         message = message,
-                        origin = origin))
+                        origin = origin
+                    )
+                )
 
                 // order by timestamp, descending
                 cache.sortBy { it.timestamp }

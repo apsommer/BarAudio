@@ -1,13 +1,7 @@
-package com.sommerengineering.baraudio.hilt
+package com.sommerengineering.baraudio.network
 
 import com.sommerengineering.baraudio.BuildConfig
 import com.sommerengineering.baraudio.messages.MindfulnessQuote
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Headers
 

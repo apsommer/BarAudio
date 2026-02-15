@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.hilt
+package com.sommerengineering.baraudio.firebase
 
 import android.Manifest
 import android.app.PendingIntent
@@ -12,6 +12,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import com.sommerengineering.baraudio.AppVisibility
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainRepository
 import com.sommerengineering.baraudio.R

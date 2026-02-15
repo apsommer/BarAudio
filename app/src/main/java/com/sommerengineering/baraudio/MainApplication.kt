@@ -6,7 +6,6 @@ import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.crashlytics
 import com.google.firebase.database.database
-import com.sommerengineering.baraudio.hilt.AppVisibility
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 
