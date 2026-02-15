@@ -66,9 +66,8 @@ fun LoginScreen (
                         .size(loginButtonSize)
                         .clip(CircleShape)
                         .clickable {
-                            signInWithGoogle(
+                            viewModel.signInWithGoogle(
                                 context = context,
-                                credentialManager = viewModel.credentialManager,
                                 onAuthentication = onAuthentication)
                         }
                         .border(

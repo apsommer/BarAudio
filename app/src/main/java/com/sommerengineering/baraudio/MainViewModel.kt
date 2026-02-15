@@ -1,13 +1,22 @@
 package com.sommerengineering.baraudio
 
+import android.content.Context
 import android.speech.tts.Voice
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.credentials.CredentialManager
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.exceptions.GetCredentialCancellationException
+import androidx.credentials.exceptions.GetCredentialException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.firebase.Firebase
+import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.auth
 import com.sommerengineering.baraudio.messages.Message
 import com.sommerengineering.baraudio.messages.MindfulnessQuoteState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,7 +33,34 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     val repo: MainRepository,
     val credentialManager: CredentialManager, // todo remove
+    val credentialRequest: GetCredentialRequest,
 ) : ViewModel() {
+
+    fun signInWithGoogle(
+        context: Context,
+        onAuthentication: () -> Unit) = viewModelScope.launch {
+
+            try {
+
+                // launch system google sign-in dialog
+                val response = credentialManager.getCredential(context, credentialRequest)
+
+                // extract google id token
+                val credential = response.credential
+                if (credential.type != GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) return@launch
+                val googleToken = GoogleIdTokenCredential.createFrom(credential.data).idToken
+
+                // sign-in to firebase with google id token
+                Firebase.auth
+                    .signInWithCredential(GoogleAuthProvider.getCredential(googleToken, null))
+                    .addOnSuccessListener { onAuthentication() }
+                    .addOnFailureListener { logException(it) }
+
+            } catch (e: GetCredentialException) {
+                if (e is GetCredentialCancellationException) return@launch // user canceled sign-in dialog
+                logException(e)
+            }
+        }
 
     // room database
     val messages = repo.messages

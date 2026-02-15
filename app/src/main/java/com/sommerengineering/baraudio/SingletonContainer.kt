@@ -2,10 +2,12 @@ package com.sommerengineering.baraudio
 
 import android.content.Context
 import androidx.credentials.CredentialManager
+import androidx.credentials.GetCredentialRequest
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.room.Room
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.sommerengineering.baraudio.room.MessageDao
 import com.sommerengineering.baraudio.room.MessageDatabase
 import com.sommerengineering.baraudio.firebase.FirebaseDatabaseImpl
@@ -27,8 +29,6 @@ import javax.inject.Singleton
 @Retention(AnnotationRetention.BINARY)
 annotation class ApplicationScope
 
-val Context.dataStore by preferencesDataStore(localCache)
-
 @Module
 @InstallIn(SingletonComponent::class)
 object SingletonModule {
@@ -44,6 +44,22 @@ object SingletonModule {
     fun provideCredentialManager(
         @ApplicationContext context: Context): CredentialManager {
         return CredentialManager.create(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGoogleCredentialRequest(): GetCredentialRequest {
+
+        // bottom sheet ui
+        val signInOptions = GetGoogleIdOption.Builder()
+            .setFilterByAuthorizedAccounts(false) // false to initiate sign-up flow, if needed
+            .setServerClientId(BuildConfig.googleSignInWebClientId)
+            .setAutoSelectEnabled(true)
+            .build()
+
+        return GetCredentialRequest.Builder()
+            .addCredentialOption(signInOptions)
+            .build()
     }
 
     @Provides
@@ -108,3 +124,5 @@ object SingletonModule {
         return db.messageDao()
     }
 }
+
+val Context.dataStore by preferencesDataStore(localCache)
