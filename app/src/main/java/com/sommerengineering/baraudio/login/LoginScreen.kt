@@ -29,11 +29,11 @@ import com.sommerengineering.baraudio.loginLogoPadding
 
 @Composable
 fun LoginScreen (
-    viewModel: MainViewModel,
+    loginViewModel: LoginViewModel,
     onAuthentication: () -> Unit) {
 
     val context = LocalContext.current
-    val isDarkMode = viewModel.isDarkMode
+    val isDarkMode = loginViewModel.isDarkMode
     val gitHubImageId =
         if (isDarkMode) R.drawable.github_light
         else R.drawable.github_dark
@@ -66,7 +66,7 @@ fun LoginScreen (
                         .size(loginButtonSize)
                         .clip(CircleShape)
                         .clickable {
-                            viewModel.signInWithGoogle(
+                            loginViewModel.signInWithGoogle(
                                 context = context,
                                 onAuthentication = onAuthentication)
                         }

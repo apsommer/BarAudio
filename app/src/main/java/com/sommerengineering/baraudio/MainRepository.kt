@@ -1,10 +1,13 @@
 package com.sommerengineering.baraudio
 
+import android.app.NotificationManager
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
+import android.content.Context.NOTIFICATION_SERVICE
 import android.widget.Toast
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
 import androidx.datastore.core.DataStore
@@ -158,7 +161,6 @@ class MainRepository @Inject constructor(
         writePreference(booleanPreferencesKey(isNQKey), enabled)
     }
 
-
     // full screen
     suspend fun loadFullScreen() =
         readPreference(booleanPreferencesKey(isFullScreenKey)) ?: false
@@ -166,10 +168,21 @@ class MainRepository @Inject constructor(
         writePreference(booleanPreferencesKey(isFullScreenKey), enabled)
 
     // dark mode
-    suspend fun loadDarkMode(systemDefault: Boolean) =
-        readPreference(booleanPreferencesKey(isDarkModeKey)) ?: systemDefault
-    fun updateDarkMode(enabled: Boolean) =
+    private val _isDarkMode = MutableStateFlow<Boolean>(false)
+    val isDarkMode = _isDarkMode.asStateFlow()
+    suspend fun loadDarkMode(systemDefault: Boolean) {
+        val isDarkMode = readPreference(booleanPreferencesKey(isDarkModeKey))
+            ?: systemDefault
+        _isDarkMode.update { isDarkMode }
+    }
+    fun updateDarkMode(enabled: Boolean) {
+        _isDarkMode.update { enabled }
         writePreference(booleanPreferencesKey(isDarkModeKey), enabled)
+    }
+
+    // notifications
+    private val _areNotificationsEnabled = MutableStateFlow(false)
+    val areNotificationsEnabled = _areNotificationsEnabled.asStateFlow()
 
     fun saveToClipboard(
         webhookUrl: String) {

@@ -1,81 +1,31 @@
 package com.sommerengineering.baraudio
 
-import android.content.Context
 import android.speech.tts.Voice
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.credentials.CredentialManager
-import androidx.credentials.GetCredentialRequest
-import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.libraries.identity.googleid.GetGoogleIdOption
-import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
-import com.google.firebase.Firebase
-import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.auth.auth
 import com.sommerengineering.baraudio.messages.Message
 import com.sommerengineering.baraudio.messages.MindfulnessQuoteState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    val repo: MainRepository,
-    val credentialManager: CredentialManager,
+    val repo: MainRepository
 ) : ViewModel() {
-
-    fun signInWithGoogle(
-        context: Context,
-        onAuthentication: () -> Unit) = viewModelScope.launch {
-
-            try {
-
-                // launch system google sign-in dialog
-                val response = credentialManager.getCredential(context, buildGoogleRequest())
-
-                // extract google id token
-                val credential = response.credential
-                if (credential.type != GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) return@launch
-                val googleToken = GoogleIdTokenCredential.createFrom(credential.data).idToken
-
-                // sign-in to firebase with google id token
-                Firebase.auth
-                    .signInWithCredential(GoogleAuthProvider.getCredential(googleToken, null))
-                    .await()
-
-                onAuthentication()
-
-            } catch (e: Exception) {
-
-                if (e is GetCredentialCancellationException) return@launch // user canceled dialog
-                logException(e)
-            }
-        }
-
-    private fun buildGoogleRequest() : GetCredentialRequest {
-
-        // bottom sheet ui
-        val signInOptions = GetGoogleIdOption.Builder()
-            .setFilterByAuthorizedAccounts(false) // false to initiate sign-up flow, if needed
-            .setServerClientId(BuildConfig.googleSignInWebClientId)
-            .setAutoSelectEnabled(true)
-            .build()
-
-        return GetCredentialRequest.Builder()
-            .addCredentialOption(signInOptions)
-            .build()
-    }
 
     // room database
     val messages = repo.messages
@@ -151,24 +101,6 @@ class MainViewModel @Inject constructor(
         repo.speakMessage(message)
     }
 
-    // onboarding
-    var isOnboardingComplete by mutableStateOf(false)
-        private set
-    fun updateOnboarding(enabled: Boolean) {
-        isOnboardingComplete = enabled
-        repo.updateOnboarding(enabled)
-    }
-    val postLoginDestination get() =
-        if (isOnboardingComplete) MessagesScreenRoute
-        else OnboardingTextToSpeechScreenRoute
-
-    // notifications
-    var areNotificationsEnabled by mutableStateOf(false)
-        private set
-    fun updateNotificationsEnabled(enabled: Boolean) {
-        areNotificationsEnabled = enabled
-    }
-
     // mindfulness quote
     private var _mindfulnessQuoteState: MutableStateFlow<MindfulnessQuoteState> = MutableStateFlow(MindfulnessQuoteState.Idle)
     val mindfulnessQuoteState = _mindfulnessQuoteState.asStateFlow()
@@ -198,14 +130,13 @@ class MainViewModel @Inject constructor(
     }
 
     // dark mode
-    var isDarkMode by mutableStateOf(false)
-        private set
-    val darkModeDescription
-        get() = if (isDarkMode) uiDarkDescription else uiLightDescription
+    var isDarkMode = repo.isDarkMode
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+    val darkModeDescription = isDarkMode
+        .map { if (it) uiDarkDescription else uiLightDescription }
     fun initDarkMode(systemDefault: Boolean) =
-        viewModelScope.launch { isDarkMode = repo.loadDarkMode(systemDefault) }
+        viewModelScope.launch { repo.loadDarkMode(systemDefault) }
     fun updateDarkMode(enabled: Boolean) {
-        isDarkMode = enabled
         repo.updateDarkMode(enabled)
     }
 
@@ -213,7 +144,6 @@ class MainViewModel @Inject constructor(
 
         // load settings from preferences
         viewModelScope.launch {
-            isOnboardingComplete = repo.loadOnboarding()
             isNQ = repo.loadNQ()
             isFullScreen = repo.loadFullScreen()
             isShowQuote = repo.loadShowQuote()
@@ -307,8 +237,10 @@ class MainViewModel @Inject constructor(
 
     fun getOriginImage(origin: String) = when (origin) {
         in tradingview -> {
-            if (isDarkMode) R.drawable.tradingview_light
-            else R.drawable.tradingview_dark
+            isDarkMode.map {
+                if (it) R.drawable.tradingview_light
+                else R.drawable.tradingview_dark
+            }
         }
         trendspider -> R.drawable.trendspider
         insomnia -> R.drawable.insomnia

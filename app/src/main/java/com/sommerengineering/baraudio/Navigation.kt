@@ -17,18 +17,20 @@ import androidx.navigation.compose.rememberNavController
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.sommerengineering.baraudio.login.LoginScreen
+import com.sommerengineering.baraudio.login.LoginViewModel
 import com.sommerengineering.baraudio.login.OnboardingScreen
 import com.sommerengineering.baraudio.messages.MessagesScreen
 
 @Composable
 fun Navigation(
+    loginViewModel: LoginViewModel,
     viewModel: MainViewModel) {
 
     val context = LocalContext.current
     val controller = rememberNavController()
 
     // determine start destination
-    val isOnboardingComplete = viewModel.isOnboardingComplete
+    val isOnboardingComplete = loginViewModel.isOnboardingComplete
     val startDestination =
         if (Firebase.auth.currentUser == null) LoginScreenRoute
         else if (!isOnboardingComplete) OnboardingTextToSpeechScreenRoute
@@ -49,9 +51,9 @@ fun Navigation(
             exitTransition = { fadeOut }) {
 
             LoginScreen(
-                viewModel = viewModel,
+                loginViewModel = loginViewModel,
                 onAuthentication = {
-                    val nextDestination = viewModel.postLoginDestination
+                    val nextDestination = loginViewModel.postLoginDestination
                     controller.navigate(nextDestination) {
                         popUpTo(LoginScreenRoute) { inclusive = true }
                     }
@@ -78,7 +80,7 @@ fun Navigation(
             exitTransition = { fadeOut }) {
 
             // ask for permission again if the first request is declined
-            val areNotificationsEnabled = viewModel.areNotificationsEnabled
+            val areNotificationsEnabled = loginViewModel.areNotificationsEnabled
             val count = remember { mutableIntStateOf(0) }
 
             // navigate forward if notifications are granted
@@ -118,7 +120,7 @@ fun Navigation(
                 onNextClick = {
 
                     // onboarding complete
-                    viewModel.updateOnboarding(true)
+                    loginViewModel.updateOnboarding(true)
                     controller.navigate(MessagesScreenRoute) {
                         popUpTo(OnboardingTextToSpeechScreenRoute) { inclusive = true }
                     }
