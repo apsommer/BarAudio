@@ -180,10 +180,6 @@ class MainRepository @Inject constructor(
         writePreference(booleanPreferencesKey(isDarkModeKey), enabled)
     }
 
-    // notifications
-    private val _areNotificationsEnabled = MutableStateFlow(false)
-    val areNotificationsEnabled = _areNotificationsEnabled.asStateFlow()
-
     fun saveToClipboard(
         webhookUrl: String) {
 

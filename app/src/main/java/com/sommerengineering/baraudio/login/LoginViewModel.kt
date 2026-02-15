@@ -7,7 +7,6 @@ import androidx.compose.runtime.setValue
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialCancellationException
-import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
@@ -18,15 +17,12 @@ import com.google.firebase.auth.auth
 import com.sommerengineering.baraudio.BuildConfig
 import com.sommerengineering.baraudio.MainRepository
 import com.sommerengineering.baraudio.MessagesScreenRoute
+import com.sommerengineering.baraudio.NotificationState
 import com.sommerengineering.baraudio.OnboardingTextToSpeechScreenRoute
-import com.sommerengineering.baraudio.isDarkModeKey
 import com.sommerengineering.baraudio.logException
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -34,7 +30,8 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val repo: MainRepository,
-    private val credentialManager: CredentialManager
+    private val credentialManager: CredentialManager,
+    private val notificationState: NotificationState
 ) : ViewModel() {
 
     // onboarding
@@ -48,14 +45,12 @@ class LoginViewModel @Inject constructor(
         if (isOnboardingComplete) MessagesScreenRoute
         else OnboardingTextToSpeechScreenRoute
 
-    // notifications
-    var areNotificationsEnabled by mutableStateOf(false)
-        private set
-    fun updateNotificationsEnabled(enabled: Boolean) { areNotificationsEnabled = enabled }
-
     // dark mode
     var isDarkMode = repo.isDarkMode
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    // notifications
+    val areNotificationsEnabled = notificationState.enabled
 
     init {
 

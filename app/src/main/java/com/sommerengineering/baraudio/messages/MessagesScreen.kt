@@ -56,7 +56,8 @@ fun MessagesScreen(
     var isRefreshing by remember { mutableStateOf(false) }
     val pullToRefreshState = rememberPullToRefreshState()
 
-    val isDarkMode = viewModel.isDarkMode
+    val isDarkMode by viewModel.isDarkMode.collectAsState()
+    val areNotificationsEnabled by viewModel.areNotificationsEnabled.collectAsState()
     val backgroundImageId =
         if (isDarkMode) R.drawable.background_skyline_dark
         else R.drawable.background_skyline
@@ -99,7 +100,6 @@ fun MessagesScreen(
             },
 
             bottomBar = {
-                val areNotificationsEnabled = viewModel.areNotificationsEnabled
                 AllowNotificationsBottomBar(areNotificationsEnabled)
             }
 

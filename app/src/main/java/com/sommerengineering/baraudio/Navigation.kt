@@ -8,6 +8,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
@@ -28,6 +29,8 @@ fun Navigation(
 
     val context = LocalContext.current
     val controller = rememberNavController()
+
+    val areNotificationsEnabled by viewModel.areNotificationsEnabled.collectAsState()
 
     // determine start destination
     val isOnboardingComplete = loginViewModel.isOnboardingComplete
@@ -80,7 +83,6 @@ fun Navigation(
             exitTransition = { fadeOut }) {
 
             // ask for permission again if the first request is declined
-            val areNotificationsEnabled = loginViewModel.areNotificationsEnabled
             val count = remember { mutableIntStateOf(0) }
 
             // navigate forward if notifications are granted

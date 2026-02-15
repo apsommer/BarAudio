@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -24,18 +26,22 @@ import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.appupdate.AppUpdateOptions
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
+import com.sommerengineering.baraudio.login.LoginViewModel
 import com.sommerengineering.baraudio.theme.AppTheme
 import com.sommerengineering.baraudio.theme.isSystemInDarkMode
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
+    private val loginViewModel: LoginViewModel by viewModels()
     private val viewModel: MainViewModel by viewModels()
+    @Inject lateinit var notificationState: NotificationState
 
     val requestNotificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) {
-        viewModel.updateNotificationsEnabled(areNotificationsEnabled())
+        notificationState.update(areNotificationsEnabled())
     }
 
     val updateLauncher =
@@ -89,7 +95,7 @@ class MainActivity : ComponentActivity() {
             val isFullScreen = viewModel.isFullScreen
             LaunchedEffect(isFullScreen) { applyFullScreen(isFullScreen) }
 
-            App(viewModel)
+            App(loginViewModel, viewModel)
         }
     }
 
@@ -106,7 +112,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        viewModel.updateNotificationsEnabled(areNotificationsEnabled())
+        notificationState.update(areNotificationsEnabled())
         NotificationManagerCompat.from(this).cancelAll()
     }
 
@@ -160,14 +166,15 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun App(
+    loginViewModel: LoginViewModel,
     viewModel: MainViewModel) {
 
-    val isDarkMode = viewModel.isDarkMode
+    val isDarkMode by viewModel.isDarkMode.collectAsState()
 
     AppTheme(isDarkMode) {
         Scaffold(
             modifier = Modifier.fillMaxSize()) { padding -> padding
-            Navigation(viewModel)
+            Navigation(loginViewModel, viewModel)
         }
     }
 }

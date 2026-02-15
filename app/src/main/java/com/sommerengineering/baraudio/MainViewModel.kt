@@ -24,7 +24,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    val repo: MainRepository
+    private val repo: MainRepository,
+    private val notificationState: NotificationState
 ) : ViewModel() {
 
     // room database
@@ -132,13 +133,16 @@ class MainViewModel @Inject constructor(
     // dark mode
     var isDarkMode = repo.isDarkMode
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
-    val darkModeDescription = isDarkMode
-        .map { if (it) uiDarkDescription else uiLightDescription }
+    val darkModeDescription =
+        if (isDarkMode.value) uiDarkDescription else uiLightDescription
     fun initDarkMode(systemDefault: Boolean) =
         viewModelScope.launch { repo.loadDarkMode(systemDefault) }
     fun updateDarkMode(enabled: Boolean) {
         repo.updateDarkMode(enabled)
     }
+
+    // notifications
+    val areNotificationsEnabled = notificationState.enabled
 
     init {
 
@@ -237,10 +241,8 @@ class MainViewModel @Inject constructor(
 
     fun getOriginImage(origin: String) = when (origin) {
         in tradingview -> {
-            isDarkMode.map {
-                if (it) R.drawable.tradingview_light
-                else R.drawable.tradingview_dark
-            }
+            if (isDarkMode.value) R.drawable.tradingview_light
+            else R.drawable.tradingview_dark
         }
         trendspider -> R.drawable.trendspider
         insomnia -> R.drawable.insomnia
