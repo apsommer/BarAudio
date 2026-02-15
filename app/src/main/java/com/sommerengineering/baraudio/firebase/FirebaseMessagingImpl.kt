@@ -49,6 +49,9 @@ class FirebaseServiceImpl: FirebaseMessagingService() {
         // catch different user on same device
         if (uid != null && uid != Firebase.auth.currentUser?.uid) return
 
+        val newMessage = Message(timestamp, message, origin)
+        repo.addMessage(newMessage)
+
         // show notification if app closed or user not signed-in, else speak
         val isShowNotification = !appVisibility.isForeground || Firebase.auth.currentUser == null
         if (isShowNotification) { showNotification(timestamp, message) }

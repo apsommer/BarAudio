@@ -8,7 +8,8 @@ import com.sommerengineering.baraudio.messages.Message
 data class MessageEntity(
     @PrimaryKey val timestamp: String,
     val message: String,
-    val origin: String)
+    val origin: String
+)
 
 fun MessageEntity.toMessage() = Message(timestamp, message, origin)
 fun Message.toEntity() = MessageEntity(timestamp, message, origin)

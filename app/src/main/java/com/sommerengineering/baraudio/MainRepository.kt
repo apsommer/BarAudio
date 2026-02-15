@@ -20,6 +20,7 @@ import com.google.firebase.messaging.FirebaseMessaging
 import com.sommerengineering.baraudio.firebase.FirebaseDatabaseImpl
 import com.sommerengineering.baraudio.messages.RapidApi
 import com.sommerengineering.baraudio.messages.Message
+import com.sommerengineering.baraudio.room.RoomImpl
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,10 +37,10 @@ class MainRepository @Inject constructor(
     @ApplicationScope val appScope: CoroutineScope,
     val dataStore: DataStore<Preferences>,
     val credentialManager: CredentialManager,
-    val db: FirebaseDatabaseImpl,
+    val firebaseDb: FirebaseDatabaseImpl,
+    val roomDb: RoomImpl,
     val tts: TextToSpeechImpl,
-    val rapidApi: RapidApi,
-) {
+    val rapidApi: RapidApi) {
 
     // text-to-speech
     val isTtsInit = tts.isInit
@@ -47,10 +48,10 @@ class MainRepository @Inject constructor(
     val isTtsReady = _isTtsReady.asStateFlow()
 
     // database
-    val messages = db.messages
-    fun deleteMessage(message: Message) = db.deleteMessage(message)
-    fun deleteAllMessages() = db.deleteAllMessages()
-    fun stopListening() = db.stopListening()
+    val messages = roomDb.messages
+    fun deleteMessage(message: Message) = roomDb.deleteMessage(message)
+    fun deleteAllMessages() = roomDb.deleteAllMessages()
+    fun addMessage(message: Message) = roomDb.addMessage(message)
 
     init {
 
@@ -65,8 +66,7 @@ class MainRepository @Inject constructor(
         FirebaseAuth.getInstance().addAuthStateListener { auth ->
 
             val uid = auth.currentUser?.uid ?: return@addAuthStateListener
-            db.setUid(uid)
-            db.startListening()
+            firebaseDb.setUid(uid)
             newToken?.let { token -> writeNewToken(token) }
         }
     }
@@ -153,7 +153,6 @@ class MainRepository @Inject constructor(
             if (enabled) subscribeToTopic(nqTopic) else unsubscribeFromTopic(nqTopic)
         }
         writePreference(booleanPreferencesKey(isNQKey), enabled)
-        db.writeWhitelist(enabled)
     }
 
 
@@ -192,11 +191,9 @@ class MainRepository @Inject constructor(
     fun onNewToken(token: String) { newToken = token }
     fun writeNewToken(token: String) {
 
-        // todo get topic subscriptions from prefs
+        // todo get topic subscriptions from prefs as token could be refresh, not new
         FirebaseMessaging.getInstance().subscribeToTopic(nqTopic)
-
-        db.writeToken(token)
-        db.writeWhitelist(true)
+        firebaseDb.writeToken(token)
     }
 
     fun signOut() {

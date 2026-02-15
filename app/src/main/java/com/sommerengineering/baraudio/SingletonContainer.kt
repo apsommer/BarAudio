@@ -103,6 +103,7 @@ object SingletonModule {
     }
 
     @Provides
+    @Singleton
     fun provideMessageDao(db: MessageDatabase): MessageDao {
         return db.messageDao()
     }

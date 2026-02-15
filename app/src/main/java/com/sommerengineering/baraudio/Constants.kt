@@ -30,7 +30,7 @@ const val messagesNodeId = "messages"
 const val whitelistNodeId = "whitelist"
 const val usersNodeId = "users"
 const val gitHubProviderId = "github.com"
-const val messageMaxSize = 1000
+const val messagesMaxSize = 1000
 
 // notifications
 const val channelId = "42"
