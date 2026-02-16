@@ -83,18 +83,18 @@ class FirebaseServiceImpl: FirebaseMessagingService() {
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
 
+        // create id from timestamp
+        val notificationId = timestamp
+            .substring(timestamp.length - 9, timestamp.length)
+            .toInt()
+
         // show notification
         NotificationManagerCompat.from(this).notify(
-            trimTimestamp(timestamp),
+            notificationId,
             builder.build())
     }
 
-    private fun trimTimestamp(timestamp: String) = timestamp
-        .substring(timestamp.length - 9, timestamp.length)
-        .toInt()
-
-    override fun onNewToken(token: String) {
+    override fun onNewToken(token: String) =
         repo.onNewToken(token)
-    }
 }
 
