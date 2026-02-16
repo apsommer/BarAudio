@@ -49,24 +49,17 @@ import kotlin.math.roundToInt
 class MainRepository @Inject constructor(
     @ApplicationContext val context: Context,
     @ApplicationScope val appScope: CoroutineScope,
+    val tts: TextToSpeechImpl,
+    val roomDb: RoomImpl,
+    val firebaseDb: FirebaseDatabaseImpl,
     val dataStore: DataStore<Preferences>,
     val credentialManager: CredentialManager,
-    val firebaseDb: FirebaseDatabaseImpl,
-    val roomDb: RoomImpl,
-    val tts: TextToSpeechImpl,
     val rapidApi: RapidApi) {
 
     // text-to-speech
     private val isTtsInit = tts.isInit
     private val _isTtsReady = MutableStateFlow(false)
     val isTtsReady = _isTtsReady.asStateFlow()
-
-    // wait for firebase to initialize to ensure uid is valid
-    private val authListener = FirebaseAuth.AuthStateListener { auth ->
-        val uid = auth.currentUser?.uid ?: return@AuthStateListener
-        firebaseDb.setUid(uid)
-        newToken?.let { token -> writeNewToken(token) }
-    }
 
     init {
 
@@ -77,8 +70,12 @@ class MainRepository @Inject constructor(
             _isTtsReady.update { true }
         }
 
-        // attache auth listener
-        FirebaseAuth.getInstance().addAuthStateListener(authListener)
+        // wait for firebase to initialize to ensure uid is valid
+        FirebaseAuth.getInstance().addAuthStateListener { auth ->
+            val uid = auth.currentUser?.uid ?: return@addAuthStateListener
+            firebaseDb.setUid(uid)
+            newToken?.let { token -> writeNewToken(token) }
+        }
     }
 
     // room database
