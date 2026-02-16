@@ -16,6 +16,7 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.Firebase
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
+import com.sommerengineering.baraudio.login.GitHubAuthenticator
 import com.sommerengineering.baraudio.login.GoogleAuthenticator
 import com.sommerengineering.baraudio.messages.Message
 import com.sommerengineering.baraudio.messages.MindfulnessQuoteState
@@ -49,12 +50,19 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     private val repo: MainRepository,
     private val googleAuthenticator: GoogleAuthenticator,
+    private val gitHubAuthenticator: GitHubAuthenticator,
 ) : ViewModel() {
 
     fun signInWithGoogle(
         context: Context,
         onAuthentication: () -> Unit) = viewModelScope.launch {
             if (googleAuthenticator.signIn(context)) { onAuthentication() }
+        }
+
+    fun signInWithGitHub(
+        context: Context,
+        onAuthentication: () -> Unit) = viewModelScope.launch {
+            if (gitHubAuthenticator.signIn(context)) { onAuthentication() }
         }
 
     // room database

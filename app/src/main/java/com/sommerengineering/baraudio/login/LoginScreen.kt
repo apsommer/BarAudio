@@ -93,7 +93,7 @@ fun LoginScreen (
                         .size(loginButtonSize)
                         .clip(CircleShape)
                         .clickable {
-                            signInWithGitHub(
+                            viewModel.signInWithGitHub(
                                 context = context,
                                 onAuthentication = onAuthentication)
                         }
