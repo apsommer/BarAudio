@@ -28,9 +28,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainViewModel
+import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.uitls.TimestampFormatter
 import com.sommerengineering.baraudio.uitls.edgePadding
+import com.sommerengineering.baraudio.uitls.insomnia
+import com.sommerengineering.baraudio.uitls.parsingErrorOrigin
 import com.sommerengineering.baraudio.uitls.settingsIconSize
+import com.sommerengineering.baraudio.uitls.tradingview
+import com.sommerengineering.baraudio.uitls.trendspider
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -45,7 +50,8 @@ fun MessageItem(
 
     val timestamp = TimestampFormatter.beautify(message.timestamp)
     val text = message.message
-    val webhookOriginImageId = viewModel.getOriginImage(message.origin)
+    val origin = message.origin
+    val isDarkMode = viewModel.isDarkMode
 
     SwipeToDismissBox(
         state = rememberSwipeToDismissBoxState(),
@@ -112,13 +118,35 @@ fun MessageItem(
                             .padding(edgePadding))
 
                     // origin
-                    Image(
-                        modifier = Modifier
-                            .size(settingsIconSize),
-                        painter = painterResource(webhookOriginImageId),
-                        contentDescription = null)
+                    OriginImage(
+                        origin = origin,
+                        isDarkMode = isDarkMode)
                 }
             }
         }
     }
+}
+
+@Composable
+private fun OriginImage(
+    origin: String,
+    isDarkMode: Boolean) {
+
+    val imageId = when (origin) {
+        in tradingview -> {
+            if (isDarkMode) R.drawable.tradingview_light
+            else R.drawable.tradingview_dark
+        }
+        trendspider -> R.drawable.trendspider
+        insomnia -> R.drawable.insomnia
+        parsingErrorOrigin -> R.drawable.error
+        else -> R.drawable.webhook
+    }
+
+    // origin
+    Image(
+        modifier = Modifier
+            .size(settingsIconSize),
+        painter = painterResource(imageId),
+        contentDescription = null)
 }

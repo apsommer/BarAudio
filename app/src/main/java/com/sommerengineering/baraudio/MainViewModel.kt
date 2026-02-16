@@ -113,7 +113,6 @@ class MainViewModel @Inject constructor(
         voiceDescription = beautifyVoiceName(value.name)
         speakLastMessage()
     }
-    private val beautifulVoiceNames = hashMapOf<String, String>()
 
     // speed
     var speed by mutableFloatStateOf(1f)
@@ -271,64 +270,33 @@ class MainViewModel @Inject constructor(
 
     fun saveToWebhookClipboard(webhookUrl: String) = repo.saveToClipboard(webhookUrl)
 
+    // beautiful voice names
+    private val beautifulVoiceNames = hashMapOf<String, String>()
+
+    private val romanNumerals = arrayOf(
+        "I","II","III","IV","V","VI","VII","VIII","IX","X",
+        "XI","XII","XIII","XIV","XV","XVI","XVII","XVIII","XIX","XX")
+
+    private fun roman(number: Int): String =
+        romanNumerals.getOrElse(number) { (number + 1).toString()}
+
     private fun createBeautifulVoices() {
 
         // group voices by locale
         voices = repo.voices.sortedBy { it.locale.toLanguageTag() }
         voiceIndex = voices.indexOfFirst { it.name == repo.voice.name }
 
-        val groupedByLocaleVoices = voices.groupBy { it.locale.toLanguageTag() }
-
-        // add roman numeral to name
-        groupedByLocaleVoices.keys
-            .forEach { localeGroup ->
-                val localeVoices = groupedByLocaleVoices[localeGroup] ?: return@forEach
-                localeVoices.forEachIndexed { i, voice ->
-                    beautifulVoiceNames[voice.name] = enumerateVoices(voice, i)
+        // add roman numerals relative to locale to match system settings format
+        voices
+            .groupBy { it.locale.toLanguageTag() }
+            .values
+            .forEach { localeGroupVoices ->
+                localeGroupVoices.forEachIndexed { i, voice ->
+                    beautifulVoiceNames[voice.name] =
+                        "${voice.locale.displayName} • Voice ${roman(i)}"
                 }
             }
     }
 
-    private fun enumerateVoices(
-        voice: Voice,
-        number: Int): String {
-
-        val displayName = voice.locale.displayName
-        var romanNumeral = "I"
-
-        if (number == 1) romanNumeral = "II"
-        if (number == 2) romanNumeral = "III"
-        if (number == 3) romanNumeral = "IV"
-        if (number == 4) romanNumeral = "V"
-        if (number == 5) romanNumeral = "VI"
-        if (number == 6) romanNumeral = "VII"
-        if (number == 7) romanNumeral = "VIII"
-        if (number == 8) romanNumeral = "IX"
-        if (number == 9) romanNumeral = "X"
-        if (number == 10) romanNumeral = "XI"
-        if (number == 11) romanNumeral = "XII"
-        if (number == 12) romanNumeral = "XIII"
-        if (number == 13) romanNumeral = "XIV"
-        if (number == 14) romanNumeral = "XV"
-        if (number == 15) romanNumeral = "XVI"
-        if (number == 16) romanNumeral = "XVII"
-        if (number == 17) romanNumeral = "XVIII"
-        if (number == 18) romanNumeral = "XIX"
-        if (number == 19) romanNumeral = "XX"
-
-        return "$displayName • Voice $romanNumeral"
-    }
-
     fun beautifyVoiceName(name: String) = beautifulVoiceNames[name] ?: ""
-
-    fun getOriginImage(origin: String) = when (origin) {
-        in tradingview -> {
-            if (isDarkMode) R.drawable.tradingview_light
-            else R.drawable.tradingview_dark
-        }
-        trendspider -> R.drawable.trendspider
-        insomnia -> R.drawable.insomnia
-        parsingErrorOrigin -> R.drawable.error
-        else -> R.drawable.webhook
-    }
 }
