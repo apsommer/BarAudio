@@ -58,4 +58,8 @@ class GoogleAuthenticator @Inject constructor(
             .addCredentialOption(signInOptions)
             .build()
     }
+
+    fun signOut() {
+
+    }
 }

@@ -53,30 +53,7 @@ class MainRepository @Inject constructor(
     val roomDb: RoomImpl,
     val firebaseDb: FirebaseDatabaseImpl,
     val dataStore: DataStore<Preferences>,
-    val credentialManager: CredentialManager,
     val rapidApi: RapidApi) {
-
-    // text-to-speech
-    private val isTtsInit = tts.isInit
-    private val _isTtsReady = MutableStateFlow(false)
-    val isTtsReady = _isTtsReady.asStateFlow()
-
-    init {
-
-        // wait for system initialization of tts engine, takes a few seconds
-        appScope.launch {
-            isTtsInit.filter { it }.first()
-            initTtsSettings()
-            _isTtsReady.update { true }
-        }
-
-        // wait for firebase to initialize to ensure uid is valid
-        FirebaseAuth.getInstance().addAuthStateListener { auth ->
-            val uid = auth.currentUser?.uid ?: return@addAuthStateListener
-            firebaseDb.setUid(uid)
-            newToken?.let { token -> writeNewToken(token) }
-        }
-    }
 
     // room database
     val messages = roomDb.messages
@@ -84,6 +61,11 @@ class MainRepository @Inject constructor(
     fun deleteMessage(message: Message) = roomDb.deleteMessage(message)
     fun deleteAllMessages() = roomDb.deleteAllMessages()
     fun addMessage(message: Message) = roomDb.addMessage(message)
+
+    // text-to-speech
+    private val isTtsInit = tts.isInit
+    private val _isTtsReady = MutableStateFlow(false)
+    val isTtsReady = _isTtsReady.asStateFlow()
 
     // voice
     val voices
@@ -129,21 +111,8 @@ class MainRepository @Inject constructor(
             if (value && tts.isSpeaking()) { tts.stop() } // stop any current speech
             writePreference(booleanPreferencesKey(isMuteKey), value)
         }
-
     fun speakMessage(message: Message) =
         tts.speak(message.timestamp, message.message)
-
-    suspend fun initTtsSettings() {
-
-        tts.voice = readPreference(stringPreferencesKey(voiceNameKey))
-            ?.let { preference -> voices.firstOrNull { it.name == preference }}
-            ?: voices.firstOrNull { it.name == defaultVoice }
-                    ?: voice
-        tts.speed = readPreference(floatPreferencesKey(speedKey)) ?: 1f
-        tts.pitch = readPreference(floatPreferencesKey(pitchKey)) ?: 1f
-        tts.isQueueAdd = readPreference(booleanPreferencesKey(isQueueAddKey)) ?: true
-        tts.isMute = readPreference(booleanPreferencesKey(isMuteKey)) ?: false
-    }
 
     // onboarding
     suspend fun loadOnboarding() =
@@ -180,6 +149,35 @@ class MainRepository @Inject constructor(
     fun updateDarkMode(enabled: Boolean) =
         writePreference(booleanPreferencesKey(isDarkModeKey), enabled)
 
+    init {
+
+        // wait for system initialization of tts engine, takes a few seconds
+        appScope.launch {
+            isTtsInit.filter { it }.first()
+            initTtsSettings()
+            _isTtsReady.update { true }
+        }
+
+        // wait for firebase to initialize to ensure uid is valid
+        FirebaseAuth.getInstance().addAuthStateListener { auth ->
+            val uid = auth.currentUser?.uid ?: return@addAuthStateListener
+            firebaseDb.setUid(uid)
+            newToken?.let { token -> writeNewToken(token) }
+        }
+    }
+
+    suspend fun initTtsSettings() {
+
+        tts.voice = readPreference(stringPreferencesKey(voiceNameKey))
+            ?.let { preference -> voices.firstOrNull { it.name == preference }}
+            ?: voices.firstOrNull { it.name == defaultVoice }
+                    ?: voice
+        tts.speed = readPreference(floatPreferencesKey(speedKey)) ?: 1f
+        tts.pitch = readPreference(floatPreferencesKey(pitchKey)) ?: 1f
+        tts.isQueueAdd = readPreference(booleanPreferencesKey(isQueueAddKey)) ?: true
+        tts.isMute = readPreference(booleanPreferencesKey(isMuteKey)) ?: false
+    }
+
     fun saveToClipboard(
         webhookUrl: String) {
 
@@ -198,6 +196,11 @@ class MainRepository @Inject constructor(
         }
     }
 
+    fun signOut() =
+        Firebase.auth.signOut()
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+
     // firebase database (token)
     var newToken: String? = null
     fun onNewToken(token: String) { newToken = token }
@@ -205,16 +208,10 @@ class MainRepository @Inject constructor(
         appScope.launch {
             FirebaseMessaging.getInstance().apply {
                 if (loadNQ()) subscribeToTopic(nqTopic) else unsubscribeFromTopic(nqTopic)
+                // todo if other streamLoad() sub/unsub ...
             }
         }
         firebaseDb.writeToken(token)
-    }
-
-    fun signOut() {
-        Firebase.auth.signOut()
-        appScope.launch {
-            credentialManager.clearCredentialState(ClearCredentialStateRequest())
-        }
     }
 
     // preference data store

@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialCancellationException
@@ -49,21 +50,10 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val repo: MainRepository,
+    private val credentialManager: CredentialManager,
     private val googleAuthenticator: GoogleAuthenticator,
     private val gitHubAuthenticator: GitHubAuthenticator,
 ) : ViewModel() {
-
-    fun signInWithGoogle(
-        context: Context,
-        onAuthentication: () -> Unit) = viewModelScope.launch {
-            if (googleAuthenticator.signIn(context)) { onAuthentication() }
-        }
-
-    fun signInWithGitHub(
-        context: Context,
-        onAuthentication: () -> Unit) = viewModelScope.launch {
-            if (gitHubAuthenticator.signIn(context)) { onAuthentication() }
-        }
 
     // room database
     val messages = repo.messages
@@ -150,13 +140,6 @@ class MainViewModel @Inject constructor(
         if (isOnboardingComplete) MessagesScreenRoute
         else OnboardingTextToSpeechScreenRoute
 
-    // notifications
-    var areNotificationsEnabled by mutableStateOf(false)
-        private set
-    fun updateNotificationsEnabled(enabled: Boolean) {
-        areNotificationsEnabled = enabled
-    }
-
     // mindfulness quote
     private var _mindfulnessQuoteState: MutableStateFlow<MindfulnessQuoteState> = MutableStateFlow(MindfulnessQuoteState.Idle)
     val mindfulnessQuoteState = _mindfulnessQuoteState.asStateFlow()
@@ -167,7 +150,7 @@ class MainViewModel @Inject constructor(
         repo.updateShowQuote(enabled)
     }
 
-    // futures webhooks
+    // stream NQ
     var isNQ by mutableStateOf(true)
         private set
     fun updateNQ(enabled: Boolean) {
@@ -239,9 +222,36 @@ class MainViewModel @Inject constructor(
             else queueBehaviorFlushDescription
     }
 
-    fun signOut() = repo.signOut()
-
     fun saveToWebhookClipboard(webhookUrl: String) = repo.saveToClipboard(webhookUrl)
+
+    fun signOut() {
+        repo.signOut()
+        viewModelScope.launch {
+            credentialManager.clearCredentialState(ClearCredentialStateRequest())
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // sign-in
+    fun signInWithGoogle(
+        context: Context,
+        onAuthentication: () -> Unit) = viewModelScope.launch {
+        if (googleAuthenticator.signIn(context)) { onAuthentication() }
+    }
+
+    fun signInWithGitHub(
+        context: Context,
+        onAuthentication: () -> Unit) = viewModelScope.launch {
+        if (gitHubAuthenticator.signIn(context)) { onAuthentication() }
+    }
+
+    // notifications
+    var areNotificationsEnabled by mutableStateOf(false)
+        private set
+    fun updateNotificationsEnabled(enabled: Boolean) {
+        areNotificationsEnabled = enabled
+    }
 
     // beautiful voice names
     private val beautifulVoiceNames = hashMapOf<String, String>()
