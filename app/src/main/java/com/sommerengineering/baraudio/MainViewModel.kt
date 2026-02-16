@@ -16,6 +16,7 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.Firebase
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
+import com.sommerengineering.baraudio.login.GoogleAuthenticator
 import com.sommerengineering.baraudio.messages.Message
 import com.sommerengineering.baraudio.messages.MindfulnessQuoteState
 import com.sommerengineering.baraudio.uitls.MessagesScreenRoute
@@ -47,50 +48,14 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val repo: MainRepository,
-    private val credentialManager: CredentialManager,
+    private val googleAuthenticator: GoogleAuthenticator,
 ) : ViewModel() {
 
     fun signInWithGoogle(
         context: Context,
         onAuthentication: () -> Unit) = viewModelScope.launch {
-
-            try {
-
-                // launch system google sign-in dialog
-                val response = credentialManager.getCredential(context, buildGoogleRequest())
-
-                // extract google id token
-                val credential = response.credential
-                if (credential.type != GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) return@launch
-                val googleToken = GoogleIdTokenCredential.createFrom(credential.data).idToken
-
-                // sign-in to firebase with google id token
-                Firebase.auth
-                    .signInWithCredential(GoogleAuthProvider.getCredential(googleToken, null))
-                    .await()
-
-                onAuthentication()
-
-            } catch (e: Exception) {
-
-                if (e is GetCredentialCancellationException) return@launch // user canceled dialog
-                logException(e)
-            }
+            if (googleAuthenticator.signIn(context)) { onAuthentication() }
         }
-
-    private fun buildGoogleRequest() : GetCredentialRequest {
-
-        // bottom sheet ui
-        val signInOptions = GetGoogleIdOption.Builder()
-            .setFilterByAuthorizedAccounts(false) // false to initiate sign-up flow, if needed
-            .setServerClientId(BuildConfig.googleSignInWebClientId)
-            .setAutoSelectEnabled(true)
-            .build()
-
-        return GetCredentialRequest.Builder()
-            .addCredentialOption(signInOptions)
-            .build()
-    }
 
     // room database
     val messages = repo.messages

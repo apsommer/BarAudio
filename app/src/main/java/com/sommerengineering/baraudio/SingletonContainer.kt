@@ -9,6 +9,7 @@ import androidx.room.Room
 import com.sommerengineering.baraudio.room.MessageDao
 import com.sommerengineering.baraudio.room.MessageDatabase
 import com.sommerengineering.baraudio.firebase.FirebaseDatabaseImpl
+import com.sommerengineering.baraudio.login.GoogleAuthenticator
 import com.sommerengineering.baraudio.messages.RapidApi
 import com.sommerengineering.baraudio.uitls.localCache
 import dagger.Module
@@ -43,6 +44,13 @@ object SingletonModule {
     fun provideCredentialManager(
         @ApplicationContext context: Context): CredentialManager {
         return CredentialManager.create(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGoogleAuthenticator(
+        credentialManager: CredentialManager): GoogleAuthenticator {
+        return GoogleAuthenticator(credentialManager)
     }
 
     @Provides
