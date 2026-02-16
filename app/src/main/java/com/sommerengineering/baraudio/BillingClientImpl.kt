@@ -17,6 +17,9 @@ import com.android.billingclient.api.QueryProductDetailsParams.Product
 import com.android.billingclient.api.QueryPurchasesParams
 import com.android.billingclient.api.acknowledgePurchase
 import com.android.billingclient.api.queryProductDetails
+import com.sommerengineering.baraudio.uitls.freeTrial
+import com.sommerengineering.baraudio.uitls.logMessage
+import com.sommerengineering.baraudio.uitls.productId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -32,19 +32,19 @@ import com.lottiefiles.dotlottie.core.compose.ui.DotLottieAnimation
 import com.lottiefiles.dotlottie.core.util.DotLottieSource
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.allowNotificationsTitle
-import com.sommerengineering.baraudio.edgePadding
-import com.sommerengineering.baraudio.linkAnimation
-import com.sommerengineering.baraudio.next
-import com.sommerengineering.baraudio.notificationAnimation
-import com.sommerengineering.baraudio.onboardingTotalPages
-import com.sommerengineering.baraudio.period
-import com.sommerengineering.baraudio.setupUrl
-import com.sommerengineering.baraudio.soundAnimation
-import com.sommerengineering.baraudio.ttsInstalledTitle
-import com.sommerengineering.baraudio.ttsNotInstalledTitle
-import com.sommerengineering.baraudio.webhookEndTitle
-import com.sommerengineering.baraudio.webhookStartTitle
+import com.sommerengineering.baraudio.uitls.allowNotificationsTitle
+import com.sommerengineering.baraudio.uitls.edgePadding
+import com.sommerengineering.baraudio.uitls.linkAnimation
+import com.sommerengineering.baraudio.uitls.next
+import com.sommerengineering.baraudio.uitls.notificationAnimation
+import com.sommerengineering.baraudio.uitls.onboardingTotalPages
+import com.sommerengineering.baraudio.uitls.period
+import com.sommerengineering.baraudio.uitls.setupUrl
+import com.sommerengineering.baraudio.uitls.soundAnimation
+import com.sommerengineering.baraudio.uitls.ttsInstalledTitle
+import com.sommerengineering.baraudio.uitls.ttsNotInstalledTitle
+import com.sommerengineering.baraudio.uitls.webhookEndTitle
+import com.sommerengineering.baraudio.uitls.webhookStartTitle
 
 @Composable
 fun OnboardingScreen(

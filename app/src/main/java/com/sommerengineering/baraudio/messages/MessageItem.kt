@@ -28,9 +28,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainViewModel
-import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.edgePadding
-import com.sommerengineering.baraudio.settingsIconSize
+import com.sommerengineering.baraudio.uitls.TimestampFormatter
+import com.sommerengineering.baraudio.uitls.edgePadding
+import com.sommerengineering.baraudio.uitls.settingsIconSize
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -43,7 +43,7 @@ fun MessageItem(
     message: Message,
     onRemove: () -> Unit) {
 
-    val timestamp = beautifyTimestamp(message.timestamp)
+    val timestamp = TimestampFormatter.beautify(message.timestamp)
     val text = message.message
     val webhookOriginImageId = viewModel.getOriginImage(message.origin)
 
@@ -121,20 +121,4 @@ fun MessageItem(
             }
         }
     }
-}
-
-// must be top level so firebase messaging can access
-fun beautifyTimestamp(
-    timestamp: String): String {
-
-    val isToday = DateUtils.isToday(timestamp.toLong())
-
-    val pattern =
-        if (isToday) "h:mm:ss a" // 6:27:53 PM
-        else "h:mm:ss a • MMMM dd, yyyy" //  6:27:53 PM • October 30, 2024
-
-    return SimpleDateFormat(
-        pattern,
-        Locale.getDefault())
-        .format(Date(timestamp.toLong()))
 }

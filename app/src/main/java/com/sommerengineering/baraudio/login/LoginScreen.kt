@@ -24,8 +24,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.loginButtonSize
-import com.sommerengineering.baraudio.loginLogoPadding
+import com.sommerengineering.baraudio.uitls.loginButtonSize
+import com.sommerengineering.baraudio.uitls.loginLogoPadding
 
 @Composable
 fun LoginScreen (

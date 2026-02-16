@@ -2,7 +2,7 @@ package com.sommerengineering.baraudio.room
 
 import com.sommerengineering.baraudio.ApplicationScope
 import com.sommerengineering.baraudio.messages.Message
-import com.sommerengineering.baraudio.messagesMaxSize
+import com.sommerengineering.baraudio.uitls.messagesMaxSize
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch

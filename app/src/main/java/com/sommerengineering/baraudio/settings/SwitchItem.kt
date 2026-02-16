@@ -18,8 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.sommerengineering.baraudio.edgePadding
-import com.sommerengineering.baraudio.settingsIconSize
+import com.sommerengineering.baraudio.uitls.edgePadding
+import com.sommerengineering.baraudio.uitls.settingsIconSize
 
 @Composable
 fun SwitchSettingItem(

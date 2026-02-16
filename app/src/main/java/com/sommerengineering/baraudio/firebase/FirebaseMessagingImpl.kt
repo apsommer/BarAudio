@@ -16,15 +16,15 @@ import com.sommerengineering.baraudio.AppVisibility
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainRepository
 import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.broadcastKey
-import com.sommerengineering.baraudio.channelId
-import com.sommerengineering.baraudio.isLaunchFromNotification
-import com.sommerengineering.baraudio.messageKey
+import com.sommerengineering.baraudio.uitls.broadcastKey
+import com.sommerengineering.baraudio.uitls.channelId
+import com.sommerengineering.baraudio.uitls.isLaunchFromNotification
+import com.sommerengineering.baraudio.uitls.messageKey
 import com.sommerengineering.baraudio.messages.Message
-import com.sommerengineering.baraudio.messages.beautifyTimestamp
-import com.sommerengineering.baraudio.originKey
-import com.sommerengineering.baraudio.timestampKey
-import com.sommerengineering.baraudio.uidKey
+import com.sommerengineering.baraudio.uitls.TimestampFormatter
+import com.sommerengineering.baraudio.uitls.originKey
+import com.sommerengineering.baraudio.uitls.timestampKey
+import com.sommerengineering.baraudio.uitls.uidKey
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -62,7 +62,7 @@ class FirebaseServiceImpl: FirebaseMessagingService() {
         timestamp: String,
         message: String) {
 
-        val beautifulTimestamp = beautifyTimestamp(timestamp)
+        val beautifulTimestamp = TimestampFormatter.beautify(timestamp)
 
         // confirm permission granted
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)

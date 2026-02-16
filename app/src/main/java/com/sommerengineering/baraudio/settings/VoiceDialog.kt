@@ -21,7 +21,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.sommerengineering.baraudio.MainViewModel
-import com.sommerengineering.baraudio.edgePadding
+import com.sommerengineering.baraudio.uitls.edgePadding
 
 @Composable
 fun VoiceDialog(

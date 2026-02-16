@@ -8,7 +8,7 @@ import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import com.sommerengineering.baraudio.colorTransitionTimeMillis
+import com.sommerengineering.baraudio.uitls.colorTransitionTimeMillis
 
 @Composable
 fun AppTheme(

@@ -1,9 +1,11 @@
-package com.sommerengineering.baraudio
+package com.sommerengineering.baraudio.uitls
 
+import android.speech.tts.TextToSpeech
 import android.util.Log
 import androidx.compose.ui.unit.dp
 import com.google.firebase.Firebase
 import com.google.firebase.crashlytics.crashlytics
+import com.sommerengineering.baraudio.BuildConfig
 
 // logs
 const val TAG = "~~"
@@ -67,7 +69,7 @@ const val isDarkModeKey = "isDarkMode"
 const val isFullScreenKey = "isFullScreen"
 const val isShowQuoteKey = "showQuote"
 const val isNQKey = "isNQ"
-const val volumeKey = android.speech.tts.TextToSpeech.Engine.KEY_PARAM_VOLUME
+const val volumeKey = TextToSpeech.Engine.KEY_PARAM_VOLUME
 
 // billing
 const val productId = "subscription" // match play store config

@@ -19,7 +19,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.fabButtonSize
+import com.sommerengineering.baraudio.uitls.fabButtonSize
 
 @Composable
 fun MessagesFloatingActionButton(

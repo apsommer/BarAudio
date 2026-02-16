@@ -2,16 +2,15 @@ package com.sommerengineering.baraudio
 
 import android.content.Context
 import androidx.credentials.CredentialManager
-import androidx.credentials.GetCredentialRequest
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.room.Room
-import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.sommerengineering.baraudio.room.MessageDao
 import com.sommerengineering.baraudio.room.MessageDatabase
 import com.sommerengineering.baraudio.firebase.FirebaseDatabaseImpl
 import com.sommerengineering.baraudio.messages.RapidApi
+import com.sommerengineering.baraudio.uitls.localCache
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

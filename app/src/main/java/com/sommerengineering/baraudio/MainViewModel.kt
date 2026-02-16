@@ -18,6 +18,21 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
 import com.sommerengineering.baraudio.messages.Message
 import com.sommerengineering.baraudio.messages.MindfulnessQuoteState
+import com.sommerengineering.baraudio.uitls.MessagesScreenRoute
+import com.sommerengineering.baraudio.uitls.OnboardingTextToSpeechScreenRoute
+import com.sommerengineering.baraudio.uitls.defaultUtterance
+import com.sommerengineering.baraudio.uitls.insomnia
+import com.sommerengineering.baraudio.uitls.localOrigin
+import com.sommerengineering.baraudio.uitls.logException
+import com.sommerengineering.baraudio.uitls.parsingErrorOrigin
+import com.sommerengineering.baraudio.uitls.queueBehaviorAddDescription
+import com.sommerengineering.baraudio.uitls.queueBehaviorFlushDescription
+import com.sommerengineering.baraudio.uitls.screenFullDescription
+import com.sommerengineering.baraudio.uitls.screenWindowedDescription
+import com.sommerengineering.baraudio.uitls.tradingview
+import com.sommerengineering.baraudio.uitls.trendspider
+import com.sommerengineering.baraudio.uitls.uiDarkDescription
+import com.sommerengineering.baraudio.uitls.uiLightDescription
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -147,7 +162,8 @@ class MainViewModel @Inject constructor(
             Message(
                 timestamp = System.currentTimeMillis().toString(),
                 message = defaultUtterance,
-                origin = localOrigin)
+                origin = localOrigin
+            )
         repo.speakMessage(message)
     }
 

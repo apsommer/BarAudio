@@ -3,7 +3,6 @@ package com.sommerengineering.baraudio
 import android.app.NotificationChannel
 import android.app.NotificationChannelGroup
 import android.app.NotificationManager
-import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -26,6 +25,13 @@ import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.sommerengineering.baraudio.theme.AppTheme
 import com.sommerengineering.baraudio.theme.isSystemInDarkMode
+import com.sommerengineering.baraudio.uitls.channelDescription
+import com.sommerengineering.baraudio.uitls.channelGroupId
+import com.sommerengineering.baraudio.uitls.channelGroupName
+import com.sommerengineering.baraudio.uitls.channelId
+import com.sommerengineering.baraudio.uitls.channelName
+import com.sommerengineering.baraudio.uitls.logException
+import com.sommerengineering.baraudio.uitls.logMessage
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -63,7 +69,8 @@ class MainActivity : ComponentActivity() {
             .createNotificationChannelGroup(
                 NotificationChannelGroup(
                     channelGroupId,
-                    channelGroupName))
+                    channelGroupName
+                ))
         manager.createNotificationChannel(channel)
     }
 
