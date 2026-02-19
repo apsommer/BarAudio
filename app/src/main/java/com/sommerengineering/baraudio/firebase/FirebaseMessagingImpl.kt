@@ -58,11 +58,10 @@ class FirebaseServiceImpl: FirebaseMessagingService() {
         val powerManager = getSystemService(POWER_SERVICE) as PowerManager
         val isScreenOn = powerManager.isInteractive
 
-        // speak if app foreground or background in recent apps, else show notification
-        val shouldSpeak = isScreenOn && processState.isAlive && Firebase.auth.currentUser != null
-
-        if (shouldSpeak) { showNotification(timestamp, message) }
-        else { repo.speakMessage(Message(timestamp, message, origin)) }
+        // speak if app foreground/background and screen on, else notification
+        val shouldSpeak = processState.isAlive && isScreenOn && Firebase.auth.currentUser != null
+        if (shouldSpeak) { repo.speakMessage(Message(timestamp, message, origin)) }
+        else { showNotification(timestamp, message)  }
     }
 
     private fun showNotification(
