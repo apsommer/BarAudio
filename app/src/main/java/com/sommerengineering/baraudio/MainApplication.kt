@@ -13,14 +13,13 @@ import javax.inject.Inject
 @HiltAndroidApp
 class MainApplication : Application() {
 
-    @Inject lateinit var appVisibility: AppVisibility
+    @Inject lateinit var processState: ProcessState
 
     override fun onCreate() {
         super.onCreate()
 
-        // track app visibility
-        ProcessLifecycleOwner.get().lifecycle
-            .addObserver(appVisibility)
+        // track app process state
+        processState.isAlive = true
 
         // enable database offline mode with local persistence
         Firebase

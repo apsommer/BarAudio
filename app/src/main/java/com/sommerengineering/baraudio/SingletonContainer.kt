@@ -35,8 +35,8 @@ object SingletonModule {
 
     @Provides
     @Singleton
-    fun provideAppVisibility() : AppVisibility {
-        return AppVisibility()
+    fun provideProcessState() : ProcessState {
+        return ProcessState()
     }
 
     @Provides

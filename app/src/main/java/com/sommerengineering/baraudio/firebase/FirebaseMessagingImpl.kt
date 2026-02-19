@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.PendingIntent
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.PowerManager
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -12,7 +13,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import com.sommerengineering.baraudio.AppVisibility
+import com.sommerengineering.baraudio.ProcessState
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainRepository
 import com.sommerengineering.baraudio.R
@@ -32,7 +33,7 @@ import javax.inject.Inject
 class FirebaseServiceImpl: FirebaseMessagingService() {
 
     @Inject lateinit var repo: MainRepository
-    @Inject lateinit var appVisibility: AppVisibility
+    @Inject lateinit var processState: ProcessState
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
 
@@ -49,12 +50,18 @@ class FirebaseServiceImpl: FirebaseMessagingService() {
         // catch different user on same device
         if (uid != null && uid != Firebase.auth.currentUser?.uid) return
 
+        // create message
         val newMessage = Message(timestamp, message, origin)
         repo.addMessage(newMessage)
 
-        // show notification if app closed or user not signed-in, else speak
-        val isShowNotification = !appVisibility.isForeground || Firebase.auth.currentUser == null
-        if (isShowNotification) { showNotification(timestamp, message) }
+        // determine if screen on
+        val powerManager = getSystemService(POWER_SERVICE) as PowerManager
+        val isScreenOn = powerManager.isInteractive
+
+        // speak if app foreground or background in recent apps, else show notification
+        val shouldSpeak = isScreenOn && processState.isAlive && Firebase.auth.currentUser != null
+
+        if (shouldSpeak) { showNotification(timestamp, message) }
         else { repo.speakMessage(Message(timestamp, message, origin)) }
     }
 
