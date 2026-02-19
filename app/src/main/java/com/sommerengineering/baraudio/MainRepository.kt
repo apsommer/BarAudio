@@ -111,8 +111,15 @@ class MainRepository @Inject constructor(
             if (value && tts.isSpeaking()) { tts.stop() } // stop any current speech
             writePreference(booleanPreferencesKey(isMuteKey), value)
         }
-    fun speakMessage(message: Message) =
-        tts.speak(message.timestamp, message.message)
+    fun speakMessage(message: Message) {
+
+        // ensure engine is ready
+        // system may call this from FCM onMessageReceived() when app backgrounded
+        appScope.launch {
+            isTtsReady.filter { it }.first()
+            tts.speak(message.timestamp, message.message)
+        }
+    }
 
     // onboarding
     suspend fun loadOnboarding() =
