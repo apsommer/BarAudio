@@ -70,10 +70,38 @@ class TextToSpeechImpl(
 
     fun speak(timestamp: String, message: String) =
         _textToSpeech.speak(
-            message,
+            replaceNumbers(message),
             _isQueueAdd.compareTo(false),
             bundleOf(volumeKey to _volume),
             timestamp)
+
+    // guarantee engine speaks numbers correctly
+    // prevent "oh" instead of "zero", etc
+    private val numberRegex = Regex("""-?\d+(\.\d+)?([eE][-+]?\d+)?""")
+    private fun replaceNumbers(message: String) =
+        numberRegex.replace(message) { numberToWord(it.value) }
+    private fun numberToWord(message: String): String {
+        val builder = StringBuilder()
+        for (char in message) {
+            when (char) {
+                '-' -> builder.append("minus ")
+                '.' -> builder.append("point ")
+                'e', 'E' -> builder.append("e ")
+                '+' -> builder.append("plus ")
+                '0' -> builder.append("zero ")
+                '1' -> builder.append("one ")
+                '2' -> builder.append("two ")
+                '3' -> builder.append("three ")
+                '4' -> builder.append("four ")
+                '5' -> builder.append("five ")
+                '6' -> builder.append("six ")
+                '7' -> builder.append("seven ")
+                '8' -> builder.append("eight ")
+                '9' -> builder.append("nine ")
+            }
+        }
+        return builder.toString().trim()
+    }
 
     override fun onInit(status: Int) {
         if (status != TextToSpeech.SUCCESS) return
