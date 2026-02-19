@@ -16,6 +16,7 @@ import com.sommerengineering.baraudio.messages.Message
 import com.sommerengineering.baraudio.messages.MindfulnessQuoteState
 import com.sommerengineering.baraudio.uitls.MessagesScreenRoute
 import com.sommerengineering.baraudio.uitls.OnboardingTextToSpeechScreenRoute
+import com.sommerengineering.baraudio.uitls.RomanNumerals
 import com.sommerengineering.baraudio.uitls.localOrigin
 import com.sommerengineering.baraudio.uitls.queueAddDescription
 import com.sommerengineering.baraudio.uitls.queueFlushDescription
@@ -228,7 +229,6 @@ class MainViewModel @Inject constructor(
         onAuthentication: () -> Unit) = viewModelScope.launch {
         if (googleAuthenticator.signIn(context)) { onAuthentication() }
     }
-
     fun signInWithGitHub(
         context: Context,
         onAuthentication: () -> Unit) = viewModelScope.launch {
@@ -244,14 +244,9 @@ class MainViewModel @Inject constructor(
 
     // beautiful voice names
     private val beautifulVoiceNames = hashMapOf<String, String>()
-
-    private val romanNumerals = arrayOf(
-        "I","II","III","IV","V","VI","VII","VIII","IX","X",
-        "XI","XII","XIII","XIV","XV","XVI","XVII","XVIII","XIX","XX")
-
+    fun beautifyVoiceName(name: String) = beautifulVoiceNames[name] ?: ""
     private fun roman(number: Int): String =
-        romanNumerals.getOrElse(number) { (number + 1).toString()}
-
+        RomanNumerals.toNumeral(number)
     private fun createBeautifulVoices() {
 
         // group voices by locale
@@ -269,6 +264,4 @@ class MainViewModel @Inject constructor(
                 }
             }
     }
-
-    fun beautifyVoiceName(name: String) = beautifulVoiceNames[name] ?: ""
 }

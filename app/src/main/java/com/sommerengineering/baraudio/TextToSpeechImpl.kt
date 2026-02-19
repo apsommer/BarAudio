@@ -4,6 +4,7 @@ import android.content.Context
 import android.speech.tts.TextToSpeech
 import android.speech.tts.Voice
 import androidx.core.os.bundleOf
+import com.sommerengineering.baraudio.uitls.RomanNumerals
 import com.sommerengineering.baraudio.uitls.volumeKey
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,6 +20,8 @@ class TextToSpeechImpl(
     // flow initialization
     private var _isInit = MutableStateFlow(false)
     val isInit = _isInit.asStateFlow()
+
+
 
     // voice
     private lateinit var _voices: List<Voice>
@@ -70,16 +73,34 @@ class TextToSpeechImpl(
 
     fun speak(timestamp: String, message: String) =
         _textToSpeech.speak(
-            replaceNumbers(message),
+            normalizeMessage(message),
             _isQueueAdd.compareTo(false),
             bundleOf(volumeKey to _volume),
             timestamp)
 
-    // guarantee engine speaks numbers correctly
-    // prevent "oh" instead of "zero", etc
-    private val numberRegex = Regex("""-?\d+(\.\d+)?([eE][-+]?\d+)?""")
+    override fun onInit(status: Int) {
+        if (status != TextToSpeech.SUCCESS) return
+        _voices = _textToSpeech.voices.toList()
+        _isInit.update { true }
+    }
+
+    // normalize message for speech: roman numerals and numbers to words
+    private fun normalizeMessage(message: String) =
+        replaceNumbers(
+            replaceRomanNumerals(message))
+
+    // guarantee engine speaks roman numerals correctly
+    private val romanRegex =
+        Regex("""\b(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII|XIII|XIV|XV|XVI|XVII|XVIII|XIX|XX)\b""")
+    private fun replaceRomanNumerals(text: String) =
+        romanRegex.replace(text) { RomanNumerals.toInt(it.value).toString() }
+
+    // guarantee engine speaks numbers correctly, prevent "oh" instead of "zero", etc
+    private val numberRegex =
+        Regex("""-?\d+(\.\d+)?([eE][-+]?\d+)?""")
     private fun replaceNumbers(message: String) =
         numberRegex.replace(message) { numberToWord(it.value) }
+
     private fun numberToWord(message: String): String {
         val builder = StringBuilder()
         for (char in message) {
@@ -101,11 +122,5 @@ class TextToSpeechImpl(
             }
         }
         return builder.toString().trim()
-    }
-
-    override fun onInit(status: Int) {
-        if (status != TextToSpeech.SUCCESS) return
-        _voices = _textToSpeech.voices.toList()
-        _isInit.update { true }
     }
 }
