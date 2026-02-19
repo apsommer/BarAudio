@@ -44,7 +44,6 @@ const val uidKey = "uid"
 const val timestampKey = "timestamp"
 const val messageKey = "message"
 const val originKey = "origin"
-const val defaultUtterance = "Thank you for using Bar Audio, please customize your webhook to continue!"
 const val messageParsingError = "Error parsing message"
 
 // topics
@@ -135,6 +134,9 @@ const val linkAnimation = "link.json"
 
 // tts
 const val defaultVoice = "en-gb-x-gbd-local"  // british, male
+const val voiceChangeUtterance = "Voice, "
+const val speedChangeUtterance = "Speed, "
+const val pitchChangeUtterance = "Pitch, "
 
 // origin
 // https://www.tradingview.com/support/solutions/43000529348-about-webhooks/

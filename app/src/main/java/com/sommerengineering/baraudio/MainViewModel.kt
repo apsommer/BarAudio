@@ -8,34 +8,22 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
-import androidx.credentials.GetCredentialRequest
-import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.libraries.identity.googleid.GetGoogleIdOption
-import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
-import com.google.firebase.Firebase
-import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.auth.auth
 import com.sommerengineering.baraudio.login.GitHubAuthenticator
 import com.sommerengineering.baraudio.login.GoogleAuthenticator
 import com.sommerengineering.baraudio.messages.Message
 import com.sommerengineering.baraudio.messages.MindfulnessQuoteState
 import com.sommerengineering.baraudio.uitls.MessagesScreenRoute
 import com.sommerengineering.baraudio.uitls.OnboardingTextToSpeechScreenRoute
-import com.sommerengineering.baraudio.uitls.defaultUtterance
-import com.sommerengineering.baraudio.uitls.insomnia
 import com.sommerengineering.baraudio.uitls.localOrigin
-import com.sommerengineering.baraudio.uitls.logException
-import com.sommerengineering.baraudio.uitls.parsingErrorOrigin
 import com.sommerengineering.baraudio.uitls.queueBehaviorAddDescription
 import com.sommerengineering.baraudio.uitls.queueBehaviorFlushDescription
 import com.sommerengineering.baraudio.uitls.screenFullDescription
 import com.sommerengineering.baraudio.uitls.screenWindowedDescription
-import com.sommerengineering.baraudio.uitls.tradingview
-import com.sommerengineering.baraudio.uitls.trendspider
 import com.sommerengineering.baraudio.uitls.uiDarkDescription
 import com.sommerengineering.baraudio.uitls.uiLightDescription
+import com.sommerengineering.baraudio.uitls.voiceChangeUtterance
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -44,7 +32,6 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 @HiltViewModel
@@ -73,8 +60,9 @@ class MainViewModel @Inject constructor(
     fun setVoice(value: Voice) {
         repo.voice = value
         voiceIndex = voices.indexOfFirst { it.name == value.name }
-        voiceDescription = beautifyVoiceName(value.name)
-        speakLastMessage()
+        val beautifulVoice = beautifyVoiceName(value.name)
+        voiceDescription = beautifulVoice
+        speakMessage(voiceChangeUtterance + beautifulVoice)
     }
 
     // speed
@@ -119,13 +107,12 @@ class MainViewModel @Inject constructor(
         isMute = !isMute
         repo.isMute = isMute
     }
-    fun speakLastMessage() {
-        val message = messages.value.lastOrNull() ?:
-            Message(
-                timestamp = System.currentTimeMillis().toString(),
-                message = defaultUtterance,
-                origin = localOrigin
-            )
+    fun speakMessage(utterance: String) {
+        val message = Message(
+            timestamp = System.currentTimeMillis().toString(),
+            message = utterance,
+            origin = localOrigin
+        )
         repo.speakMessage(message)
     }
 
