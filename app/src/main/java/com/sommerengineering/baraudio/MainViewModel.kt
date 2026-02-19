@@ -17,8 +17,8 @@ import com.sommerengineering.baraudio.messages.MindfulnessQuoteState
 import com.sommerengineering.baraudio.uitls.MessagesScreenRoute
 import com.sommerengineering.baraudio.uitls.OnboardingTextToSpeechScreenRoute
 import com.sommerengineering.baraudio.uitls.localOrigin
-import com.sommerengineering.baraudio.uitls.queueBehaviorAddDescription
-import com.sommerengineering.baraudio.uitls.queueBehaviorFlushDescription
+import com.sommerengineering.baraudio.uitls.queueAddDescription
+import com.sommerengineering.baraudio.uitls.queueFlushDescription
 import com.sommerengineering.baraudio.uitls.screenFullDescription
 import com.sommerengineering.baraudio.uitls.screenWindowedDescription
 import com.sommerengineering.baraudio.uitls.uiDarkDescription
@@ -95,9 +95,11 @@ class MainViewModel @Inject constructor(
     fun updateQueueAdd(enabled: Boolean) {
         isQueueAdd = enabled
         repo.isQueueAdd = enabled
-        queueDescription =
-            if (enabled) queueBehaviorAddDescription
-            else queueBehaviorFlushDescription
+        val newQueueDescription =
+            if (enabled) queueAddDescription
+            else queueFlushDescription
+        queueDescription = newQueueDescription
+        speakMessage(newQueueDescription)
     }
 
     // mute
@@ -205,8 +207,8 @@ class MainViewModel @Inject constructor(
         speedDescription = repo.speed.toString()
         pitchDescription = repo.pitch.toString()
         queueDescription =
-            if (isQueueAdd) queueBehaviorAddDescription
-            else queueBehaviorFlushDescription
+            if (isQueueAdd) queueAddDescription
+            else queueFlushDescription
     }
 
     fun saveToWebhookClipboard(webhookUrl: String) = repo.saveToClipboard(webhookUrl)
