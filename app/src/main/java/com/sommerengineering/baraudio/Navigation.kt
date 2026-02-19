@@ -19,6 +19,11 @@ import com.google.firebase.auth.auth
 import com.sommerengineering.baraudio.login.LoginScreen
 import com.sommerengineering.baraudio.login.OnboardingScreen
 import com.sommerengineering.baraudio.messages.MessagesScreen
+import com.sommerengineering.baraudio.uitls.LoginScreenRoute
+import com.sommerengineering.baraudio.uitls.MessagesScreenRoute
+import com.sommerengineering.baraudio.uitls.OnboardingNotificationsScreenRoute
+import com.sommerengineering.baraudio.uitls.OnboardingTextToSpeechScreenRoute
+import com.sommerengineering.baraudio.uitls.OnboardingWebhookScreenRoute
 
 @Composable
 fun Navigation(
@@ -68,7 +73,7 @@ fun Navigation(
                 viewModel = viewModel,
                 pageNumber = 0,
                 onNextClick = { controller.navigate(OnboardingNotificationsScreenRoute) },
-                isNextEnabled = viewModel.isTtsInit.collectAsState().value)
+                isNextEnabled = viewModel.isTtsReady.collectAsState().value) // todo remove?
         }
 
         // onboarding screen: notifications

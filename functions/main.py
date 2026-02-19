@@ -74,25 +74,9 @@ def broadcast_to_topic(topic, timestamp, message, origin):
         android=config,
         topic=topic)
 
-    try:
-
-        # broadcast to topic subscribers
-        messaging.send(broadcast)
-
-        users = db.reference('users').get() or {}
-        whitelist = db.reference('whitelist').get() or {}
-
-        for uid in users:
-
-            # check whitelist
-            if uid in whitelist and not whitelist[uid]:
-                continue
-
-            write_to_database(uid, timestamp, message, origin)
-
-    # catch error
-    except FirebaseError as error:
-        print(f"Broadcast to: {topic}, failed with error: {error}")
+    # broadcast to topic subscribers
+    try: messaging.send(broadcast)
+    except FirebaseError as error: print(f"Broadcast to topic: {topic}, error: {error}")
 
 def send_message_to_single_device(uid, device_token, timestamp, message, origin):
 
@@ -111,15 +95,9 @@ def send_message_to_single_device(uid, device_token, timestamp, message, origin)
         android=config,
         token=device_token)
 
-    try:
-
-        # send notification to device
-        messaging.send(notification)
-        write_to_database(uid, timestamp, message, origin)
-
-    # catch error
-    except FirebaseError as error:
-        print(f"Send to single device uid: {uid}, failed with error: {error}")
+    # send notification to single device
+    try: messaging.send(notification)
+    except FirebaseError as error: print(f"Send to uid: {uid}, error: {error}")
 
 def write_to_database(uid, timestamp, message, origin):
 

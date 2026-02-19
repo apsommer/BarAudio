@@ -1,13 +1,17 @@
-package com.sommerengineering.baraudio.hilt
+package com.sommerengineering.baraudio
 
 import android.content.Context
 import androidx.credentials.CredentialManager
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
-import com.sommerengineering.baraudio.MainRepository
-import com.sommerengineering.baraudio.localCache
-import dagger.Binds
+import androidx.room.Room
+import com.sommerengineering.baraudio.room.MessageDao
+import com.sommerengineering.baraudio.room.MessageDatabase
+import com.sommerengineering.baraudio.firebase.FirebaseDatabaseImpl
+import com.sommerengineering.baraudio.login.GoogleAuthenticator
+import com.sommerengineering.baraudio.messages.RapidApi
+import com.sommerengineering.baraudio.uitls.localCache
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -16,6 +20,8 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
@@ -23,11 +29,9 @@ import javax.inject.Singleton
 @Retention(AnnotationRetention.BINARY)
 annotation class ApplicationScope
 
-val Context.dataStore by preferencesDataStore(localCache)
-
 @Module
 @InstallIn(SingletonComponent::class)
-object ApplicationModule {
+object SingletonModule {
 
     @Provides
     @Singleton
@@ -40,6 +44,13 @@ object ApplicationModule {
     fun provideCredentialManager(
         @ApplicationContext context: Context): CredentialManager {
         return CredentialManager.create(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGoogleAuthenticator(
+        credentialManager: CredentialManager): GoogleAuthenticator {
+        return GoogleAuthenticator(credentialManager)
     }
 
     @Provides
@@ -74,4 +85,35 @@ object ApplicationModule {
     fun provideFirebaseDatabase(): FirebaseDatabaseImpl {
         return FirebaseDatabaseImpl()
     }
+
+    @Provides
+    @Singleton
+    fun provideRetrofit(): RapidApi {
+
+        return Retrofit.Builder()
+            .baseUrl("https://metaapi-mindfulness-quotes.p.rapidapi.com/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(RapidApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideRoomDatabase(
+        @ApplicationContext context: Context) : MessageDatabase {
+
+        return Room.databaseBuilder(
+            context,
+            MessageDatabase::class.java,
+            "messages.db"
+        ).build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideMessageDao(db: MessageDatabase): MessageDao {
+        return db.messageDao()
+    }
 }
+
+val Context.dataStore by preferencesDataStore(localCache)

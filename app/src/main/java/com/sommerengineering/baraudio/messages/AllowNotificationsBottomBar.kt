@@ -1,6 +1,5 @@
 package com.sommerengineering.baraudio.messages
 
-import android.content.Context
 import android.content.Intent
 import android.provider.Settings
 import androidx.compose.animation.AnimatedVisibility
@@ -21,10 +20,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.BuildConfig
-import com.sommerengineering.baraudio.allowNotificationsTitle
-import com.sommerengineering.baraudio.bottomBarTransitionTimeMillis
-import com.sommerengineering.baraudio.channelId
-import com.sommerengineering.baraudio.edgePadding
+import com.sommerengineering.baraudio.uitls.allowNotificationsTitle
+import com.sommerengineering.baraudio.uitls.bottomBarTransitionTimeMillis
+import com.sommerengineering.baraudio.uitls.channelId
+import com.sommerengineering.baraudio.uitls.edgePadding
 
 @Composable
 fun AllowNotificationsBottomBar(

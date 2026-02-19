@@ -37,9 +37,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.backgroundPadding
-import com.sommerengineering.baraudio.colorTransitionTimeMillis
-import com.sommerengineering.baraudio.recentMessageTimeMillis
+import com.sommerengineering.baraudio.uitls.backgroundPadding
+import com.sommerengineering.baraudio.uitls.colorTransitionTimeMillis
+import com.sommerengineering.baraudio.uitls.recentMessageTimeMillis
 import com.sommerengineering.baraudio.settings.SettingsDrawer
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -179,9 +179,7 @@ fun MessagesScreen(
                     }) {
 
                     // messages list
-                    LazyColumn(
-                        state = listState,
-                        reverseLayout = true) {
+                    LazyColumn(state = listState) {
 
                         items(
                             items = messages,

@@ -1,15 +1,41 @@
 package com.sommerengineering.baraudio
 
+import android.content.Context
 import android.speech.tts.Voice
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.firebase.Firebase
+import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.auth
+import com.sommerengineering.baraudio.login.GitHubAuthenticator
+import com.sommerengineering.baraudio.login.GoogleAuthenticator
 import com.sommerengineering.baraudio.messages.Message
 import com.sommerengineering.baraudio.messages.MindfulnessQuoteState
+import com.sommerengineering.baraudio.uitls.MessagesScreenRoute
+import com.sommerengineering.baraudio.uitls.OnboardingTextToSpeechScreenRoute
+import com.sommerengineering.baraudio.uitls.defaultUtterance
+import com.sommerengineering.baraudio.uitls.insomnia
+import com.sommerengineering.baraudio.uitls.localOrigin
+import com.sommerengineering.baraudio.uitls.logException
+import com.sommerengineering.baraudio.uitls.parsingErrorOrigin
+import com.sommerengineering.baraudio.uitls.queueBehaviorAddDescription
+import com.sommerengineering.baraudio.uitls.queueBehaviorFlushDescription
+import com.sommerengineering.baraudio.uitls.screenFullDescription
+import com.sommerengineering.baraudio.uitls.screenWindowedDescription
+import com.sommerengineering.baraudio.uitls.tradingview
+import com.sommerengineering.baraudio.uitls.trendspider
+import com.sommerengineering.baraudio.uitls.uiDarkDescription
+import com.sommerengineering.baraudio.uitls.uiLightDescription
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,22 +44,24 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    val repo: MainRepository,
-    val credentialManager: CredentialManager, // todo remove
+    private val repo: MainRepository,
+    private val credentialManager: CredentialManager,
+    private val googleAuthenticator: GoogleAuthenticator,
+    private val gitHubAuthenticator: GitHubAuthenticator,
 ) : ViewModel() {
 
-    // database
+    // room database
     val messages = repo.messages
     fun deleteAllMessages() = repo.deleteAllMessages()
     fun deleteMessage(message: Message) = repo.deleteMessage(message)
-    override fun onCleared() { repo.stopListening() }
 
     // text-to-speech
-    val isTtsInit = repo.isTtsInit
+    val isTtsReady = repo.isTtsReady
 
     // voice
     var voices by mutableStateOf<List<Voice>>(emptyList())
@@ -48,7 +76,6 @@ class MainViewModel @Inject constructor(
         voiceDescription = beautifyVoiceName(value.name)
         speakLastMessage()
     }
-    private val beautifulVoiceNames = hashMapOf<String, String>()
 
     // speed
     var speed by mutableFloatStateOf(1f)
@@ -97,7 +124,8 @@ class MainViewModel @Inject constructor(
             Message(
                 timestamp = System.currentTimeMillis().toString(),
                 message = defaultUtterance,
-                origin = localOrigin)
+                origin = localOrigin
+            )
         repo.speakMessage(message)
     }
 
@@ -112,13 +140,6 @@ class MainViewModel @Inject constructor(
         if (isOnboardingComplete) MessagesScreenRoute
         else OnboardingTextToSpeechScreenRoute
 
-    // notifications
-    var areNotificationsEnabled by mutableStateOf(false)
-        private set
-    fun updateNotificationsEnabled(enabled: Boolean) {
-        areNotificationsEnabled = enabled
-    }
-
     // mindfulness quote
     private var _mindfulnessQuoteState: MutableStateFlow<MindfulnessQuoteState> = MutableStateFlow(MindfulnessQuoteState.Idle)
     val mindfulnessQuoteState = _mindfulnessQuoteState.asStateFlow()
@@ -129,7 +150,7 @@ class MainViewModel @Inject constructor(
         repo.updateShowQuote(enabled)
     }
 
-    // futures webhooks
+    // stream NQ
     var isNQ by mutableStateOf(true)
         private set
     fun updateNQ(enabled: Boolean) {
@@ -201,9 +222,46 @@ class MainViewModel @Inject constructor(
             else queueBehaviorFlushDescription
     }
 
-    fun signOut() = repo.signOut()
-
     fun saveToWebhookClipboard(webhookUrl: String) = repo.saveToClipboard(webhookUrl)
+
+    fun signOut() {
+        repo.signOut()
+        viewModelScope.launch {
+            credentialManager.clearCredentialState(ClearCredentialStateRequest())
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // sign-in
+    fun signInWithGoogle(
+        context: Context,
+        onAuthentication: () -> Unit) = viewModelScope.launch {
+        if (googleAuthenticator.signIn(context)) { onAuthentication() }
+    }
+
+    fun signInWithGitHub(
+        context: Context,
+        onAuthentication: () -> Unit) = viewModelScope.launch {
+        if (gitHubAuthenticator.signIn(context)) { onAuthentication() }
+    }
+
+    // notifications
+    var areNotificationsEnabled by mutableStateOf(false)
+        private set
+    fun updateNotificationsEnabled(enabled: Boolean) {
+        areNotificationsEnabled = enabled
+    }
+
+    // beautiful voice names
+    private val beautifulVoiceNames = hashMapOf<String, String>()
+
+    private val romanNumerals = arrayOf(
+        "I","II","III","IV","V","VI","VII","VIII","IX","X",
+        "XI","XII","XIII","XIV","XV","XVI","XVII","XVIII","XIX","XX")
+
+    private fun roman(number: Int): String =
+        romanNumerals.getOrElse(number) { (number + 1).toString()}
 
     private fun createBeautifulVoices() {
 
@@ -211,58 +269,17 @@ class MainViewModel @Inject constructor(
         voices = repo.voices.sortedBy { it.locale.toLanguageTag() }
         voiceIndex = voices.indexOfFirst { it.name == repo.voice.name }
 
-        val groupedByLocaleVoices = voices.groupBy { it.locale.toLanguageTag() }
-
-        // add roman numeral to name
-        groupedByLocaleVoices.keys
-            .forEach { localeGroup ->
-                val localeVoices = groupedByLocaleVoices[localeGroup] ?: return@forEach
-                localeVoices.forEachIndexed { i, voice ->
-                    beautifulVoiceNames[voice.name] = enumerateVoices(voice, i)
+        // add roman numerals relative to locale to match system settings format
+        voices
+            .groupBy { it.locale.toLanguageTag() }
+            .values
+            .forEach { localeGroupVoices ->
+                localeGroupVoices.forEachIndexed { i, voice ->
+                    beautifulVoiceNames[voice.name] =
+                        "${voice.locale.displayName} • Voice ${roman(i)}"
                 }
             }
     }
 
-    private fun enumerateVoices(
-        voice: Voice,
-        number: Int): String {
-
-        val displayName = voice.locale.displayName
-        var romanNumeral = "I"
-
-        if (number == 1) romanNumeral = "II"
-        if (number == 2) romanNumeral = "III"
-        if (number == 3) romanNumeral = "IV"
-        if (number == 4) romanNumeral = "V"
-        if (number == 5) romanNumeral = "VI"
-        if (number == 6) romanNumeral = "VII"
-        if (number == 7) romanNumeral = "VIII"
-        if (number == 8) romanNumeral = "IX"
-        if (number == 9) romanNumeral = "X"
-        if (number == 10) romanNumeral = "XI"
-        if (number == 11) romanNumeral = "XII"
-        if (number == 12) romanNumeral = "XIII"
-        if (number == 13) romanNumeral = "XIV"
-        if (number == 14) romanNumeral = "XV"
-        if (number == 15) romanNumeral = "XVI"
-        if (number == 16) romanNumeral = "XVII"
-        if (number == 17) romanNumeral = "XVIII"
-        if (number == 18) romanNumeral = "XIX"
-        if (number == 19) romanNumeral = "XX"
-
-        return "$displayName • Voice $romanNumeral"
-    }
-
     fun beautifyVoiceName(name: String) = beautifulVoiceNames[name] ?: ""
-
-    fun getOriginImage(origin: String) = when (origin) {
-        in tradingview -> {
-            if (isDarkMode) R.drawable.tradingview_light
-            else R.drawable.tradingview_dark
-        }
-        trendspider -> R.drawable.trendspider
-        insomnia -> R.drawable.insomnia
-        parsingErrorOrigin -> R.drawable.error
-        else -> R.drawable.webhook
-    }
 }

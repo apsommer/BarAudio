@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.hilt
+package com.sommerengineering.baraudio
 
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner

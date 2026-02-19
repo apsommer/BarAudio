@@ -1,9 +1,11 @@
-package com.sommerengineering.baraudio
+package com.sommerengineering.baraudio.uitls
 
+import android.speech.tts.TextToSpeech
 import android.util.Log
 import androidx.compose.ui.unit.dp
 import com.google.firebase.Firebase
 import com.google.firebase.crashlytics.crashlytics
+import com.sommerengineering.baraudio.BuildConfig
 
 // logs
 const val TAG = "~~"
@@ -26,11 +28,9 @@ const val termsUrl = "https://sommerengineering.com/terms_and_conditions"
 // firebase
 const val databaseUrl = "https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/"
 const val webhookBaseUrl = "https://us-central1-com-sommerengineering-baraudio.cloudfunctions.net/baraudio?uid="
-const val messagesNodeId = "messages"
-const val whitelistNodeId = "whitelist"
 const val usersNodeId = "users"
 const val gitHubProviderId = "github.com"
-const val messageMaxSize = 1000
+const val messagesMaxSize = 1000
 
 // notifications
 const val channelId = "42"
@@ -69,7 +69,7 @@ const val isDarkModeKey = "isDarkMode"
 const val isFullScreenKey = "isFullScreen"
 const val isShowQuoteKey = "showQuote"
 const val isNQKey = "isNQ"
-const val volumeKey = android.speech.tts.TextToSpeech.Engine.KEY_PARAM_VOLUME
+const val volumeKey = TextToSpeech.Engine.KEY_PARAM_VOLUME
 
 // billing
 const val productId = "subscription" // match play store config

@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.hilt
+package com.sommerengineering.baraudio.firebase
 
 import android.Manifest
 import android.app.PendingIntent
@@ -12,18 +12,19 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import com.sommerengineering.baraudio.AppVisibility
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainRepository
 import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.broadcastKey
-import com.sommerengineering.baraudio.channelId
-import com.sommerengineering.baraudio.isLaunchFromNotification
-import com.sommerengineering.baraudio.messageKey
+import com.sommerengineering.baraudio.uitls.broadcastKey
+import com.sommerengineering.baraudio.uitls.channelId
+import com.sommerengineering.baraudio.uitls.isLaunchFromNotification
+import com.sommerengineering.baraudio.uitls.messageKey
 import com.sommerengineering.baraudio.messages.Message
-import com.sommerengineering.baraudio.messages.beautifyTimestamp
-import com.sommerengineering.baraudio.originKey
-import com.sommerengineering.baraudio.timestampKey
-import com.sommerengineering.baraudio.uidKey
+import com.sommerengineering.baraudio.uitls.TimestampFormatter
+import com.sommerengineering.baraudio.uitls.originKey
+import com.sommerengineering.baraudio.uitls.timestampKey
+import com.sommerengineering.baraudio.uitls.uidKey
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -48,6 +49,9 @@ class FirebaseServiceImpl: FirebaseMessagingService() {
         // catch different user on same device
         if (uid != null && uid != Firebase.auth.currentUser?.uid) return
 
+        val newMessage = Message(timestamp, message, origin)
+        repo.addMessage(newMessage)
+
         // show notification if app closed or user not signed-in, else speak
         val isShowNotification = !appVisibility.isForeground || Firebase.auth.currentUser == null
         if (isShowNotification) { showNotification(timestamp, message) }
@@ -58,7 +62,7 @@ class FirebaseServiceImpl: FirebaseMessagingService() {
         timestamp: String,
         message: String) {
 
-        val beautifulTimestamp = beautifyTimestamp(timestamp)
+        val beautifulTimestamp = TimestampFormatter.beautify(timestamp)
 
         // confirm permission granted
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
@@ -79,18 +83,18 @@ class FirebaseServiceImpl: FirebaseMessagingService() {
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
 
+        // create id from timestamp
+        val notificationId = timestamp
+            .substring(timestamp.length - 9, timestamp.length)
+            .toInt()
+
         // show notification
         NotificationManagerCompat.from(this).notify(
-            trimTimestamp(timestamp),
+            notificationId,
             builder.build())
     }
 
-    private fun trimTimestamp(timestamp: String) = timestamp
-        .substring(timestamp.length - 9, timestamp.length)
-        .toInt()
-
-    override fun onNewToken(token: String) {
+    override fun onNewToken(token: String) =
         repo.onNewToken(token)
-    }
 }
 

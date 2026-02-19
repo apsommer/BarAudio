@@ -19,9 +19,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.sommerengineering.baraudio.edgePadding
-import com.sommerengineering.baraudio.settingsIconSize
-import com.sommerengineering.baraudio.speedTitle
+import com.sommerengineering.baraudio.uitls.edgePadding
+import com.sommerengineering.baraudio.uitls.settingsIconSize
+import com.sommerengineering.baraudio.uitls.speedTitle
 
 @Composable
 fun SliderSettingItem(
