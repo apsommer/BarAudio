@@ -93,14 +93,17 @@ class TextToSpeechImpl(
     private val romanRegex =
         Regex("""\b(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII|XIII|XIV|XV|XVI|XVII|XVIII|XIX|XX)\b""")
     private fun replaceRomanNumerals(text: String) =
-        romanRegex.replace(text) { RomanNumerals.toInt(it.value).toString() }
+        romanRegex.replace(text) { RomanNumerals.toWord(it.value) }
 
     // guarantee engine speaks numbers correctly, prevent "oh" instead of "zero", etc
     private val numberRegex =
         Regex("""-?\d+(\.\d+)?([eE][-+]?\d+)?""")
     private fun replaceNumbers(message: String) =
-        numberRegex.replace(message) { numberToWord(it.value) }
-
+        numberRegex.replace(message) {
+            val token = it.value // space delineated tokens
+            if (token == "0" || "." in token) { numberToWord(token) }
+            else token
+        }
     private fun numberToWord(message: String): String {
         val builder = StringBuilder()
         for (char in message) {

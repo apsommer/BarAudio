@@ -245,8 +245,6 @@ class MainViewModel @Inject constructor(
     // beautiful voice names
     private val beautifulVoiceNames = hashMapOf<String, String>()
     fun beautifyVoiceName(name: String) = beautifulVoiceNames[name] ?: ""
-    private fun roman(number: Int): String =
-        RomanNumerals.toNumeral(number)
     private fun createBeautifulVoices() {
 
         // group voices by locale
@@ -260,7 +258,7 @@ class MainViewModel @Inject constructor(
             .forEach { localeGroupVoices ->
                 localeGroupVoices.forEachIndexed { i, voice ->
                     beautifulVoiceNames[voice.name] =
-                        "${voice.locale.displayName} • Voice ${roman(i)}"
+                        "${voice.locale.displayName} • Voice ${RomanNumerals.toNumeral(i)}"
                 }
             }
     }
