@@ -24,7 +24,6 @@ import com.sommerengineering.baraudio.uitls.screenFullDescription
 import com.sommerengineering.baraudio.uitls.screenWindowedDescription
 import com.sommerengineering.baraudio.uitls.uiDarkDescription
 import com.sommerengineering.baraudio.uitls.uiLightDescription
-import com.sommerengineering.baraudio.uitls.voiceChangeUtterance
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -63,7 +62,7 @@ class MainViewModel @Inject constructor(
         voiceIndex = voices.indexOfFirst { it.name == value.name }
         val beautifulVoice = beautifyVoiceName(value.name)
         voiceDescription = beautifulVoice
-        speakMessage(voiceChangeUtterance + beautifulVoice)
+        speakMessage(beautifulVoice)
     }
 
     // speed

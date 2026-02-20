@@ -119,9 +119,9 @@ class MainRepository @Inject constructor(
             // phone wakes after being offline
 
         // ignore old messages
-        val ageMillis = System.currentTimeMillis() - message.timestamp.toLong()
-        val shouldSpeak = ageMillis > recentMessageTimeMillis
-        if (!shouldSpeak) return
+//        val ageMillis = System.currentTimeMillis() - message.timestamp.toLong()
+//        val shouldSpeak = ageMillis > recentMessageTimeMillis
+//        if (!shouldSpeak) return
 
         // todo move FMC logic here
 

@@ -134,7 +134,6 @@ const val linkAnimation = "link.json"
 
 // tts
 const val defaultVoice = "en-gb-x-gbd-local"  // british, male
-const val voiceChangeUtterance = "Voice, "
 const val speedChangeUtterance = "Speed, "
 const val pitchChangeUtterance = "Pitch, "
 
