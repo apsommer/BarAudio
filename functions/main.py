@@ -61,7 +61,7 @@ def broadcast_to_topic(topic, timestamp, message, origin):
     # set priority to high
     config = messaging.AndroidConfig(
         priority='high',  # "normal" is default, "high" attempts to wake device in doze mode
-        ttl=0)  # ttl is "time to live", 0 means "now or never" and fcm discards if can't be delivered immediately
+        ttl=43200)  # ttl is "time to live", 0 = "now or never", "43200" = 12h
 
     # construct notification
     broadcast = messaging.Message(
