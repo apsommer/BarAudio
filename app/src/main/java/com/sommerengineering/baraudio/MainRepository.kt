@@ -115,13 +115,13 @@ class MainRepository @Inject constructor(
     fun speakMessage(message: Message) {
 
         // system calls this from FCM onMessageReceived() when,
-            // app backgrounded
-            // phone wakes after being offline
+            // app foreground or background
+            // phone connects to network after being offline
 
         // ignore old messages
-//        val ageMillis = System.currentTimeMillis() - message.timestamp.toLong()
-//        val shouldSpeak = ageMillis > recentMessageTimeMillis
-//        if (!shouldSpeak) return
+        val ageMillis = System.currentTimeMillis() - message.timestamp.toLong()
+        val shouldSpeak = recentMessageTimeMillis > ageMillis
+        if (!shouldSpeak) return
 
         // todo move FMC logic here
 

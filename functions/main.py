@@ -5,13 +5,25 @@ from firebase_functions import https_fn
 import time, json
 
 # topics
-topics = {'NQ'} # todo change to hash in production
+TOPICS = {'NQ'} # todo change to hash in production
 # ...
 
 # initialize admin sdk
-app = initialize_app(
+APP = initialize_app(
     credential = credentials.Certificate('admin.json'),
     options = { 'databaseURL': 'https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/' })
+
+# configure notification
+BASE_CONFIG = messaging.AndroidConfig(
+    priority = 'high',  # "normal" is default, "high" attempts to wake device in doze mode
+    ttl = 86400,  # ttl is "time to live", 0 = "now or never", "43200" = 12h, 86400 = 24h
+    notification = messaging.AndroidNotification(
+        channel_id = '42',
+        visibility = 'public'))
+
+        # TODO
+        # click_action = "open app ..."
+        # icon = "logo ..."
 
 # https://us-central1-com-sommerengineering-baraudio.cloudfunctions.net/baraudio?uid=...
 @https_fn.on_request()
@@ -32,11 +44,14 @@ def baraudio(req: https_fn.Request) -> https_fn.Response:
     if message is None or len(message) == 0:
         return https_fn.Response('The message is empty')
 
+    # write to database
+    write_to_database(uid, timestamp, message, origin)
+
     # broadcast to topic subscribers
     if topic:
 
         # prevent unauthorized broadcasts
-        if topic not in topics:
+        if topic not in TOPICS:
             return https_fn.Response(f"Topic '{topic}' does not exist")
 
         broadcast_to_topic(topic, timestamp, message, origin)
@@ -58,21 +73,13 @@ def baraudio(req: https_fn.Request) -> https_fn.Response:
 
 def broadcast_to_topic(topic, timestamp, message, origin):
 
-    # set priority to high
-    config = messaging.AndroidConfig(
-        priority='high',  # "normal" is default, "high" attempts to wake device in doze mode
-        ttl=43200)  # ttl is "time to live", 0 = "now or never", "43200" = 12h
-
     # construct notification
     broadcast = messaging.Message(
-        data={
-            'broadcast': topic,
-            'timestamp': timestamp,
-            'message': message,
-            'origin': origin
-        },
-        android=config,
-        topic=topic)
+        notification = messaging.Notification(
+            title = timestamp,
+            body = message),
+        android = BASE_CONFIG,
+        topic = topic)
 
     # broadcast to topic subscribers
     try: messaging.send(broadcast)
@@ -80,20 +87,13 @@ def broadcast_to_topic(topic, timestamp, message, origin):
 
 def send_message_to_single_device(uid, device_token, timestamp, message, origin):
 
-    # set priority to high
-    config = messaging.AndroidConfig(
-        priority='high',  # "normal" is default, "high" attempts to wake device in doze mode
-        ttl=0)  # ttl is "time to live", 0 means "now or never" and fcm discards if can't be delivered immediately
-
     # construct notification
     notification = messaging.Message(
-        data={
-            'uid': uid,
-            'timestamp': timestamp,
-            'message': message,
-            'origin': origin},
-        android=config,
-        token=device_token)
+        notification = messaging.Notification(
+            title = timestamp,
+            body = message),
+        android = BASE_CONFIG,
+        token = device_token)
 
     # send notification to single device
     try: messaging.send(notification)
