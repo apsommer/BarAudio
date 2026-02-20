@@ -31,6 +31,7 @@ import com.sommerengineering.baraudio.uitls.isShowQuoteKey
 import com.sommerengineering.baraudio.uitls.nqTopic
 import com.sommerengineering.baraudio.uitls.onboardingKey
 import com.sommerengineering.baraudio.uitls.pitchKey
+import com.sommerengineering.baraudio.uitls.recentMessageTimeMillis
 import com.sommerengineering.baraudio.uitls.speedKey
 import com.sommerengineering.baraudio.uitls.voiceNameKey
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -113,8 +114,18 @@ class MainRepository @Inject constructor(
         }
     fun speakMessage(message: Message) {
 
+        // system calls this from FCM onMessageReceived() when,
+            // app backgrounded
+            // phone wakes after being offline
+
+        // ignore old messages
+        val ageMillis = System.currentTimeMillis() - message.timestamp.toLong()
+        val shouldSpeak = ageMillis > recentMessageTimeMillis
+        if (!shouldSpeak) return
+
+        // todo move FMC logic here
+
         // ensure engine is ready
-        // system may call this from FCM onMessageReceived() when app backgrounded
         appScope.launch {
             isTtsReady.filter { it }.first()
             tts.speak(message.timestamp, message.message)

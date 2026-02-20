@@ -60,7 +60,7 @@ class FirebaseServiceImpl: FirebaseMessagingService() {
 
         // speak if app foreground/background and screen on, else notification
         val shouldSpeak = processState.isAlive && isScreenOn && Firebase.auth.currentUser != null
-        if (shouldSpeak) { repo.speakMessage(Message(timestamp, message, origin)) }
+        if (shouldSpeak) { repo.speakMessage(newMessage) }
         else { showNotification(timestamp, message)  }
     }
 
