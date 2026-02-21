@@ -109,14 +109,13 @@ class MainViewModel @Inject constructor(
         isMute = !isMute
         repo.isMute = isMute
     }
-    fun speakMessage(utterance: String) {
-        val message = Message(
-            timestamp = System.currentTimeMillis().toString(),
-            message = utterance,
-            origin = localOrigin
-        )
-        repo.speakMessage(message)
-    }
+    fun speakMessage(utterance: String) =
+        viewModelScope.launch {
+            repo.speakMessage(Message(
+                timestamp = System.currentTimeMillis().toString(),
+                message = utterance,
+                origin = localOrigin))
+        }
 
     // onboarding
     var isOnboardingComplete by mutableStateOf(false)

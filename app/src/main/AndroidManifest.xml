@@ -29,6 +29,12 @@
             </intent-filter>
         </activity>
 
+        <!-- service to speak when app backgrounded -->
+        <service
+            android:name=".speak.ForegroundSpeechService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
+
         <!-- firebase cloud messaging -->
         <service
             android:name="com.sommerengineering.baraudio.firebase.FirebaseServiceImpl"

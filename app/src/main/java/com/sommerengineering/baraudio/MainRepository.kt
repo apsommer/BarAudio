@@ -113,24 +113,13 @@ class MainRepository @Inject constructor(
             if (value && tts.isSpeaking()) { tts.stop() } // stop any current speech
             writePreference(booleanPreferencesKey(isMuteKey), value)
         }
-    fun speakMessage(message: Message) {
+    suspend fun speakMessage(message: Message) {
 
-        // system calls this from FCM onMessageReceived() when,
-            // app foreground or background
-            // phone connects to network after being offline
-
-        // ignore old messages
-        val ageMillis = System.currentTimeMillis() - message.timestamp.toLong()
-        val shouldSpeak = recentMessageTimeMillis > ageMillis
-        if (!shouldSpeak) return
-
-        // todo move FMC logic here
+        // todo move FMC "when to show" logic here
 
         // ensure engine is ready
-        appScope.launch {
-            isTtsReady.filter { it }.first()
-            tts.speak(message.timestamp, message.message)
-        }
+        isTtsReady.filter { it }.first()
+        tts.speak(message.timestamp, message.message)
     }
 
     // onboarding

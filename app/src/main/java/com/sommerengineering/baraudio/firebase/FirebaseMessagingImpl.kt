@@ -1,13 +1,24 @@
 package com.sommerengineering.baraudio.firebase
 
+import android.Manifest
+import android.app.PendingIntent
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.PowerManager
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainRepository
 import com.sommerengineering.baraudio.ProcessState
+import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.messages.Message
+import com.sommerengineering.baraudio.speak.ForegroundSpeechService
 import com.sommerengineering.baraudio.uitls.broadcastKey
 import com.sommerengineering.baraudio.uitls.messageKey
 import com.sommerengineering.baraudio.uitls.originKey
@@ -54,10 +65,11 @@ class FirebaseServiceImpl: FirebaseMessagingService() {
 
         // speak if app foreground/background and screen on, else notification
         val shouldSpeak = processState.isAlive && isScreenOn && Firebase.auth.currentUser != null
-        if (shouldSpeak) { repo.speakMessage(newMessage) }
+        if (shouldSpeak) {
+            ForegroundSpeechService.start(this, newMessage)
+        }
     }
 
     override fun onNewToken(token: String) =
         repo.onNewToken(token)
 }
-

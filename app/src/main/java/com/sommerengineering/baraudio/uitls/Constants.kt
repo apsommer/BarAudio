@@ -44,6 +44,8 @@ const val timestampKey = "timestamp"
 const val messageKey = "message"
 const val originKey = "origin"
 const val messageParsingError = "Error parsing message"
+const val notificationId = 42
+const val notificationKey = "notification"
 
 // topics
 const val nqTopic = "NQ"

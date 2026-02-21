@@ -2,6 +2,7 @@ package com.sommerengineering.baraudio.speak
 
 import android.content.Context
 import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
 import android.speech.tts.Voice
 import androidx.core.os.bundleOf
 import com.sommerengineering.baraudio.uitls.RomanNumerals
@@ -9,7 +10,8 @@ import com.sommerengineering.baraudio.uitls.volumeKey
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlin.text.iterator
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
 
 class TextToSpeechImpl(
     private val context: Context
@@ -21,8 +23,6 @@ class TextToSpeechImpl(
     // flow initialization
     private var _isInit = MutableStateFlow(false)
     val isInit = _isInit.asStateFlow()
-
-
 
     // voice
     private lateinit var _voices: List<Voice>
@@ -72,12 +72,35 @@ class TextToSpeechImpl(
     fun isSpeaking() = _textToSpeech.isSpeaking
     fun stop() = _textToSpeech.stop()
 
-    fun speak(timestamp: String, message: String) =
+    suspend fun speak(
+        timestamp: String,
+        message: String) = suspendCancellableCoroutine { continuation ->
+
+        // cancel on service destruction, etc
+        continuation.invokeOnCancellation { _textToSpeech.stop() }
+
+        // listen to speech progress
+        val listener = object : UtteranceProgressListener() {
+            override fun onDone(id: String?) {
+                if (id != timestamp || !continuation.isActive) return
+                continuation.resume(Unit)
+            }
+            override fun onError(id: String?) {
+                if (id != timestamp || !continuation.isActive) return
+                continuation.resume(Unit)
+            }
+            override fun onStart(id: String?) = Unit
+        }
+
+        _textToSpeech.setOnUtteranceProgressListener(listener)
+
+        // speak message
         _textToSpeech.speak(
             normalizeMessage(message),
             _isQueueAdd.compareTo(false),
             bundleOf(volumeKey to _volume),
             timestamp)
+    }
 
     override fun onInit(status: Int) {
         if (status != TextToSpeech.SUCCESS) return
