@@ -21,6 +21,7 @@ import com.sommerengineering.baraudio.firebase.FirebaseDatabaseImpl
 import com.sommerengineering.baraudio.messages.RapidApi
 import com.sommerengineering.baraudio.messages.Message
 import com.sommerengineering.baraudio.room.RoomImpl
+import com.sommerengineering.baraudio.speak.ForegroundSpeechService
 import com.sommerengineering.baraudio.speak.TextToSpeechImpl
 import com.sommerengineering.baraudio.uitls.defaultVoice
 import com.sommerengineering.baraudio.uitls.isDarkModeKey
@@ -114,8 +115,6 @@ class MainRepository @Inject constructor(
             writePreference(booleanPreferencesKey(isMuteKey), value)
         }
     suspend fun speakMessage(message: Message) {
-
-        // todo move FMC "when to show" logic here
 
         // ensure engine is ready
         isTtsReady.filter { it }.first()

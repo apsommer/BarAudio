@@ -1,22 +1,11 @@
 package com.sommerengineering.baraudio.firebase
 
-import android.Manifest
-import android.app.PendingIntent
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.PowerManager
-import androidx.core.app.ActivityCompat
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainRepository
 import com.sommerengineering.baraudio.ProcessState
-import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.messages.Message
 import com.sommerengineering.baraudio.speak.ForegroundSpeechService
 import com.sommerengineering.baraudio.uitls.broadcastKey
@@ -35,26 +24,33 @@ class FirebaseServiceImpl: FirebaseMessagingService() {
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
 
-        // extract attributes
-        val broadcast = remoteMessage.data[broadcastKey]
-        val uid = remoteMessage.data[uidKey]
-        val timestamp = remoteMessage.data[timestampKey] ?: return
-        val message = remoteMessage.data[messageKey] ?: return
-        val origin = remoteMessage.data[originKey] ?: return
+        // ensure app is foreground or background
+        if (!processState.isAlive) return
 
-        // catch malformed message
-        if (broadcast == null && uid == null) return
+        // convert remote message to domain model
+        val message = remoteMessage.toMessage() ?: return
+
+        repo.addMessage(message)
+        ForegroundSpeechService.start(this, message)
+    }
+
+    private fun RemoteMessage.toMessage(): Message? {
+
+        // message is broadcast from topic, or send to specific user device
+        val broadcast = data[broadcastKey]
+        val uid = data[uidKey]
+        if (broadcast == null && uid == null) return null
 
         // catch different user on same device
-        if (uid != null && uid != Firebase.auth.currentUser?.uid) return
+        val currentUid = Firebase.auth.currentUser?.uid ?: return null
+        if (uid != null && uid != currentUid) return null
 
-        // create message
-        val newMessage = Message(timestamp, message, origin)
-        repo.addMessage(newMessage)
+        // validate payload
+        val timestamp = data[timestampKey] ?: return null
+        val message = data[messageKey] ?: return null
+        val origin = data[originKey] ?: return null
 
-        // speak if app in foreground or background
-        if (!processState.isAlive || Firebase.auth.currentUser == null) return
-        ForegroundSpeechService.start(this, newMessage)
+        return Message(timestamp, message, origin)
     }
 
     override fun onNewToken(token: String) =

@@ -28,7 +28,10 @@ class ForegroundSpeechService : Service() {
 
     companion object {
 
-        fun start(context: Context, message: Message) {
+        fun start(
+            context: Context,
+            message: Message) {
+
             val intent = Intent(context, ForegroundSpeechService::class.java)
             intent.putExtra(notificationKey, message)
             context.startService(intent)
@@ -41,22 +44,31 @@ class ForegroundSpeechService : Service() {
         startId: Int
     ): Int {
 
+        // validate payload
         val message = intent?.getParcelableExtra<Message>(messageKey)
-            ?: return START_NOT_STICKY
+            ?: run {
+                stopSelf()
+                return START_NOT_STICKY // system will not recreate service
+            }
 
+        // extract attributes
         val beautifulTimestamp = TimestampFormatter.beautify(message.timestamp)
         val title = message.message
 
-        val builder = NotificationCompat.Builder(this, channelId)
+        // create notification
+        val notification = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.drawable.logo_square)
             .setColor(ContextCompat.getColor(this, R.color.logo_blue))
             .setContentTitle(title)
             .setContentText(beautifulTimestamp) // collapsed
             .setStyle(NotificationCompat.BigTextStyle().bigText(beautifulTimestamp)) // expanded
             .setAutoCancel(true)
+            .build()
 
-        startForeground(notificationId, builder.build())
+        // show notification
+        startForeground(notificationId, notification)
 
+        // speak message, then stop service (remove notification)
         serviceScope.launch {
             repo.speakMessage(message)
             stopForeground(STOP_FOREGROUND_REMOVE)
