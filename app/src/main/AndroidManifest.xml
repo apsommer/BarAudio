@@ -23,9 +23,17 @@
             android:screenOrientation="portrait"
             android:theme="@style/Theme.BarAudio.Splash"
             android:exported="true" >
+
+            <!-- normal launch -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!-- open from notification -->
+            <intent-filter>
+                <action android:name="OPEN_BARAUDIO" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 

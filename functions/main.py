@@ -19,7 +19,8 @@ BASE_CONFIG = messaging.AndroidConfig(
     ttl = 86400,  # ttl is "time to live", 0 = "now or never", "43200" = 12h, 86400 = 24h
     notification = messaging.AndroidNotification(
         channel_id = '42',
-        visibility = 'public'))
+        visibility = 'public',
+        click_action = 'OPEN_BARAUDIO'))
 
         # TODO
         # click_action = "open app ..."
@@ -32,7 +33,7 @@ def baraudio(req: https_fn.Request) -> https_fn.Response:
     # parse request
     topic = req.args.get(key='broadcast', type=str) # query param
     uid = req.args.get(key='uid', type=str) # query param
-    timestamp = str(round(time.time() * 1000)) # calculate timestamp from local system
+    timestamp = int(time.time() * 1000) # calculate timestamp from local system
     message = req.get_data(as_text = True) # message as plain/text from body
     origin = str(req.headers.get('X-Forwarded-For')) # extract origin from header
 
@@ -43,9 +44,6 @@ def baraudio(req: https_fn.Request) -> https_fn.Response:
     # catch empty message
     if message is None or len(message) == 0:
         return https_fn.Response('The message is empty')
-
-    # write to database
-    write_to_database(uid, timestamp, message, origin)
 
     # broadcast to topic subscribers
     if topic:
@@ -97,12 +95,11 @@ def send_message_to_single_device(uid, device_token, timestamp, message, origin)
 
     # send notification to single device
     try: messaging.send(notification)
+    except UnregisteredError: delete_token_from_database(uid)
     except FirebaseError as error: print(f"Send to uid: {uid}, error: {error}")
 
-def write_to_database(uid, timestamp, message, origin):
-
-    group_key = db.reference('messages')
-    group_key.child(uid).child(timestamp).set('{ "message": "' + message + '", "origin": "' + origin + '" }')
+def delete_token_from_database(uid):
+    db.reference('users').child(uid).delete()
 
 # view logs
 # https://console.cloud.google.com/run/detail/us-central1/baraudio/observability/logs?inv=1&invt=AbhuYw&project=com-sommerengineering-baraudio
