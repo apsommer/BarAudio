@@ -1,6 +1,6 @@
 import time, json
 from datetime import datetime
-import pytz
+from zoneinfo import ZoneInfo
 
 from firebase_admin import initialize_app, credentials, db, messaging
 from firebase_admin.exceptions import FirebaseError
@@ -25,7 +25,7 @@ BASE_CONFIG = messaging.AndroidConfig(
         visibility = 'public'))
 
 # display timestamp in NYC timezone
-NYC_TIMEZONE = pytz.timezone('America/New_York')
+NYC_TIMEZONE = ZoneInfo('America/New_York')
 
 # https://us-central1-com-sommerengineering-baraudio.cloudfunctions.net/baraudio?uid=...
 @https_fn.on_request()
@@ -80,9 +80,6 @@ def broadcast_to_topic(topic, timestamp, message, origin):
 
     # construct notification
     broadcast = messaging.Message(
-        notification = messaging.Notification(
-            title = message,
-            body = beautify_timestamp(timestamp)),
         data = {
             'broadcast': topic,
             'timestamp': str(timestamp),
@@ -99,9 +96,6 @@ def send_message_to_single_device(uid, device_token, timestamp, message, origin)
 
     # construct notification
     notification = messaging.Message(
-        notification = messaging.Notification(
-            title = message,
-            body = beautify_timestamp(timestamp)),
         data = {
             'uid': uid,
             'timestamp': str(timestamp),
@@ -117,10 +111,6 @@ def send_message_to_single_device(uid, device_token, timestamp, message, origin)
 
 def delete_token_from_database(uid):
     db.reference('users').child(uid).delete()
-
-def beautify_timestamp(timestamp):
-    dt = datetime.fromtimestamp(timestamp / 1000, tz = NYC_TIMEZONE)
-    return dt.strftime('%I:%M:%S %p • %B %d, %Y').lstrip('0')
 
 # view logs
 # https://console.cloud.google.com/run/detail/us-central1/baraudio/observability/logs?inv=1&invt=AbhuYw&project=com-sommerengineering-baraudio

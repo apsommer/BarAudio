@@ -45,7 +45,7 @@ class ForegroundSpeechService : Service() {
     ): Int {
 
         // validate payload
-        val message = intent?.getParcelableExtra<Message>(messageKey)
+        val message = intent?.getParcelableExtra<Message>(notificationKey)
             ?: run {
                 stopSelf()
                 return START_NOT_STICKY // system will not recreate service
