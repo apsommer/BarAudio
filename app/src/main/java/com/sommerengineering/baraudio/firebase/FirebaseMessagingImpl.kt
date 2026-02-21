@@ -37,6 +37,13 @@ class FirebaseServiceImpl: FirebaseMessagingService() {
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
 
+        // foreground: system delivers notification 'data' payload
+            // system does not show notification
+        // background: system delivers notification 'data' payload
+            // system attempts to show notification so it is manually suppressed
+        // no app process: no payload is delivered (this method not called)
+            // system shows notification defined with params in manifest
+
         // extract attributes
         val broadcast = remoteMessage.data[broadcastKey]
         val uid = remoteMessage.data[uidKey]

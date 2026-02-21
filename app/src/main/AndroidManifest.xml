@@ -23,17 +23,9 @@
             android:screenOrientation="portrait"
             android:theme="@style/Theme.BarAudio.Splash"
             android:exported="true" >
-
-            <!-- normal launch -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-
-            <!-- open from notification -->
-            <intent-filter>
-                <action android:name="OPEN_BARAUDIO" />
-                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
@@ -46,8 +38,8 @@
             </intent-filter>
         </service>
 
-            <!-- system uses these when app process no running -->
-            <!-- fcm notification icon -->
+            <!-- system uses these when app process not running -->
+            <!-- todo fcm status bar icon, system converts to white at 24dp create new correct format and define separately -->
             <meta-data
                 android:name="com.google.firebase.messaging.default_notification_icon"
                 android:resource="@drawable/logo_square" />

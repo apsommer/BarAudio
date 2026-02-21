@@ -19,12 +19,7 @@ BASE_CONFIG = messaging.AndroidConfig(
     ttl = 86400,  # ttl is "time to live", 0 = "now or never", "43200" = 12h, 86400 = 24h
     notification = messaging.AndroidNotification(
         channel_id = '42',
-        visibility = 'public',
-        click_action = 'OPEN_BARAUDIO'))
-
-        # TODO
-        # click_action = "open app ..."
-        # icon = "logo ..."
+        visibility = 'public'))
 
 # https://us-central1-com-sommerengineering-baraudio.cloudfunctions.net/baraudio?uid=...
 @https_fn.on_request()
@@ -74,8 +69,13 @@ def broadcast_to_topic(topic, timestamp, message, origin):
     # construct notification
     broadcast = messaging.Message(
         notification = messaging.Notification(
-            title = timestamp,
-            body = message),
+            title = message,
+            body = get_beautiful_timestamp(timestamp) # TODO
+        data = {
+            'broadcast': topic,
+            'timestamp': timestamp,
+            'message': message,
+            'origin': origin},
         android = BASE_CONFIG,
         topic = topic)
 
@@ -88,8 +88,13 @@ def send_message_to_single_device(uid, device_token, timestamp, message, origin)
     # construct notification
     notification = messaging.Message(
         notification = messaging.Notification(
-            title = timestamp,
-            body = message),
+            title = message,
+            body = get_beautiful_timestamp(timestamp)
+        data = {
+            'broadcast': topic,
+            'timestamp': timestamp,
+            'message': message,
+            'origin': origin},
         android = BASE_CONFIG,
         token = device_token)
 
