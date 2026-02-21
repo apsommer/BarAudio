@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio
+package com.sommerengineering.baraudio.speak
 
 import android.content.Context
 import android.speech.tts.TextToSpeech
@@ -9,6 +9,7 @@ import com.sommerengineering.baraudio.uitls.volumeKey
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlin.text.iterator
 
 class TextToSpeechImpl(
     private val context: Context

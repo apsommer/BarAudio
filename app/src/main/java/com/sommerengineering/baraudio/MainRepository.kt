@@ -21,6 +21,7 @@ import com.sommerengineering.baraudio.firebase.FirebaseDatabaseImpl
 import com.sommerengineering.baraudio.messages.RapidApi
 import com.sommerengineering.baraudio.messages.Message
 import com.sommerengineering.baraudio.room.RoomImpl
+import com.sommerengineering.baraudio.speak.TextToSpeechImpl
 import com.sommerengineering.baraudio.uitls.defaultVoice
 import com.sommerengineering.baraudio.uitls.isDarkModeKey
 import com.sommerengineering.baraudio.uitls.isFullScreenKey

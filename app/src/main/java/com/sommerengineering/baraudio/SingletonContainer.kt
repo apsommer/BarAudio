@@ -11,6 +11,7 @@ import com.sommerengineering.baraudio.room.MessageDatabase
 import com.sommerengineering.baraudio.firebase.FirebaseDatabaseImpl
 import com.sommerengineering.baraudio.login.GoogleAuthenticator
 import com.sommerengineering.baraudio.messages.RapidApi
+import com.sommerengineering.baraudio.speak.TextToSpeechImpl
 import com.sommerengineering.baraudio.uitls.localCache
 import dagger.Module
 import dagger.Provides
