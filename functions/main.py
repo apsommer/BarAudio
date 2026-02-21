@@ -1,17 +1,20 @@
+import time, json
+from datetime import datetime
+import pytz
+
 from firebase_admin import initialize_app, credentials, db, messaging
 from firebase_admin.exceptions import FirebaseError
 from firebase_admin.messaging import UnregisteredError
 from firebase_functions import https_fn
-import time, json
-
-# topics
-TOPICS = {'NQ'} # todo change to hash in production
-# ...
 
 # initialize admin sdk
 APP = initialize_app(
     credential = credentials.Certificate('admin.json'),
     options = { 'databaseURL': 'https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/' })
+
+# topics
+TOPICS = {'NQ'} # TODO change to hash in production
+# ...
 
 # configure notification
 BASE_CONFIG = messaging.AndroidConfig(
@@ -21,6 +24,9 @@ BASE_CONFIG = messaging.AndroidConfig(
         channel_id = '42',
         visibility = 'public'))
 
+# display timestamp in NYC timezone
+NYC_TIMEZONE = pytz.timezone('America/New_York')
+
 # https://us-central1-com-sommerengineering-baraudio.cloudfunctions.net/baraudio?uid=...
 @https_fn.on_request()
 def baraudio(req: https_fn.Request) -> https_fn.Response:
@@ -28,16 +34,22 @@ def baraudio(req: https_fn.Request) -> https_fn.Response:
     # parse request
     topic = req.args.get(key='broadcast', type=str) # query param
     uid = req.args.get(key='uid', type=str) # query param
-    timestamp = int(time.time() * 1000) # calculate timestamp from local system
-    message = req.get_data(as_text = True) # message as plain/text from body
-    origin = str(req.headers.get('X-Forwarded-For')) # extract origin from header
+    message = req.get_data(as_text=True) # message as plain/text from body
+    origin = req.headers.get('X-Forwarded-For') # extract origin from header
+
+    # clean raw params
+    message = message.strip()[:200] if message else '' # keep messages short for client display
+    origin = origin if origin else 'unknown' # fallback if origin is empty
+
+    # calculate raw utc timestamp from system (millis)
+    timestamp = int(time.time() * 1000)
 
     # catch malformed request
     if req.method != 'POST':
         return https_fn.Response('Request must be POST and include uid as query parameter')
 
     # catch empty message
-    if message is None or len(message) == 0:
+    if len(message) == 0:
         return https_fn.Response('The message is empty')
 
     # broadcast to topic subscribers
@@ -70,10 +82,10 @@ def broadcast_to_topic(topic, timestamp, message, origin):
     broadcast = messaging.Message(
         notification = messaging.Notification(
             title = message,
-            body = get_beautiful_timestamp(timestamp) # TODO
+            body = beautify_timestamp(timestamp)),
         data = {
             'broadcast': topic,
-            'timestamp': timestamp,
+            'timestamp': str(timestamp),
             'message': message,
             'origin': origin},
         android = BASE_CONFIG,
@@ -89,10 +101,10 @@ def send_message_to_single_device(uid, device_token, timestamp, message, origin)
     notification = messaging.Message(
         notification = messaging.Notification(
             title = message,
-            body = get_beautiful_timestamp(timestamp)
+            body = beautify_timestamp(timestamp)),
         data = {
-            'broadcast': topic,
-            'timestamp': timestamp,
+            'uid': uid,
+            'timestamp': str(timestamp),
             'message': message,
             'origin': origin},
         android = BASE_CONFIG,
@@ -105,6 +117,10 @@ def send_message_to_single_device(uid, device_token, timestamp, message, origin)
 
 def delete_token_from_database(uid):
     db.reference('users').child(uid).delete()
+
+def beautify_timestamp(timestamp):
+    dt = datetime.fromtimestamp(timestamp / 1000, tz = NYC_TIMEZONE)
+    return dt.strftime('%I:%M:%S %p • %B %d, %Y').lstrip('0')
 
 # view logs
 # https://console.cloud.google.com/run/detail/us-central1/baraudio/observability/logs?inv=1&invt=AbhuYw&project=com-sommerengineering-baraudio

@@ -40,7 +40,7 @@ class FirebaseServiceImpl: FirebaseMessagingService() {
         // foreground: system delivers notification 'data' payload
             // system does not show notification
         // background: system delivers notification 'data' payload
-            // system attempts to show notification so it is manually suppressed
+            // system attempts to show notification so it must be manually suppressed
         // no app process: no payload is delivered (this method not called)
             // system shows notification defined with params in manifest
 
@@ -68,45 +68,8 @@ class FirebaseServiceImpl: FirebaseMessagingService() {
         // speak if app foreground/background and screen on, else notification
         val shouldSpeak = processState.isAlive && isScreenOn && Firebase.auth.currentUser != null
         if (shouldSpeak) { repo.speakMessage(newMessage) }
-        else { showNotification(timestamp, message)  }
     }
-
-    private fun showNotification(
-        timestamp: String,
-        message: String) {
-
-        val beautifulTimestamp = TimestampFormatter.beautify(timestamp)
-
-        // confirm permission granted
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
-            != PackageManager.PERMISSION_GRANTED) { return }
-
-        // create pending intent to activity
-        val intent = Intent(this, MainActivity::class.java)
-            .putExtra(isLaunchFromNotification, true)
-        val pendingIntent= PendingIntent
-            .getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
-
-        val builder = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(R.drawable.logo_square)
-            .setColor(ContextCompat.getColor(this, R.color.logo_blue))
-            .setContentTitle(message)
-            .setContentText(beautifulTimestamp) // collapsed
-            .setStyle(NotificationCompat.BigTextStyle().bigText(beautifulTimestamp)) // expanded
-            .setContentIntent(pendingIntent)
-            .setAutoCancel(true)
-
-        // create id from timestamp
-        val notificationId = timestamp
-            .substring(timestamp.length - 9, timestamp.length)
-            .toInt()
-
-        // show notification
-        NotificationManagerCompat.from(this).notify(
-            notificationId,
-            builder.build())
-    }
-
+    
     override fun onNewToken(token: String) =
         repo.onNewToken(token)
 }
