@@ -35,13 +35,6 @@ class FirebaseServiceImpl: FirebaseMessagingService() {
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
 
-        // foreground: system delivers notification 'data' payload
-            // system does not show notification
-        // background: system delivers notification 'data' payload
-            // system attempts to show notification so it must be manually suppressed
-        // no app process: no payload is delivered (this method not called)
-            // system shows notification defined with params in manifest
-
         // extract attributes
         val broadcast = remoteMessage.data[broadcastKey]
         val uid = remoteMessage.data[uidKey]
@@ -59,15 +52,9 @@ class FirebaseServiceImpl: FirebaseMessagingService() {
         val newMessage = Message(timestamp, message, origin)
         repo.addMessage(newMessage)
 
-        // determine if screen on
-        val powerManager = getSystemService(POWER_SERVICE) as PowerManager
-        val isScreenOn = powerManager.isInteractive
-
-        // speak if app foreground/background and screen on, else notification
-        val shouldSpeak = processState.isAlive && isScreenOn && Firebase.auth.currentUser != null
-        if (shouldSpeak) {
-            ForegroundSpeechService.start(this, newMessage)
-        }
+        // speak if app in foreground or background
+        if (!processState.isAlive || Firebase.auth.currentUser == null) return
+        ForegroundSpeechService.start(this, newMessage)
     }
 
     override fun onNewToken(token: String) =
