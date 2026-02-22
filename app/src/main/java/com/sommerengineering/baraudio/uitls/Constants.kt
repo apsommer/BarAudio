@@ -49,6 +49,10 @@ const val notificationKey = "notification"
 
 // topics
 const val nqTopic = "NQ"
+const val gcTopic = "GC"
+
+const val isNQKey = "isNQ"
+const val isGCKey = "isGC"
 
 // navigation
 const val LoginScreenRoute = "LoginScreen"
@@ -68,7 +72,6 @@ const val isMuteKey = "isMuteKey"
 const val isDarkModeKey = "isDarkMode"
 const val isFullScreenKey = "isFullScreen"
 const val isShowQuoteKey = "showQuote"
-const val isNQKey = "isNQ"
 const val volumeKey = TextToSpeech.Engine.KEY_PARAM_VOLUME
 
 // billing
@@ -90,7 +93,8 @@ const val screenTitle = "Screen"
 const val showQuoteTitle = "Mindfulness quote"
 const val nqTitle = "Nasdaq-100 (NQ)"
 const val esTitle = "S&P 500 (ES)"
-const val btcTitle = "Bitcoin (BTC)" // todo "spot" not futures
+const val btcTitle = "Bitcoin (BTC)"
+const val gcTitle = "Gold (GC)"
 const val systemTtsTitle = "System settings"
 const val privacyTitle = "Privacy policy"
 const val termsTitle = "Terms and conditions"
@@ -106,6 +110,7 @@ const val screenWindowedDescription = "Show system bars"
 const val nqDescription = "Momentum & velocity"
 const val esDescription = "Market participation"
 const val btcDescription = "Volatility & extremes"
+const val gcDescription = "Gold description ..."
 const val voiceDividerTitle = "VOICE"
 const val uiDividerTitle = "THEME"
 const val dataDividerTitle = "DATA"

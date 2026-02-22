@@ -24,8 +24,10 @@ import com.sommerengineering.baraudio.room.RoomImpl
 import com.sommerengineering.baraudio.speak.ForegroundSpeechService
 import com.sommerengineering.baraudio.speak.TextToSpeechImpl
 import com.sommerengineering.baraudio.uitls.defaultVoice
+import com.sommerengineering.baraudio.uitls.gcTopic
 import com.sommerengineering.baraudio.uitls.isDarkModeKey
 import com.sommerengineering.baraudio.uitls.isFullScreenKey
+import com.sommerengineering.baraudio.uitls.isGCKey
 import com.sommerengineering.baraudio.uitls.isMuteKey
 import com.sommerengineering.baraudio.uitls.isNQKey
 import com.sommerengineering.baraudio.uitls.isQueueAddKey
@@ -146,6 +148,16 @@ class MainRepository @Inject constructor(
         writePreference(booleanPreferencesKey(isNQKey), enabled)
     }
 
+    // stream GC
+    suspend fun loadGC() =
+        readPreference(booleanPreferencesKey(isGCKey)) ?: true
+    fun updateGC(enabled: Boolean) {
+        FirebaseMessaging.getInstance().apply {
+            if (enabled) subscribeToTopic(gcTopic) else unsubscribeFromTopic(gcTopic)
+        }
+        writePreference(booleanPreferencesKey(isGCKey), enabled)
+    }
+
     // full screen
     suspend fun loadFullScreen() =
         readPreference(booleanPreferencesKey(isFullScreenKey)) ?: false
@@ -217,7 +229,7 @@ class MainRepository @Inject constructor(
         appScope.launch {
             FirebaseMessaging.getInstance().apply {
                 if (loadNQ()) subscribeToTopic(nqTopic) else unsubscribeFromTopic(nqTopic)
-                // todo if other streamLoad() sub/unsub ...
+                if (loadGC()) subscribeToTopic(gcTopic) else unsubscribeFromTopic(gcTopic)
             }
         }
         firebaseDb.writeToken(token)

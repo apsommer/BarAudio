@@ -12,7 +12,7 @@ APP = initialize_app(
     options = { 'databaseURL': 'https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/' })
 
 # topics
-TOPICS = {'NQ'} # TODO change to hash in production
+TOPICS = {'NQ', 'GC'} # TODO change to hash in production
 # ...
 
 # configure notification
