@@ -2,7 +2,6 @@ package com.sommerengineering.baraudio.room
 
 import com.sommerengineering.baraudio.ApplicationScope
 import com.sommerengineering.baraudio.messages.Message
-import com.sommerengineering.baraudio.uitls.messagesMaxSize
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -21,7 +20,6 @@ class RoomImpl @Inject constructor(
     fun addMessage(message: Message) =
         appScope.launch {
             dao.insert(message.toEntity())
-            dao.trimToLast(messagesMaxSize)
         }
 
     fun deleteMessage(message: Message) =

@@ -25,13 +25,12 @@ const val setupUrl = "https://sommerengineering.com/baraud.io"
 const val privacyUrl = "https://sommerengineering.com/privacy_policy"
 const val termsUrl = "https://sommerengineering.com/terms_and_conditions"
 
-// firebase
+// database (firebase realtime)
 const val databaseUrl = "https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/"
 const val webhookBaseUrl = "https://us-central1-com-sommerengineering-baraudio.cloudfunctions.net/baraudio?uid="
-const val usersNodeId = "users"
-const val tokensNodeId = "tokens"
-const val gitHubProviderId = "github.com"
-const val messagesMaxSize = 1000
+const val streamsNode = "streams"
+const val usersNode = "users"
+const val tokensNode = "tokens"
 
 // notifications
 const val channelId = "42"
@@ -137,12 +136,15 @@ const val soundAnimation = "sound.json"
 const val notificationAnimation = "notification.json"
 const val linkAnimation = "link.json"
 
+// login
+const val gitHubProviderId = "github.com"
+
 // tts
 const val defaultVoice = "en-gb-x-gbd-local"  // british, male
 const val speedChangeUtterance = "Speed, "
 const val pitchChangeUtterance = "Pitch, "
 
-// origin
+// origin todo refactor
 // https://www.tradingview.com/support/solutions/43000529348-about-webhooks/
 // https://help.trendspider.com/kb/alerts/webhooks
 val tradingview = listOf(
