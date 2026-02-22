@@ -25,7 +25,7 @@ const val setupUrl = "https://sommerengineering.com/baraud.io"
 const val privacyUrl = "https://sommerengineering.com/privacy_policy"
 const val termsUrl = "https://sommerengineering.com/terms_and_conditions"
 
-// database (firebase realtime)
+// firebase database
 const val databaseUrl = "https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/"
 const val webhookBaseUrl = "https://us-central1-com-sommerengineering-baraudio.cloudfunctions.net/baraudio?uid="
 const val streamsNode = "streams"

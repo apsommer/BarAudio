@@ -22,6 +22,11 @@ class RoomImpl @Inject constructor(
             dao.insert(message.toEntity())
         }
 
+    fun addMessages(messages: List<Message>) =
+        appScope.launch {
+            dao.insertAll(messages.map { it.toEntity() })
+        }
+
     fun deleteMessage(message: Message) =
         appScope.launch {
             dao.delete(message.toEntity())

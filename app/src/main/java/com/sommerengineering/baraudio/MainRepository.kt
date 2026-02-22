@@ -65,6 +65,22 @@ class MainRepository @Inject constructor(
     fun deleteAllMessages() = roomDb.deleteAllMessages()
     fun addMessage(message: Message) = roomDb.addMessage(message)
 
+    // firebase database
+    suspend fun hydrateMessages() {
+
+        val messages = mutableListOf<Message>()
+
+        // streams
+        if (loadNQ()) messages.addAll(firebaseDb.fetchStreamMessages(nqStream))
+        if (loadGC()) messages.addAll(firebaseDb.fetchStreamMessages(gcStream))
+
+        // user specific
+        messages.addAll(firebaseDb.fetchUserMessages())
+
+        // update local room database
+        roomDb.addMessages(messages)
+    }
+
     // text-to-speech
     private val isTtsInit = tts.isInit
     private val _isTtsReady = MutableStateFlow(false)
@@ -168,18 +184,27 @@ class MainRepository @Inject constructor(
 
     init {
 
-        // wait for system initialization of tts engine, takes a few seconds
         appScope.launch {
+
+            // wait for system initialization of tts engine, takes a few seconds
             isTtsInit.filter { it }.first()
+
+            // finish tts engine with store preferences
             initTtsSettings()
             _isTtsReady.update { true }
         }
 
         // wait for firebase to initialize to ensure uid is valid
         FirebaseAuth.getInstance().addAuthStateListener { auth ->
+
             val uid = auth.currentUser?.uid ?: return@addAuthStateListener
             firebaseDb.setUid(uid)
+
+            // write new token to firebase database, if needed
             newToken?.let { token -> writeNewToken(token) }
+
+            // cold start hydration sync of firebase to local room database
+            appScope.launch { hydrateMessages() }
         }
     }
 
