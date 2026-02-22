@@ -61,9 +61,12 @@ class MainRepository @Inject constructor(
     // room database
     val messages = roomDb.messages
         .stateIn(appScope, SharingStarted.Eagerly, emptyList())
-    fun deleteMessage(message: Message) = roomDb.deleteMessage(message)
-    fun deleteAllMessages() = roomDb.deleteAllMessages()
-    fun addMessage(message: Message) = roomDb.addMessage(message)
+    fun addMessage(message: Message) =
+        appScope.launch { roomDb.addMessage(message) }
+    fun deleteMessage(message: Message) =
+        appScope.launch { roomDb.deleteMessage(message) }
+    fun deleteAllMessages() =
+        appScope.launch { roomDb.deleteAllMessages() }
 
     // firebase database
     suspend fun hydrateMessages() {

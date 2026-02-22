@@ -1,39 +1,27 @@
 package com.sommerengineering.baraudio.room
 
-import com.sommerengineering.baraudio.ApplicationScope
 import com.sommerengineering.baraudio.messages.Message
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class RoomImpl @Inject constructor(
-    @ApplicationScope private val appScope: CoroutineScope,
     private val dao: MessageDao) {
 
     val messages = dao
         .observeMessages()
         .map { entities -> entities.map { it.toMessage() } }
 
-    fun addMessage(message: Message) =
-        appScope.launch {
-            dao.insert(message.toEntity())
-        }
+    suspend fun addMessage(message: Message) =
+        dao.insert(message.toEntity())
 
-    fun addMessages(messages: List<Message>) =
-        appScope.launch {
-            dao.insertAll(messages.map { it.toEntity() })
-        }
+    suspend fun addMessages(messages: List<Message>) =
+        dao.insertAll(messages.map { it.toEntity() })
 
-    fun deleteMessage(message: Message) =
-        appScope.launch {
-            dao.delete(message.toEntity())
-        }
+    suspend fun deleteMessage(message: Message) =
+        dao.delete(message.toEntity())
 
-    fun deleteAllMessages() =
-        appScope.launch {
-            dao.deleteAll()
-        }
+    suspend fun deleteAllMessages() =
+        dao.deleteAll()
 }
