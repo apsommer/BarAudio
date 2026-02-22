@@ -149,62 +149,34 @@ fun MessagesScreen(
                     contentDescription = null,
                     alpha = animatedAlpha
                 )
+                
+                // messages list
+                LazyColumn(state = listState) {
 
-                // pull to refresh
-                PullToRefreshBox(
-                    isRefreshing = isRefreshing,
-                    state = pullToRefreshState,
-                    onRefresh = {
+                    items(
+                        items = messages,
+                        key = { it.timestamp }) { message ->
 
-                        // start spinner
-                        isRefreshing = true
+                        // highlight recent messages
+                        var isRecent by remember { mutableStateOf(true) }
+                        isRecent = recentMessageTimeMillis * 60 > System.currentTimeMillis() - message.timestamp.toLong()
 
-                        // dismiss indicator
-                        coroutine.launch {
-                            delay(1000)
-                            isRefreshing = false
-                        }
-                    },
-
-                    // default spinner from top of screen
-                    indicator = {
-                        Indicator(
+                        MessageItem(
+                            viewModel = viewModel,
+                            isRecent = isRecent,
                             modifier = Modifier
-                                .align(Alignment.TopCenter),
-                            isRefreshing = isRefreshing,
-                            containerColor = MaterialTheme.colorScheme.primaryContainer,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer,
-                            state = pullToRefreshState
-                        )
-                    }) {
-
-                    // messages list
-                    LazyColumn(state = listState) {
-
-                        items(
-                            items = messages,
-                            key = { it.timestamp }) { message ->
-
-                            // highlight recent messages
-                            var isRecent by remember { mutableStateOf(true) }
-                            isRecent = recentMessageTimeMillis * 60 > System.currentTimeMillis() - message.timestamp.toLong()
-
-                            MessageItem(
-                                viewModel = viewModel,
-                                isRecent = isRecent,
-                                modifier = Modifier
-                                    .animateItem(
-                                        fadeInSpec = spring(stiffness = Spring.StiffnessVeryLow),
-                                        fadeOutSpec = spring(stiffness = Spring.StiffnessVeryLow),
-                                        placementSpec = spring(stiffness = Spring.StiffnessVeryLow)
-                                    ),
-                                message = message,
-                                onRemove = {
-                                    viewModel.deleteMessage(message)
-                                })
-                        }
+                                .animateItem(
+                                    fadeInSpec = spring(stiffness = Spring.StiffnessVeryLow),
+                                    fadeOutSpec = spring(stiffness = Spring.StiffnessVeryLow),
+                                    placementSpec = spring(stiffness = Spring.StiffnessVeryLow)
+                                ),
+                            message = message,
+                            onRemove = {
+                                viewModel.deleteMessage(message)
+                            })
                     }
                 }
+
             }
         }
     }
