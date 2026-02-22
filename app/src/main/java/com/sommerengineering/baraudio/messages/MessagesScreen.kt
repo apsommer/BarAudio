@@ -18,8 +18,6 @@ import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
@@ -37,11 +35,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
+import com.sommerengineering.baraudio.settings.SettingsDrawer
 import com.sommerengineering.baraudio.uitls.backgroundPadding
 import com.sommerengineering.baraudio.uitls.colorTransitionTimeMillis
 import com.sommerengineering.baraudio.uitls.recentMessageTimeMillis
-import com.sommerengineering.baraudio.settings.SettingsDrawer
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -149,7 +146,7 @@ fun MessagesScreen(
                     contentDescription = null,
                     alpha = animatedAlpha
                 )
-                
+
                 // messages list
                 LazyColumn(state = listState) {
 
@@ -170,10 +167,7 @@ fun MessagesScreen(
                                     fadeOutSpec = spring(stiffness = Spring.StiffnessVeryLow),
                                     placementSpec = spring(stiffness = Spring.StiffnessVeryLow)
                                 ),
-                            message = message,
-                            onRemove = {
-                                viewModel.deleteMessage(message)
-                            })
+                            message = message)
                     }
                 }
 

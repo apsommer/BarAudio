@@ -1,6 +1,5 @@
 package com.sommerengineering.baraudio.messages
 
-import android.text.format.DateUtils
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -15,11 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.SwipeToDismissBox
-import androidx.compose.material3.SwipeToDismissBoxValue.EndToStart
-import androidx.compose.material3.SwipeToDismissBoxValue.StartToEnd
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,92 +31,81 @@ import com.sommerengineering.baraudio.uitls.parsingErrorOrigin
 import com.sommerengineering.baraudio.uitls.settingsIconSize
 import com.sommerengineering.baraudio.uitls.tradingview
 import com.sommerengineering.baraudio.uitls.trendspider
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 @Composable
 fun MessageItem(
     viewModel: MainViewModel,
     isRecent: Boolean,
     modifier: Modifier,
-    message: Message,
-    onRemove: () -> Unit) {
+    message: Message) {
 
     val timestamp = TimestampFormatter.beautify(message.timestamp)
     val text = message.message
     val origin = message.origin
     val isDarkMode = viewModel.isDarkMode
 
-    SwipeToDismissBox(
-        state = rememberSwipeToDismissBoxState(),
-        modifier = Modifier.fillMaxSize(),
-        onDismiss = { if (it == StartToEnd || it == EndToStart) { onRemove() } },
-        backgroundContent = { }) {
+    Surface(
+        modifier = modifier
+            .padding(
+                horizontal = 8.dp,
+                vertical = 4.dp),
+        color = Color.Transparent) {
 
-        Surface(
-            modifier = modifier
-                .padding(
-                    horizontal = 8.dp,
-                    vertical = 4.dp),
-            color = Color.Transparent) {
+        Column {
 
-            Column {
-
-                // container
-                Row(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(8.dp))
-                        .border(
-                            BorderStroke(
-                                width = 1.dp,
-                                color =
-                                    if (isRecent) MaterialTheme.colorScheme.outlineVariant
-                                    else MaterialTheme.colorScheme.outlineVariant
-                            ),
-                            shape = RoundedCornerShape(8.dp)
-                        )
-                        .background(
+            // container
+            Row(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .border(
+                        BorderStroke(
+                            width = 1.dp,
                             color =
-                                if (isRecent) MaterialTheme.colorScheme.surfaceBright
-                                else MaterialTheme.colorScheme.surfaceContainer
-                        )
-                        .padding(
-                            horizontal = 16.dp,
-                            vertical = 12.dp
+                                if (isRecent) MaterialTheme.colorScheme.outlineVariant
+                                else MaterialTheme.colorScheme.outlineVariant
                         ),
-                    verticalAlignment = Alignment.CenterVertically) {
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                    .background(
+                        color =
+                            if (isRecent) MaterialTheme.colorScheme.surfaceBright
+                            else MaterialTheme.colorScheme.surfaceContainer
+                    )
+                    .padding(
+                        horizontal = 16.dp,
+                        vertical = 12.dp
+                    ),
+                verticalAlignment = Alignment.CenterVertically) {
 
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .weight(1f),
-                        horizontalAlignment = Alignment.Start) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .weight(1f),
+                    horizontalAlignment = Alignment.Start) {
 
-                        // message
-                        Text(
-                            text = text,
-                            style = MaterialTheme.typography.titleMedium)
-
-                        Spacer(
-                            modifier = Modifier
-                                .height(4.dp))
-
-                        // timestamp
-                        Text(
-                            text = timestamp,
-                            style = MaterialTheme.typography.bodyMedium)
-                    }
+                    // message
+                    Text(
+                        text = text,
+                        style = MaterialTheme.typography.titleMedium)
 
                     Spacer(
                         modifier = Modifier
-                            .padding(edgePadding))
+                            .height(4.dp))
 
-                    // origin
-                    OriginImage(
-                        origin = origin,
-                        isDarkMode = isDarkMode)
+                    // timestamp
+                    Text(
+                        text = timestamp,
+                        style = MaterialTheme.typography.bodyMedium)
                 }
+
+                Spacer(
+                    modifier = Modifier
+                        .padding(edgePadding))
+
+                // origin
+                OriginImage(
+                    origin = origin,
+                    isDarkMode = isDarkMode)
             }
         }
     }

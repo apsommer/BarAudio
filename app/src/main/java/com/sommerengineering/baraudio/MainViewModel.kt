@@ -44,8 +44,6 @@ class MainViewModel @Inject constructor(
 
     // room database
     val messages = repo.messages
-    fun deleteAllMessages() = repo.deleteAllMessages()
-    fun deleteMessage(message: Message) = repo.deleteMessage(message)
 
     // text-to-speech
     val isTtsReady = repo.isTtsReady

@@ -58,10 +58,10 @@ fun MessagesTopBar(
                 contentDescription = null)
         },
 
-        // delete all
+        // todo refactor to group/ungroup
         actions = {
             IconButton(
-                onClick = { viewModel.deleteAllMessages() },
+                onClick = { },
                 enabled = !isEmpty) {
                 Icon(
                     painter = painterResource(R.drawable.delete_sweep),
