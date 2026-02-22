@@ -1,5 +1,6 @@
 import time, json
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from firebase_admin import initialize_app, credentials, db, messaging
 from firebase_admin.exceptions import FirebaseError
@@ -19,6 +20,35 @@ TOPICS = {'NQ', 'GC'} # TODO change to hash in production
 BASE_CONFIG = messaging.AndroidConfig(
     priority = 'high',  # "normal" is default, "high" attempts to wake device in doze mode
     ttl = 86400)  # ttl is "time to live", 0 = "now or never", "43200" = 12h, 86400 = 24h
+
+NYC = ZoneInfo("America/New_York")
+UTC = ZoneInfo("UTC")
+
+def get_cutoff_timestamp(timestamp: int) -> int:
+
+    nyc_time = datetime.fromtimestamp(timestamp / 1000, NYC) # covert to NYC timezone
+    session_start = nyc_time.replace(hour = 18, minute = 0, second = 0, microsecond = 0) # market close for today
+    if session_start > nyc_time: session_start -= timedelta(days = 1) # before close, session start started yesterday
+    return int(session_start.timestamp() * 1000) # convert to UTC
+
+def write_message_to_database(stream, uid, timestamp, message, origin):
+
+    # determine reference node
+    if stream: ref = db.reference(f'streams/{stream}')
+    else if uid: ref = db.reference(f'users/{uid}/alerts')
+    else: return
+
+    # write message to database
+    ref.child(str(timestamp)).set({
+        'message': message,
+        'origin': origin})
+
+    # purge old messages
+    cutoff_timestamp = get_cutoff_timestamp(timestamp)
+    old_messages = ref.order_by_key().start_at(str(cutoff_timestamp)).get()
+    if old_messages:
+        for key in old_messages.keys():
+            ref.child(key).delete()
 
 # https://us-central1-com-sommerengineering-baraudio.cloudfunctions.net/baraudio?uid=...
 @https_fn.on_request()
