@@ -1,27 +1,15 @@
 package com.sommerengineering.baraudio.firebase
 
-import android.Manifest
-import android.app.PendingIntent
-import android.content.Intent
-import android.content.pm.PackageManager
-import androidx.core.app.ActivityCompat
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import com.sommerengineering.baraudio.AppVisibility
-import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainRepository
-import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.uitls.broadcastKey
-import com.sommerengineering.baraudio.uitls.channelId
-import com.sommerengineering.baraudio.uitls.isLaunchFromNotification
-import com.sommerengineering.baraudio.uitls.messageKey
+import com.sommerengineering.baraudio.ProcessState
 import com.sommerengineering.baraudio.messages.Message
-import com.sommerengineering.baraudio.uitls.TimestampFormatter
+import com.sommerengineering.baraudio.speak.ForegroundSpeechService
+import com.sommerengineering.baraudio.uitls.broadcastKey
+import com.sommerengineering.baraudio.uitls.messageKey
 import com.sommerengineering.baraudio.uitls.originKey
 import com.sommerengineering.baraudio.uitls.timestampKey
 import com.sommerengineering.baraudio.uitls.uidKey
@@ -32,69 +20,39 @@ import javax.inject.Inject
 class FirebaseServiceImpl: FirebaseMessagingService() {
 
     @Inject lateinit var repo: MainRepository
-    @Inject lateinit var appVisibility: AppVisibility
+    @Inject lateinit var processState: ProcessState
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
 
-        // extract attributes
-        val broadcast = remoteMessage.data[broadcastKey]
-        val uid = remoteMessage.data[uidKey]
-        val timestamp = remoteMessage.data[timestampKey] ?: return
-        val message = remoteMessage.data[messageKey] ?: return
-        val origin = remoteMessage.data[originKey] ?: return
+        // ensure app is foreground or background
+        if (!processState.isAlive) return
 
-        // catch malformed message
-        if (broadcast == null && uid == null) return
+        // convert remote message to domain model
+        val message = remoteMessage.toMessage() ?: return
 
-        // catch different user on same device
-        if (uid != null && uid != Firebase.auth.currentUser?.uid) return
-
-        val newMessage = Message(timestamp, message, origin)
-        repo.addMessage(newMessage)
-
-        // show notification if app closed or user not signed-in, else speak
-        val isShowNotification = !appVisibility.isForeground || Firebase.auth.currentUser == null
-        if (isShowNotification) { showNotification(timestamp, message) }
-        else { repo.speakMessage(Message(timestamp, message, origin)) }
+        repo.addMessage(message)
+        ForegroundSpeechService.start(this, message)
     }
 
-    private fun showNotification(
-        timestamp: String,
-        message: String) {
+    private fun RemoteMessage.toMessage(): Message? {
 
-        val beautifulTimestamp = TimestampFormatter.beautify(timestamp)
+        // message is broadcast from topic, or send to specific user device
+        val broadcast = data[broadcastKey]
+        val uid = data[uidKey]
+        if (broadcast == null && uid == null) return null
 
-        // confirm permission granted
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
-            != PackageManager.PERMISSION_GRANTED) { return }
+        // catch different user on same device
+        val currentUid = Firebase.auth.currentUser?.uid ?: return null
+        if (uid != null && uid != currentUid) return null
 
-        // create pending intent to activity
-        val intent = Intent(this, MainActivity::class.java)
-            .putExtra(isLaunchFromNotification, true)
-        val pendingIntent= PendingIntent
-            .getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+        // validate payload
+        val timestamp = data[timestampKey] ?: return null
+        val message = data[messageKey] ?: return null
+        val origin = data[originKey] ?: return null
 
-        val builder = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(R.drawable.logo_square)
-            .setColor(ContextCompat.getColor(this, R.color.logo_blue))
-            .setContentTitle(message)
-            .setContentText(beautifulTimestamp) // collapsed
-            .setStyle(NotificationCompat.BigTextStyle().bigText(beautifulTimestamp)) // expanded
-            .setContentIntent(pendingIntent)
-            .setAutoCancel(true)
-
-        // create id from timestamp
-        val notificationId = timestamp
-            .substring(timestamp.length - 9, timestamp.length)
-            .toInt()
-
-        // show notification
-        NotificationManagerCompat.from(this).notify(
-            notificationId,
-            builder.build())
+        return Message(timestamp, message, origin)
     }
 
     override fun onNewToken(token: String) =
         repo.onNewToken(token)
 }
-

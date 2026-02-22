@@ -33,6 +33,7 @@ import com.sommerengineering.baraudio.uitls.nqTitle
 import com.sommerengineering.baraudio.uitls.howToSetupTitle
 import com.sommerengineering.baraudio.uitls.legalDividerTitle
 import com.sommerengineering.baraudio.uitls.manageSubscriptionTitle
+import com.sommerengineering.baraudio.uitls.pitchChangeUtterance
 import com.sommerengineering.baraudio.uitls.pitchTitle
 import com.sommerengineering.baraudio.uitls.privacyTitle
 import com.sommerengineering.baraudio.uitls.privacyUrl
@@ -41,6 +42,7 @@ import com.sommerengineering.baraudio.uitls.screenTitle
 import com.sommerengineering.baraudio.uitls.setupUrl
 import com.sommerengineering.baraudio.uitls.showQuoteTitle
 import com.sommerengineering.baraudio.uitls.signOutTitle
+import com.sommerengineering.baraudio.uitls.speedChangeUtterance
 import com.sommerengineering.baraudio.uitls.speedTitle
 import com.sommerengineering.baraudio.uitls.subscriptionUrl
 import com.sommerengineering.baraudio.uitls.systemTtsPackageName
@@ -131,7 +133,9 @@ fun SettingsDrawer(
                         SliderImpl(
                             initPosition = speed,
                             onValueChanged = { viewModel.updateSpeed(it) },
-                            onValueChangeFinished = { viewModel.speakLastMessage() })
+                            onValueChangeFinished = {
+                                viewModel.speakMessage(speedChangeUtterance + it)
+                            })
                     }
             }
 
@@ -145,7 +149,9 @@ fun SettingsDrawer(
                         SliderImpl(
                             initPosition = pitch,
                             onValueChanged = { viewModel.updatePitch(it) },
-                            onValueChangeFinished = { viewModel.speakLastMessage() })
+                            onValueChangeFinished = {
+                                viewModel.speakMessage(pitchChangeUtterance + it)
+                            })
                         }
             }
 

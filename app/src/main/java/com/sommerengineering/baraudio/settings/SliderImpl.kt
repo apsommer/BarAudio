@@ -7,12 +7,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import kotlin.math.roundToInt
 
 @Composable
 fun SliderImpl(
     initPosition: Float,
     onValueChanged: (Float) -> Unit,
-    onValueChangeFinished: () -> Unit) {
+    onValueChangeFinished: (Float) -> Unit) {
 
     var position = initPosition
 
@@ -20,11 +21,11 @@ fun SliderImpl(
         Slider(
             value = position,
             onValueChange = {
-                position = it
-                onValueChanged(it)
+                position = (it * 10).roundToInt() / 10f // clean float artifacts
+                onValueChanged(position)
             },
             onValueChangeFinished = {
-                onValueChangeFinished()
+                onValueChangeFinished(position)
             },
             valueRange = 0.5f..2f,
             steps = 14)

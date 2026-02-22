@@ -16,9 +16,9 @@ fun logException(e: Exception) {
 }
 
 // durations
-const val colorTransitionTimeMillis = 100
-const val recentMessageTimeMillis = 3000
+const val recentMessageTimeMillis = 15000
 const val bottomBarTransitionTimeMillis = 1000
+const val colorTransitionTimeMillis = 100
 
 // urls
 const val setupUrl = "https://sommerengineering.com/baraud.io"
@@ -38,14 +38,14 @@ const val channelName = "Webhook"
 const val channelDescription = "Realtime data connection for BarAudio"
 const val channelGroupId = "42"
 const val channelGroupName = "Webhook"
-const val isLaunchFromNotification = "isLaunchFromNotification"
 const val broadcastKey = "broadcast"
 const val uidKey = "uid"
 const val timestampKey = "timestamp"
 const val messageKey = "message"
 const val originKey = "origin"
-const val defaultUtterance = "Thank you for using Bar Audio, please customize your webhook to continue!"
 const val messageParsingError = "Error parsing message"
+const val notificationId = 42
+const val notificationKey = "notification"
 
 // topics
 const val nqTopic = "NQ"
@@ -97,8 +97,8 @@ const val termsTitle = "Terms and conditions"
 const val manageSubscriptionTitle = "Manage subscription"
 const val signOutTitle = "Sign-out"
 
-const val queueBehaviorFlushDescription = "Play new alerts immediately"
-const val queueBehaviorAddDescription = "Add new alerts to queue"
+const val queueFlushDescription = "Play new alerts immediately"
+const val queueAddDescription = "Add new alerts to queue"
 const val uiDarkDescription = "Dark"
 const val uiLightDescription = "Light"
 const val screenFullDescription = "Full screen"
@@ -135,6 +135,8 @@ const val linkAnimation = "link.json"
 
 // tts
 const val defaultVoice = "en-gb-x-gbd-local"  // british, male
+const val speedChangeUtterance = "Speed, "
+const val pitchChangeUtterance = "Pitch, "
 
 // origin
 // https://www.tradingview.com/support/solutions/43000529348-about-webhooks/

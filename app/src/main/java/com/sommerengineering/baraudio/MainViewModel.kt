@@ -8,32 +8,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
-import androidx.credentials.GetCredentialRequest
-import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.libraries.identity.googleid.GetGoogleIdOption
-import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
-import com.google.firebase.Firebase
-import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.auth.auth
 import com.sommerengineering.baraudio.login.GitHubAuthenticator
 import com.sommerengineering.baraudio.login.GoogleAuthenticator
 import com.sommerengineering.baraudio.messages.Message
 import com.sommerengineering.baraudio.messages.MindfulnessQuoteState
 import com.sommerengineering.baraudio.uitls.MessagesScreenRoute
 import com.sommerengineering.baraudio.uitls.OnboardingTextToSpeechScreenRoute
-import com.sommerengineering.baraudio.uitls.defaultUtterance
-import com.sommerengineering.baraudio.uitls.insomnia
+import com.sommerengineering.baraudio.uitls.RomanNumerals
 import com.sommerengineering.baraudio.uitls.localOrigin
-import com.sommerengineering.baraudio.uitls.logException
-import com.sommerengineering.baraudio.uitls.parsingErrorOrigin
-import com.sommerengineering.baraudio.uitls.queueBehaviorAddDescription
-import com.sommerengineering.baraudio.uitls.queueBehaviorFlushDescription
+import com.sommerengineering.baraudio.uitls.queueAddDescription
+import com.sommerengineering.baraudio.uitls.queueFlushDescription
 import com.sommerengineering.baraudio.uitls.screenFullDescription
 import com.sommerengineering.baraudio.uitls.screenWindowedDescription
-import com.sommerengineering.baraudio.uitls.tradingview
-import com.sommerengineering.baraudio.uitls.trendspider
 import com.sommerengineering.baraudio.uitls.uiDarkDescription
 import com.sommerengineering.baraudio.uitls.uiLightDescription
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -44,7 +32,6 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 @HiltViewModel
@@ -73,8 +60,9 @@ class MainViewModel @Inject constructor(
     fun setVoice(value: Voice) {
         repo.voice = value
         voiceIndex = voices.indexOfFirst { it.name == value.name }
-        voiceDescription = beautifyVoiceName(value.name)
-        speakLastMessage()
+        val beautifulVoice = beautifyVoiceName(value.name)
+        voiceDescription = beautifulVoice
+        speakMessage(beautifulVoice)
     }
 
     // speed
@@ -107,9 +95,11 @@ class MainViewModel @Inject constructor(
     fun updateQueueAdd(enabled: Boolean) {
         isQueueAdd = enabled
         repo.isQueueAdd = enabled
-        queueDescription =
-            if (enabled) queueBehaviorAddDescription
-            else queueBehaviorFlushDescription
+        val newQueueDescription =
+            if (enabled) queueAddDescription
+            else queueFlushDescription
+        queueDescription = newQueueDescription
+        speakMessage(newQueueDescription)
     }
 
     // mute
@@ -119,15 +109,13 @@ class MainViewModel @Inject constructor(
         isMute = !isMute
         repo.isMute = isMute
     }
-    fun speakLastMessage() {
-        val message = messages.value.lastOrNull() ?:
-            Message(
+    fun speakMessage(utterance: String) =
+        viewModelScope.launch {
+            repo.speakMessage(Message(
                 timestamp = System.currentTimeMillis().toString(),
-                message = defaultUtterance,
-                origin = localOrigin
-            )
-        repo.speakMessage(message)
-    }
+                message = utterance,
+                origin = localOrigin))
+        }
 
     // onboarding
     var isOnboardingComplete by mutableStateOf(false)
@@ -218,8 +206,8 @@ class MainViewModel @Inject constructor(
         speedDescription = repo.speed.toString()
         pitchDescription = repo.pitch.toString()
         queueDescription =
-            if (isQueueAdd) queueBehaviorAddDescription
-            else queueBehaviorFlushDescription
+            if (isQueueAdd) queueAddDescription
+            else queueFlushDescription
     }
 
     fun saveToWebhookClipboard(webhookUrl: String) = repo.saveToClipboard(webhookUrl)
@@ -239,7 +227,6 @@ class MainViewModel @Inject constructor(
         onAuthentication: () -> Unit) = viewModelScope.launch {
         if (googleAuthenticator.signIn(context)) { onAuthentication() }
     }
-
     fun signInWithGitHub(
         context: Context,
         onAuthentication: () -> Unit) = viewModelScope.launch {
@@ -255,14 +242,7 @@ class MainViewModel @Inject constructor(
 
     // beautiful voice names
     private val beautifulVoiceNames = hashMapOf<String, String>()
-
-    private val romanNumerals = arrayOf(
-        "I","II","III","IV","V","VI","VII","VIII","IX","X",
-        "XI","XII","XIII","XIV","XV","XVI","XVII","XVIII","XIX","XX")
-
-    private fun roman(number: Int): String =
-        romanNumerals.getOrElse(number) { (number + 1).toString()}
-
+    fun beautifyVoiceName(name: String) = beautifulVoiceNames[name] ?: ""
     private fun createBeautifulVoices() {
 
         // group voices by locale
@@ -276,10 +256,8 @@ class MainViewModel @Inject constructor(
             .forEach { localeGroupVoices ->
                 localeGroupVoices.forEachIndexed { i, voice ->
                     beautifulVoiceNames[voice.name] =
-                        "${voice.locale.displayName} • Voice ${roman(i)}"
+                        "${voice.locale.displayName} • Voice ${RomanNumerals.toNumeral(i)}"
                 }
             }
     }
-
-    fun beautifyVoiceName(name: String) = beautifulVoiceNames[name] ?: ""
 }

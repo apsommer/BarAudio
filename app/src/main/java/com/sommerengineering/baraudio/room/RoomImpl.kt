@@ -7,7 +7,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class RoomImpl @Inject constructor(
     @ApplicationScope private val appScope: CoroutineScope,
     private val dao: MessageDao) {

@@ -21,6 +21,8 @@ import com.sommerengineering.baraudio.firebase.FirebaseDatabaseImpl
 import com.sommerengineering.baraudio.messages.RapidApi
 import com.sommerengineering.baraudio.messages.Message
 import com.sommerengineering.baraudio.room.RoomImpl
+import com.sommerengineering.baraudio.speak.ForegroundSpeechService
+import com.sommerengineering.baraudio.speak.TextToSpeechImpl
 import com.sommerengineering.baraudio.uitls.defaultVoice
 import com.sommerengineering.baraudio.uitls.isDarkModeKey
 import com.sommerengineering.baraudio.uitls.isFullScreenKey
@@ -31,6 +33,7 @@ import com.sommerengineering.baraudio.uitls.isShowQuoteKey
 import com.sommerengineering.baraudio.uitls.nqTopic
 import com.sommerengineering.baraudio.uitls.onboardingKey
 import com.sommerengineering.baraudio.uitls.pitchKey
+import com.sommerengineering.baraudio.uitls.recentMessageTimeMillis
 import com.sommerengineering.baraudio.uitls.speedKey
 import com.sommerengineering.baraudio.uitls.voiceNameKey
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -44,8 +47,10 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.math.roundToInt
 
+@Singleton
 class MainRepository @Inject constructor(
     @ApplicationContext val context: Context,
     @ApplicationScope val appScope: CoroutineScope,
@@ -111,8 +116,12 @@ class MainRepository @Inject constructor(
             if (value && tts.isSpeaking()) { tts.stop() } // stop any current speech
             writePreference(booleanPreferencesKey(isMuteKey), value)
         }
-    fun speakMessage(message: Message) =
+    suspend fun speakMessage(message: Message) {
+
+        // ensure engine is ready
+        isTtsReady.filter { it }.first()
         tts.speak(message.timestamp, message.message)
+    }
 
     // onboarding
     suspend fun loadOnboarding() =

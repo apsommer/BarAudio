@@ -11,6 +11,7 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.hilt)
+    id("kotlin-parcelize")
 }
 
 // import release upload signing keystore
@@ -154,7 +155,6 @@ dependencies {
     implementation("androidx.room:room-runtime:2.8.4")
     implementation("androidx.room:room-ktx:2.8.4")
     ksp("androidx.room:room-compiler:2.8.4")
-
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
