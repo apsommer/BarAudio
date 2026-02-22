@@ -29,7 +29,7 @@ const val termsUrl = "https://sommerengineering.com/terms_and_conditions"
 const val databaseUrl = "https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/"
 const val webhookBaseUrl = "https://us-central1-com-sommerengineering-baraudio.cloudfunctions.net/baraudio?uid="
 const val usersNodeId = "users"
-const val tokenKeyId = "token"
+const val tokensNodeId = "tokens"
 const val gitHubProviderId = "github.com"
 const val messagesMaxSize = 1000
 

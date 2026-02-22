@@ -3,8 +3,7 @@ package com.sommerengineering.baraudio.firebase
 import com.google.firebase.Firebase
 import com.google.firebase.database.database
 import com.sommerengineering.baraudio.uitls.databaseUrl
-import com.sommerengineering.baraudio.uitls.tokenKeyId
-import com.sommerengineering.baraudio.uitls.usersNodeId
+import com.sommerengineering.baraudio.uitls.tokensNodeId
 
 class FirebaseDatabaseImpl {
 
@@ -17,8 +16,7 @@ class FirebaseDatabaseImpl {
     }
 
     fun writeToken(token: String) =
-        db.getReference(usersNodeId)
+        db.getReference(tokensNodeId)
             .child(uid)
-            .child(tokenKeyId)
             .setValue(token)
 }
