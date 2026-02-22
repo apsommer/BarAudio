@@ -31,7 +31,7 @@
             </intent-filter>
         </activity>
 
-        <!-- service to speak when app backgrounded -->
+        <!-- foreground service -->
         <service
             android:name=".speak.ForegroundSpeechService"
             android:exported="false"
@@ -47,7 +47,8 @@
         </service>
 
             <!-- system uses these when app process not running -->
-            <!-- todo fcm status bar icon, system converts to white at 24dp create new correct format and define separately -->
+            <!-- todo fcm status bar icon, system converts to white at 24dp
+                    TODO: these can all be delete if safe (?) system generated notifications not possible -->
             <meta-data
                 android:name="com.google.firebase.messaging.default_notification_icon"
                 android:resource="@drawable/logo_square" />
