@@ -5,8 +5,6 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
 import android.widget.Toast
-import androidx.credentials.ClearCredentialStateRequest
-import androidx.credentials.CredentialManager
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -21,10 +19,9 @@ import com.sommerengineering.baraudio.firebase.FirebaseDatabaseImpl
 import com.sommerengineering.baraudio.messages.RapidApi
 import com.sommerengineering.baraudio.messages.Message
 import com.sommerengineering.baraudio.room.RoomImpl
-import com.sommerengineering.baraudio.speak.ForegroundSpeechService
 import com.sommerengineering.baraudio.speak.TextToSpeechImpl
 import com.sommerengineering.baraudio.uitls.defaultVoice
-import com.sommerengineering.baraudio.uitls.gcTopic
+import com.sommerengineering.baraudio.uitls.gcStream
 import com.sommerengineering.baraudio.uitls.isDarkModeKey
 import com.sommerengineering.baraudio.uitls.isFullScreenKey
 import com.sommerengineering.baraudio.uitls.isGCKey
@@ -32,10 +29,9 @@ import com.sommerengineering.baraudio.uitls.isMuteKey
 import com.sommerengineering.baraudio.uitls.isNQKey
 import com.sommerengineering.baraudio.uitls.isQueueAddKey
 import com.sommerengineering.baraudio.uitls.isShowQuoteKey
-import com.sommerengineering.baraudio.uitls.nqTopic
+import com.sommerengineering.baraudio.uitls.nqStream
 import com.sommerengineering.baraudio.uitls.onboardingKey
 import com.sommerengineering.baraudio.uitls.pitchKey
-import com.sommerengineering.baraudio.uitls.recentMessageTimeMillis
 import com.sommerengineering.baraudio.uitls.speedKey
 import com.sommerengineering.baraudio.uitls.voiceNameKey
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -143,7 +139,7 @@ class MainRepository @Inject constructor(
         readPreference(booleanPreferencesKey(isNQKey)) ?: true
     fun updateNQ(enabled: Boolean) {
         FirebaseMessaging.getInstance().apply {
-            if (enabled) subscribeToTopic(nqTopic) else unsubscribeFromTopic(nqTopic)
+            if (enabled) subscribeToTopic(nqStream) else unsubscribeFromTopic(nqStream)
         }
         writePreference(booleanPreferencesKey(isNQKey), enabled)
     }
@@ -153,7 +149,7 @@ class MainRepository @Inject constructor(
         readPreference(booleanPreferencesKey(isGCKey)) ?: true
     fun updateGC(enabled: Boolean) {
         FirebaseMessaging.getInstance().apply {
-            if (enabled) subscribeToTopic(gcTopic) else unsubscribeFromTopic(gcTopic)
+            if (enabled) subscribeToTopic(gcStream) else unsubscribeFromTopic(gcStream)
         }
         writePreference(booleanPreferencesKey(isGCKey), enabled)
     }
@@ -228,8 +224,8 @@ class MainRepository @Inject constructor(
     fun writeNewToken(token: String) {
         appScope.launch {
             FirebaseMessaging.getInstance().apply {
-                if (loadNQ()) subscribeToTopic(nqTopic) else unsubscribeFromTopic(nqTopic)
-                if (loadGC()) subscribeToTopic(gcTopic) else unsubscribeFromTopic(gcTopic)
+                if (loadNQ()) subscribeToTopic(nqStream) else unsubscribeFromTopic(nqStream)
+                if (loadGC()) subscribeToTopic(gcStream) else unsubscribeFromTopic(gcStream)
             }
         }
         firebaseDb.writeToken(token)

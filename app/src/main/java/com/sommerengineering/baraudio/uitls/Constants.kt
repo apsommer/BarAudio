@@ -48,12 +48,9 @@ const val messageParsingError = "Error parsing message"
 const val notificationId = 42
 const val notificationKey = "notification"
 
-// topics
-const val nqTopic = "NQ"
-const val gcTopic = "GC"
-
-const val isNQKey = "isNQ"
-const val isGCKey = "isGC"
+// streams
+const val nqStream = "NQ"
+const val gcStream = "GC"
 
 // navigation
 const val LoginScreenRoute = "LoginScreen"
@@ -74,6 +71,8 @@ const val isDarkModeKey = "isDarkMode"
 const val isFullScreenKey = "isFullScreen"
 const val isShowQuoteKey = "showQuote"
 const val volumeKey = TextToSpeech.Engine.KEY_PARAM_VOLUME
+const val isNQKey = "isNQ"
+const val isGCKey = "isGC"
 
 // billing
 const val productId = "subscription" // match play store config
@@ -101,7 +100,10 @@ const val privacyTitle = "Privacy policy"
 const val termsTitle = "Terms and conditions"
 const val manageSubscriptionTitle = "Manage subscription"
 const val signOutTitle = "Sign-out"
-
+const val voiceDividerTitle = "VOICE"
+const val uiDividerTitle = "THEME"
+const val dataDividerTitle = "DATA"
+const val legalDividerTitle = "LEGAL"
 const val queueFlushDescription = "Play new alerts immediately"
 const val queueAddDescription = "Add new alerts to queue"
 const val uiDarkDescription = "Dark"
@@ -112,10 +114,6 @@ const val nqDescription = "Momentum & velocity"
 const val esDescription = "Market participation"
 const val btcDescription = "Volatility & extremes"
 const val gcDescription = "Gold description ..."
-const val voiceDividerTitle = "VOICE"
-const val uiDividerTitle = "THEME"
-const val dataDividerTitle = "DATA"
-const val legalDividerTitle = "LEGAL"
 
 // images
 const val deleteAllFadeDurationMillis = 1000

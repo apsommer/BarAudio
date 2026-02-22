@@ -36,7 +36,7 @@ class FirebaseServiceImpl: FirebaseMessagingService() {
 
     private fun RemoteMessage.toMessage(): Message? {
 
-        // message is broadcast from topic, or send to specific user device
+        // message is broadcast from stream, or send to specific user device
         val broadcast = data[broadcastKey]
         val uid = data[uidKey]
         if (broadcast == null && uid == null) return null
