@@ -47,8 +47,10 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.math.roundToInt
 
+@Singleton
 class MainRepository @Inject constructor(
     @ApplicationContext val context: Context,
     @ApplicationScope val appScope: CoroutineScope,
