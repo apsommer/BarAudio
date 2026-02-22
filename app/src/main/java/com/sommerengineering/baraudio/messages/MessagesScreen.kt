@@ -154,7 +154,7 @@ fun MessagesScreen(
                         items = messages,
                         key = { it.timestamp }) { message ->
 
-                        // highlight recent messages
+                        // highlight recent messages todo refactor to isSpeaking
                         var isRecent by remember { mutableStateOf(true) }
                         isRecent = recentMessageTimeMillis * 60 > System.currentTimeMillis() - message.timestamp.toLong()
 
@@ -170,7 +170,6 @@ fun MessagesScreen(
                             message = message)
                     }
                 }
-
             }
         }
     }

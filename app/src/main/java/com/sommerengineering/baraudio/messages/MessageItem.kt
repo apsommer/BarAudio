@@ -4,13 +4,16 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -26,7 +29,9 @@ import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.uitls.TimestampFormatter
 import com.sommerengineering.baraudio.uitls.edgePadding
+import com.sommerengineering.baraudio.uitls.gcStream
 import com.sommerengineering.baraudio.uitls.insomnia
+import com.sommerengineering.baraudio.uitls.nqStream
 import com.sommerengineering.baraudio.uitls.parsingErrorOrigin
 import com.sommerengineering.baraudio.uitls.settingsIconSize
 import com.sommerengineering.baraudio.uitls.tradingview
@@ -39,74 +44,44 @@ fun MessageItem(
     modifier: Modifier,
     message: Message) {
 
+    // extract attributes
     val timestamp = TimestampFormatter.beautify(message.timestamp)
     val text = message.message
     val origin = message.origin
-    val isDarkMode = viewModel.isDarkMode
 
-    Surface(
-        modifier = modifier
-            .padding(
-                horizontal = 8.dp,
-                vertical = 4.dp),
-        color = Color.Transparent) {
+    // accent color
+    val accentColor = when (origin) {
+        nqStream -> Color(0xFF7B61FF)
+        gcStream -> Color(0xFFD4AF37)
+        else -> MaterialTheme.colorScheme.outlineVariant
+    }
 
-        Column {
+    Surface(modifier) {
 
-            // container
-            Row(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(8.dp))
-                    .border(
-                        BorderStroke(
-                            width = 1.dp,
-                            color =
-                                if (isRecent) MaterialTheme.colorScheme.outlineVariant
-                                else MaterialTheme.colorScheme.outlineVariant
-                        ),
-                        shape = RoundedCornerShape(8.dp)
-                    )
-                    .background(
-                        color =
-                            if (isRecent) MaterialTheme.colorScheme.surfaceBright
-                            else MaterialTheme.colorScheme.surfaceContainer
-                    )
-                    .padding(
-                        horizontal = 16.dp,
-                        vertical = 12.dp
-                    ),
-                verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            modifier = Modifier
+                .background(
+                        if (isRecent) MaterialTheme.colorScheme.surfaceBright
+                        else MaterialTheme.colorScheme.surfaceContainer)
+                .padding(16.dp, 12.dp),
+            verticalAlignment = Alignment.CenterVertically) {
 
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .weight(1f),
-                    horizontalAlignment = Alignment.Start) {
-
-                    // message
-                    Text(
-                        text = text,
-                        style = MaterialTheme.typography.titleMedium)
-
-                    Spacer(
-                        modifier = Modifier
-                            .height(4.dp))
-
-                    // timestamp
-                    Text(
-                        text = timestamp,
-                        style = MaterialTheme.typography.bodyMedium)
-                }
-
-                Spacer(
-                    modifier = Modifier
-                        .padding(edgePadding))
-
-                // origin
-                OriginImage(
-                    origin = origin,
-                    isDarkMode = isDarkMode)
+            // message, timestamp
+            Column(
+                modifier = Modifier.fillMaxSize().weight(1f),
+                horizontalAlignment = Alignment.Start) {
+                Text(
+                    text = text,
+                    style = MaterialTheme.typography.titleMedium)
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = timestamp,
+                    style = MaterialTheme.typography.bodyMedium)
             }
+
+            // origin image
+            Spacer(Modifier.padding(edgePadding))
+            OriginImage(origin, viewModel.isDarkMode)
         }
     }
 }
@@ -117,6 +92,12 @@ private fun OriginImage(
     isDarkMode: Boolean) {
 
     val imageId = when (origin) {
+
+        // streams
+        nqStream -> R.drawable.google
+        gcStream -> R.drawable.check_circle
+
+        // user specific
         in tradingview -> {
             if (isDarkMode) R.drawable.tradingview_light
             else R.drawable.tradingview_dark
@@ -129,8 +110,8 @@ private fun OriginImage(
 
     // origin
     Image(
-        modifier = Modifier
-            .size(settingsIconSize),
+        modifier = Modifier.size(settingsIconSize),
         painter = painterResource(imageId),
         contentDescription = null)
 }
+
