@@ -18,10 +18,4 @@ class RoomImpl @Inject constructor(
 
     suspend fun addMessages(messages: List<Message>) =
         dao.insertAll(messages.map { it.toEntity() })
-
-    suspend fun deleteMessage(message: Message) =
-        dao.delete(message.toEntity())
-
-    suspend fun deleteAllMessages() =
-        dao.deleteAll()
 }
