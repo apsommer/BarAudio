@@ -1,6 +1,5 @@
 import time, json
 from datetime import datetime
-from zoneinfo import ZoneInfo
 
 from firebase_admin import initialize_app, credentials, db, messaging
 from firebase_admin.exceptions import FirebaseError
@@ -19,13 +18,7 @@ TOPICS = {'NQ'} # TODO change to hash in production
 # configure notification
 BASE_CONFIG = messaging.AndroidConfig(
     priority = 'high',  # "normal" is default, "high" attempts to wake device in doze mode
-    ttl = 86400,  # ttl is "time to live", 0 = "now or never", "43200" = 12h, 86400 = 24h
-    notification = messaging.AndroidNotification(
-        channel_id = '42',
-        visibility = 'public'))
-
-# display timestamp in NYC timezone
-NYC_TIMEZONE = ZoneInfo('America/New_York')
+    ttl = 86400)  # ttl is "time to live", 0 = "now or never", "43200" = 12h, 86400 = 24h
 
 # https://us-central1-com-sommerengineering-baraudio.cloudfunctions.net/baraudio?uid=...
 @https_fn.on_request()
