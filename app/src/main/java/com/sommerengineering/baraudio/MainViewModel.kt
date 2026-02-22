@@ -146,6 +146,14 @@ class MainViewModel @Inject constructor(
         repo.updateNQ(enabled)
     }
 
+    // stream GC
+    var isGC by mutableStateOf(true)
+        private set
+    fun updateGC(enabled: Boolean) {
+        isGC = enabled
+        repo.updateGC(enabled)
+    }
+
     // fullscreen
     var isFullScreen by mutableStateOf(false)
         private set
@@ -174,6 +182,7 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             isOnboardingComplete = repo.loadOnboarding()
             isNQ = repo.loadNQ()
+            isGC = repo.loadGC()
             isFullScreen = repo.loadFullScreen()
             isShowQuote = repo.loadShowQuote()
         }

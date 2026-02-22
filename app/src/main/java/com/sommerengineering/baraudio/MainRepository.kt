@@ -5,8 +5,6 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
 import android.widget.Toast
-import androidx.credentials.ClearCredentialStateRequest
-import androidx.credentials.CredentialManager
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -21,19 +19,19 @@ import com.sommerengineering.baraudio.firebase.FirebaseDatabaseImpl
 import com.sommerengineering.baraudio.messages.RapidApi
 import com.sommerengineering.baraudio.messages.Message
 import com.sommerengineering.baraudio.room.RoomImpl
-import com.sommerengineering.baraudio.speak.ForegroundSpeechService
 import com.sommerengineering.baraudio.speak.TextToSpeechImpl
 import com.sommerengineering.baraudio.uitls.defaultVoice
+import com.sommerengineering.baraudio.uitls.gcStream
 import com.sommerengineering.baraudio.uitls.isDarkModeKey
 import com.sommerengineering.baraudio.uitls.isFullScreenKey
+import com.sommerengineering.baraudio.uitls.isGCKey
 import com.sommerengineering.baraudio.uitls.isMuteKey
 import com.sommerengineering.baraudio.uitls.isNQKey
 import com.sommerengineering.baraudio.uitls.isQueueAddKey
 import com.sommerengineering.baraudio.uitls.isShowQuoteKey
-import com.sommerengineering.baraudio.uitls.nqTopic
+import com.sommerengineering.baraudio.uitls.nqStream
 import com.sommerengineering.baraudio.uitls.onboardingKey
 import com.sommerengineering.baraudio.uitls.pitchKey
-import com.sommerengineering.baraudio.uitls.recentMessageTimeMillis
 import com.sommerengineering.baraudio.uitls.speedKey
 import com.sommerengineering.baraudio.uitls.voiceNameKey
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -63,9 +61,28 @@ class MainRepository @Inject constructor(
     // room database
     val messages = roomDb.messages
         .stateIn(appScope, SharingStarted.Eagerly, emptyList())
-    fun deleteMessage(message: Message) = roomDb.deleteMessage(message)
-    fun deleteAllMessages() = roomDb.deleteAllMessages()
-    fun addMessage(message: Message) = roomDb.addMessage(message)
+    fun addMessage(message: Message) =
+        appScope.launch { roomDb.addMessage(message) }
+    fun deleteMessage(message: Message) =
+        appScope.launch { roomDb.deleteMessage(message) }
+    fun deleteAllMessages() =
+        appScope.launch { roomDb.deleteAllMessages() }
+
+    // firebase database
+    suspend fun hydrateMessages() {
+
+        val messages = mutableListOf<Message>()
+
+        // streams
+        if (loadNQ()) messages.addAll(firebaseDb.fetchStreamMessages(nqStream))
+        if (loadGC()) messages.addAll(firebaseDb.fetchStreamMessages(gcStream))
+
+        // user specific
+        messages.addAll(firebaseDb.fetchUserMessages())
+
+        // update local room database
+        roomDb.addMessages(messages)
+    }
 
     // text-to-speech
     private val isTtsInit = tts.isInit
@@ -141,9 +158,19 @@ class MainRepository @Inject constructor(
         readPreference(booleanPreferencesKey(isNQKey)) ?: true
     fun updateNQ(enabled: Boolean) {
         FirebaseMessaging.getInstance().apply {
-            if (enabled) subscribeToTopic(nqTopic) else unsubscribeFromTopic(nqTopic)
+            if (enabled) subscribeToTopic(nqStream) else unsubscribeFromTopic(nqStream)
         }
         writePreference(booleanPreferencesKey(isNQKey), enabled)
+    }
+
+    // stream GC
+    suspend fun loadGC() =
+        readPreference(booleanPreferencesKey(isGCKey)) ?: true
+    fun updateGC(enabled: Boolean) {
+        FirebaseMessaging.getInstance().apply {
+            if (enabled) subscribeToTopic(gcStream) else unsubscribeFromTopic(gcStream)
+        }
+        writePreference(booleanPreferencesKey(isGCKey), enabled)
     }
 
     // full screen
@@ -160,18 +187,27 @@ class MainRepository @Inject constructor(
 
     init {
 
-        // wait for system initialization of tts engine, takes a few seconds
         appScope.launch {
+
+            // wait for system initialization of tts engine, takes a few seconds
             isTtsInit.filter { it }.first()
+
+            // finish tts engine with store preferences
             initTtsSettings()
             _isTtsReady.update { true }
         }
 
         // wait for firebase to initialize to ensure uid is valid
         FirebaseAuth.getInstance().addAuthStateListener { auth ->
+
             val uid = auth.currentUser?.uid ?: return@addAuthStateListener
             firebaseDb.setUid(uid)
+
+            // write new token to firebase database, if needed
             newToken?.let { token -> writeNewToken(token) }
+
+            // cold start hydration sync of firebase to local room database
+            appScope.launch { hydrateMessages() }
         }
     }
 
@@ -216,8 +252,8 @@ class MainRepository @Inject constructor(
     fun writeNewToken(token: String) {
         appScope.launch {
             FirebaseMessaging.getInstance().apply {
-                if (loadNQ()) subscribeToTopic(nqTopic) else unsubscribeFromTopic(nqTopic)
-                // todo if other streamLoad() sub/unsub ...
+                if (loadNQ()) subscribeToTopic(nqStream) else unsubscribeFromTopic(nqStream)
+                if (loadGC()) subscribeToTopic(gcStream) else unsubscribeFromTopic(gcStream)
             }
         }
         firebaseDb.writeToken(token)

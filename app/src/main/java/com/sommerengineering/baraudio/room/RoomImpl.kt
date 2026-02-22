@@ -1,36 +1,27 @@
 package com.sommerengineering.baraudio.room
 
-import com.sommerengineering.baraudio.ApplicationScope
 import com.sommerengineering.baraudio.messages.Message
-import com.sommerengineering.baraudio.uitls.messagesMaxSize
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class RoomImpl @Inject constructor(
-    @ApplicationScope private val appScope: CoroutineScope,
     private val dao: MessageDao) {
 
     val messages = dao
         .observeMessages()
         .map { entities -> entities.map { it.toMessage() } }
 
-    fun addMessage(message: Message) =
-        appScope.launch {
-            dao.insert(message.toEntity())
-            dao.trimToLast(messagesMaxSize)
-        }
+    suspend fun addMessage(message: Message) =
+        dao.insert(message.toEntity())
 
-    fun deleteMessage(message: Message) =
-        appScope.launch {
-            dao.delete(message.toEntity())
-        }
+    suspend fun addMessages(messages: List<Message>) =
+        dao.insertAll(messages.map { it.toEntity() })
 
-    fun deleteAllMessages() =
-        appScope.launch {
-            dao.deleteAll()
-        }
+    suspend fun deleteMessage(message: Message) =
+        dao.delete(message.toEntity())
+
+    suspend fun deleteAllMessages() =
+        dao.deleteAll()
 }

@@ -25,12 +25,12 @@ const val setupUrl = "https://sommerengineering.com/baraud.io"
 const val privacyUrl = "https://sommerengineering.com/privacy_policy"
 const val termsUrl = "https://sommerengineering.com/terms_and_conditions"
 
-// firebase
+// firebase database
 const val databaseUrl = "https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/"
 const val webhookBaseUrl = "https://us-central1-com-sommerengineering-baraudio.cloudfunctions.net/baraudio?uid="
-const val usersNodeId = "users"
-const val gitHubProviderId = "github.com"
-const val messagesMaxSize = 1000
+const val streamsNode = "streams"
+const val usersNode = "users"
+const val tokensNode = "tokens"
 
 // notifications
 const val channelId = "42"
@@ -47,8 +47,9 @@ const val messageParsingError = "Error parsing message"
 const val notificationId = 42
 const val notificationKey = "notification"
 
-// topics
-const val nqTopic = "NQ"
+// streams
+const val nqStream = "NQ"
+const val gcStream = "GC"
 
 // navigation
 const val LoginScreenRoute = "LoginScreen"
@@ -68,8 +69,9 @@ const val isMuteKey = "isMuteKey"
 const val isDarkModeKey = "isDarkMode"
 const val isFullScreenKey = "isFullScreen"
 const val isShowQuoteKey = "showQuote"
-const val isNQKey = "isNQ"
 const val volumeKey = TextToSpeech.Engine.KEY_PARAM_VOLUME
+const val isNQKey = "isNQ"
+const val isGCKey = "isGC"
 
 // billing
 const val productId = "subscription" // match play store config
@@ -90,13 +92,17 @@ const val screenTitle = "Screen"
 const val showQuoteTitle = "Mindfulness quote"
 const val nqTitle = "Nasdaq-100 (NQ)"
 const val esTitle = "S&P 500 (ES)"
-const val btcTitle = "Bitcoin (BTC)" // todo "spot" not futures
+const val btcTitle = "Bitcoin (BTC)"
+const val gcTitle = "Gold (GC)"
 const val systemTtsTitle = "System settings"
 const val privacyTitle = "Privacy policy"
 const val termsTitle = "Terms and conditions"
 const val manageSubscriptionTitle = "Manage subscription"
 const val signOutTitle = "Sign-out"
-
+const val voiceDividerTitle = "VOICE"
+const val uiDividerTitle = "THEME"
+const val dataDividerTitle = "DATA"
+const val legalDividerTitle = "LEGAL"
 const val queueFlushDescription = "Play new alerts immediately"
 const val queueAddDescription = "Add new alerts to queue"
 const val uiDarkDescription = "Dark"
@@ -106,10 +112,7 @@ const val screenWindowedDescription = "Show system bars"
 const val nqDescription = "Momentum & velocity"
 const val esDescription = "Market participation"
 const val btcDescription = "Volatility & extremes"
-const val voiceDividerTitle = "VOICE"
-const val uiDividerTitle = "THEME"
-const val dataDividerTitle = "DATA"
-const val legalDividerTitle = "LEGAL"
+const val gcDescription = "Gold description ..."
 
 // images
 const val deleteAllFadeDurationMillis = 1000
@@ -133,12 +136,15 @@ const val soundAnimation = "sound.json"
 const val notificationAnimation = "notification.json"
 const val linkAnimation = "link.json"
 
+// login
+const val gitHubProviderId = "github.com"
+
 // tts
 const val defaultVoice = "en-gb-x-gbd-local"  // british, male
 const val speedChangeUtterance = "Speed, "
 const val pitchChangeUtterance = "Pitch, "
 
-// origin
+// origin todo refactor
 // https://www.tradingview.com/support/solutions/43000529348-about-webhooks/
 // https://help.trendspider.com/kb/alerts/webhooks
 val tradingview = listOf(
