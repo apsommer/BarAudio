@@ -57,13 +57,13 @@ fun MessageItem(
     val style = resolveAssetStyle(origin, viewModel.isDarkMode)
 
     // update timestamp once per minute
-    var timestampState by remember { mutableStateOf("") }
-    LaunchedEffect(timestamp) {
+    var beautifulTimestamp by remember { mutableStateOf("") }
+    LaunchedEffect(Unit) {
         while (true) {
-            timestampState = TimestampFormatter.beautify(timestamp)
-            val now = System.currentTimeMillis()
-            val delayMillis = 60_000L - (now % 60_000L)
-            delay(delayMillis)
+            beautifulTimestamp = TimestampFormatter.beautify(timestamp)
+            val now = System.currentTimeMillis() // millis since epoch
+            val delayMillis = 60_000L - (now % 60_000L) // millis remaining in current minute
+            delay(delayMillis) // wait until next minute boundary
         }
     }
 
@@ -97,7 +97,7 @@ fun MessageItem(
                     style = MaterialTheme.typography.titleMedium)
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    text = timestampState,
+                    text = beautifulTimestamp,
                     style = MaterialTheme.typography.bodyMedium)
             }
 
