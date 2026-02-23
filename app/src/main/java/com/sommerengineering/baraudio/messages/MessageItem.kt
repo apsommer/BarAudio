@@ -1,12 +1,18 @@
 package com.sommerengineering.baraudio.messages
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -27,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
@@ -38,13 +45,13 @@ import com.sommerengineering.baraudio.uitls.btcStream
 import com.sommerengineering.baraudio.uitls.edgePadding
 import com.sommerengineering.baraudio.uitls.esStream
 import com.sommerengineering.baraudio.uitls.gcStream
+import com.sommerengineering.baraudio.uitls.messageItemExpansionTimeMillis
 import com.sommerengineering.baraudio.uitls.nqStream
 import kotlinx.coroutines.delay
 
 @Composable
 fun MessageItem(
     viewModel: MainViewModel,
-    isRecent: Boolean,
     modifier: Modifier,
     message: Message) {
 
@@ -60,22 +67,49 @@ fun MessageItem(
     var beautifulTimestamp by remember { mutableStateOf("") }
     LaunchedEffect(Unit) {
         while (true) {
-            beautifulTimestamp = TimestampFormatter.beautify(timestamp)
+            beautifulTimestamp = TimestampFormatter.beautifyCompact(timestamp)
             val now = System.currentTimeMillis() // millis since epoch
             val delayMillis = 60_000L - (now % 60_000L) // millis remaining in current minute
             delay(delayMillis) // wait until next minute boundary
         }
     }
 
+    // detect tap (expand) and long press (speak)
+    var isExpanded by remember { mutableStateOf(false) }
+    var isLongPress by remember { mutableStateOf(false) }
+
+    // animate background color on click events
+    val backgroundColor by animateColorAsState(when {
+        isExpanded -> MaterialTheme.colorScheme.surfaceContainerHighest
+        isLongPress -> MaterialTheme.colorScheme.secondaryContainer
+        else -> MaterialTheme.colorScheme.surfaceContainer },
+        label = "background")
+
+    // clear long press animation after delay
+    LaunchedEffect(isLongPress) {
+        if (!isLongPress) return@LaunchedEffect
+        delay(180)
+        isLongPress = false
+    }
+
     Surface(modifier) {
 
         Row(
             modifier = Modifier
+                .combinedClickable(
+                    onClick = {
+                        isExpanded = !isExpanded
+                    },
+                    onLongClick = {
+                        isExpanded = true
+                        isLongPress = true
+                        viewModel.speakMessage(text)
+                    })
+                .animateContentSize(
+                    animationSpec = tween(
+                        durationMillis = messageItemExpansionTimeMillis))
                 .height(IntrinsicSize.Min) // measure children, then update height (required for correct accent bar height)
-                .background(
-                    if (isRecent) MaterialTheme.colorScheme.surfaceBright
-                    else MaterialTheme.colorScheme.surfaceContainer
-                )
+                .background(backgroundColor)
                 .padding(16.dp, 12.dp),
             verticalAlignment = Alignment.CenterVertically) {
 
@@ -94,11 +128,20 @@ fun MessageItem(
                 horizontalAlignment = Alignment.Start) {
                 Text(
                     text = text,
-                    style = MaterialTheme.typography.titleMedium)
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = if (isExpanded) Int.MAX_VALUE else 1,
+                    overflow = TextOverflow.Ellipsis)
                 Spacer(Modifier.height(4.dp))
                 Text(
                     text = beautifulTimestamp,
                     style = MaterialTheme.typography.bodyMedium)
+                if (isExpanded) {
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        text = TimestampFormatter.beautifyFull(timestamp),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.outline)
+                }
             }
 
             // origin image
@@ -114,7 +157,7 @@ fun MessageItem(
         HorizontalDivider(
             thickness = 1.dp,
             color = MaterialTheme.colorScheme.outlineVariant,
-            modifier = Modifier.padding(start = 22.dp))
+            modifier = Modifier.fillMaxWidth())
     }
 }
 

@@ -1,6 +1,5 @@
 package com.sommerengineering.baraudio.uitls
 
-import android.text.format.DateUtils
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -13,8 +12,9 @@ object TimestampFormatter {
     private val clockFormat = SimpleDateFormat("HH:mm", Locale.getDefault()) // 14:32
     private val weekdayFormat = SimpleDateFormat("EEE", Locale.getDefault()) // Mon
     private val dateFormat = SimpleDateFormat("MMM d", Locale.getDefault()) // Oct 30
+    private val fullFormat = SimpleDateFormat("EEEE, MMMM d, yyyy • HH:mm:ss", Locale.getDefault())
 
-    fun beautify(timestamp: String): String {
+    fun beautifyCompact(timestamp: String): String {
 
         val time = timestamp.toLong()
         val now = System.currentTimeMillis()
@@ -26,8 +26,11 @@ object TimestampFormatter {
             hour > diff -> "${diff / minute}m ago • ${clockFormat.format(date)}"
             day > diff -> "${diff / hour}h ago • ${clockFormat.format(date)}"
             day * 2 > diff -> "Yesterday • ${clockFormat.format(date)}"
-            day * 7 > diff -> "${weekdayFormat.format(date)} • ${clockFormat.format(date)}"
+            day * 4 > diff -> "${weekdayFormat.format(date)} • ${clockFormat.format(date)}"
             else -> "${dateFormat.format(date)} • ${clockFormat.format(date)}"
         }
     }
+
+    fun beautifyFull(timestamp: String) =
+        fullFormat.format(Date(timestamp.toLong()))
 }

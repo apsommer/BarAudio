@@ -38,7 +38,6 @@ import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.settings.SettingsDrawer
 import com.sommerengineering.baraudio.uitls.backgroundPadding
 import com.sommerengineering.baraudio.uitls.colorTransitionTimeMillis
-import com.sommerengineering.baraudio.uitls.recentMessageTimeMillis
 import kotlinx.coroutines.launch
 
 @Composable
@@ -154,13 +153,8 @@ fun MessagesScreen(
                         items = messages,
                         key = { it.timestamp }) { message ->
 
-                        // highlight recent messages todo refactor to isSpeaking
-                        var isRecent by remember { mutableStateOf(true) }
-                        isRecent = recentMessageTimeMillis * 60 > System.currentTimeMillis() - message.timestamp.toLong()
-
                         MessageItem(
                             viewModel = viewModel,
-                            isRecent = isRecent,
                             modifier = Modifier
                                 .animateItem(
                                     fadeInSpec = spring(stiffness = Spring.StiffnessVeryLow),
