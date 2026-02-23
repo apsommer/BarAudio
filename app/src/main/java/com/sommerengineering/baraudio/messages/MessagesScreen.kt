@@ -18,12 +18,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -43,7 +43,7 @@ fun MessagesScreen(
     val messages by viewModel.messages.collectAsState()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val listState = rememberLazyListState()
-    val coroutine = rememberCoroutineScope()
+    val composableScope = rememberCoroutineScope()
 
     // dark mode
     val isDarkMode = viewModel.isDarkMode
@@ -62,7 +62,7 @@ fun MessagesScreen(
 //        listState.animateScrollToItem(0)
 //    }
 
-    val feedMode by remember { mutableStateOf(FeedMode.Linear) }
+    var feedMode by remember { mutableStateOf(FeedMode.Linear) }
     val groups = remember(messages) { groupMessages(messages) }
 
     // side drawer
@@ -83,10 +83,13 @@ fun MessagesScreen(
             // top bar
             topBar = {
                 MessagesTopBar(
-                    viewModel = viewModel,
                     onSettingsClick = {
-                        coroutine.launch {
-                            drawerState.open()
+                        composableScope.launch { drawerState.open() }
+                    },
+                    onToggleFeedMode = {
+                        feedMode = when (feedMode) {
+                            FeedMode.Linear -> FeedMode.Grouped
+                            FeedMode.Grouped -> FeedMode.Linear
                         }
                     })
             },
@@ -137,23 +140,37 @@ fun MessagesScreen(
                     contentDescription = null)
 
                 // messages list
-                LazyColumn(state = listState) {
+                LazyColumn(state = listState) { when (feedMode) {
 
-                    items(
-                        items = messages,
-                        key = { it.timestamp }) { message ->
+                    FeedMode.Linear -> {
 
-                        MessageItem(
-                            viewModel = viewModel,
-                            modifier = Modifier
-                                .animateItem(
-                                    fadeInSpec = spring(stiffness = Spring.StiffnessVeryLow),
-                                    fadeOutSpec = spring(stiffness = Spring.StiffnessVeryLow),
-                                    placementSpec = spring(stiffness = Spring.StiffnessVeryLow)
-                                ),
-                            message = message)
+                        items(
+                            items = messages,
+                            key = { it.timestamp }) { message ->
+
+                            MessageItem(
+                                viewModel = viewModel,
+                                modifier = Modifier
+                                    .animateItem(
+                                        fadeInSpec = spring(stiffness = Spring.StiffnessVeryLow),
+                                        fadeOutSpec = spring(stiffness = Spring.StiffnessVeryLow),
+                                        placementSpec = spring(stiffness = Spring.StiffnessVeryLow)),
+                                message = message)
+                        }
                     }
-                }
+
+                    FeedMode.Grouped -> {
+                        groups.forEach { (origin, messages) ->
+                            val latestMessage = messages.first()
+                            item(key = origin) {
+                                StreamHeaderItem(
+                                    origin = origin,
+                                    lastestMessage = latestMessage,
+                                    messageCount = messages.size)
+                            }
+                        }
+                    }
+                }}
             }
         }
     }
