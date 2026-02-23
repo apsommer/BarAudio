@@ -1,6 +1,5 @@
 package com.sommerengineering.baraudio.messages
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,16 +28,13 @@ import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.theme.AssetStyle
 import com.sommerengineering.baraudio.theme.AssetStyles
 import com.sommerengineering.baraudio.uitls.TimestampFormatter
+import com.sommerengineering.baraudio.uitls.assetIconSize
 import com.sommerengineering.baraudio.uitls.btcStream
 import com.sommerengineering.baraudio.uitls.edgePadding
 import com.sommerengineering.baraudio.uitls.esStream
 import com.sommerengineering.baraudio.uitls.gcStream
-import com.sommerengineering.baraudio.uitls.insomnia
 import com.sommerengineering.baraudio.uitls.nqStream
-import com.sommerengineering.baraudio.uitls.parsingErrorOrigin
 import com.sommerengineering.baraudio.uitls.settingsIconSize
-import com.sommerengineering.baraudio.uitls.tradingview
-import com.sommerengineering.baraudio.uitls.trendspider
 
 @Composable
 fun MessageItem(
@@ -53,7 +49,7 @@ fun MessageItem(
     val origin = message.origin
 
     // style
-    val style = getAssetStyle(origin, viewModel.isDarkMode)
+    val style = resolveAssetStyle(origin, viewModel.isDarkMode)
 
     Surface(modifier) {
 
@@ -95,7 +91,7 @@ fun MessageItem(
                 painter = painterResource(style.iconRes),
                 contentDescription = null,
                 tint = style.primary,
-                modifier = Modifier.size(settingsIconSize))
+                modifier = Modifier.size(assetIconSize))
         }
 
         // divider between rows
@@ -107,7 +103,7 @@ fun MessageItem(
 }
 
 @Composable
-fun getAssetStyle(
+fun resolveAssetStyle(
     origin: String,
     isDark: Boolean)= when (origin) {
 
