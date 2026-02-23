@@ -24,11 +24,13 @@ class FirebaseDatabaseImpl {
         uid = newUid
     }
 
+    // todo refactor this to one fetch method?
+
     suspend fun fetchStreamMessages(stream: String): List<Message> =
         suspendCancellableCoroutine { continuation ->
             db.getReference(streamsNode).child(stream).get()
                 .addOnSuccessListener { snapshot ->
-                    val messages = snapshot.children.mapNotNull { it.toMessage(stream) }
+                    val messages = snapshot.children.mapNotNull { it.toMessage() }
                     continuation.resume(messages)
                 }.addOnFailureListener { continuation.resume(emptyList()) }
         }
@@ -42,12 +44,14 @@ class FirebaseDatabaseImpl {
                 }.addOnFailureListener { continuation.resume(emptyList()) }
         }
 
-    private fun DataSnapshot.toMessage(stream: String? = null): Message? {
+    private fun DataSnapshot.toMessage(): Message? {
+
+        // todo get rid of the ugly return null if possible?
 
         // validate attributes
         val timestamp = key ?: return null
         val message = child(messageKey).value as? String ?: return null
-        val origin = stream ?: child(originKey).value as? String ?: return null
+        val origin = child(originKey).value as? String ?: return null
 
         return Message(timestamp, message, origin)
     }

@@ -125,7 +125,7 @@ def broadcast_to_stream(stream, timestamp, message, origin):
             'broadcast': stream,
             'timestamp': str(timestamp),
             'message': message,
-            'origin': origin},
+            'origin': stream}, # TODO remove, redundant
         android = BASE_CONFIG,
         topic = stream)
 
