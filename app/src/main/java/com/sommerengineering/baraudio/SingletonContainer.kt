@@ -6,11 +6,10 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.room.Room
-import com.sommerengineering.baraudio.room.MessageDao
-import com.sommerengineering.baraudio.room.MessageDatabase
 import com.sommerengineering.baraudio.firebase.FirebaseDatabaseImpl
 import com.sommerengineering.baraudio.login.GoogleAuthenticator
-import com.sommerengineering.baraudio.messages.RapidApi
+import com.sommerengineering.baraudio.room.MessageDao
+import com.sommerengineering.baraudio.room.MessageDatabase
 import com.sommerengineering.baraudio.speak.TextToSpeechImpl
 import com.sommerengineering.baraudio.uitls.localCache
 import dagger.Module
@@ -21,8 +20,6 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
@@ -85,17 +82,6 @@ object SingletonModule {
     @Singleton
     fun provideFirebaseDatabase(): FirebaseDatabaseImpl {
         return FirebaseDatabaseImpl()
-    }
-
-    @Provides
-    @Singleton
-    fun provideRetrofit(): RapidApi {
-
-        return Retrofit.Builder()
-            .baseUrl("https://metaapi-mindfulness-quotes.p.rapidapi.com/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(RapidApi::class.java)
     }
 
     @Provides
