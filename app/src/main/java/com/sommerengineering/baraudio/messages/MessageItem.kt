@@ -12,13 +12,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -68,7 +70,12 @@ fun MessageItem(
             verticalAlignment = Alignment.CenterVertically) {
 
             // accent bar
-            Box(Modifier.width(6.dp).fillMaxHeight().background(accentColor))
+            Box(
+                Modifier
+                    .width(6.dp)
+                    .fillMaxHeight()
+                    .clip(RoundedCornerShape(3.dp))
+                    .background(accentColor))
             Spacer(Modifier.width(16.dp))
 
             // message, timestamp
@@ -77,19 +84,23 @@ fun MessageItem(
                 horizontalAlignment = Alignment.Start) {
                 Text(
                     text = text,
-                    style = MaterialTheme.typography.titleMedium
-                )
+                    style = MaterialTheme.typography.titleMedium)
                 Spacer(Modifier.height(4.dp))
                 Text(
                     text = timestamp,
-                    style = MaterialTheme.typography.bodyMedium
-                )
+                    style = MaterialTheme.typography.bodyMedium)
             }
 
             // origin image
             Spacer(Modifier.width(edgePadding))
             OriginImage(origin, viewModel.isDarkMode)
         }
+
+        // divider between rows
+        HorizontalDivider(
+            thickness = 1.dp,
+            color = MaterialTheme.colorScheme.outlineVariant,
+            modifier = Modifier.padding(start = 22.dp))
     }
 }
 
