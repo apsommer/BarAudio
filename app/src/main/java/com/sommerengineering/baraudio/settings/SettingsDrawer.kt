@@ -30,11 +30,11 @@ import com.sommerengineering.baraudio.uitls.dataDividerTitle
 import com.sommerengineering.baraudio.uitls.edgePadding
 import com.sommerengineering.baraudio.uitls.gcDescription
 import com.sommerengineering.baraudio.uitls.gcTitle
-import com.sommerengineering.baraudio.uitls.nqDescription
-import com.sommerengineering.baraudio.uitls.nqTitle
 import com.sommerengineering.baraudio.uitls.howToSetupTitle
 import com.sommerengineering.baraudio.uitls.legalDividerTitle
 import com.sommerengineering.baraudio.uitls.manageSubscriptionTitle
+import com.sommerengineering.baraudio.uitls.nqDescription
+import com.sommerengineering.baraudio.uitls.nqTitle
 import com.sommerengineering.baraudio.uitls.pitchChangeUtterance
 import com.sommerengineering.baraudio.uitls.pitchTitle
 import com.sommerengineering.baraudio.uitls.privacyTitle
@@ -42,7 +42,6 @@ import com.sommerengineering.baraudio.uitls.privacyUrl
 import com.sommerengineering.baraudio.uitls.queueBehaviorTitle
 import com.sommerengineering.baraudio.uitls.screenTitle
 import com.sommerengineering.baraudio.uitls.setupUrl
-import com.sommerengineering.baraudio.uitls.showQuoteTitle
 import com.sommerengineering.baraudio.uitls.signOutTitle
 import com.sommerengineering.baraudio.uitls.speedChangeUtterance
 import com.sommerengineering.baraudio.uitls.speedTitle
@@ -75,7 +74,6 @@ fun SettingsDrawer(
     val pitchDescription = viewModel.pitchDescription
     val queueDescription = viewModel.queueDescription
 
-    val isShowQuote = viewModel.isShowQuote
     val isNQ = viewModel.isNQ
     val isGC = viewModel.isGC
     val isFullScreen = viewModel.isFullScreen
@@ -273,18 +271,6 @@ fun SettingsDrawer(
                     Switch(
                         checked = isDarkMode,
                         onCheckedChange = { viewModel.updateDarkMode(it) })
-                }
-            }
-
-            // quote
-            item {
-                SwitchSettingItem(
-                    icon = R.drawable.cognition,
-                    title = showQuoteTitle) {
-
-                    Switch(
-                        checked = isShowQuote,
-                        onCheckedChange = { viewModel.updateShowQuote(it)})
                 }
             }
 

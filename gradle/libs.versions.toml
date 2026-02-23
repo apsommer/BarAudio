@@ -1,8 +1,6 @@
 [versions]
-agp = "9.0.0"
 appUpdate = "2.1.0"
 billing = "8.3.0"
-converterGson = "3.0.0"
 coreSplashScreen = "1.2.0"
 credentials = "1.5.0"
 datastorePreferences = "1.2.0"
@@ -17,14 +15,15 @@ lifecycle = "2.10.0"
 activityCompose = "1.12.4"
 composeBom = "2026.02.00"
 navigation = "2.9.7"
-playServicesAuth = "21.5.0"
+playServicesAuth = "21.5.1"
 google = "4.4.4"
 crashlytics = "3.0.6"
-retrofit = "3.0.0"
 foundationLayout = "1.10.3"
 material3 = "1.4.0"
+roomRuntime = "2.8.4"
 
 # must be syncronized
+agp = "9.0.0"
 kotlin = "2.3.0"
 hilt = "2.57.1"
 
@@ -36,11 +35,13 @@ androidx-credentials-play-services-auth = { module = "androidx.credentials:crede
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 androidx-lifecycle-process = { module = "androidx.lifecycle:lifecycle-process", version.ref = "lifecycle" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigation" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomRuntime" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
 app-update = { module = "com.google.android.play:app-update", version.ref = "appUpdate" }
 app-update-ktx = { module = "com.google.android.play:app-update-ktx", version.ref = "appUpdate" }
 billing = { module = "com.android.billingclient:billing", version.ref = "billing" }
 billing-ktx = { module = "com.android.billingclient:billing-ktx", version.ref = "billing" }
-converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
 dotlottie-android = { module = "com.github.LottieFiles:dotlottie-android", version.ref = "dotlottieAndroid" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-auth = { module = "com.google.firebase:firebase-auth" }
@@ -63,7 +64,6 @@ androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-man
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
-retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 androidx-compose-foundation-layout = { group = "androidx.compose.foundation", name = "foundation-layout", version.ref = "foundationLayout" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }

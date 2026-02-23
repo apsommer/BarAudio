@@ -16,7 +16,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.messaging.FirebaseMessaging
 import com.sommerengineering.baraudio.firebase.FirebaseDatabaseImpl
-import com.sommerengineering.baraudio.messages.RapidApi
 import com.sommerengineering.baraudio.messages.Message
 import com.sommerengineering.baraudio.room.RoomImpl
 import com.sommerengineering.baraudio.speak.TextToSpeechImpl
@@ -63,10 +62,6 @@ class MainRepository @Inject constructor(
         .stateIn(appScope, SharingStarted.Eagerly, emptyList())
     fun addMessage(message: Message) =
         appScope.launch { roomDb.addMessage(message) }
-    fun deleteMessage(message: Message) =
-        appScope.launch { roomDb.deleteMessage(message) }
-    fun deleteAllMessages() =
-        appScope.launch { roomDb.deleteAllMessages() }
 
     // firebase database
     suspend fun hydrateMessages() {
@@ -145,13 +140,6 @@ class MainRepository @Inject constructor(
         readPreference(booleanPreferencesKey(onboardingKey)) ?: false
     fun updateOnboarding(enabled: Boolean) =
         writePreference(booleanPreferencesKey(onboardingKey), enabled)
-
-    // mindfulness quote
-    suspend fun getMindfulnessQuote() = rapidApi.getMindfulnessQuote()
-    suspend fun loadShowQuote() =
-        readPreference(booleanPreferencesKey(isShowQuoteKey)) ?: true
-    fun updateShowQuote(enabled: Boolean) =
-        writePreference(booleanPreferencesKey(isShowQuoteKey), enabled)
 
     // stream NQ
     suspend fun loadNQ() =

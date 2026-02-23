@@ -16,9 +16,9 @@ fun logException(e: Exception) {
 }
 
 // durations
-const val recentMessageTimeMillis = 15000
 const val bottomBarTransitionTimeMillis = 1000
 const val colorTransitionTimeMillis = 100
+const val messageItemExpansionTimeMillis = 140
 
 // urls
 const val setupUrl = "https://sommerengineering.com/baraud.io"
@@ -49,6 +49,8 @@ const val notificationKey = "notification"
 
 // streams
 const val nqStream = "NQ"
+const val esStream = "ES"
+const val btcStream = "BTC"
 const val gcStream = "GC"
 
 // navigation
@@ -120,8 +122,9 @@ val loginButtonSize = 96.dp
 val fabButtonSize = 72.dp
 val edgePadding = 24.dp
 val backgroundPadding = 48.dp
-val settingsIconSize = edgePadding
+val settingsIconSize = 24.dp
 val loginLogoPadding = 64.dp
+val assetIconSize = 28.dp
 
 // onboarding
 const val onboardingTotalPages = 3

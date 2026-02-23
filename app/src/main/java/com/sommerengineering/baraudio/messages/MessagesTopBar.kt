@@ -1,7 +1,5 @@
 package com.sommerengineering.baraudio.messages
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -9,27 +7,18 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.uitls.deleteAllFadeDurationMillis
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MessagesTopBar(
-    viewModel: MainViewModel,
-    onSettingsClick: () -> Unit) {
-
-    // animate color of "delete all" button
-    val messages by viewModel.messages.collectAsState()
-    val isEmpty = messages.isEmpty()
+    onSettingsClick: () -> Unit,
+    onToggleFeedMode: () -> Unit) {
 
     CenterAlignedTopAppBar(
 
@@ -58,20 +47,12 @@ fun MessagesTopBar(
                 contentDescription = null)
         },
 
-        // delete all
+        // feed mode: linear/grouped
         actions = {
             IconButton(
-                onClick = { viewModel.deleteAllMessages() },
-                enabled = !isEmpty) {
+                onClick = { onToggleFeedMode() }) {
                 Icon(
                     painter = painterResource(R.drawable.delete_sweep),
-                    tint = animateColorAsState(
-                        targetValue =
-                            if (isEmpty) IconButtonDefaults.iconButtonColors().disabledContentColor
-                            else IconButtonDefaults.iconButtonColors().contentColor,
-                        animationSpec = tween(deleteAllFadeDurationMillis),
-                        label = ""
-                    ).value,
                     contentDescription = null)
             }
         })

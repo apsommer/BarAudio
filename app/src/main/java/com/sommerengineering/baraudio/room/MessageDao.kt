@@ -18,14 +18,4 @@ interface MessageDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertAll(entities: List<MessageEntity>)
-
-    @Query("DELETE FROM messages WHERE timestamp NOT IN " +
-            "(SELECT timestamp FROM messages ORDER BY timestamp DESC LIMIT :limit)")
-    suspend fun trimToLast(limit: Int)
-
-    @Delete
-    suspend fun delete(entity: MessageEntity)
-
-    @Query("DELETE FROM messages")
-    suspend fun deleteAll()
 }

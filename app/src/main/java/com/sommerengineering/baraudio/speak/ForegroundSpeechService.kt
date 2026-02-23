@@ -10,7 +10,6 @@ import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.messages.Message
 import com.sommerengineering.baraudio.uitls.TimestampFormatter
 import com.sommerengineering.baraudio.uitls.channelId
-import com.sommerengineering.baraudio.uitls.messageKey
 import com.sommerengineering.baraudio.uitls.notificationId
 import com.sommerengineering.baraudio.uitls.notificationKey
 import dagger.hilt.android.AndroidEntryPoint
@@ -53,7 +52,7 @@ class ForegroundSpeechService : Service() {
             }
 
         // extract attributes
-        val beautifulTimestamp = TimestampFormatter.beautify(message.timestamp)
+        val beautifulTimestamp = TimestampFormatter.beautifyCompact(message.timestamp)
         val title = message.message
 
         // create notification

@@ -44,8 +44,6 @@ class MainViewModel @Inject constructor(
 
     // room database
     val messages = repo.messages
-    fun deleteAllMessages() = repo.deleteAllMessages()
-    fun deleteMessage(message: Message) = repo.deleteMessage(message)
 
     // text-to-speech
     val isTtsReady = repo.isTtsReady
@@ -128,16 +126,6 @@ class MainViewModel @Inject constructor(
         if (isOnboardingComplete) MessagesScreenRoute
         else OnboardingTextToSpeechScreenRoute
 
-    // mindfulness quote
-    private var _mindfulnessQuoteState: MutableStateFlow<MindfulnessQuoteState> = MutableStateFlow(MindfulnessQuoteState.Idle)
-    val mindfulnessQuoteState = _mindfulnessQuoteState.asStateFlow()
-    var isShowQuote by mutableStateOf(true)
-        private set
-    fun updateShowQuote(enabled: Boolean) {
-        isShowQuote = enabled
-        repo.updateShowQuote(enabled)
-    }
-
     // stream NQ
     var isNQ by mutableStateOf(true)
         private set
@@ -184,20 +172,12 @@ class MainViewModel @Inject constructor(
             isNQ = repo.loadNQ()
             isGC = repo.loadGC()
             isFullScreen = repo.loadFullScreen()
-            isShowQuote = repo.loadShowQuote()
         }
 
         // wait for repo to finish initializing tts engine, takes a few seconds
         viewModelScope.launch {
             repo.isTtsReady.filter { it }.first()
             refreshTtsSettingsUi()
-        }
-
-        // request mindfulness quote from network
-        viewModelScope.launch(Dispatchers.IO) {
-            _mindfulnessQuoteState.update { MindfulnessQuoteState.Loading }
-            try { _mindfulnessQuoteState.update { MindfulnessQuoteState.Success(repo.getMindfulnessQuote()) }}
-            catch (e: Exception) { _mindfulnessQuoteState.update { MindfulnessQuoteState.Error(e.message) }}
         }
     }
 

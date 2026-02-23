@@ -31,9 +31,17 @@ TOKENS_NODE = db.reference('tokens')
 
 def get_session_start(timestamp: int) -> int:
 
-    nyc_time = datetime.fromtimestamp(timestamp / 1000, NYC) # covert to NYC timezone
-    session_start = nyc_time.replace(hour = 18, minute = 0, second = 0, microsecond = 0) # market close for today
-    if session_start > nyc_time: session_start -= timedelta(days = 1) # before close, session start started yesterday
+    # time of market close for this day, in NYC timezone
+    nyc_time = datetime.fromtimestamp(timestamp / 1000, NYC)
+    session_start = nyc_time.replace(hour = 18, minute = 0, second = 0, microsecond = 0)
+
+    # now is before close, trading session started yesterday
+    if session_start > nyc_time: session_start -= timedelta(days = 1)
+
+    # market is closed on weekends
+    weekday = session_start.weekday()
+    if weekday == 5: session_start -= timedelta(days = 2) # saturday -> thursday
+
     return int(session_start.timestamp() * 1000) # convert to UTC
 
 def write_message_to_database(node, timestamp, message, origin):
@@ -50,6 +58,10 @@ def purge_node(node, timestamp):
 
     # calculate session start of last two trading days
     current_session_start = get_session_start(timestamp)
+
+    dt = datetime.fromtimestamp(current_session_start / 1000, NYC)
+    dt -= timedelta(days=1)
+
     previous_session_start = current_session_start - DAY_MILLIS
 
     # query old messages
@@ -125,7 +137,7 @@ def broadcast_to_stream(stream, timestamp, message, origin):
             'broadcast': stream,
             'timestamp': str(timestamp),
             'message': message,
-            'origin': origin},
+            'origin': stream}, # TODO remove, redundant
         android = BASE_CONFIG,
         topic = stream)
 
