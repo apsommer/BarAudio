@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -21,16 +22,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
+import com.sommerengineering.baraudio.theme.AssetStyle
+import com.sommerengineering.baraudio.theme.AssetStyles
 import com.sommerengineering.baraudio.uitls.TimestampFormatter
+import com.sommerengineering.baraudio.uitls.btcStream
 import com.sommerengineering.baraudio.uitls.edgePadding
+import com.sommerengineering.baraudio.uitls.esStream
 import com.sommerengineering.baraudio.uitls.gcStream
 import com.sommerengineering.baraudio.uitls.insomnia
-import com.sommerengineering.baraudio.uitls.logMessage
 import com.sommerengineering.baraudio.uitls.nqStream
 import com.sommerengineering.baraudio.uitls.parsingErrorOrigin
 import com.sommerengineering.baraudio.uitls.settingsIconSize
@@ -49,14 +52,8 @@ fun MessageItem(
     val text = message.message
     val origin = message.origin
 
-    // accent color
-    val accentColor = when (origin) {
-        nqStream -> Color(0xFF7B61FF)
-        gcStream -> Color(0xFFD4AF37)
-        else -> MaterialTheme.colorScheme.outlineVariant
-    }
-
-    logMessage("origin: $origin")
+    // style
+    val style = getAssetStyle(origin, viewModel.isDarkMode)
 
     Surface(modifier) {
 
@@ -64,8 +61,9 @@ fun MessageItem(
             modifier = Modifier
                 .height(IntrinsicSize.Min) // measure children, then update height (required for correct accent bar height)
                 .background(
-                        if (isRecent) MaterialTheme.colorScheme.surfaceBright
-                        else MaterialTheme.colorScheme.surfaceContainer)
+                    if (isRecent) MaterialTheme.colorScheme.surfaceBright
+                    else MaterialTheme.colorScheme.surfaceContainer
+                )
                 .padding(16.dp, 12.dp),
             verticalAlignment = Alignment.CenterVertically) {
 
@@ -75,7 +73,7 @@ fun MessageItem(
                     .width(6.dp)
                     .fillMaxHeight()
                     .clip(RoundedCornerShape(3.dp))
-                    .background(accentColor))
+                    .background(style.primary))
             Spacer(Modifier.width(16.dp))
 
             // message, timestamp
@@ -93,7 +91,11 @@ fun MessageItem(
 
             // origin image
             Spacer(Modifier.width(edgePadding))
-            OriginImage(origin, viewModel.isDarkMode)
+            Icon(
+                painter = painterResource(style.iconRes),
+                contentDescription = null,
+                tint = style.primary,
+                modifier = Modifier.size(settingsIconSize))
         }
 
         // divider between rows
@@ -105,32 +107,29 @@ fun MessageItem(
 }
 
 @Composable
-private fun OriginImage(
+fun getAssetStyle(
     origin: String,
-    isDarkMode: Boolean) {
-
-    val imageId = when (origin) {
+    isDark: Boolean)= when (origin) {
 
         // streams
-        nqStream -> R.drawable.google
-        gcStream -> R.drawable.check_circle
+        nqStream -> AssetStyles.nq(isDark)
+        esStream -> AssetStyles.es(isDark)
+        btcStream -> AssetStyles.btc(isDark)
+        gcStream -> AssetStyles.gc(isDark)
 
-        // user specific
-        in tradingview -> {
-            if (isDarkMode) R.drawable.tradingview_light
-            else R.drawable.tradingview_dark
-        }
-        trendspider -> R.drawable.trendspider
-        insomnia -> R.drawable.insomnia
-        parsingErrorOrigin -> R.drawable.error
-        else -> R.drawable.webhook
+        // todo user specific
+        else -> AssetStyle(
+            primary = MaterialTheme.colorScheme.outline,
+            accent  = MaterialTheme.colorScheme.outlineVariant,
+            surface = MaterialTheme.colorScheme.surfaceContainer,
+            text    = MaterialTheme.colorScheme.onSurface,
+            iconRes = R.drawable.webhook)
+//        in tradingview -> {
+//            if (isDarkMode) R.drawable.tradingview_light
+//            else R.drawable.tradingview_dark
+//        }
+//        trendspider -> R.drawable.trendspider
+//        insomnia -> R.drawable.insomnia
+//        parsingErrorOrigin -> R.drawable.error
+//        else -> R.drawable.webhook
     }
-
-    // origin
-    Image(
-        modifier = Modifier
-            .size(settingsIconSize),
-        painter = painterResource(imageId),
-        contentDescription = null)
-}
-

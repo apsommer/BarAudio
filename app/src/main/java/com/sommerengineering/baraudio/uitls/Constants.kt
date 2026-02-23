@@ -49,6 +49,8 @@ const val notificationKey = "notification"
 
 // streams
 const val nqStream = "NQ"
+const val esStream = "ES"
+const val btcStream = "BTC"
 const val gcStream = "GC"
 
 // navigation
