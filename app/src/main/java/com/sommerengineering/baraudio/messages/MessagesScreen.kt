@@ -90,8 +90,7 @@ fun MessagesScreen(
 
             // fab, mute button
             floatingActionButton = {
-                MessagesFloatingActionButton(
-                    viewModel = viewModel)
+                MessagesFloatingActionButton(viewModel)
             },
 
             bottomBar = {
@@ -107,13 +106,6 @@ fun MessagesScreen(
                     .fillMaxSize()
                     .padding(padding)) {
 
-                // fade background as new messages appear
-                val animatedAlpha by animateFloatAsState(
-                    targetValue =
-                        if (messages.isEmpty()) { 1f }
-                        else { (1 - 0.2 * messages.size).toFloat() },
-                    animationSpec = tween(colorTransitionTimeMillis))
-
                 // mindfulness quote
                 if (isShowQuote && quote != null) {
 
@@ -127,9 +119,7 @@ fun MessagesScreen(
                                 start = backgroundPadding,
                                 end = backgroundPadding,
                                 top = 64.dp)
-                            .align(Alignment.Center)
-                            .alpha(animatedAlpha)
-                    )
+                            .align(Alignment.Center))
                 }
 
                 // background image
@@ -138,13 +128,10 @@ fun MessagesScreen(
                         .padding(
                             start = backgroundPadding,
                             end = backgroundPadding,
-                            bottom = 64.dp
-                        )
+                            bottom = 64.dp)
                         .align(Alignment.Center),
                     painter = painterResource(backgroundImageId),
-                    contentDescription = null,
-                    alpha = animatedAlpha
-                )
+                    contentDescription = null)
 
                 // messages list
                 LazyColumn(state = listState) {
