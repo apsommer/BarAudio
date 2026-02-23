@@ -21,6 +21,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,11 +45,13 @@ fun MessagesScreen(
     val listState = rememberLazyListState()
     val coroutine = rememberCoroutineScope()
 
+    // dark mode
     val isDarkMode = viewModel.isDarkMode
     val backgroundImageId =
         if (isDarkMode) R.drawable.background_skyline_dark
         else R.drawable.background_skyline
 
+    // todo remove
     val quoteState by viewModel.mindfulnessQuoteState.collectAsState()
     val quote = (quoteState as? MindfulnessQuoteState.Success)?.mindfulnessQuote?.quote
     val isShowQuote = viewModel.isShowQuote
@@ -57,6 +61,9 @@ fun MessagesScreen(
 //        if (messages.isEmpty()) return@LaunchedEffect
 //        listState.animateScrollToItem(0)
 //    }
+
+    val feedMode by remember { mutableStateOf(FeedMode.Linear) }
+    val groups = remember(messages) { groupMessages(messages) }
 
     // side drawer
     ModalNavigationDrawer(
@@ -150,4 +157,12 @@ fun MessagesScreen(
             }
         }
     }
+}
+
+private fun groupMessages(messages: List<Message>): Map<String, List<Message>> {
+    return messages
+        .groupBy { it.origin }
+        .mapValues { group ->
+            group.value.sortedByDescending { it.timestamp }
+        }
 }
