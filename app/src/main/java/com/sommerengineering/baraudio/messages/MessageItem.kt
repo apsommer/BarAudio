@@ -18,6 +18,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,7 +39,7 @@ import com.sommerengineering.baraudio.uitls.edgePadding
 import com.sommerengineering.baraudio.uitls.esStream
 import com.sommerengineering.baraudio.uitls.gcStream
 import com.sommerengineering.baraudio.uitls.nqStream
-import com.sommerengineering.baraudio.uitls.settingsIconSize
+import kotlinx.coroutines.delay
 
 @Composable
 fun MessageItem(
@@ -44,12 +49,23 @@ fun MessageItem(
     message: Message) {
 
     // extract attributes
-    val timestamp = TimestampFormatter.beautify(message.timestamp)
+    val timestamp = message.timestamp
     val text = message.message
     val origin = message.origin
 
     // style
     val style = resolveAssetStyle(origin, viewModel.isDarkMode)
+
+    // update timestamp once per minute
+    var timestampState by remember { mutableStateOf("") }
+    LaunchedEffect(timestamp) {
+        while (true) {
+            timestampState = TimestampFormatter.beautify(timestamp)
+            val now = System.currentTimeMillis()
+            val delayMillis = 60_000L - (now % 60_000L)
+            delay(delayMillis)
+        }
+    }
 
     Surface(modifier) {
 
@@ -81,7 +97,7 @@ fun MessageItem(
                     style = MaterialTheme.typography.titleMedium)
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    text = timestamp,
+                    text = timestampState,
                     style = MaterialTheme.typography.bodyMedium)
             }
 
