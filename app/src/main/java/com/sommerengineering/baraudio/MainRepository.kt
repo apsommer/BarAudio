@@ -142,13 +142,6 @@ class MainRepository @Inject constructor(
     fun updateOnboarding(enabled: Boolean) =
         writePreference(booleanPreferencesKey(onboardingKey), enabled)
 
-    // mindfulness quote
-    suspend fun getMindfulnessQuote() = rapidApi.getMindfulnessQuote()
-    suspend fun loadShowQuote() =
-        readPreference(booleanPreferencesKey(isShowQuoteKey)) ?: true
-    fun updateShowQuote(enabled: Boolean) =
-        writePreference(booleanPreferencesKey(isShowQuoteKey), enabled)
-
     // stream NQ
     suspend fun loadNQ() =
         readPreference(booleanPreferencesKey(isNQKey)) ?: true

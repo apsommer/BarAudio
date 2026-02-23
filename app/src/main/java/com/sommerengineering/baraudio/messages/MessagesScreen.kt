@@ -11,11 +11,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.DrawerDefaults
 import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -27,7 +25,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
@@ -50,11 +47,6 @@ fun MessagesScreen(
     val backgroundImageId =
         if (isDarkMode) R.drawable.background_skyline_dark
         else R.drawable.background_skyline
-
-    // todo remove
-    val quoteState by viewModel.mindfulnessQuoteState.collectAsState()
-    val quote = (quoteState as? MindfulnessQuoteState.Success)?.mindfulnessQuote?.quote
-    val isShowQuote = viewModel.isShowQuote
 
     // scroll to new message on arrival todo auto scroll only while user at top
 //    LaunchedEffect(messages) {
@@ -111,22 +103,6 @@ fun MessagesScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)) {
-
-                // mindfulness quote
-                if (isShowQuote && quote != null) {
-
-                    Text(
-                        text = quote,
-                        style = MaterialTheme.typography.titleLarge,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(
-                                start = backgroundPadding,
-                                end = backgroundPadding,
-                                top = 64.dp)
-                            .align(Alignment.Center))
-                }
 
                 // background image
                 Image(
