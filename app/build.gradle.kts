@@ -145,15 +145,14 @@ dependencies {
     implementation(libs.app.update)
     implementation(libs.app.update.ktx)
     implementation(libs.dotlottie.android)
-    implementation(libs.converter.gson)
     implementation(libs.hilt.android)
     implementation(libs.androidx.lifecycle.process)
     ksp(libs.hilt.compiler)
     ksp(libs.kotlin.metadata)
 
-    implementation("androidx.room:room-runtime:2.8.4")
-    implementation("androidx.room:room-ktx:2.8.4")
-    ksp("androidx.room:room-compiler:2.8.4")
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
