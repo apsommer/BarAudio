@@ -54,8 +54,7 @@ class MainRepository @Inject constructor(
     val tts: TextToSpeechImpl,
     val roomDb: RoomImpl,
     val firebaseDb: FirebaseDatabaseImpl,
-    val dataStore: DataStore<Preferences>,
-    val rapidApi: RapidApi) {
+    val dataStore: DataStore<Preferences>) {
 
     // room database
     val messages = roomDb.messages

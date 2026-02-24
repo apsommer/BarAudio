@@ -18,6 +18,7 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -30,6 +31,10 @@ import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.settings.SettingsDrawer
 import com.sommerengineering.baraudio.uitls.backgroundPadding
+import com.sommerengineering.baraudio.uitls.btcStream
+import com.sommerengineering.baraudio.uitls.esStream
+import com.sommerengineering.baraudio.uitls.gcStream
+import com.sommerengineering.baraudio.uitls.nqStream
 import kotlinx.coroutines.launch
 
 @Composable
@@ -37,72 +42,40 @@ fun MessagesScreen(
     viewModel: MainViewModel,
     onSignOut: () -> Unit) {
 
+    // lazy column of messages
     val messages by viewModel.messages.collectAsState()
-    val drawerState = rememberDrawerState(DrawerValue.Closed)
     val listState = rememberLazyListState()
+
+    // setting drawer
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
     val composableScope = rememberCoroutineScope()
 
-    // dark mode
-    val isDarkMode = viewModel.isDarkMode
-    val backgroundImageId =
-        if (isDarkMode) R.drawable.background_skyline_dark
-        else R.drawable.background_skyline
-
-    // scroll to new message on arrival todo auto scroll only while user at top
-//    LaunchedEffect(messages) {
-//        if (messages.isEmpty()) return@LaunchedEffect
-//        listState.animateScrollToItem(0)
-//    }
-
+    // feed mode: linear, or grouped
     var feedMode by remember { mutableStateOf(FeedMode.Linear) }
     val groups = remember(messages) { groupMessages(messages) }
+    val expandedGroups = remember { mutableStateMapOf<String, Boolean>() }
 
-    // side drawer
+    // toggle background image with dark mode
+    val backgroundImageId =
+        if (viewModel.isDarkMode) R.drawable.background_skyline_dark
+        else R.drawable.background_skyline
+
     ModalNavigationDrawer(
         drawerState = drawerState,
-        drawerContent = {
-            ModalDrawerSheet {
-                SettingsDrawer(
-                    viewModel = viewModel,
-                    onSignOut = onSignOut)
-            }
-        },
+        drawerContent = { ModalDrawerSheet { SettingsDrawer(viewModel, onSignOut) } },
         gesturesEnabled = true,
         scrimColor = DrawerDefaults.scrimColor.copy(alpha = 0.5f)) {
 
         Scaffold(
+            topBar = { MessagesTopBar(
+                onSettingsClick = { composableScope.launch { drawerState.open() } },
+                onToggleFeedMode = { feedMode = when (feedMode) {
+                    FeedMode.Linear -> FeedMode.Grouped
+                    FeedMode.Grouped -> FeedMode.Linear }})},
+            floatingActionButton = { MessagesFloatingActionButton(viewModel) },
+            bottomBar = { AllowNotificationsBottomBar(viewModel.areNotificationsEnabled) }) { padding ->
 
-            // top bar
-            topBar = {
-                MessagesTopBar(
-                    onSettingsClick = {
-                        composableScope.launch { drawerState.open() }
-                    },
-                    onToggleFeedMode = {
-                        feedMode = when (feedMode) {
-                            FeedMode.Linear -> FeedMode.Grouped
-                            FeedMode.Grouped -> FeedMode.Linear
-                        }
-                    })
-            },
-
-            // fab, mute button
-            floatingActionButton = {
-                MessagesFloatingActionButton(viewModel)
-            },
-
-            bottomBar = {
-                val areNotificationsEnabled = viewModel.areNotificationsEnabled
-                AllowNotificationsBottomBar(areNotificationsEnabled)
-            }
-
-        ) { padding ->
-
-            // screen container
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)) {
+            Box(Modifier.fillMaxSize().padding(padding)) {
 
                 // background image
                 Image(
@@ -119,30 +92,44 @@ fun MessagesScreen(
                 LazyColumn(state = listState) { when (feedMode) {
 
                     FeedMode.Linear -> {
-
                         items(
                             items = messages,
                             key = { it.timestamp }) { message ->
-
                             MessageItem(
                                 viewModel = viewModel,
-                                modifier = Modifier
+                                message = message,
+                                modifier = Modifier // todo remove
                                     .animateItem(
-                                        fadeInSpec = spring(stiffness = Spring.StiffnessVeryLow),
-                                        fadeOutSpec = spring(stiffness = Spring.StiffnessVeryLow),
-                                        placementSpec = spring(stiffness = Spring.StiffnessVeryLow)),
-                                message = message)
-                        }
-                    }
+                                        fadeInSpec = null,
+                                        fadeOutSpec = null,
+                                        placementSpec = spring(stiffness = Spring.StiffnessLow))) }}
 
                     FeedMode.Grouped -> {
                         groups.forEach { (origin, messages) ->
-                            val latestMessage = messages.first()
-                            item(key = origin) {
+                            val isExpanded = expandedGroups[origin] == true
+                            item(origin) {
                                 StreamHeaderItem(
+                                    viewModel = viewModel,
                                     origin = origin,
-                                    lastestMessage = latestMessage,
-                                    messageCount = messages.size)
+                                    lastestMessage = messages.first(),
+                                    messageCount = messages.size,
+                                    isExpanded = isExpanded,
+                                    onExpand = { expandedGroups[origin] = !isExpanded })
+                            }
+                            if (isExpanded) {
+                                items(
+                                    items = messages,
+                                    key = { origin + it.timestamp }) { message ->
+                                    MessageItem(
+                                        viewModel = viewModel,
+                                        message = message,
+                                        modifier = Modifier
+                                            .padding(start = 20.dp)
+                                            .animateItem( // todo remove
+                                                fadeInSpec = null,
+                                                fadeOutSpec = null,
+                                                placementSpec = spring(stiffness = Spring.StiffnessLow)))
+                                }
                             }
                         }
                     }
@@ -153,9 +140,16 @@ fun MessagesScreen(
 }
 
 private fun groupMessages(messages: List<Message>): Map<String, List<Message>> {
-    return messages
-        .groupBy { it.origin }
-        .mapValues { group ->
-            group.value.sortedByDescending { it.timestamp }
+
+    // define stream order
+    val streamOrder = listOf(nqStream, esStream, btcStream, gcStream)
+
+    val grouped = messages.groupBy { it.origin }
+
+    return buildMap {
+        for (origin in streamOrder) {
+            val group = grouped[origin] ?: continue
+            put(origin, group.sortedByDescending { it.timestamp })
         }
+    }
 }

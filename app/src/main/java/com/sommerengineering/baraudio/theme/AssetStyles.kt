@@ -1,7 +1,13 @@
 package com.sommerengineering.baraudio.theme
 
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import com.sommerengineering.baraudio.R
+import com.sommerengineering.baraudio.uitls.btcStream
+import com.sommerengineering.baraudio.uitls.esStream
+import com.sommerengineering.baraudio.uitls.gcStream
+import com.sommerengineering.baraudio.uitls.nqStream
 
 object AssetStyles {
 
@@ -72,4 +78,32 @@ object AssetStyles {
                 text    = Color(0xFF2B2400),
                 iconRes = R.drawable.gc)
         }
+}
+
+@Composable
+fun resolveAssetStyle(
+    origin: String,
+    isDark: Boolean)= when (origin) {
+
+    // streams
+    nqStream -> AssetStyles.nq(isDark)
+    esStream -> AssetStyles.es(isDark)
+    btcStream -> AssetStyles.btc(isDark)
+    gcStream -> AssetStyles.gc(isDark)
+
+    // todo user specific
+    else -> AssetStyle(
+        primary = MaterialTheme.colorScheme.outline,
+        accent  = MaterialTheme.colorScheme.outlineVariant,
+        surface = MaterialTheme.colorScheme.surfaceContainer,
+        text    = MaterialTheme.colorScheme.onSurface,
+        iconRes = R.drawable.webhook)
+//        in tradingview -> {
+//            if (isDarkMode) R.drawable.tradingview_light
+//            else R.drawable.tradingview_dark
+//        }
+//        trendspider -> R.drawable.trendspider
+//        insomnia -> R.drawable.insomnia
+//        parsingErrorOrigin -> R.drawable.error
+//        else -> R.drawable.webhook
 }

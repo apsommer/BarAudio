@@ -39,6 +39,7 @@ import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.theme.AssetStyle
 import com.sommerengineering.baraudio.theme.AssetStyles
+import com.sommerengineering.baraudio.theme.resolveAssetStyle
 import com.sommerengineering.baraudio.uitls.TimestampFormatter
 import com.sommerengineering.baraudio.uitls.assetIconSize
 import com.sommerengineering.baraudio.uitls.btcStream
@@ -52,8 +53,8 @@ import kotlinx.coroutines.delay
 @Composable
 fun MessageItem(
     viewModel: MainViewModel,
-    modifier: Modifier,
-    message: Message) {
+    message: Message,
+    modifier: Modifier) {
 
     // extract attributes
     val timestamp = message.timestamp
@@ -97,17 +98,13 @@ fun MessageItem(
         Row(
             modifier = Modifier
                 .combinedClickable(
-                    onClick = {
-                        isExpanded = !isExpanded
-                    },
+                    onClick = { isExpanded = !isExpanded },
                     onLongClick = {
                         isExpanded = true
                         isLongPress = true
                         viewModel.speakMessage(text)
                     })
-                .animateContentSize(
-                    animationSpec = tween(
-                        durationMillis = messageItemExpansionTimeMillis))
+                .animateContentSize(tween(messageItemExpansionTimeMillis))
                 .height(IntrinsicSize.Min) // measure children, then update height (required for correct accent bar height)
                 .background(backgroundColor)
                 .padding(16.dp, 12.dp),
@@ -140,9 +137,7 @@ fun MessageItem(
                     Text(
                         text = TimestampFormatter.beautifyFull(timestamp),
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.outline)
-                }
-            }
+                        color = MaterialTheme.colorScheme.outline) }}
 
             // origin image
             Spacer(Modifier.width(edgePadding))
@@ -160,31 +155,3 @@ fun MessageItem(
             modifier = Modifier.fillMaxWidth())
     }
 }
-
-@Composable
-fun resolveAssetStyle(
-    origin: String,
-    isDark: Boolean)= when (origin) {
-
-        // streams
-        nqStream -> AssetStyles.nq(isDark)
-        esStream -> AssetStyles.es(isDark)
-        btcStream -> AssetStyles.btc(isDark)
-        gcStream -> AssetStyles.gc(isDark)
-
-        // todo user specific
-        else -> AssetStyle(
-            primary = MaterialTheme.colorScheme.outline,
-            accent  = MaterialTheme.colorScheme.outlineVariant,
-            surface = MaterialTheme.colorScheme.surfaceContainer,
-            text    = MaterialTheme.colorScheme.onSurface,
-            iconRes = R.drawable.webhook)
-//        in tradingview -> {
-//            if (isDarkMode) R.drawable.tradingview_light
-//            else R.drawable.tradingview_dark
-//        }
-//        trendspider -> R.drawable.trendspider
-//        insomnia -> R.drawable.insomnia
-//        parsingErrorOrigin -> R.drawable.error
-//        else -> R.drawable.webhook
-    }
