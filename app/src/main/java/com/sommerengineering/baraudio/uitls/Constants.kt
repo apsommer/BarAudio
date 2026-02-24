@@ -25,6 +25,9 @@ const val setupUrl = "https://sommerengineering.com/baraud.io"
 const val privacyUrl = "https://sommerengineering.com/privacy_policy"
 const val termsUrl = "https://sommerengineering.com/terms_and_conditions"
 
+// room
+const val roomDatabaseName = "messages.db"
+
 // firebase database
 const val databaseUrl = "https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/"
 const val webhookBaseUrl = "https://us-central1-com-sommerengineering-baraudio.cloudfunctions.net/baraudio?uid="
@@ -70,7 +73,6 @@ const val isQueueAddKey = "isQueueAdd"
 const val isMuteKey = "isMuteKey"
 const val isDarkModeKey = "isDarkMode"
 const val isFullScreenKey = "isFullScreen"
-const val isShowQuoteKey = "showQuote"
 const val volumeKey = TextToSpeech.Engine.KEY_PARAM_VOLUME
 const val isNQKey = "isNQ"
 const val isGCKey = "isGC"
@@ -91,7 +93,6 @@ const val pitchTitle = "Pitch"
 const val queueBehaviorTitle = "Queue"
 const val uiModeTitle = "Theme"
 const val screenTitle = "Screen"
-const val showQuoteTitle = "Mindfulness quote"
 const val nqTitle = "Nasdaq-100 (NQ)"
 const val esTitle = "S&P 500 (ES)"
 const val btcTitle = "Bitcoin (BTC)"
@@ -117,7 +118,6 @@ const val btcDescription = "Volatility & extremes"
 const val gcDescription = "Gold description ..."
 
 // images
-const val deleteAllFadeDurationMillis = 1000
 val loginButtonSize = 96.dp
 val fabButtonSize = 72.dp
 val edgePadding = 24.dp

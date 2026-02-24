@@ -44,7 +44,9 @@ def get_session_start(timestamp: int) -> int:
 
     return int(session_start.timestamp() * 1000) # convert to UTC
 
-def write_message_to_database(node, timestamp, message, origin):
+def write_user_message_to_database(uid, timestamp, message, origin):
+
+    node = USERS_NODE.child(uid)
 
     # purge old message, if needed
     purge_node(node, timestamp)
@@ -52,7 +54,18 @@ def write_message_to_database(node, timestamp, message, origin):
     # write message
     node.child(str(timestamp)).set({
         'message': message,
-        'origin': origin})
+        'origin': origin })
+
+def write_stream_message_to_database(stream, timestamp, message):
+
+    node = STREAMS_NODE.child(stream)
+
+    # purge old message, if needed
+    purge_node(node, timestamp)
+
+    # write message
+    node.child(str(timestamp)).set({
+        'message': message })
 
 def purge_node(node, timestamp):
 
@@ -104,10 +117,8 @@ def baraudio(req: https_fn.Request) -> https_fn.Response:
         if stream not in STREAMS:
             return https_fn.Response(f'Stream {stream} does not exist')
 
-        broadcast_to_stream(stream, timestamp, message, origin)
-
-        node = STREAMS_NODE.child(stream)
-        write_message_to_database(node, timestamp, message, origin)
+        broadcast_to_stream(stream, timestamp, message)
+        write_stream_message_to_database(stream, timestamp, message)
 
         return https_fn.Response(f'Broadcasted to stream: {stream}')
 
@@ -120,24 +131,21 @@ def baraudio(req: https_fn.Request) -> https_fn.Response:
             return https_fn.Response(f'Sign-in to hear message')
 
         send_message_to_single_device(uid, device_token, timestamp, message, origin)
-
-        node = USERS_NODE.child(uid)
-        write_message_to_database(node, timestamp, message, origin)
+        write_user_message_to_database(uid, timestamp, message, origin)
 
         return https_fn.Response(f'Message sent to uid: {uid}')
 
     # respond with simple generic message, should never happen
     return https_fn.Response('Thank you for using BarAudio! :)')
 
-def broadcast_to_stream(stream, timestamp, message, origin):
+def broadcast_to_stream(stream, timestamp, message):
 
     # construct notification
     broadcast = messaging.Message(
         data = {
             'broadcast': stream,
             'timestamp': str(timestamp),
-            'message': message,
-            'origin': stream}, # TODO remove, redundant
+            'message': message},
         android = BASE_CONFIG,
         topic = stream)
 

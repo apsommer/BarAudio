@@ -12,6 +12,7 @@ import com.sommerengineering.baraudio.room.MessageDao
 import com.sommerengineering.baraudio.room.MessageDatabase
 import com.sommerengineering.baraudio.speak.TextToSpeechImpl
 import com.sommerengineering.baraudio.uitls.localCache
+import com.sommerengineering.baraudio.uitls.roomDatabaseName
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -92,7 +93,7 @@ object SingletonModule {
         return Room.databaseBuilder(
             context,
             MessageDatabase::class.java,
-            "messages.db"
+            roomDatabaseName
         ).build()
     }
 

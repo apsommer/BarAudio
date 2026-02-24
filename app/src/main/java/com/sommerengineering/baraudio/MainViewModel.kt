@@ -144,7 +144,14 @@ class MainViewModel @Inject constructor(
     }
 
     // feed mode: linear or grouped
-    val feedMode by mutableStateOf(FeedMode.Linear)
+    var feedMode by mutableStateOf(FeedMode.Linear)
+        private set
+    fun toggleFeedMode() {
+        feedMode = when (feedMode) {
+            FeedMode.Linear -> FeedMode.Grouped
+            FeedMode.Grouped -> FeedMode.Linear
+        }
+    }
 
     // fullscreen
     var isFullScreen by mutableStateOf(false)

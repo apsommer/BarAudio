@@ -49,7 +49,7 @@ fun MessagesScreen(
     val composableScope = rememberCoroutineScope()
 
     // feed mode: linear, or grouped
-    var feedMode = viewModel.feedMode
+    val feedMode = viewModel.feedMode
     val groups = remember(messages) { groupMessages(messages) }
     val expandedGroups = remember { mutableStateMapOf<String, Boolean>() }
 
@@ -68,9 +68,7 @@ fun MessagesScreen(
             topBar = { MessagesTopBar(
                 feedMode = feedMode,
                 onSettingsClick = { composableScope.launch { drawerState.open() } },
-                onToggleFeedMode = { feedMode = when (feedMode) {
-                    FeedMode.Linear -> FeedMode.Grouped
-                    FeedMode.Grouped -> FeedMode.Linear }})},
+                onToggleFeedMode = { viewModel.toggleFeedMode() })},
             floatingActionButton = { MessagesFloatingActionButton(viewModel) },
             bottomBar = { AllowNotificationsBottomBar(viewModel.areNotificationsEnabled) }) { padding ->
 

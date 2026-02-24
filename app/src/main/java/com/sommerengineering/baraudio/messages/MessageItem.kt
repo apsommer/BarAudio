@@ -68,13 +68,13 @@ fun MessageItem(
         }
     }
 
-    // prepend asset display name
+    // prepend asset display name in linear feed
+    val feedMode = viewModel.feedMode
     val displayName = resolveAsset(origin).displayName
-    val displayText =
-        when (viewModel.feedMode) {
-            FeedMode.Linear -> "$displayName: $text"
-            FeedMode.Grouped -> text
-        }
+    val displayText = when (feedMode) {
+        FeedMode.Linear -> "$displayName: $text"
+        FeedMode.Grouped -> text
+    }
 
     // detect tap (expand) and long press (speak)
     var isExpanded by remember { mutableStateOf(false) }

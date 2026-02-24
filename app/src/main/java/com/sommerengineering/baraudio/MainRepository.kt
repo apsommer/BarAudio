@@ -27,7 +27,6 @@ import com.sommerengineering.baraudio.uitls.isGCKey
 import com.sommerengineering.baraudio.uitls.isMuteKey
 import com.sommerengineering.baraudio.uitls.isNQKey
 import com.sommerengineering.baraudio.uitls.isQueueAddKey
-import com.sommerengineering.baraudio.uitls.isShowQuoteKey
 import com.sommerengineering.baraudio.uitls.nqStream
 import com.sommerengineering.baraudio.uitls.onboardingKey
 import com.sommerengineering.baraudio.uitls.pitchKey
