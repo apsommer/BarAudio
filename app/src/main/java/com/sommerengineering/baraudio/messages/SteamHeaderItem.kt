@@ -30,19 +30,21 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
+import com.sommerengineering.baraudio.assets.assetMap
+import com.sommerengineering.baraudio.assets.resolveAsset
 import com.sommerengineering.baraudio.assets.resolveAssetStyle
 
 @Composable
 fun StreamHeaderItem(
     viewModel: MainViewModel,
     origin: String,
-    lastestMessage: Message,
     messageCount: Int,
     isExpanded: Boolean,
     onExpand: () -> Unit) {
 
-    // style
+    // resolve asset
     val style = resolveAssetStyle(origin, viewModel.isDarkMode)
+    val asset = resolveAsset(origin)
 
     Surface {
 
@@ -61,45 +63,38 @@ fun StreamHeaderItem(
                     .width(6.dp)
                     .fillMaxHeight()
                     .clip(RoundedCornerShape(3.dp))
-                    .background(style.primary)
-            )
-
+                    .background(style.primary))
             Spacer(Modifier.width(16.dp))
 
+            // display name and description
             Column(Modifier.weight(1f)) {
                 Text(
-                    text = origin,
+                    text = asset.displayName,
                     style = MaterialTheme.typography.titleMedium,
-                    color = style.text
-                )
+                    color = style.text)
                 Spacer(Modifier.height(2.dp))
                 Text(
-                    text = lastestMessage.message,
+                    text = asset.description,
                     style = MaterialTheme.typography.bodyMedium,
                     color = style.accent,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
+                    overflow = TextOverflow.Ellipsis) }
 
+            // message count
             Spacer(modifier = Modifier.width(12.dp))
-
             Text(
                 text = messageCount.toString(),
                 style = MaterialTheme.typography.bodyMedium,
-                color = style.accent
-            )
-
+                color = style.accent)
             Spacer(Modifier.width(8.dp))
 
+            // chevron with rotation
             val rotation by animateFloatAsState(if (isExpanded) 180f else 0f)
             Icon(
                 painter = painterResource(R.drawable.webhook),
                 contentDescription = null,
                 tint = style.primary,
-                modifier = Modifier.rotate(rotation)
-            )
-
+                modifier = Modifier.rotate(rotation))
         }
 
         // divider between rows

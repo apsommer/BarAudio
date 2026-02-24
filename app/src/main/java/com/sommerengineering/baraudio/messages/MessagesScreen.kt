@@ -111,7 +111,6 @@ fun MessagesScreen(
                                 StreamHeaderItem(
                                     viewModel = viewModel,
                                     origin = origin,
-                                    lastestMessage = messages.first(),
                                     messageCount = messages.size,
                                     isExpanded = isExpanded,
                                     onExpand = { expandedGroups[origin] = !isExpanded })
