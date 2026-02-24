@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sommerengineering.baraudio.login.GitHubAuthenticator
 import com.sommerengineering.baraudio.login.GoogleAuthenticator
+import com.sommerengineering.baraudio.messages.FeedMode
 import com.sommerengineering.baraudio.messages.Message
 import com.sommerengineering.baraudio.messages.MindfulnessQuoteState
 import com.sommerengineering.baraudio.uitls.MessagesScreenRoute
@@ -141,6 +142,9 @@ class MainViewModel @Inject constructor(
         isGC = enabled
         repo.updateGC(enabled)
     }
+
+    // feed mode: linear or grouped
+    val feedMode by mutableStateOf(FeedMode.Linear)
 
     // fullscreen
     var isFullScreen by mutableStateOf(false)

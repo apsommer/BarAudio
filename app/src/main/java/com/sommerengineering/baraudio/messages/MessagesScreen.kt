@@ -49,7 +49,7 @@ fun MessagesScreen(
     val composableScope = rememberCoroutineScope()
 
     // feed mode: linear, or grouped
-    var feedMode by remember { mutableStateOf(FeedMode.Linear) }
+    var feedMode = viewModel.feedMode
     val groups = remember(messages) { groupMessages(messages) }
     val expandedGroups = remember { mutableStateMapOf<String, Boolean>() }
 

@@ -35,6 +35,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainViewModel
+import com.sommerengineering.baraudio.assets.resolveAsset
 import com.sommerengineering.baraudio.assets.resolveAssetStyle
 import com.sommerengineering.baraudio.uitls.TimestampFormatter
 import com.sommerengineering.baraudio.uitls.assetIconSize
@@ -66,6 +67,14 @@ fun MessageItem(
             delay(delayMillis) // wait until next minute boundary
         }
     }
+
+    // prepend asset display name
+    val displayName = resolveAsset(origin).displayName
+    val displayText =
+        when (viewModel.feedMode) {
+            FeedMode.Linear -> "$displayName: $text"
+            FeedMode.Grouped -> text
+        }
 
     // detect tap (expand) and long press (speak)
     var isExpanded by remember { mutableStateOf(false) }
@@ -116,7 +125,7 @@ fun MessageItem(
                 modifier = Modifier.weight(1f),
                 horizontalAlignment = Alignment.Start) {
                 Text(
-                    text = text,
+                    text = displayText,
                     style = MaterialTheme.typography.titleMedium,
                     maxLines = if (isExpanded) Int.MAX_VALUE else 1,
                     overflow = TextOverflow.Ellipsis)
