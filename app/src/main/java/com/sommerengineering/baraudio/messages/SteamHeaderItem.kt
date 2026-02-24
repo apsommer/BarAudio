@@ -30,7 +30,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.theme.resolveAssetStyle
+import com.sommerengineering.baraudio.assets.resolveAssetStyle
 
 @Composable
 fun StreamHeaderItem(

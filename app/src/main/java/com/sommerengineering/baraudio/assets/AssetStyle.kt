@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.theme
+package com.sommerengineering.baraudio.assets
 
 import androidx.compose.ui.graphics.Color
 

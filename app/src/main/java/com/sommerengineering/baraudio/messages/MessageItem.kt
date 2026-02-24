@@ -2,7 +2,6 @@ package com.sommerengineering.baraudio.messages
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -36,18 +35,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainViewModel
-import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.theme.AssetStyle
-import com.sommerengineering.baraudio.theme.AssetStyles
-import com.sommerengineering.baraudio.theme.resolveAssetStyle
+import com.sommerengineering.baraudio.assets.resolveAssetStyle
 import com.sommerengineering.baraudio.uitls.TimestampFormatter
 import com.sommerengineering.baraudio.uitls.assetIconSize
-import com.sommerengineering.baraudio.uitls.btcStream
 import com.sommerengineering.baraudio.uitls.edgePadding
-import com.sommerengineering.baraudio.uitls.esStream
-import com.sommerengineering.baraudio.uitls.gcStream
 import com.sommerengineering.baraudio.uitls.messageItemExpansionTimeMillis
-import com.sommerengineering.baraudio.uitls.nqStream
 import kotlinx.coroutines.delay
 
 @Composable
