@@ -91,7 +91,7 @@ fun StreamHeaderItem(
             // chevron with rotation
             val rotation by animateFloatAsState(if (isExpanded) 180f else 0f)
             Icon(
-                painter = painterResource(R.drawable.webhook),
+                painter = painterResource(R.drawable.chevron),
                 contentDescription = null,
                 tint = style.primary,
                 modifier = Modifier.rotate(rotation))
@@ -101,7 +101,6 @@ fun StreamHeaderItem(
         HorizontalDivider(
             thickness = 1.dp,
             color = MaterialTheme.colorScheme.outlineVariant,
-            modifier = Modifier.fillMaxWidth()
-        )
+            modifier = Modifier.fillMaxWidth())
     }
 }
