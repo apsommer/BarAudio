@@ -29,13 +29,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
+import com.sommerengineering.baraudio.assets.resolveAsset
 import com.sommerengineering.baraudio.settings.SettingsDrawer
 import com.sommerengineering.baraudio.uitls.backgroundPadding
-import com.sommerengineering.baraudio.uitls.btcStream
-import com.sommerengineering.baraudio.uitls.esStream
-import com.sommerengineering.baraudio.uitls.gcStream
-import com.sommerengineering.baraudio.uitls.nqStream
 import kotlinx.coroutines.launch
+import kotlin.collections.sorted
 
 @Composable
 fun MessagesScreen(
@@ -139,17 +137,10 @@ fun MessagesScreen(
     }
 }
 
-private fun groupMessages(messages: List<Message>): Map<String, List<Message>> {
-
-    // define stream order
-    val streamOrder = listOf(nqStream, esStream, btcStream, gcStream)
-
-    val grouped = messages.groupBy { it.origin }
-
-    return buildMap {
-        for (origin in streamOrder) {
-            val group = grouped[origin] ?: continue
-            put(origin, group.sortedByDescending { it.timestamp })
+private fun groupMessages(allMessages: List<Message>) =
+    allMessages.groupBy { it.origin } // Map<String, List<Message>>
+        .toList() // List<Pair<String, List<Message>>>
+        .sortedBy { (origin, messages) -> resolveAsset(origin).order } // List<Pair<String, List<Message>>> sorted by asset (origin) order
+        .associate { (origin, messages) ->
+            origin to messages.sortedByDescending { it.timestamp } // LinkedHashMap<String, List<Message>> sorted by asset (origin) and timestamp
         }
-    }
-}

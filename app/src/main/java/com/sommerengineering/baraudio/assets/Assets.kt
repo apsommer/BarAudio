@@ -9,35 +9,43 @@ val nqAsset = Asset(
     origin = nqStream,
     symbol = "NQ",
     displayName = "Nasdaq-100",
-    description = "CME · Equity Index · E-mini Nasdaq-100 Futures"
+    category = "Equity Index",
+    exchange = "CME",
+    description = "CME · Equity Index · E-mini Nasdaq-100 Futures",
+    order = 0
 )
 
 val esAsset = Asset(
     origin = esStream,
     symbol = "ES",
     displayName = "S&P 500",
-    description = "CME · Equity Index · E-mini S&P 500 Futures"
+    category = "Equity Index",
+    exchange = "CME",
+    description = "CME · Equity Index · E-mini S&P 500 Futures",
+    order = 1
 )
 
 val btcAsset = Asset(
     origin = btcStream,
     symbol = "BTC",
     displayName = "Bitcoin",
-    description = "CME · Cryptocurrency · Bitcoin Futures"
+    category = "Cryptocurrency",
+    exchange = "CME",
+    description = "CME · Cryptocurrency · Bitcoin Futures",
+    order = 2
 )
 
 val gcAsset = Asset(
     origin = gcStream,
     symbol = "GC",
     displayName = "Gold",
-    description = "COMEX · Metals · Gold Futures"
+    category = "Metals",
+    exchange = "COMEX",
+    description = "COMEX · Metals · Gold Futures",
+    order = 3
 )
 
-val assetMap = mapOf(
-    nqAsset.origin to nqAsset,
-    esAsset.origin to esAsset,
-    btcAsset.origin to btcAsset,
-    gcAsset.origin to gcAsset)
-
+val allAssets = listOf(nqAsset, esAsset, btcAsset, gcAsset)
+val assetMap = allAssets.associateBy { it.origin }
 fun resolveAsset(origin: String): Asset =
     assetMap[origin] ?: error("Unknown asset origin: $origin")
