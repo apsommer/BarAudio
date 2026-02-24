@@ -8,26 +8,30 @@ import com.sommerengineering.baraudio.uitls.nqStream
 val nqAsset = Asset(
     origin = nqStream,
     symbol = "NQ",
-    displayName = "Nasdaq",
-    description = "CME · Chicago · E-Mini Nasdaq Futures")
+    displayName = "Nasdaq-100",
+    description = "CME · Equity Index · E-mini Nasdaq-100 Futures"
+)
 
 val esAsset = Asset(
     origin = esStream,
     symbol = "ES",
     displayName = "S&P 500",
-    description = "CME · Chicago · E-Mini S&P Futures")
+    description = "CME · Equity Index · E-mini S&P 500 Futures"
+)
 
 val btcAsset = Asset(
     origin = btcStream,
     symbol = "BTC",
     displayName = "Bitcoin",
-    description = "CME · Crypto · Bitcoin Futures")
+    description = "CME · Cryptocurrency · Bitcoin Futures"
+)
 
 val gcAsset = Asset(
     origin = gcStream,
     symbol = "GC",
     displayName = "Gold",
-    description = "COMEX · NYC · Mini Gold Futures")
+    description = "COMEX · Metals · Gold Futures"
+)
 
 val assetMap = mapOf(
     nqAsset.origin to nqAsset,
