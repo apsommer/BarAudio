@@ -68,6 +68,7 @@ fun MessagesScreen(
 
         Scaffold(
             topBar = { MessagesTopBar(
+                feedMode = feedMode,
                 onSettingsClick = { composableScope.launch { drawerState.open() } },
                 onToggleFeedMode = { feedMode = when (feedMode) {
                     FeedMode.Linear -> FeedMode.Grouped
