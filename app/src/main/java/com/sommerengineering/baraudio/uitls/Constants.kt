@@ -22,8 +22,8 @@ const val messageItemExpansionTimeMillis = 140
 
 // urls
 const val setupUrl = "https://sommerengineering.com/baraud.io"
-const val privacyUrl = "https://sommerengineering.com/privacy_policy"
-const val termsUrl = "https://sommerengineering.com/terms_and_conditions"
+// const val privacyUrl = "https://sommerengineering.com/privacy_policy"
+// const val termsUrl = "https://sommerengineering.com/terms_and_conditions"
 
 // room
 const val roomDatabaseName = "messages.db"
@@ -100,8 +100,6 @@ const val esTitle = "S&P 500 (ES)"
 const val btcTitle = "Bitcoin (BTC)"
 const val gcTitle = "Gold (GC)"
 const val systemTtsTitle = "System settings"
-const val privacyTitle = "Privacy policy"
-const val termsTitle = "Terms and conditions"
 const val manageSubscriptionTitle = "Manage subscription"
 const val signOutTitle = "Sign-out"
 const val voiceDividerTitle = "VOICE"
