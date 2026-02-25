@@ -40,6 +40,7 @@ fun GroupHeaderItem(
     origin: MessageOrigin,
     messageCount: Int,
     isExpanded: Boolean,
+    isShowDivider: Boolean,
     onExpand: () -> Unit) {
 
     val isDarkMode = viewModel.isDarkMode
@@ -50,60 +51,65 @@ fun GroupHeaderItem(
     val style = origin.style(isDarkMode)
 
     Surface {
+        Column {
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .combinedClickable(onClick = { onExpand() })
-                .height(IntrinsicSize.Min)
-                .background(style.surface)
-                .padding(16.dp, 12.dp),
-            verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .combinedClickable(onClick = { onExpand() })
+                    .height(IntrinsicSize.Min)
+                    .background(style.surface)
+                    .padding(16.dp, 12.dp),
+                verticalAlignment = Alignment.CenterVertically) {
 
-            // accent bar
-            Box(
-                Modifier
-                    .width(6.dp)
-                    .fillMaxHeight()
-                    .clip(RoundedCornerShape(3.dp))
-                    .background(style.primary))
-            Spacer(Modifier.width(16.dp))
+                // accent bar
+                Box(
+                    Modifier
+                        .width(6.dp)
+                        .fillMaxHeight()
+                        .clip(RoundedCornerShape(3.dp))
+                        .background(style.primary))
+                Spacer(Modifier.width(16.dp))
 
-            // display name and description
-            Column(Modifier.weight(1f)) {
+                // display name and description
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        text = displayName,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = style.text)
+                    Spacer(Modifier.height(2.dp))
+                    Text(
+                        text = description,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = style.accent,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis)
+                }
+
+                // message count
+                Spacer(modifier = Modifier.width(12.dp))
                 Text(
-                    text = displayName,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = style.text)
-                Spacer(Modifier.height(2.dp))
-                Text(
-                    text = description,
+                    text = messageCount.toString(),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = style.accent,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis) }
+                    color = style.accent)
+                Spacer(Modifier.width(8.dp))
 
-            // message count
-            Spacer(modifier = Modifier.width(12.dp))
-            Text(
-                text = messageCount.toString(),
-                style = MaterialTheme.typography.bodyMedium,
-                color = style.accent)
-            Spacer(Modifier.width(8.dp))
+                // chevron with rotation
+                val rotation by animateFloatAsState(if (isExpanded) 90f else 0f)
+                Icon(
+                    painter = painterResource(R.drawable.chevron),
+                    contentDescription = null,
+                    tint = style.primary,
+                    modifier = Modifier.rotate(rotation))
+            }
 
-            // chevron with rotation
-            val rotation by animateFloatAsState(if (isExpanded) 180f else 0f)
-            Icon(
-                painter = painterResource(R.drawable.chevron),
-                contentDescription = null,
-                tint = style.primary,
-                modifier = Modifier.rotate(rotation))
+            // divider between rows
+            if (isShowDivider) {
+                HorizontalDivider(
+                    thickness = 0.5.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 1f),
+                    modifier = Modifier.fillMaxWidth())
+            }
         }
-
-        // divider between rows
-        HorizontalDivider(
-            thickness = 1.dp,
-            color = MaterialTheme.colorScheme.outlineVariant,
-            modifier = Modifier.fillMaxWidth())
     }
 }

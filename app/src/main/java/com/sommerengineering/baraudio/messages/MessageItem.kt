@@ -49,6 +49,7 @@ import kotlinx.coroutines.delay
 fun MessageItem(
     viewModel: MainViewModel,
     message: Message,
+    isShowDivider: Boolean,
     modifier: Modifier) {
 
     // extract message attributes
@@ -96,64 +97,72 @@ fun MessageItem(
     }
 
     Surface(modifier) {
+        Column {
 
-        Row(
-            modifier = Modifier
-                .combinedClickable(
-                    onClick = { isExpanded = !isExpanded },
-                    onLongClick = {
-                        isExpanded = true
-                        isLongPress = true
-                        viewModel.speakMessage(text)
-                    })
-                .animateContentSize(tween(messageItemExpansionTimeMillis))
-                .height(IntrinsicSize.Min) // measure children, then update height (required for correct accent bar height)
-                .background(backgroundColor)
-                .padding(16.dp, 12.dp),
-            verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                modifier = Modifier
+                    .combinedClickable(
+                        onClick = { isExpanded = !isExpanded },
+                        onLongClick = {
+                            isExpanded = true
+                            isLongPress = true
+                            viewModel.speakMessage(text) })
+                    .animateContentSize(tween(messageItemExpansionTimeMillis))
+                    .height(IntrinsicSize.Min) // measure children, then update height (required for correct accent bar height)
+                    .background(backgroundColor)
+                    .padding(16.dp, 12.dp),
+                verticalAlignment = Alignment.CenterVertically) {
 
-            // accent bar
-            Box(
-                Modifier
-                    .width(6.dp)
-                    .fillMaxHeight()
-                    .clip(RoundedCornerShape(3.dp))
-                    .background(style.primary))
-            Spacer(Modifier.width(16.dp))
+                // accent bar
+                Box(
+                    Modifier
+                        .width(6.dp)
+                        .fillMaxHeight()
+                        .clip(RoundedCornerShape(3.dp))
+                        .background(style.primary)
+                )
+                Spacer(Modifier.width(16.dp))
 
-            // message, timestamp
-            Column(
-                modifier = Modifier.weight(1f),
-                horizontalAlignment = Alignment.Start) {
-                Text(
-                    text = displayText,
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = if (isExpanded) Int.MAX_VALUE else 1,
-                    overflow = TextOverflow.Ellipsis)
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    text = beautifulTimestamp,
-                    style = MaterialTheme.typography.bodyMedium)
-                if (isExpanded) {
+                // message, timestamp
+                Column(
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.Start) {
+                    Text(
+                        text = displayText,
+                        style = MaterialTheme.typography.titleMedium,
+                        maxLines = if (isExpanded) Int.MAX_VALUE else 1,
+                        overflow = TextOverflow.Ellipsis)
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        text = TimestampFormatter.beautifyFull(timestamp),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.outline) }}
+                        text = beautifulTimestamp,
+                        style = MaterialTheme.typography.bodyMedium)
 
-            // origin image
-            Spacer(Modifier.width(edgePadding))
-            Icon(
-                painter = painterResource(style.iconRes),
-                contentDescription = null,
-                tint = if (style.tintIcon) style.primary else Color.Unspecified,
-                modifier = Modifier.size(assetIconSize))
+                    // expanded, full timestamp
+                    if (isExpanded) {
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            text = TimestampFormatter.beautifyFull(timestamp),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.outline)
+                    }
+                }
+
+                // origin image
+                Spacer(Modifier.width(edgePadding))
+                Icon(
+                    painter = painterResource(style.iconRes),
+                    contentDescription = null,
+                    tint = if (style.tintIcon) style.primary else Color.Unspecified,
+                    modifier = Modifier.size(assetIconSize))
+            }
+
+            // divider between rows
+            if (isShowDivider) {
+                HorizontalDivider(
+                    thickness = 0.5.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 1f),
+                    modifier = Modifier.fillMaxWidth())
+            }
         }
-
-        // divider between rows
-        HorizontalDivider(
-            thickness = 1.dp,
-            color = MaterialTheme.colorScheme.outlineVariant,
-            modifier = Modifier.fillMaxWidth())
     }
 }

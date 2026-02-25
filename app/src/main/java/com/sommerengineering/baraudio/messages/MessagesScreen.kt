@@ -4,12 +4,10 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.DrawerDefaults
 import androidx.compose.material3.DrawerValue
@@ -35,7 +33,6 @@ import com.sommerengineering.baraudio.settings.SettingsDrawer
 import com.sommerengineering.baraudio.source.MessageOrigin
 import com.sommerengineering.baraudio.source.resolveMessageOrigin
 import com.sommerengineering.baraudio.uitls.fabPadding
-import com.sommerengineering.baraudio.uitls.fabSize
 import kotlinx.coroutines.launch
 
 @Composable
@@ -86,24 +83,27 @@ fun MessagesScreen(
                         .align(Alignment.Center)
                         .padding(horizontal = 2 * fabPadding))
 
-                // messages list
+                // messages
                 LazyColumn(state = listState) { when (feedMode) {
 
+                    // all messages by timestamp
                     FeedMode.Linear -> {
-                        items(
+                        itemsIndexed(
                             items = messages,
-                            key = { it.timestamp }) { message ->
+                            key = { _, it -> it.timestamp }) { index, message ->
                             MessageItem(
                                 viewModel = viewModel,
                                 message = message,
-                                modifier = Modifier // todo remove/simplify
-                                    .animateItem(
-                                        fadeInSpec = null,
-                                        fadeOutSpec = null,
-                                        placementSpec = spring(stiffness = Spring.StiffnessLow))) }}
+                                isShowDivider = index != messages.lastIndex,
+                                modifier = Modifier.animateItem(
+                                    fadeInSpec = null,
+                                    fadeOutSpec = null,
+                                    placementSpec = spring(stiffness = Spring.StiffnessLow))) }}
 
                     FeedMode.Grouped -> {
-                        groups.forEach { (origin, messages) ->
+                        groups.forEachIndexed { groupIndex, (origin, messages) ->
+
+                            // group header
                             val isExpanded = expandedGroups[origin] == true
                             item(origin.key) {
                                 GroupHeaderItem(
@@ -111,15 +111,19 @@ fun MessagesScreen(
                                     origin = origin,
                                     messageCount = messages.size,
                                     isExpanded = isExpanded,
+                                    isShowDivider = groupIndex != groups.size - 1,
                                     onExpand = { expandedGroups[origin] = !isExpanded })
                             }
+
+                            // messages in group
                             if (isExpanded) {
-                                items(
+                                itemsIndexed(
                                     items = messages,
-                                    key = { origin.key + it.timestamp }) { message ->
+                                    key = { _, it -> origin.key + it.timestamp }) { index, message ->
                                     MessageItem(
                                         viewModel = viewModel,
                                         message = message,
+                                        isShowDivider = index != messages.lastIndex,
                                         modifier = Modifier
                                             .padding(start = 20.dp)
                                             .animateItem( // todo remove
@@ -136,10 +140,7 @@ fun MessagesScreen(
     }
 }
 
-private fun groupMessages(allMessages: List<Message>) =
+private fun groupMessages(allMessages: List<Message>): List<MessageGroup> =
     allMessages.groupBy { resolveMessageOrigin(it) } // Map<MessageOrigin, List<Message>>
-        .toList() // List<Pair<MessageOrigin, List<Message>>>
-        .sortedBy { (origin, messages) -> origin.order } // List<Pair<MessageOrigin, List<Message>>> sorted by origin order
-        .associate { (origin, messages) ->
-            origin to messages.sortedByDescending { it.timestamp } // LinkedHashMap<MessageOrigin, List<Message>> sorted by origin and timestamp
-        }
+        .map { (origin, messages) -> MessageGroup(origin, messages) } // List<MessageGroup>
+        .sortedBy { it.origin.order } // List<MessageGroup> sorted by origin (already timestamp descending)
