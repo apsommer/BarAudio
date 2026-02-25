@@ -9,6 +9,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -153,7 +154,7 @@ fun SettingsDrawer(
 
             // queue behavior
             item {
-                SwitchSettingItem(
+                SwitchItem(
                     icon = R.drawable.text_to_speech,
                     title = queueBehaviorTitle,
                     description = queueDescription) {
@@ -187,26 +188,47 @@ fun SettingsDrawer(
 
             // stream NQ
             item {
-                SwitchSettingItem(
-                    icon = nqAsset.style(isDarkMode).iconRes,
-                    title = nqAsset.settingsTitle(),
-                    description = nqAsset.streamDescription) {
+
+                val asset = nqAsset
+                val isStream = isNQ
+
+                val style = asset.style(isDarkMode)
+                SwitchItem(
+                    icon = style.iconRes,
+                    title = asset.settingsTitle(),
+                    description = asset.streamDescription,
+                    iconTint = style.primary,
+                    titleColor = if (isStream) style.primary else null,
+                    descriptionColor = if (isStream) style.primary.copy(alpha = 0.7f) else null) {
                     Switch(
-                        checked = isNQ,
-                        onCheckedChange = { viewModel.updateNQ(it)})
-                }
+                        checked = isStream,
+                        onCheckedChange = { viewModel.updateNQ(it)},
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = style.primary,
+                            checkedTrackColor = style.primary.copy(alpha = 0.4f)))
+                    }
             }
 
             // stream GC
             item {
-                SwitchSettingItem(
-                    icon = gcAsset.style(isDarkMode).iconRes,
-                    title = gcAsset.settingsTitle(),
-                    description = gcAsset.streamDescription) {
 
+                val asset = gcAsset
+                val isStream = isGC
+
+                val style = asset.style(isDarkMode)
+                SwitchItem(
+                    icon = style.iconRes,
+                    title = asset.settingsTitle(),
+                    description = asset.streamDescription,
+                    iconTint = style.primary,
+                    titleColor = if (isStream) style.primary else null,
+                    descriptionColor = if (isStream) style.primary.copy(alpha = 0.7f) else null) {
                     Switch(
-                        checked = isGC,
-                        onCheckedChange = { viewModel.updateGC(it)})
+                        checked = isStream,
+                        onCheckedChange = { viewModel.updateGC(it)},
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = style.primary,
+                            checkedTrackColor = style.primary.copy(alpha = 0.4f)))
                 }
             }
 
@@ -246,7 +268,7 @@ fun SettingsDrawer(
 
             // full screen
             item {
-                SwitchSettingItem(
+                SwitchItem(
                     icon = R.drawable.fullscreen,
                     title = screenTitle,
                     description = fullScreenDescription) {
@@ -259,7 +281,7 @@ fun SettingsDrawer(
 
             // theme
             item {
-                SwitchSettingItem(
+                SwitchItem(
                     icon = R.drawable.contrast,
                     title = uiModeTitle,
                     description = uiModeDescription) {
