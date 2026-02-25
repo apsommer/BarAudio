@@ -27,6 +27,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @HiltViewModel
@@ -142,10 +143,9 @@ class MainViewModel @Inject constructor(
     var feedMode by mutableStateOf(FeedMode.Linear)
         private set
     fun toggleFeedMode() {
-        feedMode = when (feedMode) {
-            FeedMode.Linear -> FeedMode.Grouped
-            FeedMode.Grouped -> FeedMode.Linear
-        }
+        val newFeedMode = if (feedMode == FeedMode.Linear) FeedMode.Grouped else FeedMode.Linear
+        feedMode = newFeedMode
+        repo.updateFeedMode(newFeedMode)
     }
 
     // fullscreen
@@ -173,10 +173,12 @@ class MainViewModel @Inject constructor(
     init {
 
         // load settings from preferences
-        viewModelScope.launch {
+        // block main thread is acceptable for datastore read ~3 ms each
+        runBlocking {
             isOnboardingComplete = repo.loadOnboarding()
             isNQ = repo.loadNQ()
             isGC = repo.loadGC()
+            feedMode = repo.loadFeedMode()
             isFullScreen = repo.loadFullScreen()
         }
 

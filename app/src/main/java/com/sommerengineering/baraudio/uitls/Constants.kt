@@ -76,6 +76,7 @@ const val isMuteKey = "isMuteKey"
 const val isDarkModeKey = "isDarkMode"
 const val isFullScreenKey = "isFullScreen"
 const val volumeKey = TextToSpeech.Engine.KEY_PARAM_VOLUME
+const val feedModeKey = "feedMode"
 const val isNQKey = "isNQ"
 const val isGCKey = "isGC"
 

@@ -16,10 +16,12 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.messaging.FirebaseMessaging
 import com.sommerengineering.baraudio.firebase.FirebaseDatabaseImpl
+import com.sommerengineering.baraudio.messages.FeedMode
 import com.sommerengineering.baraudio.messages.Message
 import com.sommerengineering.baraudio.room.RoomImpl
 import com.sommerengineering.baraudio.speak.TextToSpeechImpl
 import com.sommerengineering.baraudio.uitls.defaultVoice
+import com.sommerengineering.baraudio.uitls.feedModeKey
 import com.sommerengineering.baraudio.uitls.gcStream
 import com.sommerengineering.baraudio.uitls.isDarkModeKey
 import com.sommerengineering.baraudio.uitls.isFullScreenKey
@@ -159,6 +161,14 @@ class MainRepository @Inject constructor(
         }
         writePreference(booleanPreferencesKey(isGCKey), enabled)
     }
+
+    // feed mode
+    suspend fun loadFeedMode(): FeedMode {
+        val saved = readPreference(stringPreferencesKey(feedModeKey))
+        return FeedMode.entries.firstOrNull { it.name == saved } ?: FeedMode.Linear
+    }
+    fun updateFeedMode(feedMode: FeedMode) =
+        writePreference(stringPreferencesKey(feedModeKey), feedMode.name)
 
     // full screen
     suspend fun loadFullScreen() =
