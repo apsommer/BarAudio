@@ -274,7 +274,7 @@ fun SettingsDrawer(
             item {
                 DividerItem(legalDividerTitle)
             }
-            
+
             // manage subscription
             item {
                 LinkSettingItem(
