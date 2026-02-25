@@ -14,7 +14,7 @@ sealed interface MessageOrigin {
     data class BroadcastStream(val asset: Asset) : MessageOrigin {
         override val key = asset.origin
         override val displayName = asset.displayName
-        override val description = asset.description
+        override val description = asset.assetDescription
         override val order = asset.order
         override fun style(isDark: Boolean) = asset.style(isDark)
     }

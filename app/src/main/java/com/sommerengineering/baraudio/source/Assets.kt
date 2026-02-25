@@ -14,7 +14,8 @@ val nqAsset = Asset(
     spokenName = "Nasdaq",
     category = "Equity Index",
     exchange = "CME",
-    description = "CME · Equity Index · E-mini Nasdaq-100 Futures",
+    assetDescription = "CME · Equity Index · E-mini Nasdaq-100 Futures",
+    streamDescription = "Nasdaq-100 description ...",
     order = 0,
     style = { isDark ->
         if (isDark) {
@@ -44,7 +45,8 @@ val esAsset = Asset(
     spokenName = "S and P",
     category = "Equity Index",
     exchange = "CME",
-    description = "CME · Equity Index · E-mini S&P 500 Futures",
+    assetDescription = "CME · Equity Index · E-mini S&P 500 Futures",
+    streamDescription = "S&P 500 description ...",
     order = 1,
     style = { isDark ->
         if (isDark) {
@@ -74,7 +76,8 @@ val btcAsset = Asset(
     spokenName = "Bitcoin",
     category = "Cryptocurrency",
     exchange = "CME",
-    description = "CME · Cryptocurrency · Bitcoin Futures",
+    assetDescription = "CME · Cryptocurrency · Bitcoin Futures",
+    streamDescription = "Bitcoin description ...",
     order = 2,
     style = { isDark ->
         if (isDark) {
@@ -104,7 +107,8 @@ val gcAsset = Asset(
     spokenName = "Gold",
     category = "Metals",
     exchange = "COMEX",
-    description = "COMEX · Metals · Gold Futures",
+    assetDescription = "COMEX · Metals · Gold Futures",
+    streamDescription = "Gold description ...",
     order = 3,
     style = { isDark ->
         if (isDark) {
@@ -126,6 +130,8 @@ val gcAsset = Asset(
         }
     }
 )
+
+fun Asset.settingsTitle() = "$displayName ($symbol)"
 
 val allAssets = listOf(nqAsset, esAsset, btcAsset, gcAsset)
 val assetMap = allAssets.associateBy { it.origin }

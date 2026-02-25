@@ -26,15 +26,14 @@ import com.google.firebase.auth.auth
 import com.sommerengineering.baraudio.BuildConfig
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
+import com.sommerengineering.baraudio.source.gcAsset
+import com.sommerengineering.baraudio.source.nqAsset
+import com.sommerengineering.baraudio.source.settingsTitle
 import com.sommerengineering.baraudio.uitls.dataDividerTitle
 import com.sommerengineering.baraudio.uitls.edgePadding
-import com.sommerengineering.baraudio.uitls.gcDescription
-import com.sommerengineering.baraudio.uitls.gcTitle
 import com.sommerengineering.baraudio.uitls.howToSetupTitle
 import com.sommerengineering.baraudio.uitls.legalDividerTitle
 import com.sommerengineering.baraudio.uitls.manageSubscriptionTitle
-import com.sommerengineering.baraudio.uitls.nqDescription
-import com.sommerengineering.baraudio.uitls.nqTitle
 import com.sommerengineering.baraudio.uitls.pitchChangeUtterance
 import com.sommerengineering.baraudio.uitls.pitchTitle
 import com.sommerengineering.baraudio.uitls.queueBehaviorTitle
@@ -184,13 +183,14 @@ fun SettingsDrawer(
                 DividerItem(dataDividerTitle)
             }
 
+            // todo refactor to AssetSettings composable, SourceSettings composable, premium composables, ...
+
             // stream NQ
             item {
                 SwitchSettingItem(
-                    icon = R.drawable.ear_listen,
-                    title = nqTitle,
-                    description = nqDescription) {
-
+                    icon = nqAsset.style(isDarkMode).iconRes,
+                    title = nqAsset.settingsTitle(),
+                    description = nqAsset.streamDescription) {
                     Switch(
                         checked = isNQ,
                         onCheckedChange = { viewModel.updateNQ(it)})
@@ -200,9 +200,9 @@ fun SettingsDrawer(
             // stream GC
             item {
                 SwitchSettingItem(
-                    icon = R.drawable.ear_listen,
-                    title = gcTitle,
-                    description = gcDescription) {
+                    icon = gcAsset.style(isDarkMode).iconRes,
+                    title = gcAsset.settingsTitle(),
+                    description = gcAsset.streamDescription) {
 
                     Switch(
                         checked = isGC,
