@@ -1,6 +1,5 @@
-package com.sommerengineering.baraudio.assets
+package com.sommerengineering.baraudio.source
 
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import com.sommerengineering.baraudio.R
@@ -9,11 +8,18 @@ import com.sommerengineering.baraudio.uitls.esStream
 import com.sommerengineering.baraudio.uitls.gcStream
 import com.sommerengineering.baraudio.uitls.nqStream
 
-object AssetStyles {
-
-    fun nq(isDark: Boolean) =
+val nqAsset = Asset(
+    origin = nqStream,
+    symbol = "NQ",
+    displayName = "Nasdaq-100",
+    spokenName = "Nasdaq",
+    category = "Equity Index",
+    exchange = "CME",
+    description = "CME · Equity Index · E-mini Nasdaq-100 Futures",
+    order = 0,
+    style = { isDark ->
         if (isDark) {
-            AssetStyle(
+            MessageItemStyle(
                 primary = Color(0xFF9A84FF),
                 accent = Color(0xFFC2B5FF),
                 surface = Color(0xFF15122A),
@@ -21,7 +27,7 @@ object AssetStyles {
                 iconRes = R.drawable.nq
             )
         } else {
-            AssetStyle(
+            MessageItemStyle(
                 primary = Color(0xFF7B61FF),
                 accent = Color(0xFF9A84FF),
                 surface = Color(0xFFF3F0FF),
@@ -29,10 +35,21 @@ object AssetStyles {
                 iconRes = R.drawable.nq
             )
         }
+    }
+)
 
-    fun es(isDark: Boolean) =
+val esAsset = Asset(
+    origin = esStream,
+    symbol = "ES",
+    displayName = "S&P 500",
+    spokenName = "S and P",
+    category = "Equity Index",
+    exchange = "CME",
+    description = "CME · Equity Index · E-mini S&P 500 Futures",
+    order = 1,
+    style = { isDark ->
         if (isDark) {
-            AssetStyle(
+            MessageItemStyle(
                 primary = Color(0xFF69A6FF),
                 accent = Color(0xFF9CC4FF),
                 surface = Color(0xFF0D1A2B),
@@ -40,7 +57,7 @@ object AssetStyles {
                 iconRes = R.drawable.es
             )
         } else {
-            AssetStyle(
+            MessageItemStyle(
                 primary = Color(0xFF3A86FF),
                 accent = Color(0xFF69A6FF),
                 surface = Color(0xFFEEF4FF),
@@ -48,10 +65,21 @@ object AssetStyles {
                 iconRes = R.drawable.es
             )
         }
+    }
+)
 
-    fun btc(isDark: Boolean) =
+val btcAsset = Asset(
+    origin = btcStream,
+    symbol = "BTC",
+    displayName = "Bitcoin",
+    spokenName = "Bitcoin",
+    category = "Cryptocurrency",
+    exchange = "CME",
+    description = "CME · Cryptocurrency · Bitcoin Futures",
+    order = 2,
+    style = { isDark ->
         if (isDark) {
-            AssetStyle(
+            MessageItemStyle(
                 primary = Color(0xFFFFB454),
                 accent = Color(0xFFFFD089),
                 surface = Color(0xFF2A1B00),
@@ -59,7 +87,7 @@ object AssetStyles {
                 iconRes = R.drawable.btc
             )
         } else {
-            AssetStyle(
+            MessageItemStyle(
                 primary = Color(0xFFF7931A),
                 accent = Color(0xFFFFB454),
                 surface = Color(0xFFFFF4E5),
@@ -67,10 +95,21 @@ object AssetStyles {
                 iconRes = R.drawable.btc
             )
         }
+    }
+)
 
-    fun gc(isDark: Boolean) =
+val gcAsset = Asset(
+    origin = gcStream,
+    symbol = "GC",
+    displayName = "Gold",
+    spokenName = "Gold",
+    category = "Metals",
+    exchange = "COMEX",
+    description = "COMEX · Metals · Gold Futures",
+    order = 3,
+    style = { isDark ->
         if (isDark) {
-            AssetStyle(
+            MessageItemStyle(
                 primary = Color(0xFFE6C96A),
                 accent = Color(0xFFF4DE9A),
                 surface = Color(0xFF2B2400),
@@ -78,7 +117,7 @@ object AssetStyles {
                 iconRes = R.drawable.gc
             )
         } else {
-            AssetStyle(
+            MessageItemStyle(
                 primary = Color(0xFFD4AF37),
                 accent = Color(0xFFE6C96A),
                 surface = Color(0xFFFFF8E1),
@@ -86,33 +125,10 @@ object AssetStyles {
                 iconRes = R.drawable.gc
             )
         }
-}
+    }
+)
 
-@Composable
-fun resolveAssetStyle(
-    origin: String,
-    isDark: Boolean)= when (origin) {
-
-    // streams
-    nqStream -> AssetStyles.nq(isDark)
-    esStream -> AssetStyles.es(isDark)
-    btcStream -> AssetStyles.btc(isDark)
-    gcStream -> AssetStyles.gc(isDark)
-
-    // todo user specific
-    else -> AssetStyle(
-        primary = MaterialTheme.colorScheme.outline,
-        accent = MaterialTheme.colorScheme.outlineVariant,
-        surface = MaterialTheme.colorScheme.surfaceContainer,
-        text = MaterialTheme.colorScheme.onSurface,
-        iconRes = R.drawable.webhook
-    )
-//        in tradingview -> {
-//            if (isDarkMode) R.drawable.tradingview_light
-//            else R.drawable.tradingview_dark
-//        }
-//        trendspider -> R.drawable.trendspider
-//        insomnia -> R.drawable.insomnia
-//        parsingErrorOrigin -> R.drawable.error
-//        else -> R.drawable.webhook
-}
+val allAssets = listOf(nqAsset, esAsset, btcAsset, gcAsset)
+val assetMap = allAssets.associateBy { it.origin }
+fun resolveAsset(stream: String) =
+    assetMap[stream] ?: error("Unknown asset for stream: $stream")

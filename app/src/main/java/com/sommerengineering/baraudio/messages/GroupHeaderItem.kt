@@ -30,21 +30,24 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.assets.assetMap
-import com.sommerengineering.baraudio.assets.resolveAsset
-import com.sommerengineering.baraudio.assets.resolveAssetStyle
+import com.sommerengineering.baraudio.source.MessageOrigin
+import com.sommerengineering.baraudio.source.resolveMessageOrigin
+import com.sommerengineering.baraudio.source.resolveMessageStyle
 
 @Composable
-fun StreamHeaderItem(
+fun GroupHeaderItem(
     viewModel: MainViewModel,
-    origin: String,
+    origin: MessageOrigin,
     messageCount: Int,
     isExpanded: Boolean,
     onExpand: () -> Unit) {
 
-    // resolve asset
-    val style = resolveAssetStyle(origin, viewModel.isDarkMode)
-    val asset = resolveAsset(origin)
+    val isDarkMode = viewModel.isDarkMode
+
+    // extract attributes from origin
+    val displayName = origin.displayName
+    val description = origin.description
+    val style = origin.style(isDarkMode)
 
     Surface {
 
@@ -69,12 +72,12 @@ fun StreamHeaderItem(
             // display name and description
             Column(Modifier.weight(1f)) {
                 Text(
-                    text = asset.displayName,
+                    text = displayName,
                     style = MaterialTheme.typography.titleMedium,
                     color = style.text)
                 Spacer(Modifier.height(2.dp))
                 Text(
-                    text = asset.description,
+                    text = description,
                     style = MaterialTheme.typography.bodyMedium,
                     color = style.accent,
                     maxLines = 1,

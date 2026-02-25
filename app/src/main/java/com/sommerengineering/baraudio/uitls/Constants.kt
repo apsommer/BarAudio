@@ -41,14 +41,13 @@ const val channelName = "Webhook"
 const val channelDescription = "Realtime data connection for BarAudio"
 const val channelGroupId = "42"
 const val channelGroupName = "Webhook"
-const val broadcastKey = "broadcast"
+const val notificationId = 42
+const val notificationKey = "notification"
+const val streamKey = "stream"
 const val uidKey = "uid"
 const val timestampKey = "timestamp"
 const val messageKey = "message"
-const val originKey = "origin"
-const val messageParsingError = "Error parsing message"
-const val notificationId = 42
-const val notificationKey = "notification"
+const val sourceKey = "source"
 
 // streams
 const val nqStream = "NQ"
@@ -146,16 +145,3 @@ const val gitHubProviderId = "github.com"
 const val defaultVoice = "en-gb-x-gbd-local"  // british, male
 const val speedChangeUtterance = "Speed, "
 const val pitchChangeUtterance = "Pitch, "
-
-// origin todo refactor
-// https://www.tradingview.com/support/solutions/43000529348-about-webhooks/
-// https://help.trendspider.com/kb/alerts/webhooks
-val tradingview = listOf(
-    "52.89.214.238",
-    "34.212.75.30",
-    "54.218.53.128",
-    "52.32.178.7")
-const val trendspider = "3.12.143.24"
-const val insomnia = "84.123.224.196"
-const val parsingErrorOrigin = "error"
-const val localOrigin = "local"

@@ -14,11 +14,9 @@ import com.sommerengineering.baraudio.login.GitHubAuthenticator
 import com.sommerengineering.baraudio.login.GoogleAuthenticator
 import com.sommerengineering.baraudio.messages.FeedMode
 import com.sommerengineering.baraudio.messages.Message
-import com.sommerengineering.baraudio.messages.MindfulnessQuoteState
 import com.sommerengineering.baraudio.uitls.MessagesScreenRoute
 import com.sommerengineering.baraudio.uitls.OnboardingTextToSpeechScreenRoute
 import com.sommerengineering.baraudio.uitls.RomanNumerals
-import com.sommerengineering.baraudio.uitls.localOrigin
 import com.sommerengineering.baraudio.uitls.queueAddDescription
 import com.sommerengineering.baraudio.uitls.queueFlushDescription
 import com.sommerengineering.baraudio.uitls.screenFullDescription
@@ -26,12 +24,8 @@ import com.sommerengineering.baraudio.uitls.screenWindowedDescription
 import com.sommerengineering.baraudio.uitls.uiDarkDescription
 import com.sommerengineering.baraudio.uitls.uiLightDescription
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -113,7 +107,8 @@ class MainViewModel @Inject constructor(
             repo.speakMessage(Message(
                 timestamp = System.currentTimeMillis().toString(),
                 message = utterance,
-                origin = localOrigin))
+                stream = null,
+                source = null))
         }
 
     // onboarding

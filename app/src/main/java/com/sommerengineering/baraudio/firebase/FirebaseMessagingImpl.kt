@@ -8,9 +8,9 @@ import com.sommerengineering.baraudio.MainRepository
 import com.sommerengineering.baraudio.ProcessState
 import com.sommerengineering.baraudio.messages.Message
 import com.sommerengineering.baraudio.speak.ForegroundSpeechService
-import com.sommerengineering.baraudio.uitls.broadcastKey
+import com.sommerengineering.baraudio.uitls.streamKey
 import com.sommerengineering.baraudio.uitls.messageKey
-import com.sommerengineering.baraudio.uitls.originKey
+import com.sommerengineering.baraudio.uitls.sourceKey
 import com.sommerengineering.baraudio.uitls.timestampKey
 import com.sommerengineering.baraudio.uitls.uidKey
 import dagger.hilt.android.AndroidEntryPoint
@@ -37,9 +37,9 @@ class FirebaseServiceImpl: FirebaseMessagingService() {
     private fun RemoteMessage.toMessage(): Message? {
 
         // message is broadcast from stream, or send to specific user device
-        val broadcast = data[broadcastKey]
+        val stream = data[streamKey]
         val uid = data[uidKey]
-        if (broadcast == null && uid == null) return null
+        if (stream == null && uid == null) return null
 
         // catch different user on same device
         val currentUid = Firebase.auth.currentUser?.uid ?: return null
@@ -48,9 +48,9 @@ class FirebaseServiceImpl: FirebaseMessagingService() {
         // validate payload
         val timestamp = data[timestampKey] ?: return null
         val message = data[messageKey] ?: return null
-        val origin = data[originKey] ?: return null
+        val source = data[sourceKey]
 
-        return Message(timestamp, message, origin)
+        return Message(timestamp, message, stream, source)
     }
 
     override fun onNewToken(token: String) =

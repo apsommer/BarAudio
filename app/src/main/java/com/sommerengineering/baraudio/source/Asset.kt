@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.assets
+package com.sommerengineering.baraudio.source
 
 data class Asset(
     val origin: String,
@@ -8,5 +8,6 @@ data class Asset(
     val category: String,
     val exchange: String,
     val description: String,
-    val order: Int
+    val order: Int,
+    val style: (isDark: Boolean) -> MessageItemStyle
 )

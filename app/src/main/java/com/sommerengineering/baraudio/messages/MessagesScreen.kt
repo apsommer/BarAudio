@@ -19,21 +19,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.assets.resolveAsset
+import com.sommerengineering.baraudio.source.resolveAsset
 import com.sommerengineering.baraudio.settings.SettingsDrawer
+import com.sommerengineering.baraudio.source.MessageOrigin
+import com.sommerengineering.baraudio.source.resolveMessageOrigin
 import com.sommerengineering.baraudio.uitls.backgroundPadding
 import kotlinx.coroutines.launch
-import kotlin.collections.sorted
 
 @Composable
 fun MessagesScreen(
@@ -51,7 +50,7 @@ fun MessagesScreen(
     // feed mode: linear, or grouped
     val feedMode = viewModel.feedMode
     val groups = remember(messages) { groupMessages(messages) }
-    val expandedGroups = remember { mutableStateMapOf<String, Boolean>() }
+    val expandedGroups = remember { mutableStateMapOf<MessageOrigin, Boolean>() }
 
     // toggle background image with dark mode
     val backgroundImageId =
@@ -95,7 +94,7 @@ fun MessagesScreen(
                             MessageItem(
                                 viewModel = viewModel,
                                 message = message,
-                                modifier = Modifier // todo remove
+                                modifier = Modifier // todo remove/simplify
                                     .animateItem(
                                         fadeInSpec = null,
                                         fadeOutSpec = null,
@@ -104,8 +103,8 @@ fun MessagesScreen(
                     FeedMode.Grouped -> {
                         groups.forEach { (origin, messages) ->
                             val isExpanded = expandedGroups[origin] == true
-                            item(origin) {
-                                StreamHeaderItem(
+                            item(origin.key) {
+                                GroupHeaderItem(
                                     viewModel = viewModel,
                                     origin = origin,
                                     messageCount = messages.size,
@@ -115,7 +114,7 @@ fun MessagesScreen(
                             if (isExpanded) {
                                 items(
                                     items = messages,
-                                    key = { origin + it.timestamp }) { message ->
+                                    key = { origin.key + it.timestamp }) { message ->
                                     MessageItem(
                                         viewModel = viewModel,
                                         message = message,
@@ -136,9 +135,9 @@ fun MessagesScreen(
 }
 
 private fun groupMessages(allMessages: List<Message>) =
-    allMessages.groupBy { it.origin } // Map<String, List<Message>>
+    allMessages.groupBy { resolveMessageOrigin(it) } // Map<String, List<Message>>
         .toList() // List<Pair<String, List<Message>>>
-        .sortedBy { (origin, messages) -> resolveAsset(origin).order } // List<Pair<String, List<Message>>> sorted by asset (origin) order
+        .sortedBy { (origin, messages) -> origin.order } // List<Pair<String, List<Message>>> sorted by asset (origin) order
         .associate { (origin, messages) ->
             origin to messages.sortedByDescending { it.timestamp } // LinkedHashMap<String, List<Message>> sorted by asset (origin) and timestamp
         }

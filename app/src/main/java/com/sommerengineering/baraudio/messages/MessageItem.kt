@@ -35,8 +35,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainViewModel
-import com.sommerengineering.baraudio.assets.resolveAsset
-import com.sommerengineering.baraudio.assets.resolveAssetStyle
+import com.sommerengineering.baraudio.source.MessageOrigin
+import com.sommerengineering.baraudio.source.resolveMessageOrigin
+import com.sommerengineering.baraudio.source.resolveMessageStyle
 import com.sommerengineering.baraudio.uitls.TimestampFormatter
 import com.sommerengineering.baraudio.uitls.assetIconSize
 import com.sommerengineering.baraudio.uitls.edgePadding
@@ -49,13 +50,14 @@ fun MessageItem(
     message: Message,
     modifier: Modifier) {
 
-    // extract attributes
+    // extract message attributes
     val timestamp = message.timestamp
     val text = message.message
-    val origin = message.origin
 
-    // style
-    val style = resolveAssetStyle(origin, viewModel.isDarkMode)
+    // style from origin
+    val isDarkMode = viewModel.isDarkMode
+    val origin = resolveMessageOrigin(message)
+    val style = resolveMessageStyle(origin, isDarkMode)
 
     // update timestamp once per minute
     var beautifulTimestamp by remember { mutableStateOf("") }
@@ -65,16 +67,14 @@ fun MessageItem(
             val now = System.currentTimeMillis() // millis since epoch
             val delayMillis = 60_000L - (now % 60_000L) // millis remaining in current minute
             delay(delayMillis) // wait until next minute boundary
-        }
-    }
+        } }
 
-    // prepend asset display name in linear feed
+    // prepend asset display name for streams in linear mode
     val feedMode = viewModel.feedMode
-    val displayName = resolveAsset(origin).displayName
-    val displayText = when (feedMode) {
-        FeedMode.Linear -> "$displayName: $text"
-        FeedMode.Grouped -> text
-    }
+    val displayText =
+        if (feedMode == FeedMode.Linear
+            && origin is MessageOrigin.Stream) { "${origin.displayName}: $text" }
+        else { text }
 
     // detect tap (expand) and long press (speak)
     var isExpanded by remember { mutableStateOf(false) }

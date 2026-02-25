@@ -5,7 +5,8 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class Message(
-    var timestamp: String,
-    var message: String,
-    var origin: String
+    val timestamp: String,
+    val message: String,
+    val stream: String?, // null for user signal
+    val source: String? // null for stream broadcast
 ) : Parcelable

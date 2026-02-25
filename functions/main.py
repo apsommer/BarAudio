@@ -7,6 +7,9 @@ from firebase_admin.exceptions import FirebaseError
 from firebase_admin.messaging import UnregisteredError
 from firebase_functions import https_fn
 
+# view logs
+# https://console.cloud.google.com/run/detail/us-central1/baraudio/observability/logs?inv=1&invt=AbhuYw&project=com-sommerengineering-baraudio
+
 # initialize admin sdk
 APP = initialize_app(
     credential = credentials.Certificate('admin.json'),
@@ -14,6 +17,11 @@ APP = initialize_app(
 
 # streams
 STREAMS = {'NQ', 'GC'}
+
+# user sources
+TRADINGVIEW = {'52.89.214.238', '34.212.75.30', '54.218.53.128', '52.32.178.7'}
+TRENDSPIDER = '3.12.143.24'
+INSOMNIA = '84.123.224.196'
 
 # configure notification
 BASE_CONFIG = messaging.AndroidConfig(
@@ -29,62 +37,6 @@ USERS_NODE = db.reference('users')
 STREAMS_NODE = db.reference('streams')
 TOKENS_NODE = db.reference('tokens')
 
-def get_session_start(timestamp: int) -> int:
-
-    # time of market close for this day, in NYC timezone
-    nyc_time = datetime.fromtimestamp(timestamp / 1000, NYC)
-    session_start = nyc_time.replace(hour = 18, minute = 0, second = 0, microsecond = 0)
-
-    # now is before close, trading session started yesterday
-    if session_start > nyc_time: session_start -= timedelta(days = 1)
-
-    # market is closed on weekends
-    weekday = session_start.weekday()
-    if weekday == 5: session_start -= timedelta(days = 2) # saturday -> thursday
-
-    return int(session_start.timestamp() * 1000) # convert to UTC
-
-def write_user_message_to_database(uid, timestamp, message, origin):
-
-    node = USERS_NODE.child(uid)
-
-    # purge old message, if needed
-    purge_node(node, timestamp)
-
-    # write message
-    node.child(str(timestamp)).set({
-        'message': message,
-        'origin': origin })
-
-def write_stream_message_to_database(stream, timestamp, message):
-
-    node = STREAMS_NODE.child(stream)
-
-    # purge old message, if needed
-    purge_node(node, timestamp)
-
-    # write message
-    node.child(str(timestamp)).set({
-        'message': message })
-
-def purge_node(node, timestamp):
-
-    # calculate session start of last two trading days
-    current_session_start = get_session_start(timestamp)
-
-    dt = datetime.fromtimestamp(current_session_start / 1000, NYC)
-    dt -= timedelta(days=1)
-
-    previous_session_start = current_session_start - DAY_MILLIS
-
-    # query old messages
-    old_messages = node.order_by_key().end_at(str(previous_session_start - 1)).get()
-    if not old_messages: return
-
-    # batch delete
-    old_messages = { key: None for key in old_messages.keys() }
-    node.update(old_messages)
-
 # https://us-central1-com-sommerengineering-baraudio.cloudfunctions.net/baraudio?uid=...
 @https_fn.on_request()
 def baraudio(req: https_fn.Request) -> https_fn.Response:
@@ -93,18 +45,21 @@ def baraudio(req: https_fn.Request) -> https_fn.Response:
     stream = req.args.get(key = 'broadcast', type = str) # query param
     uid = req.args.get(key = 'uid', type = str) # query param
     message = req.get_data(as_text = True) # message as plain/text from body
-    origin = req.headers.get('X-Forwarded-For') # extract origin from header
+    source_ip = req.headers.get('X-Forwarded-For') # extract source ip from header
 
-    # clean raw params
+    # clean raw message
     message = message.strip()[:200] if message else '' # keep messages short for client display
-    origin = origin if origin else 'unknown' # fallback if origin is empty
 
     # calculate raw utc timestamp from system (millis)
     timestamp = int(time.time() * 1000)
 
     # catch malformed request
     if req.method != 'POST':
-        return https_fn.Response('Request must be POST and include uid as query parameter')
+        return https_fn.Response('Request must be POST and include stream or uid as query parameter')
+    if stream and uid:
+        return https_fn.Response('Request must not include both stream and uid query parameters')
+    if not stream and not uid:
+        return https_fn.Response('Request must include either stream or uid query parameters')
 
     # catch empty message
     if len(message) == 0:
@@ -130,8 +85,11 @@ def baraudio(req: https_fn.Request) -> https_fn.Response:
         if device_token is None:
             return https_fn.Response(f'Sign-in to hear message')
 
-        send_message_to_single_device(uid, device_token, timestamp, message, origin)
-        write_user_message_to_database(uid, timestamp, message, origin)
+        # get source from ip
+        source = resolve_source_from_ip(source_ip)
+
+        send_message_to_single_device(uid, device_token, timestamp, message, source)
+        write_user_message_to_database(uid, timestamp, message, source)
 
         return https_fn.Response(f'Message sent to uid: {uid}')
 
@@ -143,7 +101,7 @@ def broadcast_to_stream(stream, timestamp, message):
     # construct notification
     broadcast = messaging.Message(
         data = {
-            'broadcast': stream,
+            'stream': stream,
             'timestamp': str(timestamp),
             'message': message},
         android = BASE_CONFIG,
@@ -153,7 +111,7 @@ def broadcast_to_stream(stream, timestamp, message):
     try: messaging.send(broadcast)
     except FirebaseError as error: print(f'Broadcast to stream: {stream}, error: {error}')
 
-def send_message_to_single_device(uid, device_token, timestamp, message, origin):
+def send_message_to_single_device(uid, device_token, timestamp, message, source):
 
     # construct notification
     notification = messaging.Message(
@@ -161,17 +119,85 @@ def send_message_to_single_device(uid, device_token, timestamp, message, origin)
             'uid': uid,
             'timestamp': str(timestamp),
             'message': message,
-            'origin': origin},
+            'source': source},
         android = BASE_CONFIG,
         token = device_token)
 
     # send notification to single device
     try: messaging.send(notification)
-    except UnregisteredError: delete_token_from_database(uid)
+    except UnregisteredError: TOKENS_NODE.child(uid).delete() # delete token if unregistered (google test accounts)
     except FirebaseError as error: print(f'Send to uid: {uid}, error: {error}')
 
-def delete_token_from_database(uid):
-    TOKENS_NODE.child(uid).delete()
+def write_stream_message_to_database(stream, timestamp, message):
 
-# view logs
-# https://console.cloud.google.com/run/detail/us-central1/baraudio/observability/logs?inv=1&invt=AbhuYw&project=com-sommerengineering-baraudio
+    node = STREAMS_NODE.child(stream)
+
+    # purge old message, if needed
+    purge_node(node, timestamp)
+
+    # write message
+    node.child(str(timestamp)).set({
+        'message': message })
+
+def write_user_message_to_database(uid, timestamp, message, source):
+
+    node = USERS_NODE.child(uid)
+
+    # purge old message, if needed
+    purge_node(node, timestamp)
+
+    # write message
+    node.child(str(timestamp)).set({
+        'message': message,
+        'source': source })
+
+def purge_node(node, timestamp):
+
+    # calculate session start of last two trading days
+    current_session_start = get_session_start(timestamp)
+    previous_session_start = current_session_start - DAY_MILLIS
+
+    # query old messages
+    old_messages = node.order_by_key().end_at(str(previous_session_start - 1)).get()
+    if not old_messages: return
+
+    # batch delete
+    old_messages = { key: None for key in old_messages.keys() }
+    node.update(old_messages)
+
+def get_session_start(timestamp: int) -> int:
+
+    # time of market close for this day, in NYC timezone
+    nyc_time = datetime.fromtimestamp(timestamp / 1000, NYC)
+    session_start = nyc_time.replace(hour = 18, minute = 0, second = 0, microsecond = 0)
+
+    # now is before close, trading session started yesterday
+    if session_start > nyc_time: session_start -= timedelta(days = 1)
+
+    # market is closed on weekends
+    weekday = session_start.weekday()
+    if weekday == 5: session_start -= timedelta(days = 2) # saturday -> thursday
+
+    return int(session_start.timestamp() * 1000) # convert to UTC
+
+def resolve_source_from_ip(source_ip: str) -> str:
+
+    # catch empty ip list
+    if not source_ip: return 'unknown'
+
+    # take first instance of IPv4 address
+    ips = [ip.strip() for ip in source_ip.split(',')]
+    ip = next((ip for ip in ips if '.' in ip), None)
+
+    # catch empty ip
+    if not ip: return 'unknown'
+
+    # clean ip
+    ip = ip.strip()
+    if len(ip) > 45: return 'unknown' # IPv6, localhost, ...
+
+    if ip in TRADINGVIEW: return 'tradingview'
+    if ip == TRENDSPIDER: return 'trendspider'
+    if ip == INSOMNIA: return 'insomnia'
+
+    return 'unknown'

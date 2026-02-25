@@ -8,8 +8,9 @@ import com.sommerengineering.baraudio.messages.Message
 data class MessageEntity(
     @PrimaryKey val timestamp: String,
     val message: String,
-    val origin: String
+    val stream: String?, // null for user signal
+    val sourceIp: String? // null for stream broadcast
 )
 
-fun MessageEntity.toMessage() = Message(timestamp, message, origin)
-fun Message.toEntity() = MessageEntity(timestamp, message, origin)
+fun MessageEntity.toMessage() = Message(timestamp, message, stream, sourceIp)
+fun Message.toEntity() = MessageEntity(timestamp, message, stream, source)

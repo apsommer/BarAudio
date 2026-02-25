@@ -6,13 +6,12 @@ import com.google.firebase.database.database
 import com.sommerengineering.baraudio.messages.Message
 import com.sommerengineering.baraudio.uitls.databaseUrl
 import com.sommerengineering.baraudio.uitls.messageKey
-import com.sommerengineering.baraudio.uitls.originKey
+import com.sommerengineering.baraudio.uitls.sourceKey
 import com.sommerengineering.baraudio.uitls.streamsNode
 import com.sommerengineering.baraudio.uitls.tokensNode
 import com.sommerengineering.baraudio.uitls.usersNode
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 class FirebaseDatabaseImpl {
 
@@ -28,32 +27,47 @@ class FirebaseDatabaseImpl {
 
     suspend fun fetchStreamMessages(stream: String): List<Message> =
         suspendCancellableCoroutine { continuation ->
-            db.getReference(streamsNode).child(stream).get()
+            db.getReference(streamsNode)
+                .child(stream)
+                .get()
                 .addOnSuccessListener { snapshot ->
-                    val messages = snapshot.children.mapNotNull { it.toMessage() }
+                    val messages = snapshot.children.mapNotNull {
+                        it.toStreamMessage(stream)
+                    }
                     continuation.resume(messages)
                 }.addOnFailureListener { continuation.resume(emptyList()) }
         }
 
     suspend fun fetchUserMessages(): List<Message> =
         suspendCancellableCoroutine { continuation ->
-            db.getReference(usersNode).child(uid).get()
+            db.getReference(usersNode)
+                .child(uid)
+                .get()
                 .addOnSuccessListener { snapshot ->
-                    val messages = snapshot.children.mapNotNull { it.toMessage() }
+                    val messages = snapshot.children.mapNotNull {
+                        it.toUserMessage()
+                    }
                     continuation.resume(messages)
                 }.addOnFailureListener { continuation.resume(emptyList()) }
         }
 
-    private fun DataSnapshot.toMessage(): Message? {
-
-        // todo get rid of the ugly return null if possible?
+    private fun DataSnapshot.toStreamMessage(stream: String): Message? {
 
         // validate attributes
         val timestamp = key ?: return null
         val message = child(messageKey).value as? String ?: return null
-        val origin = child(originKey).value as? String ?: return null
 
-        return Message(timestamp, message, origin)
+        return Message(timestamp, message, stream, null)
+    }
+
+    private fun DataSnapshot.toUserMessage(): Message? {
+
+        // validate attributes
+        val timestamp = key ?: return null
+        val message = child(messageKey).value as? String ?: return null
+        val source = child(sourceKey).value as? String ?: return null
+
+        return Message(timestamp, message, null, source)
     }
 
     fun writeToken(token: String) =
