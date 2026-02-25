@@ -34,6 +34,7 @@ import com.sommerengineering.baraudio.uitls.speedKey
 import com.sommerengineering.baraudio.uitls.voiceNameKey
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -175,8 +176,21 @@ class MainRepository @Inject constructor(
 
         appScope.launch {
 
-            // wait for system initialization of tts engine, takes a few seconds
+            // wait for system initialization of tts engine, takes a few milliseconds
             isTtsInit.filter { it }.first()
+
+            // ensure voices are stable, can take 500 milliseconds on slow devices
+            var voiceCount = -1
+            while (true) {
+
+                // voices stable
+                val currentVoiceCount = tts.voices.size
+                if (currentVoiceCount > 0 && currentVoiceCount == voiceCount) break
+
+                // voices unstable, try again
+                voiceCount = currentVoiceCount
+                delay(50)
+            }
 
             // finish tts engine with store preferences
             initTtsSettings()
