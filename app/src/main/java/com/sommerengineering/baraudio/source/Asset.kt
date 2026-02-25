@@ -9,5 +9,5 @@ data class Asset(
     val exchange: String,
     val description: String,
     val order: Int,
-    val style: (isDark: Boolean) -> MessageItemStyle
+    val style: (isDark: Boolean) -> ItemStyle
 )

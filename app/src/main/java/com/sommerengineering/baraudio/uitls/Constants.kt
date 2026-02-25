@@ -55,6 +55,9 @@ const val esStream = "ES"
 const val btcStream = "BTC"
 const val gcStream = "GC"
 
+// user signals
+const val userSignalDescription = "Custom webhook"
+
 // navigation
 const val LoginScreenRoute = "LoginScreen"
 const val OnboardingTextToSpeechScreenRoute = "OnboardingTextToSpeechScreen"

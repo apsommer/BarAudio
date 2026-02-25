@@ -1,6 +1,7 @@
 package com.sommerengineering.baraudio.source
 
 import com.sommerengineering.baraudio.messages.Message
+import com.sommerengineering.baraudio.uitls.userSignalDescription
 
 sealed interface MessageOrigin {
 
@@ -8,9 +9,9 @@ sealed interface MessageOrigin {
     val displayName: String
     val description: String
     val order: Int
-    fun style(isDark: Boolean): MessageItemStyle
+    fun style(isDark: Boolean): ItemStyle
 
-    data class Stream(val asset: Asset) : MessageOrigin {
+    data class BroadcastStream(val asset: Asset) : MessageOrigin {
         override val key = asset.origin
         override val displayName = asset.displayName
         override val description = asset.description
@@ -18,10 +19,10 @@ sealed interface MessageOrigin {
         override fun style(isDark: Boolean) = asset.style(isDark)
     }
 
-    data class UserSignal(val source: SignalSource) : MessageOrigin {
+    data class UserSignal(val source: Source) : MessageOrigin {
         override val key = source.key
         override val displayName = source.displayName
-        override val description = "User signal"
+        override val description = userSignalDescription
         override val order = source.order + 100 // always after assets
         override fun style(isDark: Boolean) = source.style(isDark)
     }
@@ -32,8 +33,6 @@ fun resolveMessageOrigin(message: Message): MessageOrigin {
     val stream = message.stream
     val source = message.source ?: "unknown"
 
-    if (stream != null) { return MessageOrigin.Stream(resolveAsset(stream)) }
-    if (source != null) { return MessageOrigin.UserSignal(resolveSignalSource(source)) }
-
-    error("Unknown origin for message: $message")
+    if (stream != null) { return MessageOrigin.BroadcastStream(resolveAsset(stream)) }
+    return MessageOrigin.UserSignal(resolveSignalSource(source))
 }

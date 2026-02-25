@@ -135,9 +135,9 @@ fun MessagesScreen(
 }
 
 private fun groupMessages(allMessages: List<Message>) =
-    allMessages.groupBy { resolveMessageOrigin(it) } // Map<String, List<Message>>
-        .toList() // List<Pair<String, List<Message>>>
-        .sortedBy { (origin, messages) -> origin.order } // List<Pair<String, List<Message>>> sorted by asset (origin) order
+    allMessages.groupBy { resolveMessageOrigin(it) } // Map<MessageOrigin, List<Message>>
+        .toList() // List<Pair<MessageOrigin, List<Message>>>
+        .sortedBy { (origin, messages) -> origin.order } // List<Pair<MessageOrigin, List<Message>>> sorted by origin order
         .associate { (origin, messages) ->
-            origin to messages.sortedByDescending { it.timestamp } // LinkedHashMap<String, List<Message>> sorted by asset (origin) and timestamp
+            origin to messages.sortedByDescending { it.timestamp } // LinkedHashMap<MessageOrigin, List<Message>> sorted by origin and timestamp
         }

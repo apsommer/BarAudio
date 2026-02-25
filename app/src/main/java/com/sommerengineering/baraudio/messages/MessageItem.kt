@@ -31,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -73,7 +74,7 @@ fun MessageItem(
     val feedMode = viewModel.feedMode
     val displayText =
         if (feedMode == FeedMode.Linear
-            && origin is MessageOrigin.Stream) { "${origin.displayName}: $text" }
+            && origin is MessageOrigin.BroadcastStream) { "${origin.displayName}: $text" }
         else { text }
 
     // detect tap (expand) and long press (speak)
@@ -145,7 +146,7 @@ fun MessageItem(
             Icon(
                 painter = painterResource(style.iconRes),
                 contentDescription = null,
-                tint = style.primary,
+                tint = if (style.tintIcon) style.primary else Color.Unspecified,
                 modifier = Modifier.size(assetIconSize))
         }
 
