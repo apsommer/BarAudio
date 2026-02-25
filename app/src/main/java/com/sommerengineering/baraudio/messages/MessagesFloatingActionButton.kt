@@ -19,7 +19,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.uitls.fabButtonSize
+import com.sommerengineering.baraudio.uitls.fabSize
 
 @Composable
 fun MessagesFloatingActionButton(
@@ -37,7 +37,7 @@ fun MessagesFloatingActionButton(
 
     FloatingActionButton (
         modifier = Modifier
-            .size(fabButtonSize)
+            .size(fabSize)
             .border(
                 border = BorderStroke(
                     width = 1.dp,
@@ -60,8 +60,7 @@ fun MessagesFloatingActionButton(
             // mute todo combine
             if (targetState) {
                 Icon(
-                    modifier = Modifier
-                        .size(fabButtonSize * 0.5f),
+                    modifier = Modifier.size(fabSize * 0.5f),
                     painter = painterResource(R.drawable.volume_off),
                     tint = iconColor,
                     contentDescription = null)
@@ -71,8 +70,7 @@ fun MessagesFloatingActionButton(
 
             // unmute
             Icon(
-                modifier = Modifier
-                    .size(fabButtonSize * 0.5f),
+                modifier = Modifier.size(fabSize * 0.5f),
                 painter = painterResource(R.drawable.volume_on),
                 tint = iconColor,
                 contentDescription = null)
