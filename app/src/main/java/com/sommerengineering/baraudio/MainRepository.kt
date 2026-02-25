@@ -27,7 +27,6 @@ import com.sommerengineering.baraudio.uitls.isGCKey
 import com.sommerengineering.baraudio.uitls.isMuteKey
 import com.sommerengineering.baraudio.uitls.isNQKey
 import com.sommerengineering.baraudio.uitls.isQueueAddKey
-import com.sommerengineering.baraudio.uitls.isShowQuoteKey
 import com.sommerengineering.baraudio.uitls.nqStream
 import com.sommerengineering.baraudio.uitls.onboardingKey
 import com.sommerengineering.baraudio.uitls.pitchKey
@@ -54,8 +53,7 @@ class MainRepository @Inject constructor(
     val tts: TextToSpeechImpl,
     val roomDb: RoomImpl,
     val firebaseDb: FirebaseDatabaseImpl,
-    val dataStore: DataStore<Preferences>,
-    val rapidApi: RapidApi) {
+    val dataStore: DataStore<Preferences>) {
 
     // room database
     val messages = roomDb.messages

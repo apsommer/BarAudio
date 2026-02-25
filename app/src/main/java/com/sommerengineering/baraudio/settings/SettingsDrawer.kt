@@ -37,8 +37,6 @@ import com.sommerengineering.baraudio.uitls.nqDescription
 import com.sommerengineering.baraudio.uitls.nqTitle
 import com.sommerengineering.baraudio.uitls.pitchChangeUtterance
 import com.sommerengineering.baraudio.uitls.pitchTitle
-import com.sommerengineering.baraudio.uitls.privacyTitle
-import com.sommerengineering.baraudio.uitls.privacyUrl
 import com.sommerengineering.baraudio.uitls.queueBehaviorTitle
 import com.sommerengineering.baraudio.uitls.screenTitle
 import com.sommerengineering.baraudio.uitls.setupUrl
@@ -48,8 +46,6 @@ import com.sommerengineering.baraudio.uitls.speedTitle
 import com.sommerengineering.baraudio.uitls.subscriptionUrl
 import com.sommerengineering.baraudio.uitls.systemTtsPackageName
 import com.sommerengineering.baraudio.uitls.systemTtsTitle
-import com.sommerengineering.baraudio.uitls.termsTitle
-import com.sommerengineering.baraudio.uitls.termsUrl
 import com.sommerengineering.baraudio.uitls.uiDividerTitle
 import com.sommerengineering.baraudio.uitls.uiModeTitle
 import com.sommerengineering.baraudio.uitls.voiceDividerTitle
@@ -277,22 +273,6 @@ fun SettingsDrawer(
             // divider
             item {
                 DividerItem(legalDividerTitle)
-            }
-
-            // privacy
-            item {
-                LinkSettingItem(
-                    icon = R.drawable.browser,
-                    title = privacyTitle,
-                    onClick = { uriHandler.openUri(privacyUrl) })
-            }
-
-            // terms
-            item {
-                LinkSettingItem(
-                    icon = R.drawable.browser,
-                    title = termsTitle,
-                    onClick = { uriHandler.openUri(termsUrl) })
             }
 
             // manage subscription
