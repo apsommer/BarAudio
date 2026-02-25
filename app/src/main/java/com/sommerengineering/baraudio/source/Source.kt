@@ -1,8 +1,14 @@
 package com.sommerengineering.baraudio.source
 
+import com.sommerengineering.baraudio.uitls.userSignalDescription
+
 data class Source(
     val key: String,
     val displayName: String,
     val order: Int,
-    val style: (isDark: Boolean) -> ItemStyle
+    val style: (isDark: Boolean) -> ItemStyle,
+    val description: String = userSignalDescription,
+    val signalDescription: String = userSignalDescription
 )
+
+fun Source.settingsTitle() = userSignalDescription

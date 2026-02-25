@@ -15,7 +15,7 @@ val nqAsset = Asset(
     category = "Equity Index",
     exchange = "CME",
     assetDescription = "CME · Equity Index · E-mini Nasdaq-100 Futures",
-    streamDescription = "Nasdaq-100 description ...",
+    signalDescription = "Nasdaq-100 description ...",
     order = 0,
     style = { isDark ->
         if (isDark) {
@@ -46,7 +46,7 @@ val esAsset = Asset(
     category = "Equity Index",
     exchange = "CME",
     assetDescription = "CME · Equity Index · E-mini S&P 500 Futures",
-    streamDescription = "S&P 500 description ...",
+    signalDescription = "S&P 500 description ...",
     order = 1,
     style = { isDark ->
         if (isDark) {
@@ -77,7 +77,7 @@ val btcAsset = Asset(
     category = "Cryptocurrency",
     exchange = "CME",
     assetDescription = "CME · Cryptocurrency · Bitcoin Futures",
-    streamDescription = "Bitcoin description ...",
+    signalDescription = "Bitcoin description ...",
     order = 2,
     style = { isDark ->
         if (isDark) {
@@ -108,7 +108,7 @@ val gcAsset = Asset(
     category = "Metals",
     exchange = "COMEX",
     assetDescription = "COMEX · Metals · Gold Futures",
-    streamDescription = "Gold description ...",
+    signalDescription = "Gold description ...",
     order = 3,
     style = { isDark ->
         if (isDark) {

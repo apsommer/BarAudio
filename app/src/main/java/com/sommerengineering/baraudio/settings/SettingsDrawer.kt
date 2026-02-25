@@ -27,6 +27,7 @@ import com.google.firebase.auth.auth
 import com.sommerengineering.baraudio.BuildConfig
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
+import com.sommerengineering.baraudio.source.MessageOrigin
 import com.sommerengineering.baraudio.source.gcAsset
 import com.sommerengineering.baraudio.source.nqAsset
 import com.sommerengineering.baraudio.source.settingsTitle
@@ -188,48 +189,20 @@ fun SettingsDrawer(
 
             // stream NQ
             item {
-
-                val asset = nqAsset
-                val isStream = isNQ
-
-                val style = asset.style(isDarkMode)
-                SwitchItem(
-                    icon = style.iconRes,
-                    title = asset.settingsTitle(),
-                    description = asset.streamDescription,
-                    iconTint = style.primary,
-                    titleColor = if (isStream) style.primary else null,
-                    descriptionColor = if (isStream) style.primary.copy(alpha = 0.7f) else null) {
-                    Switch(
-                        checked = isStream,
-                        onCheckedChange = { viewModel.updateNQ(it)},
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = style.primary,
-                            checkedTrackColor = style.primary.copy(alpha = 0.4f)))
-                    }
+                StreamSwitchItem(
+                    messageOrigin = MessageOrigin.BroadcastStream(nqAsset),
+                    isDarkMode = isDarkMode,
+                    isStream = isNQ,
+                    updateStream = { viewModel.updateNQ(it) })
             }
 
             // stream GC
             item {
-
-                val asset = gcAsset
-                val isStream = isGC
-
-                val style = asset.style(isDarkMode)
-                SwitchItem(
-                    icon = style.iconRes,
-                    title = asset.settingsTitle(),
-                    description = asset.streamDescription,
-                    iconTint = style.primary,
-                    titleColor = if (isStream) style.primary else null,
-                    descriptionColor = if (isStream) style.primary.copy(alpha = 0.7f) else null) {
-                    Switch(
-                        checked = isStream,
-                        onCheckedChange = { viewModel.updateGC(it)},
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = style.primary,
-                            checkedTrackColor = style.primary.copy(alpha = 0.4f)))
-                }
+                StreamSwitchItem(
+                    messageOrigin = MessageOrigin.BroadcastStream(gcAsset),
+                    isDarkMode = isDarkMode,
+                    isStream = isGC,
+                    updateStream = { viewModel.updateGC(it) })
             }
 
             // webhook

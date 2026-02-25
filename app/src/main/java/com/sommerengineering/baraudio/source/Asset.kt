@@ -8,7 +8,7 @@ data class Asset(
     val category: String,
     val exchange: String,
     val assetDescription: String,
-    val streamDescription: String,
+    val signalDescription: String,
     val order: Int,
     val style: (isDark: Boolean) -> ItemStyle
 )
