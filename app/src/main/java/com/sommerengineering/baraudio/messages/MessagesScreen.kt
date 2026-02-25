@@ -123,7 +123,7 @@ fun MessagesScreen(
                                     MessageItem(
                                         viewModel = viewModel,
                                         message = message,
-                                        isShowDivider = index != messages.lastIndex,
+                                        isShowDivider = !(groupIndex == groups.lastIndex && index == messages.lastIndex),
                                         modifier = Modifier
                                             .padding(start = 20.dp)
                                             .animateItem( // todo remove
