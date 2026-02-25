@@ -113,7 +113,6 @@ const val screenWindowedDescription = "Show system bars"
 val loginButtonSize = 96.dp
 val fabButtonSize = 72.dp
 val edgePadding = 24.dp
-val backgroundPadding = 48.dp
 val settingsIconSize = 24.dp
 val loginLogoPadding = 64.dp
 val assetIconSize = 28.dp

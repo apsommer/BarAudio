@@ -27,11 +27,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.source.resolveAsset
 import com.sommerengineering.baraudio.settings.SettingsDrawer
 import com.sommerengineering.baraudio.source.MessageOrigin
 import com.sommerengineering.baraudio.source.resolveMessageOrigin
-import com.sommerengineering.baraudio.uitls.backgroundPadding
 import kotlinx.coroutines.launch
 
 @Composable
@@ -75,12 +73,7 @@ fun MessagesScreen(
 
                 // background image
                 Image(
-                    modifier = Modifier
-                        .padding(
-                            start = backgroundPadding,
-                            end = backgroundPadding,
-                            bottom = 64.dp)
-                        .align(Alignment.Center),
+                    modifier = Modifier.fillMaxSize().align(Alignment.Center),
                     painter = painterResource(backgroundImageId),
                     contentDescription = null)
 
