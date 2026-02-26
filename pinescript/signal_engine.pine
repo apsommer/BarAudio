@@ -61,7 +61,7 @@ if triggerExpansion
     expansionStartPrice := close
     trendPeakMomentum := momentum
 
-    // color
+    // plot /////////////////////////////////////////////////////////
     trendColor := isUp ? color.new(color.blue, 80) : color.new(color.red, 80)
 
     trendBox := box.new(
@@ -79,7 +79,7 @@ if isTrendActive
     // track peak momentum
     trendPeakMomentum := math.max(trendPeakMomentum, momentum)
 
-    // update box
+    // plot /////////////////////////////////////////////////////////
     trendLength = bar_index - expansionStartBar + 1
     trendHigh := ta.highest(high, trendLength)
     trendLow  := ta.lowest(low,  trendLength)
@@ -89,6 +89,12 @@ if isTrendActive
     box.set_bottom(trendBox, trendLow)
 
 barcolor(isExpansion ? (isUp ? color.blue : color.red): na)
+
+// alert ////////////////////////////////////////////////////////
+roundedMomentum = str.tostring(math.round(momentum)) + "%"
+expansionText = (isUp ? "Upside " : "Downside ") + "expansion with momentum " + roundedMomentum
+if triggerExpansion and not barstate.isconfirmed
+    alert(expansionText, alert.freq_once_per_bar)
 
 // EXHAUSTION (trend fails to hold momentum after expansion)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -114,6 +120,19 @@ triggerExhaustion =
 
 if triggerExhaustion
     isTrendActive := false
+
+// alert ////////////////////////////////////////////////////////
+trendMovePercent =
+     isTrendUp ? (trendHigh - trendLow) / trendLow * 100.0 :
+     (trendHigh - trendLow) / trendHigh * 100.0
+isTrendProfitable = trendMovePercent > 0
+
+// only append total price move if trend profitable
+roundedTrendMove = str.tostring(math.round(math.abs(trendMovePercent), 2)) + "% "
+exhaustionText = (isTrendUp ? "Upside " : "Downside ") + "trend exhaustion " +
+     (isTrendProfitable ? "after " + roundedTrendMove + "move" : "")
+if triggerExhaustion and not barstate.isconfirmed
+    alert(exhaustionText, alert.freq_once_per_bar)
 
 // STOP CASCADE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -145,7 +164,7 @@ isStopCascadeUp = isVelocitySpike and isRangeExpansion and isStrongUpBar and isC
 isStopCascadeDown = isVelocitySpike and isRangeExpansion and isStrongDownBar and isCompressed and isBreakDown
 triggerStopCascade = isStopCascadeUp or isStopCascadeDown
 
-// upside cascade
+// plot /////////////////////////////////////////////////////////
 plotshape(
      isStopCascadeUp,
      title = "up cascade",
@@ -153,8 +172,6 @@ plotshape(
      style = shape.triangleup,
      color = color.blue,
      size = size.small)
-
-// downside cascade
 plotshape(
      isStopCascadeDown,
      title = "down cascade",
@@ -163,34 +180,7 @@ plotshape(
      color = color.red,
      size = size.small)
 
-// alert ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// ticker description
-prepend =
-     str.contains(str.upper(syminfo.description), "NASDAQ") ? "NASDAQ: " :
-     str.contains(str.upper(syminfo.description), "S&P") ? "S&P: " :
-     str.contains(str.upper(syminfo.description), "GOLD") ? "Gold: " :
-     str.contains(str.upper(syminfo.description), "SILVER") ? "Silver: " :
-     syminfo.description
-
-// expansion
-roundedMomentum = str.tostring(math.round(momentum)) + "%"
-expansionText = prepend + (isUp ? "Upside " : "Downside ") + "expansion with momentum " + roundedMomentum
-if triggerExpansion and not barstate.isconfirmed
-    alert(expansionText, alert.freq_once_per_bar)
-
-// exhaustion (only append total price move if trend profitable)
-trendMovePercent =
-     isTrendUp ? (trendHigh - trendLow) / trendLow * 100.0 : 
-     (trendHigh - trendLow) / trendHigh * 100.0
-isTrendProfitable = trendMovePercent > 0
-roundedTrendMove = str.tostring(math.round(math.abs(trendMovePercent), 2)) + "% "
-exhaustionText = prepend + (isTrendUp ? "Upside " : "Downside ") + "trend exhaustion " +
-     (isTrendProfitable ? "after " + roundedTrendMove + "move" : "")
-if triggerExhaustion and not barstate.isconfirmed
-    alert(exhaustionText, alert.freq_once_per_bar)
-
-// stop cascade
-cascadeText = prepend + (isStrongUpBar ? "Upside " : "Downside ") + "stop cascade "
+// alert ////////////////////////////////////////////////////////
+cascadeText = (isStrongUpBar ? "Upside " : "Downside ") + "stop cascade "
 if triggerStopCascade and not barstate.isconfirmed
     alert(cascadeText, alert.freq_once_per_bar)
