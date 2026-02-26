@@ -130,9 +130,7 @@ class MainRepository @Inject constructor(
             writePreference(booleanPreferencesKey(isMuteKey), value)
         }
     suspend fun speakMessage(message: Message) {
-
-        // ensure engine is ready
-        isTtsReady.filter { it }.first()
+        isTtsReady.filter { it }.first() // ensure engine is ready
         tts.speak(message.timestamp, message.message)
     }
 

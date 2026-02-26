@@ -9,7 +9,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -30,7 +29,6 @@ import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.source.MessageOrigin
 import com.sommerengineering.baraudio.source.gcAsset
 import com.sommerengineering.baraudio.source.nqAsset
-import com.sommerengineering.baraudio.source.settingsTitle
 import com.sommerengineering.baraudio.uitls.dataDividerTitle
 import com.sommerengineering.baraudio.uitls.edgePadding
 import com.sommerengineering.baraudio.uitls.howToSetupTitle
@@ -132,7 +130,7 @@ fun SettingsDrawer(
                             initPosition = speed,
                             onValueChanged = { viewModel.updateSpeed(it) },
                             onValueChangeFinished = {
-                                viewModel.speakMessage(speedChangeUtterance + it)
+                                viewModel.speakUtterance(speedChangeUtterance + it)
                             })
                     }
             }
@@ -148,7 +146,7 @@ fun SettingsDrawer(
                             initPosition = pitch,
                             onValueChanged = { viewModel.updatePitch(it) },
                             onValueChangeFinished = {
-                                viewModel.speakMessage(pitchChangeUtterance + it)
+                                viewModel.speakUtterance(pitchChangeUtterance + it)
                             })
                         }
             }

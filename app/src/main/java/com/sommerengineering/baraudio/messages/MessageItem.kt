@@ -69,7 +69,7 @@ fun MessageItem(
             val now = System.currentTimeMillis() // millis since epoch
             val delayMillis = 60_000L - (now % 60_000L) // millis remaining in current minute
             delay(delayMillis) // wait until next minute boundary
-        } }
+        }}
 
     // prepend asset display name for streams in linear mode
     val feedMode = viewModel.feedMode
@@ -106,7 +106,7 @@ fun MessageItem(
                         onLongClick = {
                             isExpanded = true
                             isLongPress = true
-                            viewModel.speakMessage(text) })
+                            viewModel.speakMessage(message) })
                     .animateContentSize(tween(messageItemExpansionTimeMillis))
                     .height(IntrinsicSize.Min) // measure children, then update height (required for correct accent bar height)
                     .background(backgroundColor)

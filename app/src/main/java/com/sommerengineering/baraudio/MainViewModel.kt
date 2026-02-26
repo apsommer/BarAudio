@@ -14,6 +14,8 @@ import com.sommerengineering.baraudio.login.GitHubAuthenticator
 import com.sommerengineering.baraudio.login.GoogleAuthenticator
 import com.sommerengineering.baraudio.messages.FeedMode
 import com.sommerengineering.baraudio.messages.Message
+import com.sommerengineering.baraudio.source.MessageOrigin
+import com.sommerengineering.baraudio.source.resolveMessageOrigin
 import com.sommerengineering.baraudio.uitls.MessagesScreenRoute
 import com.sommerengineering.baraudio.uitls.OnboardingTextToSpeechScreenRoute
 import com.sommerengineering.baraudio.uitls.RomanNumerals
@@ -56,7 +58,7 @@ class MainViewModel @Inject constructor(
         voiceIndex = voices.indexOfFirst { it.name == value.name }
         val beautifulVoice = beautifyVoiceName(value.name)
         voiceDescription = beautifulVoice
-        speakMessage(beautifulVoice)
+        speakUtterance(beautifulVoice)
     }
 
     // speed
@@ -93,7 +95,7 @@ class MainViewModel @Inject constructor(
             if (enabled) queueAddDescription
             else queueFlushDescription
         queueDescription = newQueueDescription
-        speakMessage(newQueueDescription)
+        speakUtterance(newQueueDescription)
     }
 
     // mute
@@ -103,13 +105,26 @@ class MainViewModel @Inject constructor(
         isMute = !isMute
         repo.isMute = isMute
     }
-    fun speakMessage(utterance: String) =
+    fun speakUtterance(utterance: String) =
         viewModelScope.launch {
             repo.speakMessage(Message(
                 timestamp = System.currentTimeMillis().toString(),
-                message = utterance,
-                stream = null,
-                source = null))
+                message = utterance, null, null))
+        }
+    fun speakMessage(message: Message) =
+        viewModelScope.launch {
+
+            // prepend name of stream, if needed
+            val origin = resolveMessageOrigin(message)
+            val spokenText =
+                if (origin is MessageOrigin.BroadcastStream) { "${origin.asset.spokenName}. ${message.message}" }
+                else { message.message }
+
+            repo.speakMessage(Message(
+                timestamp = message.timestamp,
+                message = spokenText,
+                stream = message.stream,
+                source = message.source))
         }
 
     // onboarding

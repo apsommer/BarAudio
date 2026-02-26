@@ -13,7 +13,7 @@ val tradingViewSource = Source(
             accent  = Color(0xFF82B1FF),
             surface = if (isDark) Color(0xFF0B1A3A) else Color(0xFFE8F0FF),
             text    = if (isDark) Color(0xFFEAF1FF) else Color(0xFF0B1A3A),
-            iconRes = if (isDark) R.drawable.tradingview_dark else R.drawable.tradingview_light,
+            iconRes = if (isDark) R.drawable.tradingview_light else R.drawable.tradingview_dark,
             tintIcon = false
         )
     }
