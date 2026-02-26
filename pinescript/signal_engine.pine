@@ -3,7 +3,10 @@ indicator(
     "signal engine",
     overlay = true)
 
-// EXPANSION/EXHAUSTION
+// INPUT
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// expansion/exhaustion
 velocityBars = 14
 velocityBaselineBars = 80
 smoothBars = 4
@@ -13,12 +16,15 @@ exhaustionDropPercentThreshold = 32
 trendMatureBars = 10
 exhaustionReversalBars = 4
 
-// STOP CASCADE
+// stop cascade
 VELOCITY_SPIKE_RATIO = 2.8
 RANGE_EXPANSION_RATIO = 2.4
 BAR_STRENGTH_RATIO = 0.78
 COMPRESSION_STD_DEV_PERCENT = 0.15
 STOP_CASCADE_LOOKBACK = 12
+
+// INIT
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // momentum
 velocity = math.abs(close - close[velocityBars]) / velocityBars // Δ price / time
@@ -30,9 +36,6 @@ momentum = ta.sma(rawMomentumPercent, smoothBars) // smooth
 isUp = close > close[velocityBars]
 isDown = close[velocityBars] > close
 
-// EXPANSION (momentum increase past threshold)
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 // lifecycle state
 var int expansionStartBar = na
 var float expansionStartPrice = na
@@ -43,6 +46,9 @@ var float trendHigh = na
 var float trendLow = na
 var color trendColor = na
 var box trendBox = na
+
+// EXPANSION (momentum increase past threshold)
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // acceleration
 acceleration = momentum - momentum[accelerationBars] // Δ momentum
@@ -97,7 +103,7 @@ if triggerExpansion and not barstate.isconfirmed
     alert(expansionText, alert.freq_once_per_bar)
 
 // EXHAUSTION (trend fails to hold momentum after expansion)
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // drop from peak
 momentumDropPercent = (trendPeakMomentum - momentum) / trendPeakMomentum * 100.0
