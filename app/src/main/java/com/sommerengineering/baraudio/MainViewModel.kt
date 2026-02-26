@@ -112,20 +112,7 @@ class MainViewModel @Inject constructor(
                 message = utterance, null, null))
         }
     fun speakMessage(message: Message) =
-        viewModelScope.launch {
-
-            // prepend name of stream, if needed
-            val origin = resolveMessageOrigin(message)
-            val spokenText =
-                if (origin is MessageOrigin.BroadcastStream) { "${origin.asset.spokenName}. ${message.message}" }
-                else { message.message }
-
-            repo.speakMessage(Message(
-                timestamp = message.timestamp,
-                message = spokenText,
-                stream = message.stream,
-                source = message.source))
-        }
+        viewModelScope.launch { repo.speakMessage(message) }
 
     // onboarding
     var isOnboardingComplete by mutableStateOf(false)

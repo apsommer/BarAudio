@@ -19,6 +19,8 @@ import com.sommerengineering.baraudio.firebase.FirebaseDatabaseImpl
 import com.sommerengineering.baraudio.messages.FeedMode
 import com.sommerengineering.baraudio.messages.Message
 import com.sommerengineering.baraudio.room.RoomImpl
+import com.sommerengineering.baraudio.source.MessageOrigin
+import com.sommerengineering.baraudio.source.resolveMessageOrigin
 import com.sommerengineering.baraudio.speak.TextToSpeechImpl
 import com.sommerengineering.baraudio.uitls.defaultVoice
 import com.sommerengineering.baraudio.uitls.feedModeKey
@@ -130,8 +132,17 @@ class MainRepository @Inject constructor(
             writePreference(booleanPreferencesKey(isMuteKey), value)
         }
     suspend fun speakMessage(message: Message) {
-        isTtsReady.filter { it }.first() // ensure engine is ready
-        tts.speak(message.timestamp, message.message)
+
+        // ensure engine is ready
+        isTtsReady.filter { it }.first()
+
+        // prepend name of stream, if needed
+        val origin = resolveMessageOrigin(message)
+        val spokenText =
+            if (origin is MessageOrigin.BroadcastStream) { "${origin.asset.spokenName}. ${message.message}" }
+            else { message.message }
+
+        tts.speak(message.timestamp, spokenText)
     }
 
     // onboarding
