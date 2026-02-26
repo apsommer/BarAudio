@@ -51,16 +51,16 @@ var box trendBox = na
 // EXPANSION (momentum increase past threshold)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// acceleration
-acceleration = momentum - momentum[ACCELERATION_BARS] // Δ momentum
-isAccelerating = acceleration > ACCELERATION_PERCENT // Δ momentum over 5%
+// acceleration = Δ momentum
+acceleration = momentum - momentum[ACCELERATION_BARS]
+isAccelerating = acceleration > ACCELERATION_PERCENT
 
 // expansion condition
 isExpansion = momentum > EXPANSION_LEVEL_PERCENT and isAccelerating
 isNewTrend = not isTrendActive or isTrendUp != isUp
 triggerExpansion = isExpansion and isNewTrend
 
-if triggerExpansion
+if triggerExpansion // else same direction as active trend, do nothing
 
     isTrendActive := true
     isTrendUp := isUp
@@ -70,7 +70,6 @@ if triggerExpansion
 
     // plot /////////////////////////////////////////////////////////
     trendColor := isUp ? color.new(color.blue, 80) : color.new(color.red, 80)
-
     trendBox := box.new(
         left = expansionStartBar,
         right = bar_index,
@@ -78,8 +77,6 @@ if triggerExpansion
         bottom = close,
         border_color = trendColor,
         bgcolor = trendColor)
-
-    // else same direction as active trend, do nothing
 
 if isTrendActive
 
@@ -98,10 +95,23 @@ if isTrendActive
 barcolor(isExpansion ? (isUp ? color.blue : color.red): na)
 
 // alert ////////////////////////////////////////////////////////
+
+// expansion flip (new expansion in opposite direction of active trend)
+isOppositeExpansion = triggerExpansion and isTrendActive[1] and isUp != isTrendUp[1]
 roundedMomentum = str.tostring(math.round(momentum)) + "%"
-expansionText = (isUp ? "Upside " : "Downside ") + "expansion with momentum " + roundedMomentum
+
+flipText =
+     (isTrendUp[1] ? "Exhaustion of upward, " : "Exhaustion of downward, ") +
+     (isUp ? "expansion of upward " : "expansion of downward ") +
+     "with momentum " + roundedMomentum
+
+// new expansion (no active trend)
+expansionText =
+     (isUp ? "Upside " : "Downside ") +
+     ("expansion with momentum " + roundedMomentum)
+
 if triggerExpansion and not barstate.isconfirmed
-    alert(expansionText, alert.freq_once_per_bar)
+    alert(isOppositeExpansion ? flipText : expansionText, alert.freq_once_per_bar)
 
 // EXHAUSTION (trend fails to hold momentum after expansion)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
