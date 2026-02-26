@@ -24,6 +24,10 @@ BAR_STRENGTH_RATIO = 0.78
 COMPRESSION_STD_DEV_PERCENT = 0.15
 STOP_CASCADE_LOOKBACK = 12
 
+// range breakout
+RANGE_PERCENT = 0.18
+RANGE_BARS = 120
+
 // INIT
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -159,7 +163,7 @@ if triggerExhaustion and not barstate.isconfirmed
     alert(exhaustionText, alert.freq_once_per_bar)
 
 // STOP CASCADE
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // velocity spike
 velocityCurrent = math.abs(close - close[1])
@@ -208,3 +212,42 @@ plotshape(
 cascadeText = (isStrongUpBar ? "Upside " : "Downside ") + "stop cascade "
 if triggerStopCascade and not barstate.isconfirmed
     alert(cascadeText, alert.freq_once_per_bar)
+
+// RANGE BREAKOUT
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// rolling range
+rangeHigh = ta.highest(high, RANGE_BARS)
+rangeLow = ta.lowest(low, RANGE_BARS)
+rangeMid = (rangeHigh + rangeLow) * 0.5
+rangeWidthPercent = (rangeHigh - rangeLow) / rangeMid * 100.0
+isRange = RANGE_PERCENT > rangeWidthPercent
+
+// breakout
+isRangeBreakout = isRange[1] and not isRange
+isRangeBreakoutUp = isRangeBreakout and close > rangeHigh[1]
+isRangeBreakoutDown = isRangeBreakout and rangeLow[1] > close
+triggerRangeExit = isRangeBreakout and (isRangeBreakoutUp or isRangeBreakoutDown)
+
+// plot /////////////////////////////////////////////////////////
+plotshape(
+     isRangeBreakoutUp,
+     title = "range exit up",
+     location = location.belowbar,
+     style = shape.circle,
+     color = color.blue,
+     size = size.tiny)
+plotshape(
+     isRangeBreakoutDown,
+     title = "range exit down",
+     location = location.abovebar,
+     style = shape.circle,
+     color = color.blue,
+     size = size.tiny)
+
+// alert ////////////////////////////////////////////////////////
+rangeText = "Exiting " + str.tostring(RANGE_BARS) + " minute range to " +
+     (isRangeBreakoutUp ? "upside" : "downside")
+
+if triggerRangeExit and not barstate.isconfirmed
+    alert(rangeText, alert.freq_once_per_bar)
