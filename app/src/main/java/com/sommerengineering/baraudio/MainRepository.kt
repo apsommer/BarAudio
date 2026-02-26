@@ -200,11 +200,29 @@ class MainRepository @Inject constructor(
 
             // ensure voices are stable, can take 500 milliseconds on slow devices
             var voiceCount = -1
+            var stablePasses = 0
+            var attempts = 0
+            val maxAttempts = 40
             while (true) {
 
-                // voices stable
-                val currentVoiceCount = tts.voices.size
-                if (currentVoiceCount > 0 && currentVoiceCount == voiceCount) break
+                // query engine state
+                val voices = tts.voices
+                val currentVoiceCount = voices.size
+
+                // check size of voices and their attributes
+                val isSizeStable = currentVoiceCount > 0 && currentVoiceCount == voiceCount
+                val areVoicesStable = voices.all { it.name != null && it.locale != null }
+
+                if (isSizeStable && areVoicesStable) {
+                    stablePasses ++
+                    if (stablePasses > 3) break // size and voices are stable, finish
+                } else { stablePasses = 0 }
+
+                // fail-safe exit
+                // todo if this fail safe occurs tts engine is unusable, entire app will not function
+                //  surface this to user in the existing AllowNotificationBottomBar
+                attempts ++
+                if (attempts > maxAttempts) break
 
                 // voices unstable, try again
                 voiceCount = currentVoiceCount
