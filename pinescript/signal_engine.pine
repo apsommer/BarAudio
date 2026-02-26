@@ -1,0 +1,196 @@
+//@version=6
+indicator(
+    "signal engine",
+    overlay = true)
+
+// EXPANSION/EXHAUSTION
+velocityBars = 14
+velocityBaselineBars = 80
+smoothBars = 4
+accelerationBars = 3
+expansionLevelPercentThreshold = 48
+exhaustionDropPercentThreshold = 32
+trendMatureBars = 10
+exhaustionReversalBars = 4
+
+// STOP CASCADE
+VELOCITY_SPIKE_RATIO = 2.8
+RANGE_EXPANSION_RATIO = 2.4
+BAR_STRENGTH_RATIO = 0.78
+COMPRESSION_STD_DEV_PERCENT = 0.15
+STOP_CASCADE_LOOKBACK = 12
+
+// momentum
+velocity = math.abs(close - close[velocityBars]) / velocityBars // Δ price / time
+velocitySma = nz(ta.sma(velocity, velocityBaselineBars), 1) // simple moving average
+rawMomentumPercent = (velocity / velocitySma - 1.0) * 100.0 // momentum = velocity / moving average
+momentum = ta.sma(rawMomentumPercent, smoothBars) // smooth
+
+// direction
+isUp = close > close[velocityBars]
+isDown = close[velocityBars] > close
+
+// EXPANSION (momentum increase past threshold)
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// lifecycle state
+var int expansionStartBar = na
+var float expansionStartPrice = na
+var bool isTrendActive = false
+var bool isTrendUp = false
+var float trendPeakMomentum = na
+var float trendHigh = na
+var float trendLow = na
+var color trendColor = na
+var box trendBox = na
+
+// acceleration
+acceleration = momentum - momentum[accelerationBars] // Δ momentum
+isAccelerating = acceleration > 5 // Δ momentum over 5%
+
+// expansion condition
+isExpansion = momentum > expansionLevelPercentThreshold and isAccelerating
+isNewTrend = not isTrendActive or isTrendUp != isUp
+triggerExpansion = isExpansion and isNewTrend
+
+if triggerExpansion
+
+    isTrendActive := true
+    isTrendUp := isUp
+    expansionStartBar := bar_index
+    expansionStartPrice := close
+    trendPeakMomentum := momentum
+
+    // color
+    trendColor := isUp ? color.new(color.blue, 80) : color.new(color.red, 80)
+
+    trendBox := box.new(
+        left = expansionStartBar,
+        right = bar_index,
+        top = close,
+        bottom = close,
+        border_color = trendColor,
+        bgcolor = trendColor)
+
+    // else same direction as active trend, do nothing
+
+if isTrendActive
+
+    // track peak momentum
+    trendPeakMomentum := math.max(trendPeakMomentum, momentum)
+
+    // update box
+    trendLength = bar_index - expansionStartBar + 1
+    trendHigh := ta.highest(high, trendLength)
+    trendLow  := ta.lowest(low,  trendLength)
+
+    box.set_right(trendBox, bar_index)
+    box.set_top(trendBox, trendHigh)
+    box.set_bottom(trendBox, trendLow)
+
+barcolor(isExpansion ? (isUp ? color.blue : color.red): na)
+
+// EXHAUSTION (trend fails to hold momentum after expansion)
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// drop from peak
+momentumDropPercent = (trendPeakMomentum - momentum) / trendPeakMomentum * 100.0
+isMomentumDrop = momentumDropPercent > exhaustionDropPercentThreshold
+
+// sustained reversal
+isMomentumReversing = true
+for i = 0 to exhaustionReversalBars - 2
+    isMomentumReversing := isMomentumReversing and momentum[i] > momentum[i + 1]
+
+// ensure trend had time to develop
+isTrendMature = bar_index - expansionStartBar > trendMatureBars
+
+triggerExhaustion =
+     isTrendActive
+     and isTrendMature
+     and isMomentumDrop
+     and isMomentumReversing
+     and isNewTrend
+
+if triggerExhaustion
+    isTrendActive := false
+
+// STOP CASCADE
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// velocity spike
+velocityCurrent = math.abs(close - close[1])
+velocityAverage = ta.sma(velocityCurrent, 20)
+isVelocitySpike = velocityCurrent > velocityAverage * VELOCITY_SPIKE_RATIO
+
+// range expansion
+barRange = high - low
+rangeAvg = ta.sma(barRange, 20)
+isRangeExpansion = barRange > rangeAvg * RANGE_EXPANSION_RATIO
+
+// directional dominance
+isStrongUpBar = close > open and (close - open) / barRange > BAR_STRENGTH_RATIO
+isStrongDownBar = open > close and (open - close) / barRange > BAR_STRENGTH_RATIO
+
+// compression
+isCompressed = COMPRESSION_STD_DEV_PERCENT > ta.stdev(close, 20) / close * 100
+
+// structure break
+highestHigh = ta.highest(high[1], STOP_CASCADE_LOOKBACK)
+lowestLow = ta.lowest(low[1], STOP_CASCADE_LOOKBACK)
+isBreakUp = high > highestHigh
+isBreakDown = lowestLow > low
+
+isStopCascadeUp = isVelocitySpike and isRangeExpansion and isStrongUpBar and isCompressed and isBreakUp
+isStopCascadeDown = isVelocitySpike and isRangeExpansion and isStrongDownBar and isCompressed and isBreakDown
+triggerStopCascade = isStopCascadeUp or isStopCascadeDown
+
+// upside cascade
+plotshape(
+     isStopCascadeUp,
+     title = "up cascade",
+     location = location.belowbar,
+     style = shape.triangleup,
+     color = color.blue,
+     size = size.small)
+
+// downside cascade
+plotshape(
+     isStopCascadeDown,
+     title = "down cascade",
+     location = location.abovebar,
+     style = shape.triangledown,
+     color = color.red,
+     size = size.small)
+
+// alert ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// ticker description
+prepend =
+     str.contains(str.upper(syminfo.description), "NASDAQ") ? "NASDAQ: " :
+     str.contains(str.upper(syminfo.description), "S&P") ? "S&P: " :
+     str.contains(str.upper(syminfo.description), "GOLD") ? "Gold: " :
+     str.contains(str.upper(syminfo.description), "SILVER") ? "Silver: " :
+     syminfo.description
+
+// expansion
+roundedMomentum = str.tostring(math.round(momentum)) + "%"
+expansionText = prepend + (isUp ? "Upside " : "Downside ") + "expansion with momentum " + roundedMomentum
+if triggerExpansion and not barstate.isconfirmed
+    alert(expansionText, alert.freq_once_per_bar)
+
+// exhaustion (only append total price move if trend profitable)
+trendMovePercent =
+     isTrendUp ? (trendHigh - trendLow) / trendLow * 100.0 : 
+     (trendHigh - trendLow) / trendHigh * 100.0
+isTrendProfitable = trendMovePercent > 0
+roundedTrendMove = str.tostring(math.round(math.abs(trendMovePercent), 2)) + "% "
+exhaustionText = prepend + (isTrendUp ? "Upside " : "Downside ") + "trend exhaustion " +
+     (isTrendProfitable ? "after " + roundedTrendMove + "move" : "")
+if triggerExhaustion and not barstate.isconfirmed
+    alert(exhaustionText, alert.freq_once_per_bar)
+
+// stop cascade
+cascadeText = prepend + (isStrongUpBar ? "Upside " : "Downside ") + "stop cascade "
+if triggerStopCascade and not barstate.isconfirmed
+    alert(cascadeText, alert.freq_once_per_bar)
