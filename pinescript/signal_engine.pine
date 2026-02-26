@@ -7,14 +7,14 @@ indicator(
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // expansion/exhaustion
-velocityBars = 14
-velocityBaselineBars = 80
-smoothBars = 4
-accelerationBars = 3
-expansionLevelPercentThreshold = 48
-exhaustionDropPercentThreshold = 32
-trendMatureBars = 10
-exhaustionReversalBars = 4
+VELOCITY_BARS = 14
+VELOCITY_BASELINE_BARS = 80
+SMOOTH_BARS = 4
+ACCELERATION_BARS = 3
+EXPANSION_LEVEL_PERCENT_THRESHOLD = 48
+EXHAUSTION_LEVEL_PERCENT_THRESHOLD = 32
+TREND_MATURE_BARS = 10
+EXHAUSTION_REVERSAL_BARS = 4
 
 // stop cascade
 VELOCITY_SPIKE_RATIO = 2.8
@@ -27,14 +27,14 @@ STOP_CASCADE_LOOKBACK = 12
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // momentum
-velocity = math.abs(close - close[velocityBars]) / velocityBars // Δ price / time
-velocitySma = nz(ta.sma(velocity, velocityBaselineBars), 1) // simple moving average
+velocity = math.abs(close - close[VELOCITY_BARS]) / VELOCITY_BARS // Δ price / time
+velocitySma = nz(ta.sma(velocity, VELOCITY_BASELINE_BARS), 1) // simple moving average
 rawMomentumPercent = (velocity / velocitySma - 1.0) * 100.0 // momentum = velocity / moving average
-momentum = ta.sma(rawMomentumPercent, smoothBars) // smooth
+momentum = ta.sma(rawMomentumPercent, SMOOTH_BARS) // smooth
 
 // direction
-isUp = close > close[velocityBars]
-isDown = close[velocityBars] > close
+isUp = close > close[VELOCITY_BARS]
+isDown = close[VELOCITY_BARS] > close
 
 // lifecycle state
 var int expansionStartBar = na
@@ -51,11 +51,11 @@ var box trendBox = na
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // acceleration
-acceleration = momentum - momentum[accelerationBars] // Δ momentum
+acceleration = momentum - momentum[ACCELERATION_BARS] // Δ momentum
 isAccelerating = acceleration > 5 // Δ momentum over 5%
 
 // expansion condition
-isExpansion = momentum > expansionLevelPercentThreshold and isAccelerating
+isExpansion = momentum > EXPANSION_LEVEL_PERCENT_THRESHOLD and isAccelerating
 isNewTrend = not isTrendActive or isTrendUp != isUp
 triggerExpansion = isExpansion and isNewTrend
 
@@ -107,15 +107,15 @@ if triggerExpansion and not barstate.isconfirmed
 
 // drop from peak
 momentumDropPercent = (trendPeakMomentum - momentum) / trendPeakMomentum * 100.0
-isMomentumDrop = momentumDropPercent > exhaustionDropPercentThreshold
+isMomentumDrop = momentumDropPercent > EXHAUSTION_LEVEL_PERCENT_THRESHOLD
 
 // sustained reversal
 isMomentumReversing = true
-for i = 0 to exhaustionReversalBars - 2
+for i = 0 to EXHAUSTION_REVERSAL_BARS - 2
     isMomentumReversing := isMomentumReversing and momentum[i] > momentum[i + 1]
 
 // ensure trend had time to develop
-isTrendMature = bar_index - expansionStartBar > trendMatureBars
+isTrendMature = bar_index - expansionStartBar > TREND_MATURE_BARS
 
 triggerExhaustion =
      isTrendActive
