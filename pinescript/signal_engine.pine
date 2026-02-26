@@ -11,8 +11,9 @@ VELOCITY_BARS = 14
 VELOCITY_BASELINE_BARS = 80
 SMOOTH_BARS = 4
 ACCELERATION_BARS = 3
-EXPANSION_LEVEL_PERCENT_THRESHOLD = 48
-EXHAUSTION_LEVEL_PERCENT_THRESHOLD = 32
+ACCELERATION_PERCENT = 5.0
+EXPANSION_LEVEL_PERCENT = 48
+EXHAUSTION_LEVEL_PERCENT = 32
 TREND_MATURE_BARS = 10
 EXHAUSTION_REVERSAL_BARS = 4
 
@@ -52,10 +53,10 @@ var box trendBox = na
 
 // acceleration
 acceleration = momentum - momentum[ACCELERATION_BARS] // Δ momentum
-isAccelerating = acceleration > 5 // Δ momentum over 5%
+isAccelerating = acceleration > ACCELERATION_PERCENT // Δ momentum over 5%
 
 // expansion condition
-isExpansion = momentum > EXPANSION_LEVEL_PERCENT_THRESHOLD and isAccelerating
+isExpansion = momentum > EXPANSION_LEVEL_PERCENT and isAccelerating
 isNewTrend = not isTrendActive or isTrendUp != isUp
 triggerExpansion = isExpansion and isNewTrend
 
@@ -107,7 +108,7 @@ if triggerExpansion and not barstate.isconfirmed
 
 // drop from peak
 momentumDropPercent = (trendPeakMomentum - momentum) / trendPeakMomentum * 100.0
-isMomentumDrop = momentumDropPercent > EXHAUSTION_LEVEL_PERCENT_THRESHOLD
+isMomentumDrop = momentumDropPercent > EXHAUSTION_LEVEL_PERCENT
 
 // sustained reversal
 isMomentumReversing = true
