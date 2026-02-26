@@ -56,9 +56,16 @@ acceleration = momentum - momentum[ACCELERATION_BARS]
 isAccelerating = acceleration > ACCELERATION_PERCENT
 
 // expansion condition
-isExpansion = momentum > EXPANSION_LEVEL_PERCENT and isAccelerating
-isNewTrend = not isTrendActive or isTrendUp != isUp
-triggerExpansion = isExpansion and isNewTrend
+isExpansion =
+     momentum > EXPANSION_LEVEL_PERCENT
+     and isAccelerating
+isNewTrend =
+     not isTrendActive
+     or isTrendUp != isUp
+triggerExpansion =
+     isExpansion
+     and isNewTrend
+     and not (isExpansion and isNewTrend)[1]
 
 if triggerExpansion // else same direction as active trend, do nothing
 
@@ -92,7 +99,7 @@ if isTrendActive
     box.set_top(trendBox, trendHigh)
     box.set_bottom(trendBox, trendLow)
 
-barcolor(isExpansion ? (isUp ? color.blue : color.red): na)
+barcolor(triggerExpansion ? (isUp ? color.blue : color.red): na)
 
 // alert ////////////////////////////////////////////////////////
 
