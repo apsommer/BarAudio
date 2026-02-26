@@ -1,7 +1,9 @@
 //@version=6
 indicator(
     "signal engine",
-    overlay = true)
+    overlay = true,
+    max_boxes_count = 500,
+    max_bars_back = 2000)
 
 // INPUT
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -31,16 +33,6 @@ RANGE_BARS = 120
 // INIT
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// momentum
-velocity = math.abs(close - close[VELOCITY_BARS]) / VELOCITY_BARS // Δ price / time
-velocitySma = nz(ta.sma(velocity, VELOCITY_BASELINE_BARS), 1) // simple moving average
-rawMomentumPercent = (velocity / velocitySma - 1.0) * 100.0 // momentum = velocity / moving average
-momentum = ta.sma(rawMomentumPercent, SMOOTH_BARS) // smooth
-
-// direction
-isUp = close > close[VELOCITY_BARS]
-isDown = close[VELOCITY_BARS] > close
-
 // lifecycle state
 var int expansionStartBar = na
 var float expansionStartPrice = na
@@ -51,6 +43,21 @@ var float trendHigh = na
 var float trendLow = na
 var color trendColor = na
 var box trendBox = na
+var int rangeStartBar = na
+var float rangeStartHigh = na
+var float rangeStartLow = na
+var bool isRangeActive = false
+var box rangeBox = na
+
+// momentum
+velocity = math.abs(close - close[VELOCITY_BARS]) / VELOCITY_BARS // Δ price / time
+velocitySma = nz(ta.sma(velocity, VELOCITY_BASELINE_BARS), 1) // simple moving average
+rawMomentumPercent = (velocity / velocitySma - 1.0) * 100.0 // momentum = velocity / moving average
+momentum = ta.sma(rawMomentumPercent, SMOOTH_BARS) // smooth
+
+// direction
+isUp = close > close[VELOCITY_BARS]
+isDown = close[VELOCITY_BARS] > close
 
 // EXPANSION (momentum increase past threshold)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -69,36 +76,32 @@ isNewTrend =
 triggerExpansion =
      isExpansion
      and isNewTrend
-     and not (isExpansion and isNewTrend)[1]
+     and not isExpansion[1] // prevent duplicate signals on consecutive bars
+     and isNewTrend[1] // prevent duplicate signals on consecutive bars
 
-if triggerExpansion // else same direction as active trend, do nothing
-
+if triggerExpansion
     isTrendActive := true
     isTrendUp := isUp
-    expansionStartBar := bar_index
-    expansionStartPrice := close
-    trendPeakMomentum := momentum
 
-    // plot /////////////////////////////////////////////////////////
+if isTrendActive
+    trendPeakMomentum := math.max(trendPeakMomentum, momentum)
+
+// plot /////////////////////////////////////////////////////////
+if triggerExpansion
+    expansionStartBar := bar_index
     trendColor := isUp ? color.new(color.blue, 80) : color.new(color.red, 80)
     trendBox := box.new(
         left = expansionStartBar,
         right = bar_index,
-        top = close,
-        bottom = close,
+        top = high,
+        bottom = low,
         border_color = trendColor,
         bgcolor = trendColor)
 
 if isTrendActive
-
-    // track peak momentum
-    trendPeakMomentum := math.max(trendPeakMomentum, momentum)
-
-    // plot /////////////////////////////////////////////////////////
     trendLength = bar_index - expansionStartBar + 1
     trendHigh := ta.highest(high, trendLength)
     trendLow  := ta.lowest(low,  trendLength)
-
     box.set_right(trendBox, bar_index)
     box.set_top(trendBox, trendHigh)
     box.set_bottom(trendBox, trendLow)
@@ -106,11 +109,10 @@ if isTrendActive
 barcolor(triggerExpansion ? (isUp ? color.blue : color.red): na)
 
 // alert ////////////////////////////////////////////////////////
+roundedMomentum = str.tostring(math.round(momentum)) + "%"
+isOppositeExpansion = triggerExpansion and isTrendActive[1] and isUp != isTrendUp[1]
 
 // expansion flip (new expansion in opposite direction of active trend)
-isOppositeExpansion = triggerExpansion and isTrendActive[1] and isUp != isTrendUp[1]
-roundedMomentum = str.tostring(math.round(momentum)) + "%"
-
 flipText =
      (isTrendUp[1] ? "Exhaustion of upward, " : "Exhaustion of downward, ") +
      (isUp ? "expansion of upward " : "expansion of downward ") +
@@ -133,7 +135,7 @@ isMomentumDrop = momentumDropPercent > EXHAUSTION_LEVEL_PERCENT
 
 // sustained reversal
 isMomentumReversing = true
-for i = 0 to EXHAUSTION_REVERSAL_BARS - 2
+for i = 0 to EXHAUSTION_REVERSAL_BARS
     isMomentumReversing := isMomentumReversing and momentum[i] > momentum[i + 1]
 
 // ensure trend had time to develop
@@ -233,16 +235,16 @@ triggerRangeExit = isRangeBreakout and (isRangeBreakoutUp or isRangeBreakoutDown
 plotshape(
      isRangeBreakoutUp,
      title = "range exit up",
-     location = location.belowbar,
+     location = location.abovebar,
      style = shape.circle,
      color = color.blue,
      size = size.tiny)
 plotshape(
      isRangeBreakoutDown,
      title = "range exit down",
-     location = location.abovebar,
+     location = location.belowbar,
      style = shape.circle,
-     color = color.blue,
+     color = color.red,
      size = size.tiny)
 
 // alert ////////////////////////////////////////////////////////
