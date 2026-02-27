@@ -61,7 +61,7 @@ class MainViewModel @Inject constructor(
         voiceDescription = beautifulVoice
         speakUtterance(beautifulVoice)
     }
-    
+
     // speed
     var speed by mutableFloatStateOf(1f)
         private set

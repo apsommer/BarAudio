@@ -29,6 +29,7 @@ STOP_CASCADE_LOOKBACK = 12
 // range breakout
 RANGE_PERCENT = 0.18
 RANGE_BARS = 120
+RANGE_VELOCITY = 1.9
 
 // INIT
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -36,19 +37,17 @@ RANGE_BARS = 120
 // lifecycle
 var int expansionStartBar = na
 var float expansionStartPrice = na
-var bool isTrendActive = false
-var bool isTrendUp = false
-var float trendPeakMomentum = na
-var float trendHigh = na
-var float trendLow = na
-var color trendColor = na
-var box trendBox = na
-
+var bool isExpansionActive = false
+var bool isExpansionUp = false
+var float expansionPeakMomentum = na
+var float expansionHigh = na
+var float expansionLow= na
+var color expansionColor = na
+var box expansionBox = na
 var bool isRangeActive = false
 var int rangeStartBar = na
 var float rangeHigh = na
 var float rangeLow = na
-
 
 // momentum
 velocity = math.abs(close - close[VELOCITY_BARS]) / VELOCITY_BARS // Δ price / time
@@ -72,8 +71,8 @@ isExpansion =
      momentum > EXPANSION_LEVEL_PERCENT
      and isAccelerating
 isNewTrend =
-     not isTrendActive
-     or isTrendUp != isUp
+     not isExpansionActive
+     or isExpansionUp != isUp
 triggerExpansion =
      isExpansion
      and isNewTrend
@@ -81,37 +80,37 @@ triggerExpansion =
      and isNewTrend[1] // prevent duplicate signals on consecutive bars
 
 if triggerExpansion
-    isTrendActive := true
-    isTrendUp := isUp
+    isExpansionActive := true
+    isExpansionUp := isUp
 
-if isTrendActive
-    trendPeakMomentum := math.max(trendPeakMomentum, momentum)
+if isExpansionActive
+    expansionPeakMomentum := math.max(expansionPeakMomentum, momentum)
 
 // plot /////////////////////////////////////////////////////////
 if triggerExpansion
     expansionStartBar := bar_index
-    trendColor := isUp ? color.new(color.blue, 80) : color.new(color.red, 80)
-    trendBox := box.new(
+    expansionColor := isUp ? color.new(color.blue, 80) : color.new(color.red, 80)
+    expansionBox := box.new(
         left = expansionStartBar,
         right = bar_index,
         top = high,
         bottom = low,
-        border_color = trendColor,
-        bgcolor = trendColor)
+        border_color = expansionColor,
+        bgcolor = expansionColor)
 
-if isTrendActive
+if isExpansionActive
     trendLength = bar_index - expansionStartBar + 1
-    trendHigh := ta.highest(high, trendLength)
-    trendLow  := ta.lowest(low,  trendLength)
-    box.set_right(trendBox, bar_index)
-    box.set_top(trendBox, trendHigh)
-    box.set_bottom(trendBox, trendLow)
+    expansionHigh := ta.highest(high, trendLength)
+    expansionLow := ta.lowest(low,  trendLength)
+    box.set_right(expansionBox, bar_index)
+    box.set_top(expansionBox, expansionHigh)
+    box.set_bottom(expansionBox, expansionLow)
 
 barcolor(triggerExpansion ? (isUp ? color.blue : color.red): na)
 
 // alert ////////////////////////////////////////////////////////
 formattedMomentum = str.tostring(math.round(momentum)) + "%"
-isOppositeExpansion = triggerExpansion and isTrendActive[1] and isUp != isTrendUp[1]
+isOppositeExpansion = triggerExpansion and isExpansionActive[1] and isUp != isExpansionUp[1]
 
 // expansion flip (new expansion in opposite direction of active trend)
 flipText = "Trend reversal, "
@@ -128,7 +127,7 @@ if triggerExpansion and not barstate.isconfirmed
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // drop from peak
-momentumDropPercent = (trendPeakMomentum - momentum) / trendPeakMomentum * 100.0
+momentumDropPercent = (expansionPeakMomentum - momentum) / expansionPeakMomentum * 100.0
 isMomentumDrop = momentumDropPercent > EXHAUSTION_LEVEL_PERCENT
 
 // sustained reversal
@@ -140,24 +139,24 @@ for i = 0 to EXHAUSTION_REVERSAL_BARS
 isTrendMature = bar_index - expansionStartBar > TREND_MATURE_BARS
 
 triggerExhaustion =
-     isTrendActive
+     isExpansionActive
      and isTrendMature
      and isMomentumDrop
      and isMomentumReversing
      and isNewTrend
 
 if triggerExhaustion
-    isTrendActive := false
+    isExpansionActive := false
 
 // alert ////////////////////////////////////////////////////////
 trendMovePercent =
-     isTrendUp ? (trendHigh - trendLow) / trendLow * 100.0 :
-     (trendHigh - trendLow) / trendHigh * 100.0
+     isExpansionUp ? (expansionHigh - expansionLow) / expansionLow* 100.0 :
+     (expansionHigh - expansionLow) / expansionHigh * 100.0
 isTrendProfitable = trendMovePercent > 0
 
 // only append total price move if trend profitable
 formattedTrendMove = str.tostring(math.round(math.abs(trendMovePercent), 2)) + "% "
-exhaustionText = (isTrendUp ? "Upside " : "Downside ") + "trend exhaustion " +
+exhaustionText = (isExpansionUp ? "Upside " : "Downside ") + "trend exhaustion " +
      (isTrendProfitable ? "after " + formattedTrendMove + "move" : "")
 if triggerExhaustion and not barstate.isconfirmed
     alert(exhaustionText, alert.freq_once_per_bar)
@@ -222,6 +221,13 @@ rollingLow = ta.lowest(low, RANGE_BARS)
 rollingMid = (rollingHigh + rollingLow) * 0.5
 rangeWidthPercent = (rollingHigh - rollingLow) / rollingMid * 100.0
 isRange = RANGE_PERCENT > rangeWidthPercent
+
+// prevent errant breakout signals
+isVolumeLow = RANGE_VELOCITY > velocitySma
+isRangeValid =
+     isVolumeLow
+     and not isExpansionActive
+     and not triggerStopCascade
 
 // range start
 triggerRangeStart = isRange and not isRange[1] and not isRangeActive
