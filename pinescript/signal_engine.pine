@@ -33,7 +33,7 @@ RANGE_BARS = 120
 // INIT
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// lifecycle state
+// lifecycle
 var int expansionStartBar = na
 var float expansionStartPrice = na
 var bool isTrendActive = false
@@ -43,6 +43,7 @@ var float trendHigh = na
 var float trendLow = na
 var color trendColor = na
 var box trendBox = na
+var int rangeStartBar = na
 
 // momentum
 velocity = math.abs(close - close[VELOCITY_BARS]) / VELOCITY_BARS // Δ price / time
@@ -108,10 +109,7 @@ formattedMomentum = str.tostring(math.round(momentum)) + "%"
 isOppositeExpansion = triggerExpansion and isTrendActive[1] and isUp != isTrendUp[1]
 
 // expansion flip (new expansion in opposite direction of active trend)
-flipText =
-     (isTrendUp[1] ? "Upside exhuastion, " : "Exhaustion of downward, ") +
-     (isUp ? "expansion of upward " : "expansion of downward ") +
-     "with momentum " + formattedMomentum
+flipText = "Trend reversal, "
 
 // new expansion (no active trend)
 expansionText =
@@ -119,7 +117,7 @@ expansionText =
      ("expansion with momentum " + formattedMomentum)
 
 if triggerExpansion and not barstate.isconfirmed
-    alert(isOppositeExpansion ? flipText : expansionText, alert.freq_once_per_bar)
+    alert(isOppositeExpansion ? flipText + expansionText: expansionText, alert.freq_once_per_bar)
 
 // EXHAUSTION (trend fails to hold momentum after expansion)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -226,9 +224,21 @@ isRangeBreakoutUp = isRangeBreakout and close > rangeHigh[1]
 isRangeBreakoutDown = isRangeBreakout and rangeLow[1] > close
 triggerRangeExit = isRangeBreakout and (isRangeBreakoutUp or isRangeBreakoutDown)
 
+// capture range start
+triggerRangeStart = isRange and not isRange[1]
+if triggerRangeStart
+    rangeStartBar := bar_index - RANGE_BARS
+
 // plot /////////////////////////////////////////////////////////
 if triggerRangeExit
-    rangeStartBar = bar_index - RANGE_BARS
+    line.new(
+         x1 = rangeStartBar,
+         y1 = rangeMid,
+         x2 = bar_index,
+         y2 = rangeMid,
+         color = color.new(color.teal, 50),
+         style = line.style_dotted,
+         width = 2)
     box.new(
          left = rangeStartBar,
          right = bar_index,
@@ -253,7 +263,8 @@ plotshape(
      size = size.tiny)
 
 // alert ////////////////////////////////////////////////////////
-rangeText = "Exiting " + str.tostring(RANGE_BARS) + " minute range to " +
+rangeDuration = bar_index - rangeStartBar
+rangeText = "Exiting " + str.tostring(rangeDuration) + " minute range to " +
      (isRangeBreakoutUp ? "upside" : "downside")
 
 if triggerRangeExit and not barstate.isconfirmed
