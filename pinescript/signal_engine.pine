@@ -43,11 +43,6 @@ var float trendHigh = na
 var float trendLow = na
 var color trendColor = na
 var box trendBox = na
-var int rangeStartBar = na
-var float rangeStartHigh = na
-var float rangeStartLow = na
-var bool isRangeActive = false
-var box rangeBox = na
 
 // momentum
 velocity = math.abs(close - close[VELOCITY_BARS]) / VELOCITY_BARS // Δ price / time
@@ -232,6 +227,16 @@ isRangeBreakoutDown = isRangeBreakout and rangeLow[1] > close
 triggerRangeExit = isRangeBreakout and (isRangeBreakoutUp or isRangeBreakoutDown)
 
 // plot /////////////////////////////////////////////////////////
+if triggerRangeExit
+    rangeStartBar = bar_index - RANGE_BARS
+    box.new(
+         left = rangeStartBar,
+         right = bar_index,
+         top = rangeHigh,
+         bottom = rangeLow,
+         border_color = color.new(color.teal, 88),
+         bgcolor = color.new(color.teal, 88))
+
 plotshape(
      isRangeBreakoutUp,
      title = "range exit up",
