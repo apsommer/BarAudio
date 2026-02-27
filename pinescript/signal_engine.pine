@@ -43,7 +43,12 @@ var float trendHigh = na
 var float trendLow = na
 var color trendColor = na
 var box trendBox = na
+
+var bool isRangeActive = false
 var int rangeStartBar = na
+var float rangeHigh = na
+var float rangeLow = na
+
 
 // momentum
 velocity = math.abs(close - close[VELOCITY_BARS]) / VELOCITY_BARS // Δ price / time
@@ -212,35 +217,40 @@ if triggerStopCascade and not barstate.isconfirmed
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // rolling range
-rangeHigh = ta.highest(high, RANGE_BARS)
-rangeLow = ta.lowest(low, RANGE_BARS)
-rangeMid = (rangeHigh + rangeLow) * 0.5
-rangeWidthPercent = (rangeHigh - rangeLow) / rangeMid * 100.0
+rollingHigh = ta.highest(high, RANGE_BARS)
+rollingLow = ta.lowest(low, RANGE_BARS)
+rollingMid = (rollingHigh + rollingLow) * 0.5
+rangeWidthPercent = (rollingHigh - rollingLow) / rollingMid * 100.0
 isRange = RANGE_PERCENT > rangeWidthPercent
 
-// breakout
-isRangeBreakout = isRange[1] and not isRange
-isRangeBreakoutUp = isRangeBreakout and close > rangeHigh[1]
-isRangeBreakoutDown = isRangeBreakout and rangeLow[1] > close
-triggerRangeExit = isRangeBreakout and (isRangeBreakoutUp or isRangeBreakoutDown)
-
-// capture range start
-triggerRangeStart = isRange and not isRange[1]
+// range start
+triggerRangeStart = isRange and not isRange[1] and not isRangeActive
 if triggerRangeStart
-    rangeStartBar := bar_index - RANGE_BARS
+    isRangeActive := true
+    rangeStartBar := bar_index
+    rangeHigh := rollingHigh
+    rangeLow := rollingLow
+
+// breakout
+isRangeBreakoutUp = isRangeActive and high > rangeHigh
+isRangeBreakoutDown = isRangeActive and rangeLow > low
+triggerRangeExit = isRangeBreakoutUp or isRangeBreakoutDown
+if triggerRangeExit
+    isRangeActive := false
 
 // plot /////////////////////////////////////////////////////////
 if triggerRangeExit
     line.new(
-         x1 = rangeStartBar,
-         y1 = rangeMid,
-         x2 = bar_index,
-         y2 = rangeMid,
-         color = color.new(color.teal, 50),
-         style = line.style_dotted,
-         width = 2)
+             x1 = rangeStartBar - RANGE_BARS,
+             y1 = (rangeHigh + rangeLow) * 0.5,
+             x2 = bar_index,
+             y2 = (rangeHigh + rangeLow) * 0.5,
+             color = color.new(color.teal, 50),
+             style = line.style_dotted,
+             width = 2)
+
     box.new(
-         left = rangeStartBar,
+         left = rangeStartBar - RANGE_BARS,
          right = bar_index,
          top = rangeHigh,
          bottom = rangeLow,
