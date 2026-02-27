@@ -39,11 +39,12 @@ var int expansionStartBar = bar_index
 var float expansionStartPrice = open
 var bool isExpansionActive = false
 var bool isExpansionUp = false
-var float expansionPeakMomentum = 1.0
+var float expansionPeakMomentum = 0.0
 var float expansionHigh = high
 var float expansionLow = low
 var color expansionColor = color.black
 var box expansionBox = na
+var bool hasActiveCascade = false
 var bool isRangeActive = false
 var int rangeStartBar = bar_index
 var float rangeHigh = high
@@ -82,6 +83,7 @@ triggerExpansion =
 if triggerExpansion
     isExpansionActive := true
     isExpansionUp := isUp
+    hasActiveCascade := false
 
 if isExpansionActive
     expansionPeakMomentum := math.max(expansionPeakMomentum, momentum)
@@ -110,7 +112,10 @@ barcolor(triggerExpansion ? (isUp ? color.blue : color.red): na)
 
 // alert ////////////////////////////////////////////////////////
 formattedMomentum = str.tostring(math.round(momentum)) + "%"
-isOppositeExpansion = triggerExpansion and isExpansionActive[1] and isUp != isExpansionUp[1]
+isOppositeExpansion =
+     triggerExpansion
+     and isExpansionActive[1]
+     and isUp != isExpansionUp[1]
 
 // expansion flip (new expansion in opposite direction of active trend)
 flipText = "Trend reversal, "
@@ -147,6 +152,8 @@ triggerExhaustion =
 
 if triggerExhaustion
     isExpansionActive := false
+    expansionPeakMomentum := 0.0
+    hasActiveCascade := false
 
 // alert ////////////////////////////////////////////////////////
 trendMovePercent =
@@ -191,6 +198,10 @@ isStopCascadeUp = isVelocitySpike and isRangeExpansion and isStrongUpBar and isC
 isStopCascadeDown = isVelocitySpike and isRangeExpansion and isStrongDownBar and isCompressed and isBreakDown
 triggerStopCascade = isStopCascadeUp or isStopCascadeDown
 
+// allow continuation cascade
+if triggerStopCascade
+    hasActiveCascade := true
+
 // plot /////////////////////////////////////////////////////////
 plotshape(
      isStopCascadeUp,
@@ -216,24 +227,26 @@ if triggerStopCascade and not barstate.isconfirmed
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 isContinuationCascadeDown =
-     isExpansionActive
-     and not isCompressed
+     hasActiveCascade
+     and not isExpansionUp
      and isStrongDownBar
      and isBreakDown
+     and acceleration > ACCELERATION_PERCENT
 
 isContinuationCascadeUp =
-     isExpansionActive
-     and not isCompressed
+     hasActiveCascade
+     and isExpansionUp
      and isStrongUpBar
      and isBreakUp
+     and acceleration > ACCELERATION_PERCENT
 
 triggerContinuationCascade =
-     isContinuationCascadeUp
-     or isContinuationCascadeDown
+     (isContinuationCascadeUp or isContinuationCascadeDown)
+     and not triggerStopCascade // prevent overlap with initial cascade signal
 
 // plot /////////////////////////////////////////////////////////
 plotshape(
-     isContinuationCascadeUp,
+     triggerContinuationCascade and isContinuationCascadeUp,
      title = "up continuation cascade",
      location = location.belowbar,
      style = shape.diamond,
@@ -241,7 +254,7 @@ plotshape(
      size = size.small)
 
 plotshape(
-     isContinuationCascadeDown,
+     triggerContinuationCascade and isContinuationCascadeDown,
      title = "down continuation cascade",
      location = location.abovebar,
      style = shape.diamond,
