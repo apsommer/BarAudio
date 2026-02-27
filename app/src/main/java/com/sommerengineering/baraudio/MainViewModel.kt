@@ -49,6 +49,7 @@ class MainViewModel @Inject constructor(
     // voice
     var voices by mutableStateOf<List<Voice>>(emptyList())
         private set
+    private val beautifulVoiceNames = hashMapOf<String, String>()
     var voiceIndex by mutableStateOf(0)
         private set
     var voiceDescription by mutableStateOf("")
@@ -60,7 +61,7 @@ class MainViewModel @Inject constructor(
         voiceDescription = beautifulVoice
         speakUtterance(beautifulVoice)
     }
-
+    
     // speed
     var speed by mutableFloatStateOf(1f)
         private set
@@ -240,7 +241,6 @@ class MainViewModel @Inject constructor(
     }
 
     // beautiful voice names
-    private val beautifulVoiceNames = hashMapOf<String, String>()
     fun beautifyVoiceName(name: String) = beautifulVoiceNames[name] ?: ""
     private fun createBeautifulVoices() {
 
