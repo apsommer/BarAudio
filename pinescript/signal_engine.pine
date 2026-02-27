@@ -9,45 +9,45 @@ indicator(
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // expansion/exhaustion
-VELOCITY_BARS = 14
-VELOCITY_BASELINE_BARS = 80
-SMOOTH_BARS = 4
-ACCELERATION_BARS = 3
-ACCELERATION_PERCENT = 5.0
-EXPANSION_LEVEL_PERCENT = 48
-EXHAUSTION_LEVEL_PERCENT = 32
-TREND_MATURE_BARS = 10
-EXHAUSTION_REVERSAL_BARS = 4
+VELOCITY_BARS = 20
+VELOCITY_BASELINE_BARS = 120
+SMOOTH_BARS = 6
+ACCELERATION_BARS = 5
+ACCELERATION_PERCENT = 12.0
+EXPANSION_LEVEL_PERCENT = 85
+EXHAUSTION_LEVEL_PERCENT = 45
+TREND_MATURE_BARS = 20
+EXHAUSTION_REVERSAL_BARS = 6
 
 // stop cascade
-VELOCITY_SPIKE_RATIO = 2.8
-RANGE_EXPANSION_RATIO = 2.4
-BAR_STRENGTH_RATIO = 0.78
-COMPRESSION_STD_DEV_PERCENT = 0.15
-STOP_CASCADE_LOOKBACK = 12
+VELOCITY_SPIKE_RATIO = 3.6
+RANGE_EXPANSION_RATIO = 3.0
+BAR_STRENGTH_RATIO = 0.80
+COMPRESSION_STD_DEV_PERCENT = 0.18
+STOP_CASCADE_LOOKBACK = 22
 
 // range breakout
-RANGE_PERCENT = 0.18
+RANGE_PERCENT = 0.22
 RANGE_BARS = 120
-RANGE_VELOCITY = 1.9
+RANGE_MOMENTUM = 25
 
 // INIT
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // lifecycle
-var int expansionStartBar = na
-var float expansionStartPrice = na
+var int expansionStartBar = bar_index
+var float expansionStartPrice = open
 var bool isExpansionActive = false
 var bool isExpansionUp = false
-var float expansionPeakMomentum = na
-var float expansionHigh = na
-var float expansionLow= na
-var color expansionColor = na
+var float expansionPeakMomentum = 1.0
+var float expansionHigh = high
+var float expansionLow = low
+var color expansionColor = color.black
 var box expansionBox = na
 var bool isRangeActive = false
-var int rangeStartBar = na
-var float rangeHigh = na
-var float rangeLow = na
+var int rangeStartBar = bar_index
+var float rangeHigh = high
+var float rangeLow = low
 
 // momentum
 velocity = math.abs(close - close[VELOCITY_BARS]) / VELOCITY_BARS // Δ price / time
@@ -182,8 +182,8 @@ isStrongDownBar = open > close and (open - close) / barRange > BAR_STRENGTH_RATI
 isCompressed = COMPRESSION_STD_DEV_PERCENT > ta.stdev(close, 20) / close * 100
 
 // structure break
-highestHigh = ta.highest(high[1], STOP_CASCADE_LOOKBACK)
-lowestLow = ta.lowest(low[1], STOP_CASCADE_LOOKBACK)
+highestHigh = ta.highest(high[2], STOP_CASCADE_LOOKBACK)
+lowestLow = ta.lowest(low[2], STOP_CASCADE_LOOKBACK)
 isBreakUp = high > highestHigh
 isBreakDown = lowestLow > low
 
@@ -212,6 +212,50 @@ cascadeText = (isStrongUpBar ? "Upside " : "Downside ") + "stop cascade "
 if triggerStopCascade and not barstate.isconfirmed
     alert(cascadeText, alert.freq_once_per_bar)
 
+// CONTINUATION STOP CASCADE
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+isContinuationCascadeDown =
+     isExpansionActive
+     and not isCompressed
+     and isStrongDownBar
+     and isBreakDown
+
+isContinuationCascadeUp =
+     isExpansionActive
+     and not isCompressed
+     and isStrongUpBar
+     and isBreakUp
+
+triggerContinuationCascade =
+     isContinuationCascadeUp
+     or isContinuationCascadeDown
+
+// plot /////////////////////////////////////////////////////////
+plotshape(
+     isContinuationCascadeUp,
+     title = "up continuation cascade",
+     location = location.belowbar,
+     style = shape.diamond,
+     color = color.blue,
+     size = size.small)
+
+plotshape(
+     isContinuationCascadeDown,
+     title = "down continuation cascade",
+     location = location.abovebar,
+     style = shape.diamond,
+     color = color.red,
+     size = size.small)
+
+// alert ////////////////////////////////////////////////////////
+continuationCascadeText =
+     (isContinuationCascadeUp ? "Upside " : "Downside ") +
+     "continuation stop cascade "
+
+if triggerContinuationCascade and not barstate.isconfirmed
+    alert(continuationCascadeText, alert.freq_once_per_bar)
+
 // RANGE BREAKOUT
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -223,14 +267,18 @@ rangeWidthPercent = (rollingHigh - rollingLow) / rollingMid * 100.0
 isRange = RANGE_PERCENT > rangeWidthPercent
 
 // prevent errant breakout signals
-isVolumeLow = RANGE_VELOCITY > velocitySma
+isMomentumLow = RANGE_MOMENTUM > momentum
 isRangeValid =
-     isVolumeLow
+     isMomentumLow
      and not isExpansionActive
      and not triggerStopCascade
 
 // range start
-triggerRangeStart = isRange and not isRange[1] and not isRangeActive
+triggerRangeStart =
+     isRange
+     and isRangeValid
+     and not isRange[1]
+     and not isRangeActive
 if triggerRangeStart
     isRangeActive := true
     rangeStartBar := bar_index
