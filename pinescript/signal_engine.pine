@@ -27,9 +27,10 @@ COMPRESSION_STD_DEV_PERCENT = 0.18
 STOP_CASCADE_LOOKBACK = 22
 
 // range breakout
-RANGE_PERCENT = 0.22
+RANGE_PERCENT = 0.16
 RANGE_BARS = 120
 RANGE_MOMENTUM = 25
+RANGE_TOLERANCE_PERCENT = 0.03
 
 // INIT
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -301,15 +302,18 @@ if triggerRangeStart
     rangeHigh := rollingHigh
     rangeLow := rollingLow
 
+// allow small excursions
+rangeTolerance = rollingMid * RANGE_TOLERANCE_PERCENT / 100.0
+
 // breakout
-isRangeBreakoutUp = isRangeActive and high > rangeHigh
-isRangeBreakoutDown = isRangeActive and rangeLow > low
-triggerRangeExit = isRangeBreakoutUp or isRangeBreakoutDown
-if triggerRangeExit
+isRangeBreakoutUp = isRangeActive and close > rangeHigh + rangeTolerance
+isRangeBreakoutDown = isRangeActive and rangeLow - rangeTolerance > close
+triggerRangeBreakout = isRangeBreakoutUp or isRangeBreakoutDown
+if triggerRangeBreakout
     isRangeActive := false
 
 // plot /////////////////////////////////////////////////////////
-if triggerRangeExit
+if triggerRangeBreakout
     line.new(
              x1 = rangeStartBar - RANGE_BARS,
              y1 = (rangeHigh + rangeLow) * 0.5,
@@ -347,5 +351,5 @@ rangeDuration = bar_index - rangeStartBar
 rangeText = "Exiting " + str.tostring(rangeDuration) + " minute range to " +
      (isRangeBreakoutUp ? "upside" : "downside")
 
-if triggerRangeExit and not barstate.isconfirmed
+if triggerRangeBreakout and not barstate.isconfirmed
     alert(rangeText, alert.freq_once_per_bar)
