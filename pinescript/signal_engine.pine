@@ -109,19 +109,19 @@ if isTrendActive
 barcolor(triggerExpansion ? (isUp ? color.blue : color.red): na)
 
 // alert ////////////////////////////////////////////////////////
-roundedMomentum = str.tostring(math.round(momentum)) + "%"
+formattedMomentum = str.tostring(math.round(momentum)) + "%"
 isOppositeExpansion = triggerExpansion and isTrendActive[1] and isUp != isTrendUp[1]
 
 // expansion flip (new expansion in opposite direction of active trend)
 flipText =
-     (isTrendUp[1] ? "Exhaustion of upward, " : "Exhaustion of downward, ") +
+     (isTrendUp[1] ? "Upside exhuastion, " : "Exhaustion of downward, ") +
      (isUp ? "expansion of upward " : "expansion of downward ") +
-     "with momentum " + roundedMomentum
+     "with momentum " + formattedMomentum
 
 // new expansion (no active trend)
 expansionText =
      (isUp ? "Upside " : "Downside ") +
-     ("expansion with momentum " + roundedMomentum)
+     ("expansion with momentum " + formattedMomentum)
 
 if triggerExpansion and not barstate.isconfirmed
     alert(isOppositeExpansion ? flipText : expansionText, alert.freq_once_per_bar)
@@ -158,9 +158,9 @@ trendMovePercent =
 isTrendProfitable = trendMovePercent > 0
 
 // only append total price move if trend profitable
-roundedTrendMove = str.tostring(math.round(math.abs(trendMovePercent), 2)) + "% "
+formattedTrendMove = str.tostring(math.round(math.abs(trendMovePercent), 2)) + "% "
 exhaustionText = (isTrendUp ? "Upside " : "Downside ") + "trend exhaustion " +
-     (isTrendProfitable ? "after " + roundedTrendMove + "move" : "")
+     (isTrendProfitable ? "after " + formattedTrendMove + "move" : "")
 if triggerExhaustion and not barstate.isconfirmed
     alert(exhaustionText, alert.freq_once_per_bar)
 
