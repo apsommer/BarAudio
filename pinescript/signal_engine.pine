@@ -123,7 +123,7 @@ flipText = "Trend reversal, "
 // new expansion (no active trend)
 expansionText =
      (isUp ? "Upside " : "Downside ") +
-     ("expansion with momentum " + formattedMomentum)
+     "expansion. Momentum " + formattedMomentum
 
 if triggerExpansion and not barstate.isconfirmed
     alert(isOppositeExpansion ? flipText + expansionText: expansionText, alert.freq_once_per_bar)
@@ -163,8 +163,8 @@ isTrendProfitable = trendMovePercent > 0
 
 // only append total price move if trend profitable
 formattedTrendMove = str.tostring(math.round(math.abs(trendMovePercent), 2)) + "% "
-exhaustionText = (isExpansionUp ? "Upside " : "Downside ") + "trend exhaustion " +
-     (isTrendProfitable ? "after " + formattedTrendMove + "move" : "")
+exhaustionText = (isExpansionUp ? "Upside " : "Downside ") + "exhaustion." +
+     (isTrendProfitable ? " Move " + formattedTrendMove : "")
 if triggerExhaustion and not barstate.isconfirmed
     alert(exhaustionText, alert.freq_once_per_bar)
 
@@ -219,7 +219,8 @@ plotshape(
      size = size.small)
 
 // alert ////////////////////////////////////////////////////////
-cascadeText = (isStrongUpBar ? "Upside " : "Downside ") + "stop cascade "
+cascadeText =
+     (isStrongUpBar ? "Upside " : "Downside ") + "stop cascade."
 if triggerStopCascade and not barstate.isconfirmed
     alert(cascadeText, alert.freq_once_per_bar)
 
@@ -264,7 +265,7 @@ plotshape(
 // alert ////////////////////////////////////////////////////////
 continuationCascadeText =
      (isContinuationCascadeUp ? "Upside " : "Downside ") +
-     "continuation stop cascade "
+     "cascade continuation."
 
 if triggerContinuationCascade and not barstate.isconfirmed
     alert(continuationCascadeText, alert.freq_once_per_bar)
