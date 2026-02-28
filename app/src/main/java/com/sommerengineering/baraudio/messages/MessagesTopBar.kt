@@ -53,7 +53,7 @@ fun MessagesTopBar(
             Box { ScrimImage(
                 iconRes = R.drawable.logo_banner,
                 alpha = if (isDarkMode) logoDarkAlpha else logoLightAlpha,
-                modifier = Modifier.padding(2 * rowHorizontalPadding)) }},
+                modifier = Modifier.padding(horizontal = 2 * rowHorizontalPadding)) }},
 
         // feed mode
         actions = {

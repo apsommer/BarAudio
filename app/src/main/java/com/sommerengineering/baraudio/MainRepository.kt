@@ -62,7 +62,6 @@ class MainRepository @Inject constructor(
 
     // room database
     val messages = roomDb.messages
-        .stateIn(appScope, SharingStarted.Eagerly, emptyList())
     fun addMessage(message: Message) =
         appScope.launch { roomDb.addMessage(message) }
 
@@ -78,8 +77,8 @@ class MainRepository @Inject constructor(
         // user specific
         messages.addAll(firebaseDb.fetchUserMessages())
 
-        // update local room database
-        roomDb.addMessages(messages)
+        // sync local database: delete all, then add all
+        roomDb.replaceMessages(messages)
     }
 
     // text-to-speech
@@ -155,9 +154,7 @@ class MainRepository @Inject constructor(
     suspend fun loadNQ() =
         readPreference(booleanPreferencesKey(isNQKey)) ?: true
     fun updateNQ(enabled: Boolean) {
-        FirebaseMessaging.getInstance().apply {
-            if (enabled) subscribeToTopic(nqStream) else unsubscribeFromTopic(nqStream)
-        }
+        syncStream(nqStream, enabled)
         writePreference(booleanPreferencesKey(isNQKey), enabled)
     }
 
@@ -165,10 +162,26 @@ class MainRepository @Inject constructor(
     suspend fun loadGC() =
         readPreference(booleanPreferencesKey(isGCKey)) ?: true
     fun updateGC(enabled: Boolean) {
-        FirebaseMessaging.getInstance().apply {
-            if (enabled) subscribeToTopic(gcStream) else unsubscribeFromTopic(gcStream)
-        }
+        syncStream(gcStream, enabled)
         writePreference(booleanPreferencesKey(isGCKey), enabled)
+    }
+
+    // sync stream with firebase/room
+    fun syncStream(
+        stream: String,
+        enabled: Boolean) = appScope.launch {
+
+        // subscribe, fetch, and store messages
+        if (enabled) {
+            FirebaseMessaging.getInstance().subscribeToTopic(stream)
+            val streamMessages = firebaseDb.fetchStreamMessages(stream)
+            roomDb.replaceStream(stream, streamMessages)
+            return@launch
+        }
+
+        // unsubscribe and remove from local database
+        FirebaseMessaging.getInstance().unsubscribeFromTopic(stream)
+        roomDb.removeStream(stream)
     }
 
     // feed mode
