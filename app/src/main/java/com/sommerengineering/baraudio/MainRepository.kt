@@ -62,7 +62,6 @@ class MainRepository @Inject constructor(
 
     // room database
     val messages = roomDb.messages
-        .stateIn(appScope, SharingStarted.Eagerly, emptyList())
     fun addMessage(message: Message) =
         appScope.launch { roomDb.addMessage(message) }
 

@@ -24,8 +24,11 @@ import com.sommerengineering.baraudio.uitls.screenWindowedDescription
 import com.sommerengineering.baraudio.uitls.uiDarkDescription
 import com.sommerengineering.baraudio.uitls.uiLightDescription
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
@@ -39,7 +42,10 @@ class MainViewModel @Inject constructor(
 ) : ViewModel() {
 
     // room database
-    val messages = repo.messages
+    val messages = repo.messages.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(),
+        emptyList())
 
     // text-to-speech
     val isTtsReady = repo.isTtsReady
