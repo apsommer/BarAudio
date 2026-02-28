@@ -68,12 +68,21 @@ barRange = high - low
 smaBarRange = ta.sma(barRange, CASCADE_VELOCITY_BARS)
 downBody = open - close
 upBody = close - open
-bodyRangeRatioDown = barRange > 0 ? downBody / barRange : 0
-bodyRangeRatioUp = barRange > 0 ? upBody / barRange : 0
-higherWickPercent = barRange > 0 ? (close - low) / barRange : 0
+bodyRangeRatioDown = downBody / barRange
+bodyRangeRatioUp = upBody / barRange
+higherWickPercent = (close - low) / barRange
 
+// HTF REGIME
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
+htf = request.security(syminfo.tickerid, HTF_TIMEFRAME, close)
+smaHtf = request.security(syminfo.tickerid, HTF_TIMEFRAME, ta.sma(close, HTF_SMA_LENGTH))
+isHtfSmaRising = request.security(syminfo.tickerid, HTF_TIMEFRAME, ta.sma(close, HTF_SMA_LENGTH) > ta.sma(close, HTF_SMA_LENGTH)[1])
+isHtfPriceAboveSma = htf > smaHtf
+isHtfBull = isHtfPriceAboveSma and isHtfSmaRising
 
+// plot
+barcolor(isHtfBull ? color.green : na)
 
 
 
