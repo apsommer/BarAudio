@@ -20,13 +20,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.times
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.settings.SettingsDrawer
 import com.sommerengineering.baraudio.source.MessageOrigin
 import com.sommerengineering.baraudio.source.resolveMessageOrigin
+import com.sommerengineering.baraudio.uitls.backgroundDarkAlpha
+import com.sommerengineering.baraudio.uitls.backgroundLightAlpha
+import com.sommerengineering.baraudio.uitls.edgePadding
 import kotlinx.coroutines.launch
 
 @Composable
@@ -61,7 +66,7 @@ fun MessagesScreen(
 
         Scaffold(
             topBar = { MessagesTopBar(
-                feedMode = feedMode,
+                viewModel = viewModel,
                 onSettingsClick = { composableScope.launch { drawerState.open() } },
                 onToggleFeedMode = { viewModel.toggleFeedMode() })},
             floatingActionButton = { MessagesFloatingActionButton(viewModel) },
@@ -69,7 +74,13 @@ fun MessagesScreen(
 
             Box(Modifier.fillMaxSize().padding(padding)) {
 
-                BackgroundImage(backgroundRes, isDarkMode)
+                // background image
+                ScrimImage(
+                    iconRes = backgroundRes,
+                    alpha = if (isDarkMode) backgroundDarkAlpha else backgroundLightAlpha,
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .padding(2 * edgePadding))
 
                 // messages
                 LazyColumn(state = listState) { when (feedMode) {

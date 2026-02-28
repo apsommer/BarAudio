@@ -113,13 +113,14 @@ const val screenWindowedDescription = "Show system bars"
 // images
 val loginButtonSize = 96.dp
 val fabSize = 72.dp
-val fabPadding = 16.dp // match scaffold FAB default
 val edgePadding = 24.dp
 val settingsIconSize = 24.dp
 val loginLogoPadding = 64.dp
 val assetIconSize = 28.dp
-val darkModeAlpha = 0.6f
-val lightModeAlpha = 0.8f
+val logoDarkAlpha = 0.4f
+val logoLightAlpha = 0.8f
+val backgroundDarkAlpha = 0.5f
+val backgroundLightAlpha = 0.9f
 
 // onboarding
 const val onboardingTotalPages = 3
