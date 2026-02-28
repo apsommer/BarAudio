@@ -40,12 +40,15 @@ fun SwitchItem(
 
     Surface {
         Column {
-
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(rowMinHeight)
-                    .padding(rowHorizontalPadding, rowVerticalPadding),
+                    .padding(
+                        start = rowHorizontalPadding + 4.dp,
+                        end = rowHorizontalPadding,
+                        top = rowVerticalPadding,
+                        bottom = rowVerticalPadding),
                 verticalAlignment = Alignment.CenterVertically) {
 
 
@@ -59,7 +62,7 @@ fun SwitchItem(
                         painter = painterResource(iconRes),
                         tint = iconTint ?: LocalContentColor.current,
                         contentDescription = null)
-                    Spacer(Modifier.width(rowIconPadding))
+                    Spacer(Modifier.width(rowIconPadding + 4.dp))
 
                     // title and description
                     Column {

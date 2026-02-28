@@ -40,7 +40,11 @@ fun SliderItem(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(rowMinHeight)
-                    .padding(rowHorizontalPadding, rowVerticalPadding),
+                    .padding(
+                        start = rowHorizontalPadding + 4.dp,
+                        end = rowHorizontalPadding,
+                        top = rowVerticalPadding,
+                        bottom = rowVerticalPadding),
                 verticalAlignment = Alignment.CenterVertically) {
 
                 Row(
@@ -51,7 +55,7 @@ fun SliderItem(
                         painter = painterResource(iconRes),
                         contentDescription = null
                     )
-                    Spacer(Modifier.width(rowIconPadding))
+                    Spacer(Modifier.width(rowIconPadding + 4.dp))
 
                     Column {
 

@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -23,34 +22,36 @@ import com.sommerengineering.baraudio.uitls.settingsIconSize
 fun DividerItem(
     text: String) {
 
+    val rowHeight = rowMinHeight
     val leadingLineWidth = rowIconPadding + (settingsIconSize / 2)
+    val color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
 
     Surface {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(rowMinHeight),
+                .heightIn(rowHeight),
             verticalAlignment = Alignment.CenterVertically) {
 
             // line
             HorizontalDivider(
                 modifier = Modifier.width(leadingLineWidth),
                 thickness = dividerThickness,
-                color = MaterialTheme.colorScheme.outlineVariant)
+                color = color)
             Spacer(Modifier.width(rowHorizontalPadding))
 
             // text
             Text(
                 text = text,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.outline)
+                color = color)
             Spacer(Modifier.width(rowHorizontalPadding))
 
-            // line                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+            // line
             HorizontalDivider(
                 modifier = Modifier.weight(1f),
                 thickness = dividerThickness,
-                color = MaterialTheme.colorScheme.outlineVariant)
+                color = color)
         }
     }
 }

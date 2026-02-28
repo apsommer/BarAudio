@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.uitls.rowHorizontalPadding
 import com.sommerengineering.baraudio.uitls.rowIconPadding
 import com.sommerengineering.baraudio.uitls.rowMinHeight
@@ -34,7 +35,11 @@ fun LinkSettingItem(
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(rowMinHeight)
-                .padding(rowHorizontalPadding, rowVerticalPadding)
+                .padding(
+                    start = rowHorizontalPadding + 4.dp,
+                    end = rowHorizontalPadding,
+                    top = rowVerticalPadding,
+                    bottom = rowVerticalPadding)
                 .clickable { onClick() },
             verticalAlignment = Alignment.CenterVertically) {
 
@@ -42,7 +47,7 @@ fun LinkSettingItem(
                 modifier = Modifier.size(settingsIconSize),
                 painter = painterResource(iconRes),
                 contentDescription = null)
-            Spacer(Modifier.width(rowIconPadding))
+            Spacer(Modifier.width(rowIconPadding + 4.dp))
 
             Column {
                 Text(
