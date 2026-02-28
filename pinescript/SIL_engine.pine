@@ -1,0 +1,56 @@
+//@version=6
+indicator(
+    "SIL engine",
+    overlay = true,
+    max_boxes_count = 500,
+    max_bars_back = 2000)
+
+// INPUT
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// higher timeframe
+HTF_TIMEFRAME = "60" // minutes
+HTF_SMA_LENGTH = 50
+
+// momentum / velocity
+VELOCITY_BARS = 20
+VELOCITY_BASELINE_BARS = 120
+SMOOTH_BARS = 6
+ACCELERATION_BARS = 4
+ACCELERATION_PERCENT = 12.0
+
+// cascade detection
+VELOCITY_SPIKE_RATIO = 3.6
+RANGE_EXPANSION_RATIO = 3.0
+BAR_STRENGTH_RATIO = 0.80
+CASCADE_LOOKBACK = 22
+
+// cascade exhaustion / reversal readiness
+STALLED_BARS = 3
+VELOCITY_NORMALIZATION_RATIO = 1.0
+HIGHER_WICK_PERCENT = 0.60
+
+// mgc context (not gating)
+MGC_SYMBOL = "MGC1!"
+MGC_MOMENTUM_BARS = 20
+
+// INIT
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// lifecycle
+var bool isCascadeActive = false
+var bool isReversalReady = false
+var bool isLongActive = false
+var int cascadeStartBar = na
+var float cascadeLow = na
+var float cascadeHigh = na
+var int stalledCount = 0
+var bool isStalled = false
+var int entryBar = na
+var float entryPrice = na
+var bool isMgcConfirming = false
+var bool isSilverLeading = false
+
+// velocity, momentum
+
+
