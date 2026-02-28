@@ -53,6 +53,8 @@ const val sourceKey = "source"
 const val nqStream = "NQ"
 const val esStream = "ES"
 const val btcStream = "BTC"
+
+// premium streams
 const val gcStream = "GC"
 
 // user signals
@@ -101,7 +103,7 @@ const val manageSubscriptionTitle = "Manage subscription"
 const val signOutTitle = "Sign-out"
 const val voiceDividerTitle = "VOICE"
 const val uiDividerTitle = "THEME"
-const val dataDividerTitle = "STREAM"
+const val dataDividerTitle = "STREAMS"
 const val legalDividerTitle = "ACCOUNT"
 const val queueFlushDescription = "Play new alerts immediately"
 const val queueAddDescription = "Add new alerts to queue"
@@ -113,14 +115,24 @@ const val screenWindowedDescription = "Show system bars"
 // images
 val loginButtonSize = 96.dp
 val fabSize = 72.dp
-val edgePadding = 24.dp
-val settingsIconSize = 24.dp
-val loginLogoPadding = 64.dp
-val assetIconSize = 28.dp
+val loginLogoPadding = 64.dp // todo remove
+val edgePadding = 24.dp // todo remove
+
+// scrim logo and background
 val logoDarkAlpha = 0.4f
 val logoLightAlpha = 0.8f
 val backgroundDarkAlpha = 0.5f
 val backgroundLightAlpha = 0.9f
+
+// item style
+val assetIconSize = 28.dp
+val settingsIconSize = 24.dp
+val rowHorizontalPadding = 16.dp
+val rowVerticalPadding = 12.dp
+val rowIconPadding = 16.dp
+val rowAccentWidth = 6.dp
+val rowMinHeight = 56.dp
+val dividerThickness = 0.5.dp
 
 // onboarding
 const val onboardingTotalPages = 3

@@ -15,7 +15,7 @@ fun StreamSwitchItem(
     val style = messageOrigin.style(isDarkMode)
 
     SwitchItem(
-        icon = style.iconRes,
+        iconRes = style.iconRes,
         title = messageOrigin.settingsTitle(),
         description = messageOrigin.signalDescription,
         iconTint = style.primary,

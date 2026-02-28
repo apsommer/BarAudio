@@ -93,7 +93,7 @@ fun SettingsDrawer(
             // voice
             item {
                 DialogSettingItem (
-                    icon = R.drawable.voice,
+                    iconRes = R.drawable.voice,
                     title = voiceTitle,
                     description = voiceDescription,
                     onClick = { isShowVoiceDialog = true }) {
@@ -121,8 +121,8 @@ fun SettingsDrawer(
 
             // speed
             item {
-                SliderSettingItem(
-                    icon = R.drawable.speed,
+                SliderItem(
+                    iconRes = R.drawable.speed,
                     title = speedTitle,
                     description = speedDescription) {
 
@@ -137,8 +137,8 @@ fun SettingsDrawer(
 
             // pitch
             item {
-                SliderSettingItem(
-                    icon = R.drawable.pitch,
+                SliderItem(
+                    iconRes = R.drawable.pitch,
                     title = pitchTitle,
                     description = pitchDescription) {
 
@@ -154,7 +154,7 @@ fun SettingsDrawer(
             // queue behavior
             item {
                 SwitchItem(
-                    icon = R.drawable.text_to_speech,
+                    iconRes = R.drawable.text_to_speech,
                     title = queueBehaviorTitle,
                     description = queueDescription) {
 
@@ -167,7 +167,7 @@ fun SettingsDrawer(
             // system tts settings
             item {
                 LinkSettingItem(
-                    icon = R.drawable.settings,
+                    iconRes = R.drawable.settings,
                     title = systemTtsTitle,
                     onClick = {
                         with(context) {
@@ -210,7 +210,7 @@ fun SettingsDrawer(
                 val webhookUrl = webhookBaseUrl + Firebase.auth.currentUser?.uid
 
                 DialogSettingItem(
-                    icon = R.drawable.webhook,
+                    iconRes = R.drawable.webhook,
                     title = webhookTitle,
                     description = webhookUrl,
                     onClick = { viewModel.saveToWebhookClipboard(webhookUrl) }) {
@@ -227,7 +227,7 @@ fun SettingsDrawer(
             // how to setup
             item {
                 LinkSettingItem(
-                    icon = R.drawable.browser,
+                    iconRes = R.drawable.browser,
                     title = howToSetupTitle,
                     onClick = { uriHandler.openUri(setupUrl) })
             }
@@ -240,7 +240,7 @@ fun SettingsDrawer(
             // full screen
             item {
                 SwitchItem(
-                    icon = R.drawable.fullscreen,
+                    iconRes = R.drawable.fullscreen,
                     title = screenTitle,
                     description = fullScreenDescription) {
 
@@ -253,7 +253,7 @@ fun SettingsDrawer(
             // theme
             item {
                 SwitchItem(
-                    icon = R.drawable.contrast,
+                    iconRes = R.drawable.contrast,
                     title = uiModeTitle,
                     description = uiModeDescription) {
 
@@ -271,7 +271,7 @@ fun SettingsDrawer(
             // manage subscription
             item {
                 LinkSettingItem(
-                    icon = R.drawable.credit_card_gear,
+                    iconRes = R.drawable.credit_card_gear,
                     title = manageSubscriptionTitle,
                     onClick = { uriHandler.openUri(subscriptionUrl) })
             }
@@ -279,7 +279,7 @@ fun SettingsDrawer(
             // sign-out
             item {
                 LinkSettingItem(
-                    icon = R.drawable.sign_out,
+                    iconRes = R.drawable.sign_out,
                     title = signOutTitle,
                     onClick = { onSignOut() })
             }

@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -41,8 +42,13 @@ import com.sommerengineering.baraudio.source.resolveMessageOrigin
 import com.sommerengineering.baraudio.source.resolveMessageStyle
 import com.sommerengineering.baraudio.uitls.TimestampFormatter
 import com.sommerengineering.baraudio.uitls.assetIconSize
-import com.sommerengineering.baraudio.uitls.edgePadding
+import com.sommerengineering.baraudio.uitls.dividerThickness
 import com.sommerengineering.baraudio.uitls.messageItemExpansionTimeMillis
+import com.sommerengineering.baraudio.uitls.rowAccentWidth
+import com.sommerengineering.baraudio.uitls.rowHorizontalPadding
+import com.sommerengineering.baraudio.uitls.rowIconPadding
+import com.sommerengineering.baraudio.uitls.rowMinHeight
+import com.sommerengineering.baraudio.uitls.rowVerticalPadding
 import kotlinx.coroutines.delay
 
 @Composable
@@ -110,18 +116,19 @@ fun MessageItem(
                     .animateContentSize(tween(messageItemExpansionTimeMillis))
                     .height(IntrinsicSize.Min) // measure children, then update height (required for correct accent bar height)
                     .background(backgroundColor)
-                    .padding(16.dp, 12.dp),
+                    .heightIn(rowMinHeight)
+                    .padding(rowHorizontalPadding, rowVerticalPadding),
                 verticalAlignment = Alignment.CenterVertically) {
 
                 // accent bar
                 Box(
                     Modifier
-                        .width(6.dp)
+                        .width(rowAccentWidth)
                         .fillMaxHeight()
                         .clip(RoundedCornerShape(3.dp))
                         .background(style.primary)
                 )
-                Spacer(Modifier.width(16.dp))
+                Spacer(Modifier.width(rowIconPadding))
 
                 // message, timestamp
                 Column(
@@ -148,7 +155,7 @@ fun MessageItem(
                 }
 
                 // origin image
-                Spacer(Modifier.width(edgePadding))
+                Spacer(Modifier.width(rowIconPadding))
                 Icon(
                     painter = painterResource(style.iconRes),
                     contentDescription = null,
@@ -159,7 +166,7 @@ fun MessageItem(
             // divider between rows
             if (isShowDivider) {
                 HorizontalDivider(
-                    thickness = 0.5.dp,
+                    thickness = dividerThickness,
                     color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 1f),
                     modifier = Modifier.fillMaxWidth())
             }
