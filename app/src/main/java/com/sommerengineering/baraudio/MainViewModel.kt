@@ -13,7 +13,7 @@ import androidx.lifecycle.viewModelScope
 import com.sommerengineering.baraudio.login.GitHubAuthenticator
 import com.sommerengineering.baraudio.login.GoogleAuthenticator
 import com.sommerengineering.baraudio.messages.FeedMode
-import com.sommerengineering.baraudio.messages.Message
+import com.sommerengineering.baraudio.source.Message
 import com.sommerengineering.baraudio.uitls.MessagesScreenRoute
 import com.sommerengineering.baraudio.uitls.OnboardingTextToSpeechScreenRoute
 import com.sommerengineering.baraudio.uitls.RomanNumerals
@@ -27,6 +27,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @HiltViewModel
@@ -46,6 +47,7 @@ class MainViewModel @Inject constructor(
     // voice
     var voices by mutableStateOf<List<Voice>>(emptyList())
         private set
+    private val beautifulVoiceNames = hashMapOf<String, String>()
     var voiceIndex by mutableStateOf(0)
         private set
     var voiceDescription by mutableStateOf("")
@@ -55,7 +57,7 @@ class MainViewModel @Inject constructor(
         voiceIndex = voices.indexOfFirst { it.name == value.name }
         val beautifulVoice = beautifyVoiceName(value.name)
         voiceDescription = beautifulVoice
-        speakMessage(beautifulVoice)
+        speakUtterance(beautifulVoice)
     }
 
     // speed
@@ -92,7 +94,7 @@ class MainViewModel @Inject constructor(
             if (enabled) queueAddDescription
             else queueFlushDescription
         queueDescription = newQueueDescription
-        speakMessage(newQueueDescription)
+        speakUtterance(newQueueDescription)
     }
 
     // mute
@@ -102,14 +104,14 @@ class MainViewModel @Inject constructor(
         isMute = !isMute
         repo.isMute = isMute
     }
-    fun speakMessage(utterance: String) =
+    fun speakUtterance(utterance: String) =
         viewModelScope.launch {
             repo.speakMessage(Message(
                 timestamp = System.currentTimeMillis().toString(),
-                message = utterance,
-                stream = null,
-                source = null))
+                message = utterance, null, null))
         }
+    fun speakMessage(message: Message) =
+        viewModelScope.launch { repo.speakMessage(message) }
 
     // onboarding
     var isOnboardingComplete by mutableStateOf(false)
@@ -142,10 +144,9 @@ class MainViewModel @Inject constructor(
     var feedMode by mutableStateOf(FeedMode.Linear)
         private set
     fun toggleFeedMode() {
-        feedMode = when (feedMode) {
-            FeedMode.Linear -> FeedMode.Grouped
-            FeedMode.Grouped -> FeedMode.Linear
-        }
+        val newFeedMode = if (feedMode == FeedMode.Linear) FeedMode.Grouped else FeedMode.Linear
+        feedMode = newFeedMode
+        repo.updateFeedMode(newFeedMode)
     }
 
     // fullscreen
@@ -173,10 +174,12 @@ class MainViewModel @Inject constructor(
     init {
 
         // load settings from preferences
-        viewModelScope.launch {
+        // block main thread is acceptable for datastore read ~3 ms each
+        runBlocking {
             isOnboardingComplete = repo.loadOnboarding()
             isNQ = repo.loadNQ()
             isGC = repo.loadGC()
+            feedMode = repo.loadFeedMode()
             isFullScreen = repo.loadFullScreen()
         }
 
@@ -236,7 +239,6 @@ class MainViewModel @Inject constructor(
     }
 
     // beautiful voice names
-    private val beautifulVoiceNames = hashMapOf<String, String>()
     fun beautifyVoiceName(name: String) = beautifulVoiceNames[name] ?: ""
     private fun createBeautifulVoices() {
 

@@ -2,7 +2,7 @@ package com.sommerengineering.baraudio.room
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.sommerengineering.baraudio.messages.Message
+import com.sommerengineering.baraudio.source.Message
 
 @Entity(tableName = "messages")
 data class MessageEntity(

@@ -6,7 +6,7 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.sommerengineering.baraudio.MainRepository
 import com.sommerengineering.baraudio.ProcessState
-import com.sommerengineering.baraudio.messages.Message
+import com.sommerengineering.baraudio.source.Message
 import com.sommerengineering.baraudio.speak.ForegroundSpeechService
 import com.sommerengineering.baraudio.uitls.streamKey
 import com.sommerengineering.baraudio.uitls.messageKey

@@ -1,9 +1,9 @@
 package com.sommerengineering.baraudio.settings
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -12,34 +12,46 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import com.sommerengineering.baraudio.uitls.edgePadding
+import com.sommerengineering.baraudio.uitls.dividerThickness
+import com.sommerengineering.baraudio.uitls.rowHorizontalPadding
+import com.sommerengineering.baraudio.uitls.rowIconPadding
+import com.sommerengineering.baraudio.uitls.rowMinHeight
+import com.sommerengineering.baraudio.uitls.settingsIconSize
 
 @Composable
 fun DividerItem(
     text: String) {
 
-    val padding = edgePadding / 2
+    val rowHeight = rowMinHeight
+    val leadingLineWidth = rowIconPadding + (settingsIconSize / 2)
+    val color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
 
     Surface {
         Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 0.dp, end = 0.dp, top = padding, bottom = padding)) {
+                .heightIn(rowHeight),
+            verticalAlignment = Alignment.CenterVertically) {
 
-            HorizontalDivider(modifier = Modifier
-                .align(Alignment.CenterVertically)
-                .width(padding))
+            // line
+            HorizontalDivider(
+                modifier = Modifier.width(leadingLineWidth),
+                thickness = dividerThickness,
+                color = color)
+            Spacer(Modifier.width(rowHorizontalPadding))
 
+            // text
             Text(
                 text = text,
                 style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier
-                    .padding(start = padding, end = padding, top = 0.dp, bottom = 0.dp))
+                color = color)
+            Spacer(Modifier.width(rowHorizontalPadding))
 
-            HorizontalDivider()
+            // line
+            HorizontalDivider(
+                modifier = Modifier.weight(1f),
+                thickness = dividerThickness,
+                color = color)
         }
     }
 }

@@ -3,7 +3,7 @@ package com.sommerengineering.baraudio.firebase
 import com.google.firebase.Firebase
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.database
-import com.sommerengineering.baraudio.messages.Message
+import com.sommerengineering.baraudio.source.Message
 import com.sommerengineering.baraudio.uitls.databaseUrl
 import com.sommerengineering.baraudio.uitls.messageKey
 import com.sommerengineering.baraudio.uitls.sourceKey

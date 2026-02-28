@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -31,8 +32,12 @@ import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.source.MessageOrigin
-import com.sommerengineering.baraudio.source.resolveMessageOrigin
-import com.sommerengineering.baraudio.source.resolveMessageStyle
+import com.sommerengineering.baraudio.uitls.dividerThickness
+import com.sommerengineering.baraudio.uitls.rowAccentWidth
+import com.sommerengineering.baraudio.uitls.rowHorizontalPadding
+import com.sommerengineering.baraudio.uitls.rowIconPadding
+import com.sommerengineering.baraudio.uitls.rowMinHeight
+import com.sommerengineering.baraudio.uitls.rowVerticalPadding
 
 @Composable
 fun GroupHeaderItem(
@@ -40,6 +45,7 @@ fun GroupHeaderItem(
     origin: MessageOrigin,
     messageCount: Int,
     isExpanded: Boolean,
+    isShowDivider: Boolean,
     onExpand: () -> Unit) {
 
     val isDarkMode = viewModel.isDarkMode
@@ -50,60 +56,65 @@ fun GroupHeaderItem(
     val style = origin.style(isDarkMode)
 
     Surface {
+        Column {
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .combinedClickable(onClick = { onExpand() })
-                .height(IntrinsicSize.Min)
-                .background(style.surface)
-                .padding(16.dp, 12.dp),
-            verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .combinedClickable(onClick = { onExpand() })
+                    .height(IntrinsicSize.Min)
+                    .background(style.surface)
+                    .heightIn(rowMinHeight)
+                    .padding(rowHorizontalPadding, rowVerticalPadding),
+                verticalAlignment = Alignment.CenterVertically) {
 
-            // accent bar
-            Box(
-                Modifier
-                    .width(6.dp)
-                    .fillMaxHeight()
-                    .clip(RoundedCornerShape(3.dp))
-                    .background(style.primary))
-            Spacer(Modifier.width(16.dp))
+                // accent bar
+                Box(
+                    Modifier
+                        .width(rowAccentWidth)
+                        .fillMaxHeight()
+                        .clip(RoundedCornerShape(3.dp))
+                        .background(style.primary))
+                Spacer(Modifier.width(rowIconPadding))
 
-            // display name and description
-            Column(Modifier.weight(1f)) {
+                // display name and description
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        text = displayName,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = style.text)
+                    Spacer(Modifier.height(2.dp))
+                    Text(
+                        text = description,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = style.accent,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis)
+                }
+
+                // message count
+                Spacer(modifier = Modifier.width(rowIconPadding))
                 Text(
-                    text = displayName,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = style.text)
-                Spacer(Modifier.height(2.dp))
-                Text(
-                    text = description,
+                    text = messageCount.toString(),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = style.accent,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis) }
+                    color = style.accent)
 
-            // message count
-            Spacer(modifier = Modifier.width(12.dp))
-            Text(
-                text = messageCount.toString(),
-                style = MaterialTheme.typography.bodyMedium,
-                color = style.accent)
-            Spacer(Modifier.width(8.dp))
+                // chevron with rotation
+                val rotation by animateFloatAsState(if (isExpanded) 90f else 0f)
+                Icon(
+                    painter = painterResource(R.drawable.chevron),
+                    contentDescription = null,
+                    tint = style.primary,
+                    modifier = Modifier.rotate(rotation))
+            }
 
-            // chevron with rotation
-            val rotation by animateFloatAsState(if (isExpanded) 180f else 0f)
-            Icon(
-                painter = painterResource(R.drawable.chevron),
-                contentDescription = null,
-                tint = style.primary,
-                modifier = Modifier.rotate(rotation))
+            // divider between rows
+            if (isShowDivider) {
+                HorizontalDivider(
+                    thickness = dividerThickness,
+                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 1f),
+                    modifier = Modifier.fillMaxWidth())
+            }
         }
-
-        // divider between rows
-        HorizontalDivider(
-            thickness = 1.dp,
-            color = MaterialTheme.colorScheme.outlineVariant,
-            modifier = Modifier.fillMaxWidth())
     }
 }

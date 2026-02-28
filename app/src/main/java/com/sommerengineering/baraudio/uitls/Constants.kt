@@ -2,6 +2,8 @@ package com.sommerengineering.baraudio.uitls
 
 import android.speech.tts.TextToSpeech
 import android.util.Log
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import com.google.firebase.Firebase
 import com.google.firebase.crashlytics.crashlytics
@@ -53,10 +55,12 @@ const val sourceKey = "source"
 const val nqStream = "NQ"
 const val esStream = "ES"
 const val btcStream = "BTC"
+
+// premium streams
 const val gcStream = "GC"
 
 // user signals
-const val userSignalDescription = "Custom webhook"
+const val userSignalDescription = "Custom signal"
 
 // navigation
 const val LoginScreenRoute = "LoginScreen"
@@ -76,6 +80,7 @@ const val isMuteKey = "isMuteKey"
 const val isDarkModeKey = "isDarkMode"
 const val isFullScreenKey = "isFullScreen"
 const val volumeKey = TextToSpeech.Engine.KEY_PARAM_VOLUME
+const val feedModeKey = "feedMode"
 const val isNQKey = "isNQ"
 const val isGCKey = "isGC"
 
@@ -95,16 +100,13 @@ const val pitchTitle = "Pitch"
 const val queueBehaviorTitle = "Queue"
 const val uiModeTitle = "Theme"
 const val screenTitle = "Screen"
-const val nqTitle = "Nasdaq-100 (NQ)"
-const val esTitle = "S&P 500 (ES)"
-const val btcTitle = "Bitcoin (BTC)"
-const val gcTitle = "Gold (GC)"
 const val systemTtsTitle = "System settings"
 const val manageSubscriptionTitle = "Manage subscription"
 const val signOutTitle = "Sign-out"
 const val voiceDividerTitle = "VOICE"
 const val uiDividerTitle = "THEME"
-const val dataDividerTitle = "DATA"
+const val streamsDividerTitle = "STREAMS"
+const val premiumStreamsDividerTitle = "PREMIUM STREAMS"
 const val legalDividerTitle = "ACCOUNT"
 const val queueFlushDescription = "Play new alerts immediately"
 const val queueAddDescription = "Add new alerts to queue"
@@ -112,19 +114,28 @@ const val uiDarkDescription = "Dark"
 const val uiLightDescription = "Light"
 const val screenFullDescription = "Full screen"
 const val screenWindowedDescription = "Show system bars"
-const val nqDescription = "Momentum & velocity"
-const val esDescription = "Market participation"
-const val btcDescription = "Volatility & extremes"
-const val gcDescription = "Gold description ..."
 
 // images
 val loginButtonSize = 96.dp
-val fabButtonSize = 72.dp
-val edgePadding = 24.dp
-val backgroundPadding = 48.dp
-val settingsIconSize = 24.dp
-val loginLogoPadding = 64.dp
+val fabSize = 72.dp
+val loginLogoPadding = 64.dp // todo remove
+val edgePadding = 24.dp // todo remove
+
+// scrim logo and background
+val logoDarkAlpha = 0.4f
+val logoLightAlpha = 0.8f
+val backgroundDarkAlpha = 0.5f
+val backgroundLightAlpha = 0.9f
+
+// item style
 val assetIconSize = 28.dp
+val settingsIconSize = 24.dp
+val rowHorizontalPadding = 16.dp
+val rowVerticalPadding = 12.dp
+val rowIconPadding = 16.dp
+val rowAccentWidth = 6.dp
+val rowMinHeight = 56.dp
+val dividerThickness = 0.5.dp
 
 // onboarding
 const val onboardingTotalPages = 3

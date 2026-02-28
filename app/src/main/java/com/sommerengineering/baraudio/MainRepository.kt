@@ -16,10 +16,14 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.messaging.FirebaseMessaging
 import com.sommerengineering.baraudio.firebase.FirebaseDatabaseImpl
-import com.sommerengineering.baraudio.messages.Message
+import com.sommerengineering.baraudio.messages.FeedMode
+import com.sommerengineering.baraudio.source.Message
 import com.sommerengineering.baraudio.room.RoomImpl
+import com.sommerengineering.baraudio.source.MessageOrigin
+import com.sommerengineering.baraudio.source.resolveMessageOrigin
 import com.sommerengineering.baraudio.speak.TextToSpeechImpl
 import com.sommerengineering.baraudio.uitls.defaultVoice
+import com.sommerengineering.baraudio.uitls.feedModeKey
 import com.sommerengineering.baraudio.uitls.gcStream
 import com.sommerengineering.baraudio.uitls.isDarkModeKey
 import com.sommerengineering.baraudio.uitls.isFullScreenKey
@@ -34,6 +38,7 @@ import com.sommerengineering.baraudio.uitls.speedKey
 import com.sommerengineering.baraudio.uitls.voiceNameKey
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -130,7 +135,14 @@ class MainRepository @Inject constructor(
 
         // ensure engine is ready
         isTtsReady.filter { it }.first()
-        tts.speak(message.timestamp, message.message)
+
+        // prepend name of stream, if needed
+        val origin = resolveMessageOrigin(message)
+        val spokenText =
+            if (origin is MessageOrigin.BroadcastStream) { "${origin.asset.spokenName}. ${message.message}" }
+            else { message.message }
+
+        tts.speak(message.timestamp, spokenText)
     }
 
     // onboarding
@@ -159,6 +171,14 @@ class MainRepository @Inject constructor(
         writePreference(booleanPreferencesKey(isGCKey), enabled)
     }
 
+    // feed mode
+    suspend fun loadFeedMode(): FeedMode {
+        val saved = readPreference(stringPreferencesKey(feedModeKey))
+        return FeedMode.entries.firstOrNull { it.name == saved } ?: FeedMode.Linear
+    }
+    fun updateFeedMode(feedMode: FeedMode) =
+        writePreference(stringPreferencesKey(feedModeKey), feedMode.name)
+
     // full screen
     suspend fun loadFullScreen() =
         readPreference(booleanPreferencesKey(isFullScreenKey)) ?: false
@@ -175,8 +195,39 @@ class MainRepository @Inject constructor(
 
         appScope.launch {
 
-            // wait for system initialization of tts engine, takes a few seconds
+            // wait for system initialization of tts engine, takes a few milliseconds
             isTtsInit.filter { it }.first()
+
+            // ensure voices are stable, can take 500 milliseconds on slow devices
+            var voiceCount = -1
+            var stablePasses = 0
+            var attempts = 0
+            val maxAttempts = 40
+            while (true) {
+
+                // query engine state
+                val voices = tts.voices
+                val currentVoiceCount = voices.size
+
+                // check size of voices and their attributes
+                val isSizeStable = currentVoiceCount > 0 && currentVoiceCount == voiceCount
+                val areVoicesStable = voices.all { it.name != null && it.locale != null }
+
+                if (isSizeStable && areVoicesStable) {
+                    stablePasses ++
+                    if (stablePasses > 3) break // size and voices are stable, finish
+                } else { stablePasses = 0 }
+
+                // fail-safe exit
+                // todo if this fail safe occurs tts engine is unusable, entire app will not function
+                //  surface this to user in the existing AllowNotificationBottomBar
+                attempts ++
+                if (attempts > maxAttempts) break
+
+                // voices unstable, try again
+                voiceCount = currentVoiceCount
+                delay(50)
+            }
 
             // finish tts engine with store preferences
             initTtsSettings()

@@ -2,6 +2,7 @@ package com.sommerengineering.baraudio.source
 
 import androidx.compose.ui.graphics.Color
 import com.sommerengineering.baraudio.R
+import com.sommerengineering.baraudio.messages.ItemStyle
 import com.sommerengineering.baraudio.uitls.btcStream
 import com.sommerengineering.baraudio.uitls.esStream
 import com.sommerengineering.baraudio.uitls.gcStream
@@ -14,7 +15,8 @@ val nqAsset = Asset(
     spokenName = "Nasdaq",
     category = "Equity Index",
     exchange = "CME",
-    description = "CME · Equity Index · E-mini Nasdaq-100 Futures",
+    assetDescription = "CME · Equity Index · E-mini Nasdaq-100 Futures",
+    signalDescription = "High velocity momentum",
     order = 0,
     style = { isDark ->
         if (isDark) {
@@ -33,9 +35,7 @@ val nqAsset = Asset(
                 text = Color(0xFF1F1B2E),
                 iconRes = R.drawable.nq
             )
-        }
-    }
-)
+        }})
 
 val esAsset = Asset(
     origin = esStream,
@@ -44,7 +44,8 @@ val esAsset = Asset(
     spokenName = "S and P",
     category = "Equity Index",
     exchange = "CME",
-    description = "CME · Equity Index · E-mini S&P 500 Futures",
+    assetDescription = "CME · Equity Index · E-mini S&P 500 Futures",
+    signalDescription = "Balanced trend structure",
     order = 1,
     style = { isDark ->
         if (isDark) {
@@ -63,9 +64,7 @@ val esAsset = Asset(
                 text = Color(0xFF0F1C2E),
                 iconRes = R.drawable.es
             )
-        }
-    }
-)
+        }})
 
 val btcAsset = Asset(
     origin = btcStream,
@@ -74,7 +73,8 @@ val btcAsset = Asset(
     spokenName = "Bitcoin",
     category = "Cryptocurrency",
     exchange = "CME",
-    description = "CME · Cryptocurrency · Bitcoin Futures",
+    assetDescription = "CME · Cryptocurrency · Bitcoin Futures",
+    signalDescription = "Volatility breakouts",
     order = 2,
     style = { isDark ->
         if (isDark) {
@@ -93,9 +93,7 @@ val btcAsset = Asset(
                 text = Color(0xFF2A1B00),
                 iconRes = R.drawable.btc
             )
-        }
-    }
-)
+        }})
 
 val gcAsset = Asset(
     origin = gcStream,
@@ -104,7 +102,8 @@ val gcAsset = Asset(
     spokenName = "Gold",
     category = "Metals",
     exchange = "COMEX",
-    description = "COMEX · Metals · Gold Futures",
+    assetDescription = "COMEX · Metals · Gold Futures",
+    signalDescription = "Macro impulse swings",
     order = 3,
     style = { isDark ->
         if (isDark) {
@@ -123,9 +122,9 @@ val gcAsset = Asset(
                 text = Color(0xFF2B2400),
                 iconRes = R.drawable.gc
             )
-        }
-    }
-)
+        }})
+
+fun Asset.settingsTitle() = "$displayName ($symbol)"
 
 val allAssets = listOf(nqAsset, esAsset, btcAsset, gcAsset)
 val assetMap = allAssets.associateBy { it.origin }

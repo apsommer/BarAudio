@@ -2,12 +2,11 @@ package com.sommerengineering.baraudio.messages
 
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.DrawerDefaults
 import androidx.compose.material3.DrawerValue
@@ -23,15 +22,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.times
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.source.resolveAsset
 import com.sommerengineering.baraudio.settings.SettingsDrawer
+import com.sommerengineering.baraudio.source.Message
+import com.sommerengineering.baraudio.source.MessageGroup
 import com.sommerengineering.baraudio.source.MessageOrigin
 import com.sommerengineering.baraudio.source.resolveMessageOrigin
-import com.sommerengineering.baraudio.uitls.backgroundPadding
+import com.sommerengineering.baraudio.uitls.backgroundDarkAlpha
+import com.sommerengineering.baraudio.uitls.backgroundLightAlpha
+import com.sommerengineering.baraudio.uitls.edgePadding
 import kotlinx.coroutines.launch
 
 @Composable
@@ -53,8 +55,9 @@ fun MessagesScreen(
     val expandedGroups = remember { mutableStateMapOf<MessageOrigin, Boolean>() }
 
     // toggle background image with dark mode
-    val backgroundImageId =
-        if (viewModel.isDarkMode) R.drawable.background_skyline_dark
+    val isDarkMode = viewModel.isDarkMode
+    val backgroundRes =
+        if (isDarkMode) R.drawable.background_skyline_dark
         else R.drawable.background_skyline
 
     ModalNavigationDrawer(
@@ -65,7 +68,7 @@ fun MessagesScreen(
 
         Scaffold(
             topBar = { MessagesTopBar(
-                feedMode = feedMode,
+                viewModel = viewModel,
                 onSettingsClick = { composableScope.launch { drawerState.open() } },
                 onToggleFeedMode = { viewModel.toggleFeedMode() })},
             floatingActionButton = { MessagesFloatingActionButton(viewModel) },
@@ -74,34 +77,35 @@ fun MessagesScreen(
             Box(Modifier.fillMaxSize().padding(padding)) {
 
                 // background image
-                Image(
+                ScrimImage(
+                    iconRes = backgroundRes,
+                    alpha = if (isDarkMode) backgroundDarkAlpha else backgroundLightAlpha,
                     modifier = Modifier
-                        .padding(
-                            start = backgroundPadding,
-                            end = backgroundPadding,
-                            bottom = 64.dp)
-                        .align(Alignment.Center),
-                    painter = painterResource(backgroundImageId),
-                    contentDescription = null)
+                        .align(Alignment.Center)
+                        .padding(2 * edgePadding))
 
-                // messages list
+                // messages
                 LazyColumn(state = listState) { when (feedMode) {
 
+                    // all messages by timestamp
                     FeedMode.Linear -> {
-                        items(
+                        itemsIndexed(
                             items = messages,
-                            key = { it.timestamp }) { message ->
+                            key = { _, it -> it.timestamp }) { index, message ->
                             MessageItem(
                                 viewModel = viewModel,
                                 message = message,
-                                modifier = Modifier // todo remove/simplify
-                                    .animateItem(
-                                        fadeInSpec = null,
-                                        fadeOutSpec = null,
-                                        placementSpec = spring(stiffness = Spring.StiffnessLow))) }}
+                                isShowDivider = index != messages.lastIndex,
+                                modifier = Modifier.animateItem(
+                                    fadeInSpec = null,
+                                    fadeOutSpec = null,
+                                    placementSpec = spring(stiffness = Spring.StiffnessLow))) }}
 
+                    // grouped messages by origin, then by timestamp
                     FeedMode.Grouped -> {
-                        groups.forEach { (origin, messages) ->
+                        groups.forEachIndexed { groupIndex, (origin, messages) ->
+
+                            // group header
                             val isExpanded = expandedGroups[origin] == true
                             item(origin.key) {
                                 GroupHeaderItem(
@@ -109,15 +113,19 @@ fun MessagesScreen(
                                     origin = origin,
                                     messageCount = messages.size,
                                     isExpanded = isExpanded,
+                                    isShowDivider = groupIndex != groups.size - 1,
                                     onExpand = { expandedGroups[origin] = !isExpanded })
                             }
+
+                            // messages in group
                             if (isExpanded) {
-                                items(
+                                itemsIndexed(
                                     items = messages,
-                                    key = { origin.key + it.timestamp }) { message ->
+                                    key = { _, it -> origin.key + it.timestamp }) { index, message ->
                                     MessageItem(
                                         viewModel = viewModel,
                                         message = message,
+                                        isShowDivider = !(groupIndex == groups.lastIndex && index == messages.lastIndex),
                                         modifier = Modifier
                                             .padding(start = 20.dp)
                                             .animateItem( // todo remove
@@ -134,10 +142,7 @@ fun MessagesScreen(
     }
 }
 
-private fun groupMessages(allMessages: List<Message>) =
+private fun groupMessages(allMessages: List<Message>): List<MessageGroup> =
     allMessages.groupBy { resolveMessageOrigin(it) } // Map<MessageOrigin, List<Message>>
-        .toList() // List<Pair<MessageOrigin, List<Message>>>
-        .sortedBy { (origin, messages) -> origin.order } // List<Pair<MessageOrigin, List<Message>>> sorted by origin order
-        .associate { (origin, messages) ->
-            origin to messages.sortedByDescending { it.timestamp } // LinkedHashMap<MessageOrigin, List<Message>> sorted by origin and timestamp
-        }
+        .map { (origin, messages) -> MessageGroup(origin, messages) } // List<MessageGroup>
+        .sortedBy { it.origin.order } // List<MessageGroup> sorted by origin (already timestamp descending)

@@ -26,17 +26,17 @@ import com.google.firebase.auth.auth
 import com.sommerengineering.baraudio.BuildConfig
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.uitls.dataDividerTitle
+import com.sommerengineering.baraudio.source.MessageOrigin
+import com.sommerengineering.baraudio.source.gcAsset
+import com.sommerengineering.baraudio.source.nqAsset
+import com.sommerengineering.baraudio.uitls.streamsDividerTitle
 import com.sommerengineering.baraudio.uitls.edgePadding
-import com.sommerengineering.baraudio.uitls.gcDescription
-import com.sommerengineering.baraudio.uitls.gcTitle
 import com.sommerengineering.baraudio.uitls.howToSetupTitle
 import com.sommerengineering.baraudio.uitls.legalDividerTitle
 import com.sommerengineering.baraudio.uitls.manageSubscriptionTitle
-import com.sommerengineering.baraudio.uitls.nqDescription
-import com.sommerengineering.baraudio.uitls.nqTitle
 import com.sommerengineering.baraudio.uitls.pitchChangeUtterance
 import com.sommerengineering.baraudio.uitls.pitchTitle
+import com.sommerengineering.baraudio.uitls.premiumStreamsDividerTitle
 import com.sommerengineering.baraudio.uitls.queueBehaviorTitle
 import com.sommerengineering.baraudio.uitls.screenTitle
 import com.sommerengineering.baraudio.uitls.setupUrl
@@ -94,7 +94,7 @@ fun SettingsDrawer(
             // voice
             item {
                 DialogSettingItem (
-                    icon = R.drawable.voice,
+                    iconRes = R.drawable.voice,
                     title = voiceTitle,
                     description = voiceDescription,
                     onClick = { isShowVoiceDialog = true }) {
@@ -122,8 +122,8 @@ fun SettingsDrawer(
 
             // speed
             item {
-                SliderSettingItem(
-                    icon = R.drawable.speed,
+                SliderItem(
+                    iconRes = R.drawable.speed,
                     title = speedTitle,
                     description = speedDescription) {
 
@@ -131,15 +131,15 @@ fun SettingsDrawer(
                             initPosition = speed,
                             onValueChanged = { viewModel.updateSpeed(it) },
                             onValueChangeFinished = {
-                                viewModel.speakMessage(speedChangeUtterance + it)
+                                viewModel.speakUtterance(speedChangeUtterance + it)
                             })
                     }
             }
 
             // pitch
             item {
-                SliderSettingItem(
-                    icon = R.drawable.pitch,
+                SliderItem(
+                    iconRes = R.drawable.pitch,
                     title = pitchTitle,
                     description = pitchDescription) {
 
@@ -147,15 +147,15 @@ fun SettingsDrawer(
                             initPosition = pitch,
                             onValueChanged = { viewModel.updatePitch(it) },
                             onValueChangeFinished = {
-                                viewModel.speakMessage(pitchChangeUtterance + it)
+                                viewModel.speakUtterance(pitchChangeUtterance + it)
                             })
                         }
             }
 
             // queue behavior
             item {
-                SwitchSettingItem(
-                    icon = R.drawable.text_to_speech,
+                SwitchItem(
+                    iconRes = R.drawable.text_to_speech,
                     title = queueBehaviorTitle,
                     description = queueDescription) {
 
@@ -168,7 +168,7 @@ fun SettingsDrawer(
             // system tts settings
             item {
                 LinkSettingItem(
-                    icon = R.drawable.settings,
+                    iconRes = R.drawable.settings,
                     title = systemTtsTitle,
                     onClick = {
                         with(context) {
@@ -181,33 +181,32 @@ fun SettingsDrawer(
 
             // divider
             item {
-                DividerItem(dataDividerTitle)
+                DividerItem(streamsDividerTitle)
             }
+
+            // todo refactor to AssetSettings composable, SourceSettings composable, premium composables, ...
 
             // stream NQ
             item {
-                SwitchSettingItem(
-                    icon = R.drawable.ear_listen,
-                    title = nqTitle,
-                    description = nqDescription) {
+                StreamSwitchItem(
+                    messageOrigin = MessageOrigin.BroadcastStream(nqAsset),
+                    isDarkMode = isDarkMode,
+                    isStream = isNQ,
+                    updateStream = { viewModel.updateNQ(it) })
+            }
 
-                    Switch(
-                        checked = isNQ,
-                        onCheckedChange = { viewModel.updateNQ(it)})
-                }
+            // divider
+            item {
+                DividerItem(premiumStreamsDividerTitle)
             }
 
             // stream GC
             item {
-                SwitchSettingItem(
-                    icon = R.drawable.ear_listen,
-                    title = gcTitle,
-                    description = gcDescription) {
-
-                    Switch(
-                        checked = isGC,
-                        onCheckedChange = { viewModel.updateGC(it)})
-                }
+                StreamSwitchItem(
+                    messageOrigin = MessageOrigin.BroadcastStream(gcAsset),
+                    isDarkMode = isDarkMode,
+                    isStream = isGC,
+                    updateStream = { viewModel.updateGC(it) })
             }
 
             // webhook
@@ -217,7 +216,7 @@ fun SettingsDrawer(
                 val webhookUrl = webhookBaseUrl + Firebase.auth.currentUser?.uid
 
                 DialogSettingItem(
-                    icon = R.drawable.webhook,
+                    iconRes = R.drawable.webhook,
                     title = webhookTitle,
                     description = webhookUrl,
                     onClick = { viewModel.saveToWebhookClipboard(webhookUrl) }) {
@@ -234,7 +233,7 @@ fun SettingsDrawer(
             // how to setup
             item {
                 LinkSettingItem(
-                    icon = R.drawable.browser,
+                    iconRes = R.drawable.browser,
                     title = howToSetupTitle,
                     onClick = { uriHandler.openUri(setupUrl) })
             }
@@ -246,8 +245,8 @@ fun SettingsDrawer(
 
             // full screen
             item {
-                SwitchSettingItem(
-                    icon = R.drawable.fullscreen,
+                SwitchItem(
+                    iconRes = R.drawable.fullscreen,
                     title = screenTitle,
                     description = fullScreenDescription) {
 
@@ -259,8 +258,8 @@ fun SettingsDrawer(
 
             // theme
             item {
-                SwitchSettingItem(
-                    icon = R.drawable.contrast,
+                SwitchItem(
+                    iconRes = R.drawable.contrast,
                     title = uiModeTitle,
                     description = uiModeDescription) {
 
@@ -278,7 +277,7 @@ fun SettingsDrawer(
             // manage subscription
             item {
                 LinkSettingItem(
-                    icon = R.drawable.credit_card_gear,
+                    iconRes = R.drawable.credit_card_gear,
                     title = manageSubscriptionTitle,
                     onClick = { uriHandler.openUri(subscriptionUrl) })
             }
@@ -286,7 +285,7 @@ fun SettingsDrawer(
             // sign-out
             item {
                 LinkSettingItem(
-                    icon = R.drawable.sign_out,
+                    iconRes = R.drawable.sign_out,
                     title = signOutTitle,
                     onClick = { onSignOut() })
             }

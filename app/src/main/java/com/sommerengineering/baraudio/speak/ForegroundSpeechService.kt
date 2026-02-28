@@ -7,7 +7,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.sommerengineering.baraudio.MainRepository
 import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.messages.Message
+import com.sommerengineering.baraudio.source.Message
 import com.sommerengineering.baraudio.uitls.TimestampFormatter
 import com.sommerengineering.baraudio.uitls.channelId
 import com.sommerengineering.baraudio.uitls.notificationId
