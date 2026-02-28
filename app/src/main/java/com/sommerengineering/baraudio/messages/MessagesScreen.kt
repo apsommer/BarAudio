@@ -2,8 +2,6 @@ package com.sommerengineering.baraudio.messages
 
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -12,7 +10,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.DrawerDefaults
 import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
@@ -23,19 +20,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.times
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.settings.SettingsDrawer
 import com.sommerengineering.baraudio.source.MessageOrigin
 import com.sommerengineering.baraudio.source.resolveMessageOrigin
-import com.sommerengineering.baraudio.uitls.fabPadding
 import kotlinx.coroutines.launch
 
 @Composable
@@ -58,7 +49,7 @@ fun MessagesScreen(
 
     // toggle background image with dark mode
     val isDarkMode = viewModel.isDarkMode
-    val backgroundImageId =
+    val backgroundRes =
         if (isDarkMode) R.drawable.background_skyline_dark
         else R.drawable.background_skyline
 
@@ -78,7 +69,7 @@ fun MessagesScreen(
 
             Box(Modifier.fillMaxSize().padding(padding)) {
 
-                BackgroundImage(backgroundImageId, isDarkMode)
+                BackgroundImage(backgroundRes, isDarkMode)
 
                 // messages
                 LazyColumn(state = listState) { when (feedMode) {

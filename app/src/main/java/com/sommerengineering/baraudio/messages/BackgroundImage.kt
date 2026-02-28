@@ -18,11 +18,11 @@ import com.sommerengineering.baraudio.uitls.lightModeAlpha
 
 @Composable
 fun BoxScope.BackgroundImage(
-    backgroundImageId: Int,
+    iconRes: Int,
     isDarkMode: Boolean) {
 
     Image(
-        painter = painterResource(backgroundImageId),
+        painter = painterResource(iconRes),
         contentDescription = null,
         contentScale = ContentScale.Fit,
         modifier = Modifier
