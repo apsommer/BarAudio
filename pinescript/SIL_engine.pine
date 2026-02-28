@@ -13,8 +13,9 @@ HTF_TIMEFRAME = "60" // minutes
 HTF_SMA_LENGTH = 50
 
 // momentum / velocity
-VELOCITY_BARS = 20
-VELOCITY_BASELINE_BARS = 120
+CASCADE_VELOCITY_BARS = 18
+STRUCTURE_DISPLACEMENT_BARS = 20
+STRUCTURE_BASELINE_BARS = 120
 SMOOTH_BARS = 6
 ACCELERATION_BARS = 4
 ACCELERATION_PERCENT = 12.0
@@ -51,6 +52,41 @@ var float entryPrice = na
 var bool isMgcConfirming = false
 var bool isSilverLeading = false
 
-// velocity, momentum
+// current velocity
+currentVelocity = math.abs(close - close[1])
+smaCurrentVelocity = ta.sma(currentVelocity, CASCADE_VELOCITY_BARS)
+
+// structure velocity, momentum, acceleration
+structureVelocity = math.abs(close - close[STRUCTURE_DISPLACEMENT_BARS]) / STRUCTURE_DISPLACEMENT_BARS
+smaStructureVelocity = ta.sma(structureVelocity, STRUCTURE_BASELINE_BARS)
+rawMomentumPercent = smaStructureVelocity > 0 ? (structureVelocity / smaStructureVelocity - 1.0) * 100.0 : 0
+momentum = ta.sma(rawMomentumPercent, SMOOTH_BARS)
+acceleration = momentum - momentum[ACCELERATION_BARS]
+
+// bar range
+barRange = high - low
+smaBarRange = ta.sma(barRange, CASCADE_VELOCITY_BARS)
+downBody = open - close
+upBody = close - open
+bodyRangeRatioDown = barRange > 0 ? downBody / barRange : 0
+bodyRangeRatioUp = barRange > 0 ? upBody / barRange : 0
+higherWickPercent = barRange > 0 ? (close - low) / barRange : 0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
