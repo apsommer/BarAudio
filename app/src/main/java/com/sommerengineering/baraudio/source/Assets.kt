@@ -41,7 +41,7 @@ val esAsset = Asset(
     category = "Equity Index",
     exchange = "CME",
     assetDescription = "CME · Equity Index · E-mini S&P 500 Futures",
-    signalDescription = "Macro impulse swings",
+    signalDescription = "Balanced trend structure",
     order = 1,
     style = { isDark ->
         if (isDark) {
@@ -93,7 +93,7 @@ val gcAsset = Asset(
     category = "Metals",
     exchange = "COMEX",
     assetDescription = "COMEX · Metals · Gold Futures",
-    signalDescription = "Gold description ...",
+    signalDescription = "Macro impulse swings",
     order = 3,
     style = { isDark ->
         if (isDark) {
