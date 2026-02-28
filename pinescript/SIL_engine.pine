@@ -22,9 +22,10 @@ ACCELERATION_PERCENT = 12.0
 
 // cascade detection
 VELOCITY_SPIKE_RATIO = 3.6
-RANGE_EXPANSION_RATIO = 3.0
-BAR_STRENGTH_RATIO = 0.80
-CASCADE_LOOKBACK = 22
+RANGE_EXPANSION_RATIO = 1.8
+BAR_STRENGTH_RATIO = 0.65
+CASCADE_BARS = 22
+MIN_CASCADE_MOVE = 0.4
 
 // cascade exhaustion / reversal readiness
 STALLED_BARS = 3
@@ -76,18 +77,28 @@ higherWickPercent = (close - low) / barRange
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 htf = request.security(syminfo.tickerid, HTF_TIMEFRAME, close)
-smaHtf = request.security(syminfo.tickerid, HTF_TIMEFRAME, ta.sma(close, HTF_SMA_LENGTH))
-isHtfSmaRising = request.security(syminfo.tickerid, HTF_TIMEFRAME, ta.sma(close, HTF_SMA_LENGTH) > ta.sma(close, HTF_SMA_LENGTH)[1])
+smaHtf = request.security(syminfo.tickerid, HTF_TIMEFRAME,
+     ta.sma(close, HTF_SMA_LENGTH))
+isHtfSmaRising = request.security(syminfo.tickerid, HTF_TIMEFRAME,
+     ta.sma(close, HTF_SMA_LENGTH) > ta.sma(close, HTF_SMA_LENGTH)[1])
 isHtfPriceAboveSma = htf > smaHtf
 isHtfBull = isHtfPriceAboveSma and isHtfSmaRising
 
 // plot
 barcolor(isHtfBull ? color.green : na)
 
+// CASCADE
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
+largestRecentRange = ta.highest(barRange[1], 10)
+isShockBar = barRange > largestRecentRange
+isStrongDownBar = bodyRangeRatioDown > BAR_STRENGTH_RATIO
+absoluteDrop = open - low
+isLargeAbsoluteDrop = absoluteDrop > MIN_CASCADE_MOVE
+triggerCascade = isHtfBull and isShockBar and isStrongDownBar and isLargeAbsoluteDrop
 
-
-
+// plot
+plotshape(triggerCascade, style = shape.triangledown, location = location.abovebar, size = size.small, color = color.red)
 
 
 
