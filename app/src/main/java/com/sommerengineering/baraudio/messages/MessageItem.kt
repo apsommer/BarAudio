@@ -152,7 +152,7 @@ fun MessageItem(
                 Icon(
                     painter = painterResource(style.iconRes),
                     contentDescription = null,
-                    tint = if (style.tintIcon) style.primary else Color.Unspecified,
+                    tint = if (style.isIconTinted) style.primary else Color.Unspecified,
                     modifier = Modifier.size(assetIconSize))
             }
 

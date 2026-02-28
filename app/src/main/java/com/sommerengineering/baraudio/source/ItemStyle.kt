@@ -9,7 +9,7 @@ data class ItemStyle(
     val surface: Color,
     val text: Color,
     val iconRes: Int,
-    val tintIcon: Boolean = true
+    val isIconTinted: Boolean = true
 )
 
 @Composable
