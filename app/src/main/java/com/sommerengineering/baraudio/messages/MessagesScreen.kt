@@ -27,6 +27,8 @@ import androidx.compose.ui.unit.times
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.settings.SettingsDrawer
+import com.sommerengineering.baraudio.source.Message
+import com.sommerengineering.baraudio.source.MessageGroup
 import com.sommerengineering.baraudio.source.MessageOrigin
 import com.sommerengineering.baraudio.source.resolveMessageOrigin
 import com.sommerengineering.baraudio.uitls.backgroundDarkAlpha

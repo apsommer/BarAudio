@@ -17,7 +17,7 @@ import com.google.firebase.auth.auth
 import com.google.firebase.messaging.FirebaseMessaging
 import com.sommerengineering.baraudio.firebase.FirebaseDatabaseImpl
 import com.sommerengineering.baraudio.messages.FeedMode
-import com.sommerengineering.baraudio.messages.Message
+import com.sommerengineering.baraudio.source.Message
 import com.sommerengineering.baraudio.room.RoomImpl
 import com.sommerengineering.baraudio.source.MessageOrigin
 import com.sommerengineering.baraudio.source.resolveMessageOrigin

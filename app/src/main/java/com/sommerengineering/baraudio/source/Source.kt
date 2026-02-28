@@ -1,5 +1,6 @@
 package com.sommerengineering.baraudio.source
 
+import com.sommerengineering.baraudio.messages.ItemStyle
 import com.sommerengineering.baraudio.uitls.userSignalDescription
 
 data class Source(

@@ -32,8 +32,6 @@ import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.source.MessageOrigin
-import com.sommerengineering.baraudio.source.resolveMessageOrigin
-import com.sommerengineering.baraudio.source.resolveMessageStyle
 import com.sommerengineering.baraudio.uitls.dividerThickness
 import com.sommerengineering.baraudio.uitls.rowAccentWidth
 import com.sommerengineering.baraudio.uitls.rowHorizontalPadding

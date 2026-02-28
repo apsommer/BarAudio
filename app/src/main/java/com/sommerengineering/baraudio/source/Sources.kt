@@ -2,6 +2,7 @@ package com.sommerengineering.baraudio.source
 
 import androidx.compose.ui.graphics.Color
 import com.sommerengineering.baraudio.R
+import com.sommerengineering.baraudio.messages.ItemStyle
 
 val tradingViewSource = Source(
     key = "tradingview",
@@ -10,9 +11,9 @@ val tradingViewSource = Source(
     style = { isDark ->
         ItemStyle(
             primary = Color(0xFF2962FF),
-            accent  = Color(0xFF82B1FF),
+            accent = Color(0xFF82B1FF),
             surface = if (isDark) Color(0xFF0B1A3A) else Color(0xFFE8F0FF),
-            text    = if (isDark) Color(0xFFEAF1FF) else Color(0xFF0B1A3A),
+            text = if (isDark) Color(0xFFEAF1FF) else Color(0xFF0B1A3A),
             iconRes = if (isDark) R.drawable.tradingview_light else R.drawable.tradingview_dark,
             isIconTinted = false
         )
@@ -42,11 +43,12 @@ val insomniaSource = Source(
     style = { isDark ->
         ItemStyle(
             primary = Color(0xFF4000BF),
-            accent  = Color(0xFF7C4DFF),
+            accent = Color(0xFF7C4DFF),
             surface = if (isDark) Color(0xFF1B0D3A) else Color(0xFFF2EDFF),
             text = if (isDark) Color(0xFFF0E9FF) else Color(0xFF1B0D3A),
             iconRes = R.drawable.insomnia,
-            isIconTinted = false)
+            isIconTinted = false
+        )
     })
 
 val unknownSource = Source(
@@ -56,9 +58,9 @@ val unknownSource = Source(
     style = { isDark ->
         ItemStyle(
             primary = if (isDark) Color(0xFF8A8A8A) else Color(0xFF9E9E9E),
-            accent  = if (isDark) Color(0xFFB0B0B0) else Color(0xFFC7C7C7),
+            accent = if (isDark) Color(0xFFB0B0B0) else Color(0xFFC7C7C7),
             surface = if (isDark) Color(0xFF1C1C1C) else Color(0xFFF2F2F2),
-            text    = if (isDark) Color(0xFFEAEAEA) else Color(0xFF1C1C1C),
+            text = if (isDark) Color(0xFFEAEAEA) else Color(0xFF1C1C1C),
             iconRes = R.drawable.webhook
         )
     }

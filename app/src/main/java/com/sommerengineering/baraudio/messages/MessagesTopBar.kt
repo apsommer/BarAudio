@@ -11,11 +11,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.times
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.uitls.edgePadding
 import com.sommerengineering.baraudio.uitls.logoDarkAlpha
 import com.sommerengineering.baraudio.uitls.logoLightAlpha
+import com.sommerengineering.baraudio.uitls.rowHorizontalPadding
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,7 +53,7 @@ fun MessagesTopBar(
             Box { ScrimImage(
                 iconRes = R.drawable.logo_banner,
                 alpha = if (isDarkMode) logoDarkAlpha else logoLightAlpha,
-                modifier = Modifier.padding(edgePadding)) }},
+                modifier = Modifier.padding(2 * rowHorizontalPadding)) }},
 
         // feed mode
         actions = {

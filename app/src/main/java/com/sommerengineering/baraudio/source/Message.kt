@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.messages
+package com.sommerengineering.baraudio.source
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize

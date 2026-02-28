@@ -1,6 +1,6 @@
 package com.sommerengineering.baraudio.room
 
-import com.sommerengineering.baraudio.messages.Message
+import com.sommerengineering.baraudio.source.Message
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton

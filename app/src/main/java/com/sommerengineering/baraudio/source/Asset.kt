@@ -1,5 +1,7 @@
 package com.sommerengineering.baraudio.source
 
+import com.sommerengineering.baraudio.messages.ItemStyle
+
 data class Asset(
     val origin: String,
     val symbol: String,
