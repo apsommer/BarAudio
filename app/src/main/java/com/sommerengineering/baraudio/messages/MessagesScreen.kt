@@ -54,8 +54,9 @@ fun MessagesScreen(
     val expandedGroups = remember { mutableStateMapOf<MessageOrigin, Boolean>() }
 
     // toggle background image with dark mode
+    val isDarkMode = viewModel.isDarkMode
     val backgroundImageId =
-        if (viewModel.isDarkMode) R.drawable.background_skyline_dark
+        if (isDarkMode) R.drawable.background_skyline_dark
         else R.drawable.background_skyline
 
     ModalNavigationDrawer(
@@ -81,7 +82,7 @@ fun MessagesScreen(
                     contentScale = ContentScale.Fit,
                     modifier = Modifier
                         .align(Alignment.Center)
-                        .padding(horizontal = 2 * fabPadding))
+                        .padding(2 * fabPadding))
 
                 // messages
                 LazyColumn(state = listState) { when (feedMode) {
@@ -100,6 +101,7 @@ fun MessagesScreen(
                                     fadeOutSpec = null,
                                     placementSpec = spring(stiffness = Spring.StiffnessLow))) }}
 
+                    // grouped messages by origin, then by timestamp
                     FeedMode.Grouped -> {
                         groups.forEachIndexed { groupIndex, (origin, messages) ->
 
