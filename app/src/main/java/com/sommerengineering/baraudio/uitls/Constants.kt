@@ -118,6 +118,8 @@ val edgePadding = 24.dp
 val settingsIconSize = 24.dp
 val loginLogoPadding = 64.dp
 val assetIconSize = 28.dp
+val darkModeAlpha = 0.6f
+val lightModeAlpha = 0.8f
 
 // onboarding
 const val onboardingTotalPages = 3

@@ -78,25 +78,7 @@ fun MessagesScreen(
 
             Box(Modifier.fillMaxSize().padding(padding)) {
 
-                // todo pull background and scrim to separate composable
-                //  apply same scrim over app bar logo
-
-                // background image
-                Image(
-                    painter = painterResource(backgroundImageId),
-                    contentDescription = null,
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .padding(2 * fabPadding))
-
-                // scrim overlay
-                Box(
-                    modifier = Modifier
-                        .matchParentSize()
-                        .background(
-                            if (isDarkMode) MaterialTheme.colorScheme.background.copy(alpha = 0.6f)
-                            else MaterialTheme.colorScheme.background.copy(alpha = 0.8f)))
+                BackgroundImage(backgroundImageId, isDarkMode)
 
                 // messages
                 LazyColumn(state = listState) { when (feedMode) {
