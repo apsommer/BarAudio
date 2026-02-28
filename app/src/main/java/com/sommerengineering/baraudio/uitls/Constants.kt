@@ -2,6 +2,8 @@ package com.sommerengineering.baraudio.uitls
 
 import android.speech.tts.TextToSpeech
 import android.util.Log
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import com.google.firebase.Firebase
 import com.google.firebase.crashlytics.crashlytics
@@ -103,7 +105,8 @@ const val manageSubscriptionTitle = "Manage subscription"
 const val signOutTitle = "Sign-out"
 const val voiceDividerTitle = "VOICE"
 const val uiDividerTitle = "THEME"
-const val dataDividerTitle = "STREAMS"
+const val streamsDividerTitle = "STREAMS"
+const val premiumStreamsDividerTitle = "PREMIUM STREAMS"
 const val legalDividerTitle = "ACCOUNT"
 const val queueFlushDescription = "Play new alerts immediately"
 const val queueAddDescription = "Add new alerts to queue"

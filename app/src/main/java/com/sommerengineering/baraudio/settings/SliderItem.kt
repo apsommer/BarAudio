@@ -53,8 +53,7 @@ fun SliderItem(
                     Icon(
                         modifier = Modifier.size(settingsIconSize),
                         painter = painterResource(iconRes),
-                        contentDescription = null
-                    )
+                        contentDescription = null)
                     Spacer(Modifier.width(rowIconPadding + 4.dp))
 
                     Column {
@@ -76,6 +75,7 @@ fun SliderItem(
                             modifier = Modifier.padding(top = 4.dp),
                             text = description,
                             style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis)
                     }

@@ -58,13 +58,18 @@ fun DialogSettingItem(
                     Spacer(Modifier.width(rowIconPadding + 4.dp))
 
                     Column {
+
+                        // title
                         Text(
                             text = title,
                             style = MaterialTheme.typography.titleMedium)
+
+                        // description
                         Text(
                             modifier = Modifier.padding(top = 4.dp),
                             text = description,
                             style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis)
                     }

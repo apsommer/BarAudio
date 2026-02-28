@@ -29,13 +29,14 @@ import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.source.MessageOrigin
 import com.sommerengineering.baraudio.source.gcAsset
 import com.sommerengineering.baraudio.source.nqAsset
-import com.sommerengineering.baraudio.uitls.dataDividerTitle
+import com.sommerengineering.baraudio.uitls.streamsDividerTitle
 import com.sommerengineering.baraudio.uitls.edgePadding
 import com.sommerengineering.baraudio.uitls.howToSetupTitle
 import com.sommerengineering.baraudio.uitls.legalDividerTitle
 import com.sommerengineering.baraudio.uitls.manageSubscriptionTitle
 import com.sommerengineering.baraudio.uitls.pitchChangeUtterance
 import com.sommerengineering.baraudio.uitls.pitchTitle
+import com.sommerengineering.baraudio.uitls.premiumStreamsDividerTitle
 import com.sommerengineering.baraudio.uitls.queueBehaviorTitle
 import com.sommerengineering.baraudio.uitls.screenTitle
 import com.sommerengineering.baraudio.uitls.setupUrl
@@ -180,7 +181,7 @@ fun SettingsDrawer(
 
             // divider
             item {
-                DividerItem(dataDividerTitle)
+                DividerItem(streamsDividerTitle)
             }
 
             // todo refactor to AssetSettings composable, SourceSettings composable, premium composables, ...
@@ -192,6 +193,11 @@ fun SettingsDrawer(
                     isDarkMode = isDarkMode,
                     isStream = isNQ,
                     updateStream = { viewModel.updateNQ(it) })
+            }
+
+            // divider
+            item {
+                DividerItem(premiumStreamsDividerTitle)
             }
 
             // stream GC
