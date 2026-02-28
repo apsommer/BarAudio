@@ -167,6 +167,7 @@ class MainRepository @Inject constructor(
         writePreference(booleanPreferencesKey(isGCKey), enabled)
     }
 
+    // sync stream with firebase/room
     fun syncStream(
         stream: String,
         enabled: Boolean) = appScope.launch {
