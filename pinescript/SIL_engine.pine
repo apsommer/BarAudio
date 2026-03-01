@@ -9,64 +9,16 @@ indicator(
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // higher timeframe
-HTF_TIMEFRAME = "60" // minutes
+HTF_TIMEFRAME = "60"
 HTF_SMA_LENGTH = 50
 
-// momentum / velocity
-CASCADE_VELOCITY_BARS = 18
-STRUCTURE_DISPLACEMENT_BARS = 20
-STRUCTURE_BASELINE_BARS = 120
-SMOOTH_BARS = 6
-ACCELERATION_BARS = 4
-ACCELERATION_PERCENT = 12.0
+// cascade
+PRE_CASCADE_BARS = 60
+CASCADE_BARS = 1
+MIN_CASCADE_MOVE = 0.35
 
-// cascade detection
-BAR_STRENGTH_RATIO = 0.65
-MIN_CASCADE_MOVE = 0.4
-
-// cascade exhaustion / reversal readiness
-REVERSAL_INVALIDATION_WINDOW = 5
-
-// mgc context (not gating)
-MGC_SYMBOL = "MGC1!"
-MGC_MOMENTUM_BARS = 20
-
-// INIT
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// lifecycle
-var bool isCascadeActive = false
-var bool isReversalReady = false
-var bool isLongActive = false
-var int cascadeStartBar = na
-var float cascadeLow = na
-var float cascadeHigh = na
-var int stalledCount = 0
-var bool isStalled = false
-var int entryBar = na
-var float entryPrice = na
-var bool isMgcConfirming = false
-var bool isSilverLeading = false
-
-// current velocity
-currentVelocity = math.abs(close - close[1])
-smaCurrentVelocity = ta.sma(currentVelocity, CASCADE_VELOCITY_BARS)
-
-// structure velocity, momentum, acceleration
-structureVelocity = math.abs(close - close[STRUCTURE_DISPLACEMENT_BARS]) / STRUCTURE_DISPLACEMENT_BARS
-smaStructureVelocity = ta.sma(structureVelocity, STRUCTURE_BASELINE_BARS)
-rawMomentumPercent = smaStructureVelocity > 0 ? (structureVelocity / smaStructureVelocity - 1.0) * 100.0 : 0
-momentum = ta.sma(rawMomentumPercent, SMOOTH_BARS)
-acceleration = momentum - momentum[ACCELERATION_BARS]
-
-// bar range
-barRange = high - low
-smaBarRange = ta.sma(barRange, CASCADE_VELOCITY_BARS)
-downBody = open - close
-upBody = close - open
-bodyRangeRatioDown = downBody / barRange
-bodyRangeRatioUp = upBody / barRange
-higherWickPercent = (close - low) / barRange
+// entry
+RETRACE_PERCENT = 0.5
 
 // HTF REGIME
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -74,57 +26,83 @@ higherWickPercent = (close - low) / barRange
 htf = request.security(syminfo.tickerid, HTF_TIMEFRAME, close)
 smaHtf = request.security(syminfo.tickerid, HTF_TIMEFRAME,
      ta.sma(close, HTF_SMA_LENGTH))
-isHtfSmaRising = request.security(syminfo.tickerid, HTF_TIMEFRAME,
+isHtfRising = request.security(syminfo.tickerid, HTF_TIMEFRAME,
      ta.sma(close, HTF_SMA_LENGTH) > ta.sma(close, HTF_SMA_LENGTH)[1])
-isHtfPriceAboveSma = htf > smaHtf
-isHtfBull = isHtfPriceAboveSma and isHtfSmaRising
+isHtfBull = htf > smaHtf and isHtfRising
 
-// plot
 barcolor(isHtfBull ? color.green : na)
 
 // CASCADE
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-largestRecentRange = ta.highest(barRange[1], 10)
-isShockBar = barRange > largestRecentRange
-isStrongDownBar = bodyRangeRatioDown > BAR_STRENGTH_RATIO
-absoluteDrop = open - low
-isLargeAbsoluteDrop = absoluteDrop > MIN_CASCADE_MOVE
-triggerCascade = isHtfBull and isShockBar and isStrongDownBar and isLargeAbsoluteDrop
+var bool isCascadeActive = false
+var bool isReversalReady = false
+var int cascadeStartBar = na
+var float cascadeLow = na
+var float cascadeHigh = na
+var float cascadeMid = na
+
+isPreCascadeFalling = ta.lowest(low[1], PRE_CASCADE_BARS) > low
+recentHigh = ta.highest(high, CASCADE_BARS)
+displacementDown = recentHigh - low
+isLargeAbsoluteDrop = displacementDown > MIN_CASCADE_MOVE
+
+triggerCascade =
+     isHtfBull
+     and isPreCascadeFalling
+     and isLargeAbsoluteDrop
 
 if triggerCascade
     isCascadeActive := true
     isReversalReady := true
     cascadeStartBar := bar_index
     cascadeLow := low
+    cascadeHigh := recentHigh
+    cascadeMid := (cascadeHigh + cascadeLow) * 0.5
 
-// plot
+// expire cascade regime after 10 bars
+isCascadeExpired =
+	 isCascadeActive
+	 and bar_index - cascadeStartBar > 9
+
+if isCascadeExpired
+	isCascadeActive := false
+	isReversalReady := false
+
 plotshape(triggerCascade, style = shape.triangledown, location = location.abovebar, size = size.small, color = color.red)
 
-// STALLED / REVERSAL READINESS
+// ENTRY
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-isWithinInvalidationWindow = isCascadeActive and bar_index > cascadeStartBar and cascadeStartBar + REVERSAL_INVALIDATION_WINDOW >= bar_index
-continuationDrop = cascadeLow - low
-isMeaningfulContinuation = continuationDrop > MIN_CASCADE_MOVE * 0.5
-isCascadeAgain = triggerCascade and bar_index > cascadeStartBar
+var float regimeLow = na
+var float regimeHigh = na
+var float entryLevel = na
 
-triggerReversalInvalidated =
-     isWithinInvalidationWindow and
-     (isMeaningfulContinuation or isCascadeAgain)
+// initialize regime on cascade
+if triggerCascade
+	regimeHigh := cascadeHigh
+	regimeLow := cascadeLow
 
-isWithinEntryWindow = isCascadeActive and bar_index > cascadeStartBar and cascadeStartBar + REVERSAL_INVALIDATION_WINDOW >= bar_index
-triggerEntryValid = isWithinEntryWindow and not triggerReversalInvalidated
+// update regime low while active
+if isCascadeActive and bar_index > cascadeStartBar
+	regimeLow := math.min(regimeLow, low)
 
-if isCascadeActive and bar_index > cascadeStartBar + REVERSAL_INVALIDATION_WINDOW
-    isCascadeActive := false
+// compute retrace level
+entryLevel := isCascadeActive ? regimeLow + (regimeHigh - regimeLow) * RETRACE_PERCENT : na
 
-// plot
-plotshape(triggerEntryValid, style = shape.circle, location = location.belowbar, size = size.tiny, color = color.blue)
+// entry trigger (must occur after cascade bar)
+triggerEntry =
+	 isCascadeActive
+      and isHtfBull
+	 and bar_index > cascadeStartBar
+	 and high > entryLevel
 
+if triggerEntry
+	isCascadeActive := false
+	isReversalReady := false
 
-
-
-
-
-
+plot(
+	 triggerEntry ? entryLevel : na,
+	 style = plot.style_circles,
+	 linewidth = 3,
+	 color = color.green)
