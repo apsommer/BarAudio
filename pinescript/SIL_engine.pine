@@ -9,97 +9,80 @@ indicator(
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // higher timeframe
-HTF_TIMEFRAME = "60"
-HTF_SMA_LENGTH = 50
+PREV_DAY_TOLERANCE = 0.25
 
 // cascade
 PRE_CASCADE_BARS = 60
 CASCADE_BARS = 1
-MIN_CASCADE_MOVE = 0.35
+MIN_CASCADE_MOVE = 0.4
 
 // entry
-RETRACE_PERCENT = 0.5
+RETRACE_PERCENT = 0.2
 
 // HTF REGIME
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-htf = request.security(syminfo.tickerid, HTF_TIMEFRAME, close)
-smaHtf = request.security(syminfo.tickerid, HTF_TIMEFRAME,
-     ta.sma(close, HTF_SMA_LENGTH))
-isHtfRising = request.security(syminfo.tickerid, HTF_TIMEFRAME,
-     ta.sma(close, HTF_SMA_LENGTH) > ta.sma(close, HTF_SMA_LENGTH)[1])
-isHtfBull = htf > smaHtf and isHtfRising
+prevDayClose = request.security(
+	syminfo.tickerid,
+	"D",
+	close[1])
 
-barcolor(isHtfBull ? color.green : na)
+isHtfBullish = close > prevDayClose - PREV_DAY_TOLERANCE
+
+barcolor(isHtfBullish ? color.green : na)
 
 // CASCADE
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 var bool isCascadeActive = false
-var bool isReversalReady = false
 var int cascadeStartBar = na
-var float cascadeLow = na
 var float cascadeHigh = na
-var float cascadeMid = na
+var float cascadeLow = na
 
+// falling into cascade
 isPreCascadeFalling = ta.lowest(low[1], PRE_CASCADE_BARS) > low
-recentHigh = ta.highest(high, CASCADE_BARS)
-displacementDown = recentHigh - low
-isLargeAbsoluteDrop = displacementDown > MIN_CASCADE_MOVE
+
+// large displacement
+isLargeAbsoluteDrop = high - low > MIN_CASCADE_MOVE
 
 triggerCascade =
-     isHtfBull
+     isHtfBullish
      and isPreCascadeFalling
      and isLargeAbsoluteDrop
 
 if triggerCascade
-    isCascadeActive := true
-    isReversalReady := true
-    cascadeStartBar := bar_index
-    cascadeLow := low
-    cascadeHigh := recentHigh
-    cascadeMid := (cascadeHigh + cascadeLow) * 0.5
+	isCascadeActive := true
+	cascadeStartBar := bar_index
+	cascadeHigh := high
+	cascadeLow := low
 
-// expire cascade regime after 10 bars
+// expire cascade after 5 bars
 isCascadeExpired =
 	 isCascadeActive
-	 and bar_index - cascadeStartBar > 9
+	 and bar_index - cascadeStartBar > 5
 
 if isCascadeExpired
 	isCascadeActive := false
-	isReversalReady := false
 
 plotshape(triggerCascade, style = shape.triangledown, location = location.abovebar, size = size.small, color = color.red)
+
 
 // ENTRY
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-var float regimeLow = na
-var float regimeHigh = na
-var float entryLevel = na
+// retrace level fixed to cascade bar
+entryLevel =
+	 isCascadeActive
+	 ? cascadeLow + (cascadeHigh - cascadeLow) * RETRACE_PERCENT
+	 : na
 
-// initialize regime on cascade
-if triggerCascade
-	regimeHigh := cascadeHigh
-	regimeLow := cascadeLow
-
-// update regime low while active
-if isCascadeActive and bar_index > cascadeStartBar
-	regimeLow := math.min(regimeLow, low)
-
-// compute retrace level
-entryLevel := isCascadeActive ? regimeLow + (regimeHigh - regimeLow) * RETRACE_PERCENT : na
-
-// entry trigger (must occur after cascade bar)
 triggerEntry =
 	 isCascadeActive
-      and isHtfBull
 	 and bar_index > cascadeStartBar
 	 and high > entryLevel
 
 if triggerEntry
 	isCascadeActive := false
-	isReversalReady := false
 
 plot(
 	 triggerEntry ? entryLevel : na,
