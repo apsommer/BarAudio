@@ -21,16 +21,11 @@ ACCELERATION_BARS = 4
 ACCELERATION_PERCENT = 12.0
 
 // cascade detection
-VELOCITY_SPIKE_RATIO = 3.6
-RANGE_EXPANSION_RATIO = 1.8
 BAR_STRENGTH_RATIO = 0.65
-CASCADE_BARS = 22
 MIN_CASCADE_MOVE = 0.4
 
 // cascade exhaustion / reversal readiness
-STALLED_BARS = 3
-VELOCITY_NORMALIZATION_RATIO = 1.0
-HIGHER_WICK_PERCENT = 0.60
+REVERSAL_INVALIDATION_WINDOW = 5
 
 // mgc context (not gating)
 MGC_SYMBOL = "MGC1!"
@@ -97,12 +92,35 @@ absoluteDrop = open - low
 isLargeAbsoluteDrop = absoluteDrop > MIN_CASCADE_MOVE
 triggerCascade = isHtfBull and isShockBar and isStrongDownBar and isLargeAbsoluteDrop
 
+if triggerCascade
+    isCascadeActive := true
+    isReversalReady := true
+    cascadeStartBar := bar_index
+    cascadeLow := low
+
 // plot
 plotshape(triggerCascade, style = shape.triangledown, location = location.abovebar, size = size.small, color = color.red)
 
+// STALLED / REVERSAL READINESS
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
+isWithinInvalidationWindow = isCascadeActive and bar_index > cascadeStartBar and cascadeStartBar + REVERSAL_INVALIDATION_WINDOW >= bar_index
+continuationDrop = cascadeLow - low
+isMeaningfulContinuation = continuationDrop > MIN_CASCADE_MOVE * 0.5
+isCascadeAgain = triggerCascade and bar_index > cascadeStartBar
 
+triggerReversalInvalidated =
+     isWithinInvalidationWindow and
+     (isMeaningfulContinuation or isCascadeAgain)
 
+isWithinEntryWindow = isCascadeActive and bar_index > cascadeStartBar and cascadeStartBar + REVERSAL_INVALIDATION_WINDOW >= bar_index
+triggerEntryValid = isWithinEntryWindow and not triggerReversalInvalidated
+
+if isCascadeActive and bar_index > cascadeStartBar + REVERSAL_INVALIDATION_WINDOW
+    isCascadeActive := false
+
+// plot
+plotshape(triggerEntryValid, style = shape.circle, location = location.belowbar, size = size.tiny, color = color.blue)
 
 
 
