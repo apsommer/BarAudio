@@ -7,5 +7,5 @@ class ProcessState @Inject constructor() {
 
     // volatile means visible to all threads: service, UI, ...
     @Volatile
-    var isAlive = false
+    var isTaskAlive = false
 }

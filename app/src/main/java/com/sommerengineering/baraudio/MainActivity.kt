@@ -33,10 +33,12 @@ import com.sommerengineering.baraudio.uitls.channelName
 import com.sommerengineering.baraudio.uitls.logException
 import com.sommerengineering.baraudio.uitls.logMessage
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
+    @Inject lateinit var processState: ProcessState
     private val viewModel: MainViewModel by viewModels()
 
     val requestNotificationPermissionLauncher =
@@ -79,6 +81,9 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        // track app process state
+        processState.isTaskAlive = true
 
         // initialize dark mode
         viewModel.initDarkMode(isSystemInDarkMode())
@@ -162,6 +167,13 @@ class MainActivity : ComponentActivity() {
                 if (exception.message?.contains("The app is not owned") == true) return@addOnFailureListener
                 logException(exception)
             }
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        // user closed app
+        if (isFinishing) { processState.isTaskAlive = false }
     }
 }
 
