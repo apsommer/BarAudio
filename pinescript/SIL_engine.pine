@@ -16,6 +16,15 @@ MIN_VWAP_DISPLACEMENT = 0.6
 REPAIR_CONFIRMATION_BARS = 2
 TAKE_PROFIT_ORIGIN_PERCENT = 100.0
 
+// lifecycle
+var bool isRepairActive = false
+var float regimeHigh = na
+var float regimeLow = na
+var bool isTradeActive = false
+var float entryPrice = na
+var int tradeStartBar = na
+var box tradeBox = na
+
 // HTF FILTER
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -26,14 +35,10 @@ barcolor(isHtfBullish ? color.new(color.green, 70) : na)
 // CASCADE
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-var bool isRepairActive = false
-var float regimeHigh = na
-var float regimeLow = na
-
 isPreCascadeWeak = ta.lowest(low[1], PRE_CASCADE_LOOKBACK) > low
 isLargeCascadeBar = high - low > MIN_CASCADE_RANGE
 isBearishClose = high - low > 0 and (high - close) / (high - low) > BEARISH_RANGE_RATIO
-isCascadeTrigger = isHtfBullish and isPreCascadeWeak and isLargeCascadeBar and isBearishClose
+isCascadeTrigger = isHtfBullish and isPreCascadeWeak and isLargeCascadeBar and isBearishClose and not isTradeActive
 plotshape(isCascadeTrigger, style = shape.triangledown, location = location.abovebar, size = size.small, color = color.red)
 
 if isCascadeTrigger and not isRepairActive
@@ -46,12 +51,6 @@ if isRepairActive
 
 // REPAIR REGIME
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-var bool isTradeActive = false
-var float entryPrice = na
-
-var int tradeStartBar = na
-var box tradeBox = na
 
 vwap = ta.vwap(close)
 plot(vwap, color = color.orange, linewidth = 1)
