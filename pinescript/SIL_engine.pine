@@ -8,118 +8,83 @@ indicator(
 // INPUT
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-PRE_CASCADE_LOOKBACK = 15
-MIN_CASCADE_RANGE = 0.4
-BEARISH_RANGE_RATIO = 0.4
+PRE_CASCADE_LOOKBACK = 45
+MIN_CASCADE_SIZE_ABSOLUTE = 0.6
 
-ENTRY_PERCENT = 0.2
-TAKE_PROFIT_PERCENT = 0.8
+ENTRY_PERCENT = 20
+STOP_LOSS_PERCENT = 80
+TAKE_PROFIT_PERCENT = 80
 
 // lifecycle
-var int cascadeBarIndex = na
-var float regimeHigh = na
-var float regimeLow = na
-var bool isSetupActive = false
+var float cascadeHigh = na
+var float cascadeLow = na
 var bool isTradeActive = false
 var float entryPrice = na
-var int tradeStartBar = na
-var float tradeHigh = na
-var float tradeLow = na
-var box tradeBox = na
 
 // CASCADE
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-isPreCascadeWeak = ta.lowest(low[1], PRE_CASCADE_LOOKBACK) > low
-isLargeCascadeBar = high - low > MIN_CASCADE_RANGE
-isBearishClose = high - low > 0 and (high - close) / (high - low) > BEARISH_RANGE_RATIO
-isDownBar = high[1] > high
+// lowest low in lookback period
+isPreCascadeDropping = ta.lowest(low[1], PRE_CASCADE_LOOKBACK) > low
 
-isCascadeTrigger =
-     isPreCascadeWeak
+// bar size is large
+isLargeCascadeBar = high - low > MIN_CASCADE_SIZE_ABSOLUTE
+
+triggerCascade =
+     isPreCascadeDropping
      and isLargeCascadeBar
-     and isBearishClose
-     and isDownBar
-     and not isSetupActive
 
-if isCascadeTrigger
-    regimeHigh := high
-    regimeLow := low
-    isSetupActive := true
-    cascadeBarIndex := bar_index
+if triggerCascade
+    cascadeHigh := high
+    cascadeLow := low
 
-plotshape(isCascadeTrigger, style = shape.triangledown, location = location.abovebar, size = size.small, color = color.red)
+plotshape(triggerCascade, style = shape.triangledown, location = location.abovebar, size = size.small, color = color.red)
 
-// SNAPBACK SCALP
+// SCALP
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-cascadeRange = regimeHigh - regimeLow
+cascadeSize = cascadeHigh - cascadeLow
 
-entryLevel = regimeLow + cascadeRange * ENTRY_PERCENT
-stopLoss = regimeLow - cascadeRange * ENTRY_PERCENT
-takeProfit = regimeLow + cascadeRange * TAKE_PROFIT_PERCENT
+// enter after retracing portion of cascade from low to high
+entryLevel = cascadeLow + cascadeSize * (ENTRY_PERCENT / 100.0)
 
-isSetupInvalid = isSetupActive and low < stopLoss
-plot(isSetupInvalid ? stopLoss : na, style = plot.style_circles, linewidth = 3, color = color.red)
+// stop loss as percent of cascade size
+stopLoss = cascadeLow - cascadeSize * (STOP_LOSS_PERCENT / 100.0)
 
-if isSetupInvalid
-    isSetupActive := false
+// take profit as percent of cascade size
+takeProfit = cascadeLow + cascadeSize * (TAKE_PROFIT_PERCENT / 100.0)
 
-// triggerEntry = isSetupActive and high > entryLevel and not isTradeActive
+barsSinceCascade = ta.barssince(triggerCascade)
+
 triggerEntry =
-     isSetupActive and
-     bar_index > cascadeBarIndex and
-     high > entryLevel
+     triggerCascade[1]
+     and barsSinceCascade == 1
 
 if triggerEntry
-
     isTradeActive := true
-    isSetupActive := false
-    entryPrice := entryLevel
+    if low > entryLevel
+        entryPrice := low
+    if entryLevel > high
+        entryPrice := close
+    else
+        entryPrice := entryLevel
 
-    tradeHigh := high
-    tradeLow := low
-    tradeStartBar := bar_index
-    tradeBox := box.new(bar_index, entryPrice, bar_index, entryPrice, bgcolor = color.new(color.blue, 85), border_color = color.blue)
+plot(triggerEntry ? entryPrice : na, style = plot.style_circles, linewidth = 3, color = color.blue)
 
-plot(triggerEntry ? entryLevel : na, style = plot.style_circles, linewidth = 3, color = color.blue)
+triggerStopLoss =
+     isTradeActive
+     and stopLoss > low
 
-isStopLoss = isTradeActive and stopLoss > low
-isTakeProfit = isTradeActive and high > takeProfit
+plot(triggerStopLoss ? stopLoss : na, style = plot.style_circles, linewidth = 3, color = color.red)
 
-if isTradeActive and not na(tradeBox)
+triggerTakeProfit =
+     isTradeActive
+     and high > takeProfit
 
-    tradeHigh := math.max(tradeHigh, high)
-    tradeLow := math.min(tradeLow, low)
+plot(triggerTakeProfit ? takeProfit : na, style = plot.style_circles, linewidth = 3, color = color.green)
 
-    box.set_right(tradeBox, bar_index)
-    box.set_top(tradeBox, tradeHigh)
-    box.set_bottom(tradeBox, tradeLow)
+triggerExit = triggerStopLoss or triggerTakeProfit
 
-if isStopLoss
-
-    isSameBar = tradeStartBar == bar_index
-
+if triggerExit
     isTradeActive := false
 
-    if isSameBar
-        line.new(bar_index, entryPrice, bar_index, stopLoss, color = color.red, width = 3)
-    else
-        box.set_bgcolor(tradeBox, color.new(color.red, 80))
-        box.set_border_color(tradeBox, color.red)
-        box.set_top(tradeBox, entryPrice)
-        box.set_bottom(tradeBox, stopLoss)
-
-else if isTakeProfit
-
-    isSameBar = tradeStartBar == bar_index
-
-    isTradeActive := false
-
-    if isSameBar
-        line.new(bar_index, entryPrice, bar_index, takeProfit, color = color.green, width = 3)
-    else
-        box.set_bgcolor(tradeBox, color.new(color.green, 80))
-        box.set_border_color(tradeBox, color.green)
-        box.set_top(tradeBox, takeProfit)
-        box.set_bottom(tradeBox, entryPrice)
