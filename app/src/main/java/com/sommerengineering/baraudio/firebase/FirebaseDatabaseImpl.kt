@@ -11,9 +11,12 @@ import com.sommerengineering.baraudio.uitls.streamsNode
 import com.sommerengineering.baraudio.uitls.tokensNode
 import com.sommerengineering.baraudio.uitls.usersNode
 import kotlinx.coroutines.suspendCancellableCoroutine
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.coroutines.resume
 
-class FirebaseDatabaseImpl {
+@Singleton
+class FirebaseDatabaseImpl @Inject constructor() {
 
     private val db = Firebase.database(databaseUrl)
     private lateinit var uid: String

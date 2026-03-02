@@ -13,7 +13,9 @@ import com.sommerengineering.baraudio.BuildConfig
 import com.sommerengineering.baraudio.uitls.logException
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class GoogleAuthenticator @Inject constructor(
     private val credentialManager: CredentialManager) {
 

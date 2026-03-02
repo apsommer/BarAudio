@@ -20,10 +20,13 @@ import com.android.billingclient.api.queryProductDetails
 import com.sommerengineering.baraudio.uitls.freeTrial
 import com.sommerengineering.baraudio.uitls.logMessage
 import com.sommerengineering.baraudio.uitls.productId
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
+import javax.inject.Singleton
 
 // todo implementation archived 102226
 
@@ -35,8 +38,10 @@ enum class BillingState {
     Error
 }
 
-class BillingClientImpl(
-    val context: Context) : BillingClientStateListener, PurchasesUpdatedListener {
+@Singleton
+class BillingClientImpl @Inject constructor(
+    @ApplicationContext private val context: Context
+) : BillingClientStateListener, PurchasesUpdatedListener {
 
     // flow billing state
     val billingState = MutableStateFlow(BillingState.Unsubscribed)

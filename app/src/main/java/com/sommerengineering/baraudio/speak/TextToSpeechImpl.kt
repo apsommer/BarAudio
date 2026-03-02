@@ -7,14 +7,18 @@ import android.speech.tts.Voice
 import androidx.core.os.bundleOf
 import com.sommerengineering.baraudio.uitls.RomanNumerals
 import com.sommerengineering.baraudio.uitls.volumeKey
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.suspendCancellableCoroutine
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.coroutines.resume
 
-class TextToSpeechImpl(
-    private val context: Context
+@Singleton
+class TextToSpeechImpl @Inject constructor(
+    @ApplicationContext private val context: Context
 ) : TextToSpeech.OnInitListener {
 
     // system text to speech engine
