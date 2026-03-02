@@ -10,11 +10,10 @@ indicator(
 
 HTF_TOLERANCE = 0.7
 PRE_CASCADE_LOOKBACK = 60
-MIN_CASCADE_RANGE = 0.4
+MIN_CASCADE_RANGE = 0.3
 BEARISH_RANGE_RATIO = 0.6
 MIN_VWAP_DISPLACEMENT = 0.6
-REPAIR_CONFIRMATION_BARS = 2
-TAKE_PROFIT_ORIGIN_PERCENT = 200.0
+TAKE_PROFIT_ORIGIN_PERCENT = 200
 
 // lifecycle
 var bool isRepairActive = false
@@ -40,8 +39,13 @@ barcolor(isHtfBullish ? color.new(color.green, 70) : na)
 isPreCascadeWeak = ta.lowest(low[1], PRE_CASCADE_LOOKBACK) > low
 isLargeCascadeBar = high - low > MIN_CASCADE_RANGE
 isBearishClose = high - low > 0 and (high - close) / (high - low) > BEARISH_RANGE_RATIO
-isCascadeTrigger = isHtfBullish and isPreCascadeWeak and isLargeCascadeBar and isBearishClose and not isTradeActive
-plotshape(isCascadeTrigger, style = shape.triangledown, location = location.abovebar, size = size.small, color = color.red)
+
+isCascadeTrigger =
+     isHtfBullish
+     and isPreCascadeWeak
+     and isLargeCascadeBar
+     and isBearishClose
+     and not isTradeActive
 
 if isCascadeTrigger and not isRepairActive
     isRepairActive := true
@@ -51,14 +55,15 @@ if isCascadeTrigger and not isRepairActive
 if isRepairActive
     regimeLow := math.min(regimeLow, low)
 
+plotshape(isCascadeTrigger, style = shape.triangledown, location = location.abovebar, size = size.small, color = color.red)
+
 // REPAIR REGIME
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 vwap = ta.vwap(close)
-plot(vwap, color = color.orange, linewidth = 1)
-
-isVwapDisplaced = isRepairActive and vwap - regimeLow > MIN_VWAP_DISPLACEMENT
-barcolor(isVwapDisplaced ? color.orange : na)
+isVwapDisplaced =
+     isRepairActive
+     and vwap - regimeLow > MIN_VWAP_DISPLACEMENT
 
 // regime invalidate if price creeps back to regimeHigh without entry
 isOriginReclaimed = isRepairActive and high > regimeHigh
@@ -68,8 +73,8 @@ if isOriginReclaimed
 triggerEntry =
      isRepairActive
      and isVwapDisplaced
-     and low > low[1] and low[1] > low[2]
-     and high > high[1] and high[1] > high[2]
+     and low > low[1] and high > high[1]
+     and low[1] > low[2] and high[1] > high[2]
 
 if triggerEntry and not isTradeActive
 
@@ -82,6 +87,8 @@ if triggerEntry and not isTradeActive
     tradeStartBar := bar_index
     tradeBox := box.new(bar_index, regimeHigh, bar_index, regimeLow, bgcolor = color.new(color.blue, 85), border_color = color.blue)
 
+plot(vwap, color = color.orange, linewidth = 1)
+barcolor(isVwapDisplaced ? color.orange : na)
 plot(triggerEntry ? entryPrice : na, style = plot.style_circles, linewidth = 3, color = color.blue)
 
 // TRADE REGIME
