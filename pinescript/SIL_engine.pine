@@ -8,17 +8,18 @@ indicator(
 // INPUT
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HTF_TOLERANCE = 0.7
-PRE_CASCADE_LOOKBACK = 60
-MIN_CASCADE_RANGE = 0.3
-BEARISH_RANGE_RATIO = 0.6
-MIN_VWAP_DISPLACEMENT = 0.6
-TAKE_PROFIT_ORIGIN_PERCENT = 200
+PRE_CASCADE_LOOKBACK = 15
+MIN_CASCADE_RANGE = 0.4
+BEARISH_RANGE_RATIO = 0.4
+
+ENTRY_PERCENT = 0.2
+TAKE_PROFIT_PERCENT = 0.8
 
 // lifecycle
-var bool isRepairActive = false
+var int cascadeBarIndex = na
 var float regimeHigh = na
 var float regimeLow = na
+var bool isSetupActive = false
 var bool isTradeActive = false
 var float entryPrice = na
 var int tradeStartBar = na
@@ -26,77 +27,64 @@ var float tradeHigh = na
 var float tradeLow = na
 var box tradeBox = na
 
-// HTF FILTER
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-prevDayClose = request.security(syminfo.tickerid, "D", close[1])
-isHtfBullish = open > prevDayClose - HTF_TOLERANCE
-barcolor(isHtfBullish ? color.new(color.green, 70) : na)
-
 // CASCADE
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 isPreCascadeWeak = ta.lowest(low[1], PRE_CASCADE_LOOKBACK) > low
 isLargeCascadeBar = high - low > MIN_CASCADE_RANGE
 isBearishClose = high - low > 0 and (high - close) / (high - low) > BEARISH_RANGE_RATIO
+isDownBar = high[1] > high
 
 isCascadeTrigger =
-     isHtfBullish
-     and isPreCascadeWeak
+     isPreCascadeWeak
      and isLargeCascadeBar
      and isBearishClose
-     and not isTradeActive
+     and isDownBar
+     and not isSetupActive
 
-if isCascadeTrigger and not isRepairActive
-    isRepairActive := true
+if isCascadeTrigger
     regimeHigh := high
     regimeLow := low
-
-if isRepairActive
-    regimeLow := math.min(regimeLow, low)
+    isSetupActive := true
+    cascadeBarIndex := bar_index
 
 plotshape(isCascadeTrigger, style = shape.triangledown, location = location.abovebar, size = size.small, color = color.red)
 
-// REPAIR REGIME
+// SNAPBACK SCALP
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-vwap = ta.vwap(close)
-isVwapDisplaced =
-     isRepairActive
-     and vwap - regimeLow > MIN_VWAP_DISPLACEMENT
+cascadeRange = regimeHigh - regimeLow
 
-// regime invalidate if price creeps back to regimeHigh without entry
-isOriginReclaimed = isRepairActive and high > regimeHigh
-if isOriginReclaimed
-    isRepairActive := false
+entryLevel = regimeLow + cascadeRange * ENTRY_PERCENT
+stopLoss = regimeLow - cascadeRange * ENTRY_PERCENT
+takeProfit = regimeLow + cascadeRange * TAKE_PROFIT_PERCENT
 
+isSetupInvalid = isSetupActive and low < stopLoss
+plot(isSetupInvalid ? stopLoss : na, style = plot.style_circles, linewidth = 3, color = color.red)
+
+if isSetupInvalid
+    isSetupActive := false
+
+// triggerEntry = isSetupActive and high > entryLevel and not isTradeActive
 triggerEntry =
-     isRepairActive
-     and isVwapDisplaced
-     and low > low[1] and high > high[1]
-     and low[1] > low[2] and high[1] > high[2]
+     isSetupActive and
+     bar_index > cascadeBarIndex and
+     high > entryLevel
 
-if triggerEntry and not isTradeActive
+if triggerEntry
 
-    isRepairActive := false
     isTradeActive := true
-    entryPrice := close
+    isSetupActive := false
+    entryPrice := entryLevel
 
     tradeHigh := high
     tradeLow := low
     tradeStartBar := bar_index
-    tradeBox := box.new(bar_index, regimeHigh, bar_index, regimeLow, bgcolor = color.new(color.blue, 85), border_color = color.blue)
+    tradeBox := box.new(bar_index, entryPrice, bar_index, entryPrice, bgcolor = color.new(color.blue, 85), border_color = color.blue)
 
-plot(vwap, color = color.orange, linewidth = 1)
-barcolor(isVwapDisplaced ? color.orange : na)
-plot(triggerEntry ? entryPrice : na, style = plot.style_circles, linewidth = 3, color = color.blue)
+plot(triggerEntry ? entryLevel : na, style = plot.style_circles, linewidth = 3, color = color.blue)
 
-// TRADE REGIME
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-stopLoss = regimeLow
 isStopLoss = isTradeActive and stopLoss > low
-takeProfit = regimeLow + (regimeHigh - regimeLow) * TAKE_PROFIT_ORIGIN_PERCENT / 100.0
 isTakeProfit = isTradeActive and high > takeProfit
 
 if isTradeActive and not na(tradeBox)
@@ -110,18 +98,28 @@ if isTradeActive and not na(tradeBox)
 
 if isStopLoss
 
+    isSameBar = tradeStartBar == bar_index
+
     isTradeActive := false
 
-    box.set_bgcolor(tradeBox, color.new(color.red, 80))
-    box.set_border_color(tradeBox, color.red)
-    box.set_top(tradeBox, entryPrice)
-    box.set_bottom(tradeBox, stopLoss)
+    if isSameBar
+        line.new(bar_index, entryPrice, bar_index, stopLoss, color = color.red, width = 3)
+    else
+        box.set_bgcolor(tradeBox, color.new(color.red, 80))
+        box.set_border_color(tradeBox, color.red)
+        box.set_top(tradeBox, entryPrice)
+        box.set_bottom(tradeBox, stopLoss)
 
 else if isTakeProfit
 
+    isSameBar = tradeStartBar == bar_index
+
     isTradeActive := false
 
-    box.set_bgcolor(tradeBox, color.new(color.green, 80))
-    box.set_border_color(tradeBox, color.green)
-    box.set_top(tradeBox, takeProfit)
-    box.set_bottom(tradeBox, entryPrice)
+    if isSameBar
+        line.new(bar_index, entryPrice, bar_index, takeProfit, color = color.green, width = 3)
+    else
+        box.set_bgcolor(tradeBox, color.new(color.green, 80))
+        box.set_border_color(tradeBox, color.green)
+        box.set_top(tradeBox, takeProfit)
+        box.set_bottom(tradeBox, entryPrice)
