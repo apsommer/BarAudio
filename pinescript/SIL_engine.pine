@@ -14,7 +14,7 @@ MIN_CASCADE_RANGE = 0.4
 BEARISH_RANGE_RATIO = 0.6
 MIN_VWAP_DISPLACEMENT = 0.6
 REPAIR_CONFIRMATION_BARS = 2
-TAKE_PROFIT_ORIGIN_PERCENT = 100.0
+TAKE_PROFIT_ORIGIN_PERCENT = 200.0
 
 // lifecycle
 var bool isRepairActive = false
@@ -23,6 +23,8 @@ var float regimeLow = na
 var bool isTradeActive = false
 var float entryPrice = na
 var int tradeStartBar = na
+var float tradeHigh = na
+var float tradeLow = na
 var box tradeBox = na
 
 // HTF FILTER
@@ -75,6 +77,8 @@ if triggerEntry and not isTradeActive
     isTradeActive := true
     entryPrice := close
 
+    tradeHigh := high
+    tradeLow := low
     tradeStartBar := bar_index
     tradeBox := box.new(bar_index, regimeHigh, bar_index, regimeLow, bgcolor = color.new(color.blue, 85), border_color = color.blue)
 
@@ -83,9 +87,19 @@ plot(triggerEntry ? entryPrice : na, style = plot.style_circles, linewidth = 3, 
 // TRADE REGIME
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-isStopLoss = isTradeActive and regimeLow > low
+stopLoss = regimeLow
+isStopLoss = isTradeActive and stopLoss > low
 takeProfit = regimeLow + (regimeHigh - regimeLow) * TAKE_PROFIT_ORIGIN_PERCENT / 100.0
 isTakeProfit = isTradeActive and high > takeProfit
+
+if isTradeActive and not na(tradeBox)
+
+    tradeHigh := math.max(tradeHigh, high)
+    tradeLow := math.min(tradeLow, low)
+
+    box.set_right(tradeBox, bar_index)
+    box.set_top(tradeBox, tradeHigh)
+    box.set_bottom(tradeBox, tradeLow)
 
 if isStopLoss
 
@@ -94,7 +108,7 @@ if isStopLoss
     box.set_bgcolor(tradeBox, color.new(color.red, 80))
     box.set_border_color(tradeBox, color.red)
     box.set_top(tradeBox, entryPrice)
-    box.set_bottom(tradeBox, regimeLow)
+    box.set_bottom(tradeBox, stopLoss)
 
 else if isTakeProfit
 
@@ -102,11 +116,5 @@ else if isTakeProfit
 
     box.set_bgcolor(tradeBox, color.new(color.green, 80))
     box.set_border_color(tradeBox, color.green)
-    box.set_top(tradeBox, regimeHigh)
+    box.set_top(tradeBox, takeProfit)
     box.set_bottom(tradeBox, entryPrice)
-
-if isTradeActive and not na(tradeBox)
-
-    box.set_right(tradeBox, bar_index)
-    box.set_top(tradeBox, regimeHigh)
-    box.set_bottom(tradeBox, regimeLow)
