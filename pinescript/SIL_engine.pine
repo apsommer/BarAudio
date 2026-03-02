@@ -43,6 +43,11 @@ if triggerCascade and not isTradeActive
 
 plotshape(triggerCascade, style = shape.triangledown, location = location.abovebar, size = size.small, color = color.red)
 
+// alert
+if triggerCascade
+    cascadePercentDrop = ((cascadeHigh - cascadeLow) / cascadeHigh) * 100.0
+    alert("Downside stop cascade. Total drop " + str.tostring(cascadePercentDrop, "#.##") + " percent.", alert.freq_once_per_bar)
+
 // EXTEME DAILY PRICE DROP
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -65,7 +70,7 @@ plotshape(isUnlocked, style = shape.xcross, location = location.top, size = size
 plotshape(isLocked,   style = shape.xcross, location = location.top, size = size.small, color = color.yellow)
 bgcolor(not isTradingAllowedToday ? color.new(color.yellow, 85) : na)
 
-// SCALP
+// SCALP (ENTRY)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 cascadeSize = cascadeHigh - cascadeLow
@@ -98,6 +103,13 @@ if triggerEntry
 
 plot(triggerEntry ? entryPrice : na, style = plot.style_circles, linewidth = 3, color = color.blue)
 
+// alert
+if triggerEntry
+    alert("Scalp entry at " + str.tostring(entryPrice) + ".", alert.freq_once_per_bar)
+
+// SCALP (EXIT)
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 triggerStopLoss =
      isTradeActive
      and stopLoss > low
@@ -128,3 +140,11 @@ if triggerExit
         top = entryPrice > exitPrice ? entryPrice : exitPrice
         bottom = entryPrice > exitPrice ? exitPrice : entryPrice
         box.new(left = entryBar, right = bar_index, top = top, bottom = bottom, bgcolor = boxColor, border_color = boxColor)
+
+// alert
+if triggerTakeProfit
+    tradeTicks = math.round((takeProfit - entryPrice) / syminfo.mintick)
+    alert("Take profit exit. Total gain " + str.tostring(tradeTicks) + " ticks.", alert.freq_once_per_bar)
+if triggerStopLoss
+    tradeTicks = math.round((entryPrice - stopLoss) / syminfo.mintick)
+    alert("Stop loss exit. Total loss " + str.tostring(math.abs(tradeTicks)) + " ticks.", alert.freq_once_per_bar)
