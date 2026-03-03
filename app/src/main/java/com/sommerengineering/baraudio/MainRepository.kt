@@ -31,9 +31,11 @@ import com.sommerengineering.baraudio.uitls.isGCKey
 import com.sommerengineering.baraudio.uitls.isMuteKey
 import com.sommerengineering.baraudio.uitls.isNQKey
 import com.sommerengineering.baraudio.uitls.isQueueAddKey
+import com.sommerengineering.baraudio.uitls.isSILKey
 import com.sommerengineering.baraudio.uitls.nqStream
 import com.sommerengineering.baraudio.uitls.onboardingKey
 import com.sommerengineering.baraudio.uitls.pitchKey
+import com.sommerengineering.baraudio.uitls.silStream
 import com.sommerengineering.baraudio.uitls.speedKey
 import com.sommerengineering.baraudio.uitls.voiceNameKey
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -73,6 +75,7 @@ class MainRepository @Inject constructor(
         // streams
         if (loadNQ()) messages.addAll(firebaseDb.fetchStreamMessages(nqStream))
         if (loadGC()) messages.addAll(firebaseDb.fetchStreamMessages(gcStream))
+        if (loadSIL()) messages.addAll(firebaseDb.fetchStreamMessages(silStream))
 
         // user specific
         messages.addAll(firebaseDb.fetchUserMessages())
@@ -164,6 +167,14 @@ class MainRepository @Inject constructor(
     fun updateGC(enabled: Boolean) {
         syncStream(gcStream, enabled)
         writePreference(booleanPreferencesKey(isGCKey), enabled)
+    }
+
+    // stream SIL
+    suspend fun loadSIL() =
+        readPreference(booleanPreferencesKey(isSILKey)) ?: true
+    fun updateSIL(enabled: Boolean) {
+        syncStream(silStream, enabled)
+        writePreference(booleanPreferencesKey(isSILKey), enabled)
     }
 
     // sync stream with firebase/room
@@ -304,6 +315,7 @@ class MainRepository @Inject constructor(
             FirebaseMessaging.getInstance().apply {
                 if (loadNQ()) subscribeToTopic(nqStream) else unsubscribeFromTopic(nqStream)
                 if (loadGC()) subscribeToTopic(gcStream) else unsubscribeFromTopic(gcStream)
+                if (loadSIL()) subscribeToTopic(silStream) else unsubscribeFromTopic(silStream)
             }
         }
         firebaseDb.writeToken(token)

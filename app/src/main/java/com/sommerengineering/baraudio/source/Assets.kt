@@ -115,7 +115,7 @@ val gcAsset = Asset(
                 accent = Color(0xFFF4DE9A),
                 surface = Color(0xFF2B2400),
                 text = Color(0xFFFFF9E6),
-                iconRes = R.drawable.gc
+                iconRes = R.drawable.coins
             )
         } else {
             ItemStyle(
@@ -123,7 +123,7 @@ val gcAsset = Asset(
                 accent = Color(0xFFE6C96A),
                 surface = Color(0xFFFFF8E1),
                 text = Color(0xFF2B2400),
-                iconRes = R.drawable.gc
+                iconRes = R.drawable.coins
             )
         }})
 
@@ -144,18 +144,18 @@ val silAsset = Asset(
                 accent = Color(0xFFE0E6EA),
                 surface = Color(0xFF1A1F23),
                 text = Color(0xFFF1F5F8),
-                iconRes = R.drawable.gc)
+                iconRes = R.drawable.coins)
         } else {
             ItemStyle(
                 primary = Color(0xFF90A4AE),
                 accent = Color(0xFFB0BEC5),
                 surface = Color(0xFFF4F7F9),
                 text = Color(0xFF1A1F23),
-                iconRes = R.drawable.gc) } })
+                iconRes = R.drawable.coins) } })
 
 fun Asset.settingsTitle() = "$displayName ($symbol)"
 
-val allAssets = listOf(nqAsset, esAsset, btcAsset, gcAsset)
+val allAssets = listOf(nqAsset, esAsset, btcAsset, gcAsset, silAsset)
 val assetMap = allAssets.associateBy { it.origin }
 fun resolveAsset(stream: String) =
     assetMap[stream] ?: error("Unknown asset for stream: $stream")

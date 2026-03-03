@@ -29,6 +29,7 @@ import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.source.MessageOrigin
 import com.sommerengineering.baraudio.source.gcAsset
 import com.sommerengineering.baraudio.source.nqAsset
+import com.sommerengineering.baraudio.source.silAsset
 import com.sommerengineering.baraudio.uitls.streamsDividerTitle
 import com.sommerengineering.baraudio.uitls.edgePadding
 import com.sommerengineering.baraudio.uitls.howToSetupTitle
@@ -72,6 +73,7 @@ fun SettingsDrawer(
 
     val isNQ = viewModel.isNQ
     val isGC = viewModel.isGC
+    val isSIL = viewModel.isSIL
     val isFullScreen = viewModel.isFullScreen
     val fullScreenDescription = viewModel.fullScreenDescription
 
@@ -184,8 +186,6 @@ fun SettingsDrawer(
                 DividerItem(streamsDividerTitle)
             }
 
-            // todo refactor to AssetSettings composable, SourceSettings composable, premium composables, ...
-
             // stream NQ
             item {
                 StreamSwitchItem(
@@ -207,6 +207,15 @@ fun SettingsDrawer(
                     isDarkMode = isDarkMode,
                     isStream = isGC,
                     updateStream = { viewModel.updateGC(it) })
+            }
+
+            // stream SIL
+            item {
+                StreamSwitchItem(
+                    messageOrigin = MessageOrigin.BroadcastStream(silAsset),
+                    isDarkMode = isDarkMode,
+                    isStream = isSIL,
+                    updateStream = { viewModel.updateSIL(it) })
             }
 
             // webhook

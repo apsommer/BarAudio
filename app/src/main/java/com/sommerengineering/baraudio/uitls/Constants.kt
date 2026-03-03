@@ -84,6 +84,7 @@ const val volumeKey = TextToSpeech.Engine.KEY_PARAM_VOLUME
 const val feedModeKey = "feedMode"
 const val isNQKey = "isNQ"
 const val isGCKey = "isGC"
+const val isSILKey = "isSIL"
 
 // billing
 const val productId = "subscription" // match play store config

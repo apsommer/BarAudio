@@ -146,6 +146,14 @@ class MainViewModel @Inject constructor(
         repo.updateGC(enabled)
     }
 
+    // stream SIL
+    var isSIL by mutableStateOf(true)
+        private set
+    fun updateSIL(enabled: Boolean) {
+        isSIL = enabled
+        repo.updateSIL(enabled)
+    }
+
     // feed mode: linear or grouped
     var feedMode by mutableStateOf(FeedMode.Linear)
         private set
@@ -185,6 +193,7 @@ class MainViewModel @Inject constructor(
             isOnboardingComplete = repo.loadOnboarding()
             isNQ = repo.loadNQ()
             isGC = repo.loadGC()
+            isSIL = repo.loadSIL()
             feedMode = repo.loadFeedMode()
             isFullScreen = repo.loadFullScreen()
         }
