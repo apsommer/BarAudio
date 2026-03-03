@@ -173,7 +173,9 @@ class MainActivity : ComponentActivity() {
         super.onStop()
 
         // user closed app
-        if (isFinishing) { processState.isTaskAlive = false }
+        if (isFinishing) {
+            processState.isTaskAlive = false
+        }
     }
 }
 

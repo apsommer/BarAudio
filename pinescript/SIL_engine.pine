@@ -46,7 +46,7 @@ plotshape(triggerCascade, style = shape.triangledown, location = location.aboveb
 // alert
 if triggerCascade
     cascadePercentDrop = ((cascadeHigh - cascadeLow) / cascadeHigh) * 100.0
-    alert("Downside stop cascade. Total drop " + str.tostring(cascadePercentDrop, "#.##") + " percent.", alert.freq_once_per_bar)
+    alert("Downside stop cascade. Total move " + str.tostring(cascadePercentDrop, "#.##") + "%", alert.freq_once_per_bar)
 
 // EXTEME DAILY PRICE DROP
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -90,6 +90,7 @@ triggerEntry =
      triggerCascade[1]
      and barsSinceCascade == 1
      and isTradingAllowedToday
+     and not isTradeActive
 
 if triggerEntry
     isTradeActive := true
@@ -105,7 +106,7 @@ plot(triggerEntry ? entryPrice : na, style = plot.style_circles, linewidth = 3, 
 
 // alert
 if triggerEntry
-    alert("Scalp entry at " + str.tostring(entryPrice) + ".", alert.freq_once_per_bar)
+    alert("Entry long. Scalp at " + str.tostring(entryPrice) + ".", alert.freq_once_per_bar)
 
 // SCALP (EXIT)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -144,7 +145,7 @@ if triggerExit
 // alert
 if triggerTakeProfit
     tradeTicks = math.round((takeProfit - entryPrice) / syminfo.mintick)
-    alert("Take profit exit. Total gain " + str.tostring(tradeTicks) + " ticks.", alert.freq_once_per_bar)
+    alert("Exit long. Take profit " + str.tostring(tradeTicks) + " ticks.", alert.freq_once_per_bar)
 if triggerStopLoss
     tradeTicks = math.round((entryPrice - stopLoss) / syminfo.mintick)
-    alert("Stop loss exit. Total loss " + str.tostring(math.abs(tradeTicks)) + " ticks.", alert.freq_once_per_bar)
+    alert("Exit long. Stop loss " + str.tostring(math.abs(tradeTicks)) + " ticks.", alert.freq_once_per_bar)
