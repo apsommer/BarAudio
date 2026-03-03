@@ -99,11 +99,12 @@ const val queueBehaviorTitle = "Queue"
 const val queueFlushDescription = "Play new alerts immediately"
 const val queueAddDescription = "Add new alerts to queue"
 const val systemTtsTitle = "System settings"
+const val systemTtsDescription = "Download additional voices"
 const val systemTtsPackageName = "com.android.settings.TTS_SETTINGS"
 const val streamsDividerTitle = "STREAMS"
 const val premiumDividerTitle = "PREMIUM"
 const val webhookTitle = "Custom signal"
-const val webhookDescription = "Webhook"
+const val webhookDescription = "Webhook connection"
 const val uiDividerTitle = "THEME"
 const val screenTitle = "Screen"
 const val screenFullDescription = "Full screen"
@@ -114,14 +115,6 @@ const val uiLightDescription = "Light"
 const val legalDividerTitle = "ACCOUNT"
 const val manageSubscriptionTitle = "Manage subscription"
 const val signOutTitle = "Sign-out"
-
-
-
-
-
-
-
-
 
 // images
 val loginButtonSize = 96.dp

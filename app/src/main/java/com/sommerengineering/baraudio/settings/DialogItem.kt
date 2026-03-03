@@ -26,7 +26,7 @@ import com.sommerengineering.baraudio.uitls.rowVerticalPadding
 import com.sommerengineering.baraudio.uitls.settingsIconSize
 
 @Composable
-fun DialogSettingItem(
+fun DialogItem(
     iconRes: Int,
     title: String,
     description: String,
@@ -39,12 +39,12 @@ fun DialogSettingItem(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(rowMinHeight)
+                    .clickable { onClick() }
                     .padding(
                         start = rowHorizontalPadding + 4.dp,
                         end = rowHorizontalPadding,
                         top = rowVerticalPadding,
-                        bottom = rowVerticalPadding)
-                    .clickable { onClick() },
+                        bottom = rowVerticalPadding),
                 verticalAlignment = Alignment.CenterVertically) {
 
                 Row(

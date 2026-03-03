@@ -44,6 +44,7 @@ import com.sommerengineering.baraudio.uitls.signOutTitle
 import com.sommerengineering.baraudio.uitls.speedChangeUtterance
 import com.sommerengineering.baraudio.uitls.speedTitle
 import com.sommerengineering.baraudio.uitls.subscriptionUrl
+import com.sommerengineering.baraudio.uitls.systemTtsDescription
 import com.sommerengineering.baraudio.uitls.systemTtsPackageName
 import com.sommerengineering.baraudio.uitls.systemTtsTitle
 import com.sommerengineering.baraudio.uitls.uiDividerTitle
@@ -95,7 +96,7 @@ fun SettingsDrawer(
 
             // voice
             item {
-                DialogSettingItem (
+                DialogItem (
                     iconRes = R.drawable.voice,
                     title = voiceTitle,
                     description = voiceDescription,
@@ -169,9 +170,10 @@ fun SettingsDrawer(
 
             // system tts settings
             item {
-                LinkSettingItem(
+                LinkItem(
                     iconRes = R.drawable.settings,
                     title = systemTtsTitle,
+                    description = systemTtsDescription,
                     onClick = {
                         with(context) {
                             startActivity(
@@ -221,7 +223,7 @@ fun SettingsDrawer(
             // webhook
             item {
 
-                DialogSettingItem(
+                DialogItem(
                     iconRes = R.drawable.webhook,
                     title = webhookTitle,
                     description = webhookDescription,
@@ -274,7 +276,7 @@ fun SettingsDrawer(
 
             // manage subscription
             item {
-                LinkSettingItem(
+                LinkItem(
                     iconRes = R.drawable.credit_card_gear,
                     title = manageSubscriptionTitle,
                     onClick = { uriHandler.openUri(subscriptionUrl) })
@@ -282,7 +284,7 @@ fun SettingsDrawer(
 
             // sign-out
             item {
-                LinkSettingItem(
+                LinkItem(
                     iconRes = R.drawable.sign_out,
                     title = signOutTitle,
                     onClick = { onSignOut() })

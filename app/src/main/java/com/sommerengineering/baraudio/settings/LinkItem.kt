@@ -5,11 +5,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -17,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.uitls.rowHorizontalPadding
 import com.sommerengineering.baraudio.uitls.rowIconPadding
@@ -25,9 +28,10 @@ import com.sommerengineering.baraudio.uitls.rowVerticalPadding
 import com.sommerengineering.baraudio.uitls.settingsIconSize
 
 @Composable
-fun LinkSettingItem(
+fun LinkItem(
     iconRes: Int,
     title: String,
+    description: String? = null,
     onClick: () -> Unit) {
 
     Surface {
@@ -35,12 +39,12 @@ fun LinkSettingItem(
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(rowMinHeight)
+                .clickable { onClick() }
                 .padding(
                     start = rowHorizontalPadding + 4.dp,
                     end = rowHorizontalPadding,
                     top = rowVerticalPadding,
-                    bottom = rowVerticalPadding)
-                .clickable { onClick() },
+                    bottom = rowVerticalPadding),
             verticalAlignment = Alignment.CenterVertically) {
 
             Icon(
@@ -49,10 +53,21 @@ fun LinkSettingItem(
                 contentDescription = null)
             Spacer(Modifier.width(rowIconPadding + 4.dp))
 
+            // title and description
             Column {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.titleMedium)
+                    style = MaterialTheme.typography.titleMedium,
+                    color = LocalContentColor.current)
+                description?.let {
+                    Text(
+                        modifier = Modifier.padding(top = 4.dp),
+                        text = description,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = LocalContentColor.current.copy(alpha = 0.7f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis)
+                }
             }
         }
     }
