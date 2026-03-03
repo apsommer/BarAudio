@@ -58,6 +58,7 @@ const val btcStream = "BTC"
 
 // premium streams
 const val gcStream = "GC"
+const val silStream = "SIL"
 
 // user signals
 const val userSignalDescription = "Custom signal"

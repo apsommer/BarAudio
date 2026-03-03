@@ -7,6 +7,7 @@ import com.sommerengineering.baraudio.uitls.btcStream
 import com.sommerengineering.baraudio.uitls.esStream
 import com.sommerengineering.baraudio.uitls.gcStream
 import com.sommerengineering.baraudio.uitls.nqStream
+import com.sommerengineering.baraudio.uitls.silStream
 
 val nqAsset = Asset(
     origin = nqStream,
@@ -95,6 +96,8 @@ val btcAsset = Asset(
             )
         }})
 
+// premium /////////////////////////////////////////////////////////////////////////////////////////
+
 val gcAsset = Asset(
     origin = gcStream,
     symbol = "GC",
@@ -123,6 +126,32 @@ val gcAsset = Asset(
                 iconRes = R.drawable.gc
             )
         }})
+
+val silAsset = Asset(
+    origin = silStream,
+    symbol = "SIL",
+    displayName = "Micro Silver",
+    spokenName = "Silver",
+    category = "Metals",
+    exchange = "COMEX",
+    assetDescription = "COMEX · Metals · Micro Silver Futures",
+    signalDescription = "Cascade repair structure",
+    order = 4,
+    style = { isDark ->
+        if (isDark) {
+            ItemStyle(
+                primary = Color(0xFFB0BEC5),
+                accent = Color(0xFFE0E6EA),
+                surface = Color(0xFF1A1F23),
+                text = Color(0xFFF1F5F8),
+                iconRes = R.drawable.gc)
+        } else {
+            ItemStyle(
+                primary = Color(0xFF90A4AE),
+                accent = Color(0xFFB0BEC5),
+                surface = Color(0xFFF4F7F9),
+                text = Color(0xFF1A1F23),
+                iconRes = R.drawable.gc) } })
 
 fun Asset.settingsTitle() = "$displayName ($symbol)"
 
