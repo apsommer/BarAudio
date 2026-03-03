@@ -2,8 +2,6 @@ package com.sommerengineering.baraudio.uitls
 
 import android.speech.tts.TextToSpeech
 import android.util.Log
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import com.google.firebase.Firebase
 import com.google.firebase.crashlytics.crashlytics
@@ -58,7 +56,7 @@ const val btcStream = "BTC"
 
 // premium streams
 const val gcStream = "GC"
-const val silStream = "SIL"
+const val siStream = "SI"
 
 // user signals
 const val userSignalDescription = "Custom signal"
@@ -84,7 +82,7 @@ const val volumeKey = TextToSpeech.Engine.KEY_PARAM_VOLUME
 const val feedModeKey = "feedMode"
 const val isNQKey = "isNQ"
 const val isGCKey = "isGC"
-const val isSILKey = "isSIL"
+const val isSIKey = "isSI"
 
 // billing
 const val productId = "subscription" // match play store config

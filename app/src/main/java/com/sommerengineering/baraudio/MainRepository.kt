@@ -31,22 +31,20 @@ import com.sommerengineering.baraudio.uitls.isGCKey
 import com.sommerengineering.baraudio.uitls.isMuteKey
 import com.sommerengineering.baraudio.uitls.isNQKey
 import com.sommerengineering.baraudio.uitls.isQueueAddKey
-import com.sommerengineering.baraudio.uitls.isSILKey
+import com.sommerengineering.baraudio.uitls.isSIKey
 import com.sommerengineering.baraudio.uitls.nqStream
 import com.sommerengineering.baraudio.uitls.onboardingKey
 import com.sommerengineering.baraudio.uitls.pitchKey
-import com.sommerengineering.baraudio.uitls.silStream
+import com.sommerengineering.baraudio.uitls.siStream
 import com.sommerengineering.baraudio.uitls.speedKey
 import com.sommerengineering.baraudio.uitls.voiceNameKey
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -75,7 +73,7 @@ class MainRepository @Inject constructor(
         // streams
         if (loadNQ()) messages.addAll(firebaseDb.fetchStreamMessages(nqStream))
         if (loadGC()) messages.addAll(firebaseDb.fetchStreamMessages(gcStream))
-        if (loadSIL()) messages.addAll(firebaseDb.fetchStreamMessages(silStream))
+        if (loadSI()) messages.addAll(firebaseDb.fetchStreamMessages(siStream))
 
         // user specific
         messages.addAll(firebaseDb.fetchUserMessages())
@@ -169,12 +167,12 @@ class MainRepository @Inject constructor(
         writePreference(booleanPreferencesKey(isGCKey), enabled)
     }
 
-    // stream SIL
-    suspend fun loadSIL() =
-        readPreference(booleanPreferencesKey(isSILKey)) ?: true
-    fun updateSIL(enabled: Boolean) {
-        syncStream(silStream, enabled)
-        writePreference(booleanPreferencesKey(isSILKey), enabled)
+    // stream SI
+    suspend fun loadSI() =
+        readPreference(booleanPreferencesKey(isSIKey)) ?: true
+    fun updateSI(enabled: Boolean) {
+        syncStream(siStream, enabled)
+        writePreference(booleanPreferencesKey(isSIKey), enabled)
     }
 
     // sync stream with firebase/room
@@ -315,7 +313,7 @@ class MainRepository @Inject constructor(
             FirebaseMessaging.getInstance().apply {
                 if (loadNQ()) subscribeToTopic(nqStream) else unsubscribeFromTopic(nqStream)
                 if (loadGC()) subscribeToTopic(gcStream) else unsubscribeFromTopic(gcStream)
-                if (loadSIL()) subscribeToTopic(silStream) else unsubscribeFromTopic(silStream)
+                if (loadSI()) subscribeToTopic(siStream) else unsubscribeFromTopic(siStream)
             }
         }
         firebaseDb.writeToken(token)
