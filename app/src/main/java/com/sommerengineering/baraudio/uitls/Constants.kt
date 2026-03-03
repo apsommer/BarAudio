@@ -91,29 +91,37 @@ const val subscriptionUrl = "https://play.google.com/store/account/subscriptions
     productId + "&package=" + BuildConfig.APPLICATION_ID
 
 // settings
-const val systemTtsPackageName = "com.android.settings.TTS_SETTINGS"
-const val howToSetupTitle = "Customize your webhook"
-const val webhookTitle = "Webhook"
+const val voiceDividerTitle = "VOICE"
 const val voiceTitle = "Voice"
 const val speedTitle = "Speed"
 const val pitchTitle = "Pitch"
 const val queueBehaviorTitle = "Queue"
-const val uiModeTitle = "Theme"
-const val screenTitle = "Screen"
-const val systemTtsTitle = "System settings"
-const val manageSubscriptionTitle = "Manage subscription"
-const val signOutTitle = "Sign-out"
-const val voiceDividerTitle = "VOICE"
-const val uiDividerTitle = "THEME"
-const val streamsDividerTitle = "STREAMS"
-const val premiumStreamsDividerTitle = "PREMIUM STREAMS"
-const val legalDividerTitle = "ACCOUNT"
 const val queueFlushDescription = "Play new alerts immediately"
 const val queueAddDescription = "Add new alerts to queue"
-const val uiDarkDescription = "Dark"
-const val uiLightDescription = "Light"
+const val systemTtsTitle = "System settings"
+const val systemTtsPackageName = "com.android.settings.TTS_SETTINGS"
+const val streamsDividerTitle = "STREAMS"
+const val premiumDividerTitle = "PREMIUM"
+const val webhookTitle = "Custom signal"
+const val webhookDescription = "Webhook"
+const val uiDividerTitle = "THEME"
+const val screenTitle = "Screen"
 const val screenFullDescription = "Full screen"
 const val screenWindowedDescription = "Show system bars"
+const val uiModeTitle = "Theme"
+const val uiDarkDescription = "Dark"
+const val uiLightDescription = "Light"
+const val legalDividerTitle = "ACCOUNT"
+const val manageSubscriptionTitle = "Manage subscription"
+const val signOutTitle = "Sign-out"
+
+
+
+
+
+
+
+
 
 // images
 val loginButtonSize = 96.dp

@@ -32,12 +32,11 @@ import com.sommerengineering.baraudio.source.nqAsset
 import com.sommerengineering.baraudio.source.siAsset
 import com.sommerengineering.baraudio.uitls.streamsDividerTitle
 import com.sommerengineering.baraudio.uitls.edgePadding
-import com.sommerengineering.baraudio.uitls.howToSetupTitle
 import com.sommerengineering.baraudio.uitls.legalDividerTitle
 import com.sommerengineering.baraudio.uitls.manageSubscriptionTitle
 import com.sommerengineering.baraudio.uitls.pitchChangeUtterance
 import com.sommerengineering.baraudio.uitls.pitchTitle
-import com.sommerengineering.baraudio.uitls.premiumStreamsDividerTitle
+import com.sommerengineering.baraudio.uitls.premiumDividerTitle
 import com.sommerengineering.baraudio.uitls.queueBehaviorTitle
 import com.sommerengineering.baraudio.uitls.screenTitle
 import com.sommerengineering.baraudio.uitls.setupUrl
@@ -52,6 +51,7 @@ import com.sommerengineering.baraudio.uitls.uiModeTitle
 import com.sommerengineering.baraudio.uitls.voiceDividerTitle
 import com.sommerengineering.baraudio.uitls.voiceTitle
 import com.sommerengineering.baraudio.uitls.webhookBaseUrl
+import com.sommerengineering.baraudio.uitls.webhookDescription
 import com.sommerengineering.baraudio.uitls.webhookTitle
 
 @Composable
@@ -65,7 +65,6 @@ fun SettingsDrawer(
     val speed = viewModel.speed
     val pitch = viewModel.pitch
     val isQueueAdd = viewModel.isQueueAdd
-
     val voiceDescription = viewModel.voiceDescription
     val speedDescription = viewModel.speedDescription
     val pitchDescription = viewModel.pitchDescription
@@ -74,9 +73,10 @@ fun SettingsDrawer(
     val isNQ = viewModel.isNQ
     val isGC = viewModel.isGC
     val isSI = viewModel.isSI
+    val webhookUrl = webhookBaseUrl + Firebase.auth.currentUser?.uid
+
     val isFullScreen = viewModel.isFullScreen
     val fullScreenDescription = viewModel.fullScreenDescription
-
     val isDarkMode = viewModel.isDarkMode
     val uiModeDescription = viewModel.darkModeDescription
 
@@ -197,7 +197,7 @@ fun SettingsDrawer(
 
             // divider
             item {
-                DividerItem(premiumStreamsDividerTitle)
+                DividerItem(premiumDividerTitle)
             }
 
             // stream GC
@@ -221,14 +221,11 @@ fun SettingsDrawer(
             // webhook
             item {
 
-                // set webhook url
-                val webhookUrl = webhookBaseUrl + Firebase.auth.currentUser?.uid
-
                 DialogSettingItem(
                     iconRes = R.drawable.webhook,
                     title = webhookTitle,
-                    description = webhookUrl,
-                    onClick = { viewModel.saveToWebhookClipboard(webhookUrl) }) {
+                    description = webhookDescription,
+                    onClick = { uriHandler.openUri(setupUrl) }) {
 
                     IconButton(
                         onClick = { viewModel.saveToWebhookClipboard(webhookUrl) }) {
@@ -237,14 +234,6 @@ fun SettingsDrawer(
                             contentDescription = null)
                     }
                 }
-            }
-
-            // how to setup
-            item {
-                LinkSettingItem(
-                    iconRes = R.drawable.browser,
-                    title = howToSetupTitle,
-                    onClick = { uriHandler.openUri(setupUrl) })
             }
 
             // divider
