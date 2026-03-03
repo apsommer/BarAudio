@@ -45,7 +45,7 @@ import com.sommerengineering.baraudio.uitls.speedChangeUtterance
 import com.sommerengineering.baraudio.uitls.speedTitle
 import com.sommerengineering.baraudio.uitls.subscriptionUrl
 import com.sommerengineering.baraudio.uitls.systemTtsDescription
-import com.sommerengineering.baraudio.uitls.systemTtsPackageName
+import com.sommerengineering.baraudio.uitls.systemTtsInstallVoicesAction
 import com.sommerengineering.baraudio.uitls.systemTtsTitle
 import com.sommerengineering.baraudio.uitls.uiDividerTitle
 import com.sommerengineering.baraudio.uitls.uiModeTitle
@@ -177,7 +177,7 @@ fun SettingsDrawer(
                     onClick = {
                         with(context) {
                             startActivity(
-                                Intent(systemTtsPackageName)
+                                Intent(systemTtsInstallVoicesAction)
                                     .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
                         }
                     })
