@@ -25,7 +25,7 @@ INSOMNIA = '84.123.224.196'
 
 # configure notification
 BASE_CONFIG = messaging.AndroidConfig(
-    priority = 'normal',  # 'normal' is default, 'high' attempts to wake device in doze mode
+    priority = 'high',  # 'normal' is default, 'high' attempts to wake device in doze mode
     ttl = 0)  # ttl is 'time to live', 0 = 'now or never', '43200' = 12h, 86400 = 24h
 
 # time adjustments
