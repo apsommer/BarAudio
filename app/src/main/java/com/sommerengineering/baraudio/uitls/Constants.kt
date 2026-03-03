@@ -21,9 +21,9 @@ const val colorTransitionTimeMillis = 100
 const val messageItemExpansionTimeMillis = 140
 
 // urls
-const val setupUrl = "https://sommerengineering.com/baraud.io"
-// const val privacyUrl = "https://sommerengineering.com/privacy_policy"
-// const val termsUrl = "https://sommerengineering.com/terms_and_conditions"
+const val setupWebhookUrl = "https://sommerengineering.com/baraud.io"
+const val termsAndConditionsUrl = "https://sommerengineering.com/terms_and_conditions"
+const val privacyPolicyUrl = "https://sommerengineering.com/privacy_policy"
 
 // room
 const val roomDatabaseName = "messages.db"
@@ -114,6 +114,8 @@ const val uiDarkDescription = "Dark"
 const val uiLightDescription = "Light"
 const val legalDividerTitle = "ACCOUNT"
 const val manageSubscriptionTitle = "Manage subscription"
+const val termsAndConditionsTitle = "Terms and conditions"
+const val privacyPolicyTitle = "Privacy"
 const val signOutTitle = "Sign-out"
 
 // images
