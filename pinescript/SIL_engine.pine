@@ -9,85 +9,87 @@ indicator(
 // INPUT
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-PRE_CASCADE_LOOKBACK = 60
-MIN_CASCADE_SIZE_PERCENT = 0.7
+CASCADE_LOOKBACK = 60
+MIN_CASCADE_MOVE = 0.7
 
 // lifecycle
 var bool isCascadeActive = false
+var int cascadeStartBar = na
 var float cascadeHigh = na
 var float cascadeLow = na
 var float cascadeRange = na
-var bool hasStabilized = false
-var int cascadeStartBar = na
+var bool hasEntered = false
 
 // CASCADE
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-isPreCascadeDropping = ta.lowest(low[1], PRE_CASCADE_LOOKBACK) > low and ta.lowest(low[2], PRE_CASCADE_LOOKBACK) > low[1]
-isLargeCascadeBar = (high - low) / high > MIN_CASCADE_SIZE_PERCENT / 100.0
+// detect cascade
+avgRange = ta.sma(high - low, 20)
+
+isLargeCascadeBar =
+     (high - low) > avgRange * 2
+     and (high - low) > MIN_CASCADE_MOVE
+
+body = math.abs(close - open)
+isBearBody = close < open
+
+isLowestLow = ta.lowest(low, CASCADE_LOOKBACK) == low
 
 triggerCascade =
-     isPreCascadeDropping
-     and isLargeCascadeBar
+     isLargeCascadeBar
+     and isBearBody
+     and isLowestLow
 
-// start cascade
-if triggerCascade and (not isCascadeActive or hasStabilized and close < cascadeLow)
+// start regime
+if triggerCascade and not isCascadeActive
     isCascadeActive := true
+    hasEntered := false
     cascadeHigh := high
     cascadeLow := low
     cascadeRange := high - low
     cascadeStartBar := bar_index
-    hasStabilized := false
 
-// end cascade
+// detect cascade extension BEFORE updating
+isExtendingCascade = isCascadeActive and not hasEntered and low < cascadeLow
+
+// extend regime before entry
+if isExtendingCascade
+    cascadeLow := low
+    cascadeRange := cascadeHigh - cascadeLow
+
+// resolve regime
 if isCascadeActive and close > cascadeHigh
     isCascadeActive := false
     cascadeHigh := na
     cascadeLow := na
     cascadeRange := na
-    cascadeStartBar := na
-    hasStabilized := false
+    hasEntered := false
 
-if isCascadeActive
-    if hasStabilized and close < cascadeLow
-        isCascadeActive := false
-        cascadeHigh := na
-        cascadeLow := na
-        cascadeRange := na
-        cascadeStartBar := na
-        hasStabilized := false
+if isCascadeActive and hasEntered and low < cascadeLow
+    isCascadeActive := false
+    cascadeHigh := na
+    cascadeLow := na
+    cascadeRange := na
+    hasEntered := false
 
-// extend cascade
-if isCascadeActive
-    cascadeLow := math.min(cascadeLow, low)
-    cascadeRange := cascadeHigh - cascadeLow
-
-
-// plot
+plotshape(triggerCascade, style = shape.triangledown, location = location.abovebar, color = color.red, size = size.small)
 plot(isCascadeActive ? cascadeHigh : na, color = color.orange, linewidth = 2, style = plot.style_linebr)
 plot(isCascadeActive ? cascadeLow : na, color = color.red, linewidth = 2, style = plot.style_linebr)
-plotshape(triggerCascade, style = shape.triangledown, location = location.abovebar, color = color.red, size = size.small)
 
 // STABILIZATION
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-isRepairBar1 = low > low[1] and high > high[1]
-isRepairBar2 = low[1] > low[2] and high[1] > high[2]
-
-avgRange = ta.sma(high - low, 5)
-
-isCompressed = isCascadeActive and cascadeRange > avgRange * 2
+repairPosition = (close - cascadeLow) / cascadeRange
+isNearCascadeLow = repairPosition < 0.3
 
 triggerStabilization =
      isCascadeActive
-     and not hasStabilized
-     and low > cascadeLow
-     and isRepairBar1
-     and isRepairBar2
-     and isCompressed
+     and not hasEntered
+     and not isExtendingCascade
+     and bar_index > cascadeStartBar
+     and isNearCascadeLow
 
 if triggerStabilization
-    hasStabilized := true
+    hasEntered := true
 
-plotshape(triggerStabilization, style = shape.triangleup, location = location.belowbar, color = color.green, size = size.small)
-
+plotshape(triggerStabilization ? close : na, style = shape.circle, location = location.absolute, color = color.green, size = size.tiny)
