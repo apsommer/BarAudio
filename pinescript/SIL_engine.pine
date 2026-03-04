@@ -18,61 +18,76 @@ var float cascadeHigh = na
 var float cascadeLow = na
 var float cascadeRange = na
 var bool hasStabilized = false
+var int cascadeStartBar = na
 
 // CASCADE
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-isPreCascadeDropping = ta.lowest(low[1], PRE_CASCADE_LOOKBACK) > low
+isPreCascadeDropping = ta.lowest(low[1], PRE_CASCADE_LOOKBACK) > low and ta.lowest(low[2], PRE_CASCADE_LOOKBACK) > low[1]
 isLargeCascadeBar = (high - low) / high > MIN_CASCADE_SIZE_PERCENT / 100.0
 
 triggerCascade =
      isPreCascadeDropping
      and isLargeCascadeBar
 
-// start regime
-if triggerCascade and not isCascadeActive
+// start cascade
+if triggerCascade and (not isCascadeActive or hasStabilized and close < cascadeLow)
     isCascadeActive := true
     cascadeHigh := high
     cascadeLow := low
     cascadeRange := high - low
+    cascadeStartBar := bar_index
     hasStabilized := false
 
-// continue regime
-if triggerCascade and isCascadeActive
-    cascadeHigh := math.max(cascadeHigh, high)
-    cascadeLow := math.min(cascadeLow, low)
-    cascadeRange := cascadeHigh - cascadeLow
+// end cascade
+if isCascadeActive and close > cascadeHigh
+    isCascadeActive := false
+    cascadeHigh := na
+    cascadeLow := na
+    cascadeRange := na
+    cascadeStartBar := na
+    hasStabilized := false
 
-// end regime
 if isCascadeActive
-    if high > cascadeHigh or cascadeLow > low
+    if hasStabilized and close < cascadeLow
         isCascadeActive := false
         cascadeHigh := na
         cascadeLow := na
+        cascadeRange := na
+        cascadeStartBar := na
+        hasStabilized := false
+
+// extend cascade
+if isCascadeActive
+    cascadeLow := math.min(cascadeLow, low)
+    cascadeRange := cascadeHigh - cascadeLow
+
 
 // plot
-plotshape(triggerCascade, style = shape.triangledown, location = location.abovebar, color = color.red, size = size.small)
 plot(isCascadeActive ? cascadeHigh : na, color = color.orange, linewidth = 2, style = plot.style_linebr)
 plot(isCascadeActive ? cascadeLow : na, color = color.red, linewidth = 2, style = plot.style_linebr)
+plotshape(triggerCascade, style = shape.triangledown, location = location.abovebar, color = color.red, size = size.small)
 
-// ENTRY
+// STABILIZATION
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-isHigherLow = low > low[1]
-isHigherHigh = high > high[1]
-barRange = high - low
-isCompressed = cascadeRange > barRange
+isRepairBar1 = low > low[1] and high > high[1]
+isRepairBar2 = low[1] > low[2] and high[1] > high[2]
+
+avgRange = ta.sma(high - low, 5)
+
+isCompressed = isCascadeActive and cascadeRange > avgRange * 2
 
 triggerStabilization =
      isCascadeActive
      and not hasStabilized
      and low > cascadeLow
-     and isHigherLow
-     and isHigherHigh
+     and isRepairBar1
+     and isRepairBar2
      and isCompressed
 
 if triggerStabilization
     hasStabilized := true
 
-plotshape(triggerStabilization, style=shape.triangleup, location=location.belowbar, color=color.green, size=size.small)
+plotshape(triggerStabilization, style = shape.triangleup, location = location.belowbar, color = color.green, size = size.small)
 
