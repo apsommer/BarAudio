@@ -2,150 +2,71 @@
 indicator(
     "SIL engine",
     overlay = true,
+    max_lines_count = 500,
     max_boxes_count = 500,
     max_bars_back = 2000)
 
 // INPUT
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-PRE_CASCADE_LOOKBACK = 45
-MIN_CASCADE_SIZE_ABSOLUTE = 0.6
-EXTREME_DAILY_PRICE_DROP_ABSOLUTE = 6
-ENTRY_PERCENT = 20
-STOP_LOSS_PERCENT = 80
-TAKE_PROFIT_PERCENT = 80
+PRE_CASCADE_LOOKBACK = 60
+MIN_CASCADE_SIZE_PERCENT = 0.7
 
 // lifecycle
+var bool isCascadeActive = false
 var float cascadeHigh = na
 var float cascadeLow = na
-var float sessionOpenPrice = na
-var bool isTradingAllowedToday = true
-var bool isTradeActive = false
-var int entryBar = na
-var float entryPrice = na
+var float cascadeRange = na
+var bool hasStabilized = false
 
 // CASCADE
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// lowest low in lookback period
 isPreCascadeDropping = ta.lowest(low[1], PRE_CASCADE_LOOKBACK) > low
-
-// bar size is large
-isLargeCascadeBar = high - low > MIN_CASCADE_SIZE_ABSOLUTE
+isLargeCascadeBar = (high - low) / high > MIN_CASCADE_SIZE_PERCENT / 100.0
 
 triggerCascade =
      isPreCascadeDropping
      and isLargeCascadeBar
 
-if triggerCascade and not isTradeActive
+// start regime
+if triggerCascade and not isCascadeActive
+    isCascadeActive := true
     cascadeHigh := high
     cascadeLow := low
+    cascadeRange := high - low
+    hasStabilized := false
 
-plotshape(triggerCascade, style = shape.triangledown, location = location.abovebar, size = size.small, color = color.red)
+// continue regime
+if triggerCascade and isCascadeActive
+    cascadeLow := math.min(cascadeLow, low)
 
-// alert
-if triggerCascade
-    cascadePercentDrop = ((cascadeHigh - cascadeLow) / cascadeHigh) * 100.0
-    alert("Downside stop cascade. Total move " + str.tostring(cascadePercentDrop, "#.##") + "%", alert.freq_once_per_bar)
-
-// EXTEME DAILY PRICE DROP
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// session starts at 18:00 NYC
-isNewSession = hour == 18 and minute == 0
-if isNewSession
-    isTradingAllowedToday := true
-    sessionOpenPrice := open
-
-// calculate absolute drop from session open
-sessionDropAbsolute = sessionOpenPrice - low
-if sessionDropAbsolute > EXTREME_DAILY_PRICE_DROP_ABSOLUTE
-    isTradingAllowedToday := false
+// end regime
+if isCascadeActive
+    if high > cascadeHigh or cascadeLow > low
+        isCascadeActive := false
+        cascadeHigh := na
+        cascadeLow := na
 
 // plot
-isUnlocked = isTradingAllowedToday and not isTradingAllowedToday[1]
-isLocked   = not isTradingAllowedToday and isTradingAllowedToday[1]
-plot(isNewSession ? na : sessionOpenPrice, color = color.new(color.white, 80), linewidth = 1, style = plot.style_linebr)
-plotshape(isUnlocked, style = shape.xcross, location = location.top, size = size.small, color = color.green)
-plotshape(isLocked,   style = shape.xcross, location = location.top, size = size.small, color = color.yellow)
-bgcolor(not isTradingAllowedToday ? color.new(color.yellow, 85) : na)
+plotshape(triggerCascade, style = shape.triangledown, location = location.abovebar, color = color.red, size = size.small)
+plot(isCascadeActive ? cascadeHigh : na, color = color.orange, linewidth = 2, style = plot.style_linebr)
+plot(isCascadeActive ? cascadeLow : na, color = color.red, linewidth = 2, style = plot.style_linebr)
 
-// SCALP (ENTRY)
+// ENTRY
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-cascadeSize = cascadeHigh - cascadeLow
+isHigherLow = low > low[1]
+isHigherHigh = high > high[1]
+barRange = high - low
+isCompressed = cascadeRange > barRange * 2
 
-// enter after retracing portion of cascade from low to high
-entryLevel = cascadeLow + cascadeSize * (ENTRY_PERCENT / 100.0)
+triggerStabilization =
+     isCascadeActive
+     and low > cascadeLow
+     and isHigherLow
+     and isHigherHigh
+     and isCompressed
 
-// stop loss as percent of cascade size
-stopLoss = cascadeLow - cascadeSize * (STOP_LOSS_PERCENT / 100.0)
+plotshape(triggerStabilization, style=shape.triangleup, location=location.belowbar, color=color.green, size=size.small)
 
-// take profit as percent of cascade size
-takeProfit = cascadeLow + cascadeSize * (TAKE_PROFIT_PERCENT / 100.0)
-
-barsSinceCascade = ta.barssince(triggerCascade)
-
-triggerEntry =
-     triggerCascade[1]
-     and barsSinceCascade == 1
-     and isTradingAllowedToday
-     and not isTradeActive
-
-if triggerEntry
-    isTradeActive := true
-    entryBar := bar_index
-    if low > entryLevel
-        entryPrice := low
-    if entryLevel > high
-        entryPrice := close
-    else
-        entryPrice := entryLevel
-
-plot(triggerEntry ? entryPrice : na, style = plot.style_circles, linewidth = 3, color = color.blue)
-
-// alert
-if triggerEntry
-    alert("Entry long. Scalp at " + str.tostring(entryPrice) + ".", alert.freq_once_per_bar)
-
-// SCALP (EXIT)
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-triggerStopLoss =
-     isTradeActive
-     and stopLoss > low
-
-plot(triggerStopLoss ? stopLoss : na, style = plot.style_circles, linewidth = 3, color = color.red)
-
-triggerTakeProfit =
-     isTradeActive
-     and high > takeProfit
-
-plot(triggerTakeProfit ? takeProfit : na, style = plot.style_circles, linewidth = 3, color = color.green)
-
-triggerExit = triggerStopLoss or triggerTakeProfit
-
-if triggerExit
-    isTradeActive := false
-
-// plot line for same bar entry/exit, box if trade lasts a few minutes
-if triggerExit
-
-    exitPrice = triggerTakeProfit ? takeProfit : stopLoss
-    lineColor = triggerStopLoss ? color.red : color.green
-    boxColor  = triggerTakeProfit ? color.new(color.green, 80) : color.new(color.red, 80)
-
-    if triggerEntry
-        line.new(x1 = bar_index, y1 = entryPrice, x2 = bar_index, y2 = exitPrice, color = lineColor, width = 2)
-    else
-        top = entryPrice > exitPrice ? entryPrice : exitPrice
-        bottom = entryPrice > exitPrice ? exitPrice : entryPrice
-        box.new(left = entryBar, right = bar_index, top = top, bottom = bottom, bgcolor = boxColor, border_color = boxColor)
-
-// alert
-if triggerTakeProfit
-    tradeTicks = math.round((takeProfit - entryPrice) / syminfo.mintick)
-    alert("Exit long. Take profit " + str.tostring(tradeTicks) + " ticks.", alert.freq_once_per_bar)
-if triggerStopLoss
-    tradeTicks = math.round((entryPrice - stopLoss) / syminfo.mintick)
-    alert("Exit long. Stop loss " + str.tostring(math.abs(tradeTicks)) + " ticks.", alert.freq_once_per_bar)
