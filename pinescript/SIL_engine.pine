@@ -39,7 +39,9 @@ if triggerCascade and not isCascadeActive
 
 // continue regime
 if triggerCascade and isCascadeActive
+    cascadeHigh := math.max(cascadeHigh, high)
     cascadeLow := math.min(cascadeLow, low)
+    cascadeRange := cascadeHigh - cascadeLow
 
 // end regime
 if isCascadeActive
@@ -59,14 +61,18 @@ plot(isCascadeActive ? cascadeLow : na, color = color.red, linewidth = 2, style 
 isHigherLow = low > low[1]
 isHigherHigh = high > high[1]
 barRange = high - low
-isCompressed = cascadeRange > barRange * 2
+isCompressed = cascadeRange > barRange
 
 triggerStabilization =
      isCascadeActive
+     and not hasStabilized
      and low > cascadeLow
      and isHigherLow
      and isHigherHigh
      and isCompressed
+
+if triggerStabilization
+    hasStabilized := true
 
 plotshape(triggerStabilization, style=shape.triangleup, location=location.belowbar, color=color.green, size=size.small)
 
