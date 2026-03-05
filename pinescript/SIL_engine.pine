@@ -19,7 +19,7 @@ var int cascadeStartBar = na
 var float cascadeHigh = na
 var float cascadeLow = na
 var float cascadeRange = na
-var bool isInsideRegime = false
+var bool isTradeActive = false
 var float probeLow = na
 var float entryPrice = na
 var int entryBar = na
@@ -58,16 +58,16 @@ isExtendingCascade =
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 triggerStopExit =
-     isInsideRegime
+     isTradeActive
      and low < probeLow
 
 triggerTakeProfit =
-     isInsideRegime
+     isTradeActive
      and high > cascadeHigh
 
 isRegimeExpired = bar_index > cascadeStartBar + REGIME_MAX_BARS
 triggerExpiryExit =
-     isInsideRegime
+     isTradeActive
      and isRegimeExpired
 
 triggerExit =
@@ -76,7 +76,7 @@ triggerExit =
      or triggerExpiryExit
 
 if triggerExit
-    isInsideRegime := false
+    isTradeActive := false
 
 // plot //////////////////////////////////////////
 
@@ -121,7 +121,7 @@ if isProfitExit
 if isExtendingCascade
     cascadeLow := low
     cascadeRange := cascadeHigh - cascadeLow
-    isInsideRegime := false
+    isTradeActive := false
 
 // resolve regime
 if isCascadeActive and close > cascadeHigh
@@ -145,17 +145,24 @@ plot(isCascadeActive ? cascadeLow : na, color = color.yellow, linewidth = 1, sty
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 entryLevel = (close - cascadeLow) / cascadeRange
-isNearCascadeLow = entryLevel < 0.2
+isEntryLevelNearCascadeLow =
+     entryLevel > 0
+     and entryLevel < 0.2
+
+isNotExtendingCascade = low > cascadeLow
+
+isLargeBearBody = open > close and math.abs(close - open) / (high - low) > 0.5
 
 triggerEntry =
      isCascadeActive
-     and not isInsideRegime
-     and not isExtendingCascade
-     and bar_index > cascadeStartBar
-     and isNearCascadeLow
+     and not isTradeActive
+     and bar_index > cascadeStartBar + 1
+     and isEntryLevelNearCascadeLow
+     and isNotExtendingCascade
+     and not isLargeBearBody
 
 if triggerEntry
-    isInsideRegime := true
+    isTradeActive := true
     probeLow := cascadeLow
     entryPrice := close
     entryBar := bar_index
