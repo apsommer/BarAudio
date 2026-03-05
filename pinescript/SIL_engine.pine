@@ -21,6 +21,8 @@ var float cascadeLow = na
 var float cascadeRange = na
 var bool isInProbe = false
 var float probeLow = na
+var float entryPrice = na
+var int entryBar = na
 
 // CASCADE
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -56,16 +58,58 @@ isExtendingCascade = isCascadeActive and low < cascadeLow
 // EXIT
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-triggerExit =
+isRegimeExpired = bar_index > cascadeStartBar + REGIME_MAX_BARS
+
+triggerStopExit =
      isInProbe
      and low < probeLow
+
+triggerWinExit =
+     isInProbe
+     and high > cascadeHigh
+
+triggerExpiryExit =
+     isInProbe
+     and isRegimeExpired
+
+triggerExit =
+     triggerStopExit
+     or triggerWinExit
+     or triggerExpiryExit
 
 if triggerExit
     isInProbe := false
 
-plotshape(triggerExit ? probeLow : na, style = shape.xcross, location = location.absolute, color = color.red, size = size.tiny)
+exitColor =
+     triggerStopExit ? color.red :
+     color.green
+
+exitPrice =
+     triggerStopExit ? probeLow :
+     triggerWinExit ? cascadeHigh :
+     close
+
+plotshape(triggerExit ? exitPrice : na,
+     style = shape.xcross,
+     location = location.absolute,
+     color = exitColor,
+     size = size.small)
+
+isProfitExit =
+     triggerWinExit
+     or (triggerExpiryExit and close > entryPrice)
+
+if isProfitExit
+    box.new(
+        entryBar,
+        entryPrice,
+        bar_index,
+        close,
+        bgcolor = color.new(color.green, 85),
+        border_color = color.new(color.green, 0))
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 // extend regime before entry
 if isExtendingCascade
     cascadeLow := low
@@ -79,7 +123,6 @@ if isCascadeActive and close > cascadeHigh
     cascadeLow := na
     cascadeRange := na
 
-isRegimeExpired = bar_index > cascadeStartBar + REGIME_MAX_BARS
 if isCascadeActive and isRegimeExpired
     isCascadeActive := false
     cascadeHigh := na
@@ -111,6 +154,8 @@ triggerEntry =
 if triggerEntry
     isInProbe := true
     probeLow := cascadeLow
+    entryPrice := close
+    entryBar := bar_index
 
 plotshape(triggerEntry ? close : na, style = shape.circle, location = location.absolute, color = color.green, size = size.tiny)
 
