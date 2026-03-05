@@ -10,7 +10,8 @@ indicator(
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 CASCADE_LOOKBACK = 60
-MIN_CASCADE_MOVE = 0.7
+MIN_CASCADE_MOVE = 0.5
+REGIME_MAX_BARS = 120
 
 // lifecycle
 var bool isCascadeActive = false
@@ -18,7 +19,6 @@ var int cascadeStartBar = na
 var float cascadeHigh = na
 var float cascadeLow = na
 var float cascadeRange = na
-var bool hasEntered = false
 
 // CASCADE
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -43,14 +43,13 @@ triggerCascade =
 // start regime
 if triggerCascade and not isCascadeActive
     isCascadeActive := true
-    hasEntered := false
     cascadeHigh := high
     cascadeLow := low
     cascadeRange := high - low
     cascadeStartBar := bar_index
 
 // detect cascade extension BEFORE updating
-isExtendingCascade = isCascadeActive and not hasEntered and low < cascadeLow
+isExtendingCascade = isCascadeActive and low < cascadeLow
 
 // extend regime before entry
 if isExtendingCascade
@@ -63,33 +62,39 @@ if isCascadeActive and close > cascadeHigh
     cascadeHigh := na
     cascadeLow := na
     cascadeRange := na
-    hasEntered := false
 
-if isCascadeActive and hasEntered and low < cascadeLow
+if isCascadeActive and low < cascadeLow
     isCascadeActive := false
     cascadeHigh := na
     cascadeLow := na
     cascadeRange := na
-    hasEntered := false
+
+isRegimeExpired = bar_index > cascadeStartBar + REGIME_MAX_BARS
+if isCascadeActive and isRegimeExpired
+    isCascadeActive := false
+    cascadeHigh := na
+    cascadeLow := na
+    cascadeRange := na
 
 plotshape(triggerCascade, style = shape.triangledown, location = location.abovebar, color = color.red, size = size.small)
 plot(isCascadeActive ? cascadeHigh : na, color = color.orange, linewidth = 2, style = plot.style_linebr)
 plot(isCascadeActive ? cascadeLow : na, color = color.red, linewidth = 2, style = plot.style_linebr)
 
+totalMovePercentText = str.tostring(math.round(((high - low) / high) * 100.0, 2)) + "%"
+cascadeText = "Downside stop cascade with " + totalMovePercentText + " move."
+if triggerCascade
+    alert(cascadeText, alert.freq_once_per_bar_close)
+
 // STABILIZATION
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 repairPosition = (close - cascadeLow) / cascadeRange
-isNearCascadeLow = repairPosition < 0.3
+isNearCascadeLow = repairPosition < 0.2
 
 triggerStabilization =
      isCascadeActive
-     and not hasEntered
      and not isExtendingCascade
      and bar_index > cascadeStartBar
      and isNearCascadeLow
-
-if triggerStabilization
-    hasEntered := true
 
 plotshape(triggerStabilization ? close : na, style = shape.circle, location = location.absolute, color = color.green, size = size.tiny)
