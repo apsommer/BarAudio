@@ -19,6 +19,8 @@ var int cascadeStartBar = na
 var float cascadeHigh = na
 var float cascadeLow = na
 var float cascadeRange = na
+var bool isInProbe = false
+var float probeLow = na
 
 // CASCADE
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -51,19 +53,27 @@ if triggerCascade and not isCascadeActive
 // detect cascade extension BEFORE updating
 isExtendingCascade = isCascadeActive and low < cascadeLow
 
+// EXIT
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+triggerExit =
+     isInProbe
+     and low < probeLow
+
+if triggerExit
+    isInProbe := false
+
+plotshape(triggerExit ? probeLow : na, style = shape.xcross, location = location.absolute, color = color.red, size = size.tiny)
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // extend regime before entry
 if isExtendingCascade
     cascadeLow := low
     cascadeRange := cascadeHigh - cascadeLow
+    isInProbe := false
 
 // resolve regime
 if isCascadeActive and close > cascadeHigh
-    isCascadeActive := false
-    cascadeHigh := na
-    cascadeLow := na
-    cascadeRange := na
-
-if isCascadeActive and low < cascadeLow
     isCascadeActive := false
     cascadeHigh := na
     cascadeLow := na
@@ -85,16 +95,22 @@ cascadeText = "Downside stop cascade with " + totalMovePercentText + " move."
 if triggerCascade
     alert(cascadeText, alert.freq_once_per_bar_close)
 
-// STABILIZATION
+// ENTRY
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 repairPosition = (close - cascadeLow) / cascadeRange
 isNearCascadeLow = repairPosition < 0.2
 
-triggerStabilization =
+triggerEntry =
      isCascadeActive
+     and not isInProbe
      and not isExtendingCascade
      and bar_index > cascadeStartBar
      and isNearCascadeLow
 
-plotshape(triggerStabilization ? close : na, style = shape.circle, location = location.absolute, color = color.green, size = size.tiny)
+if triggerEntry
+    isInProbe := true
+    probeLow := cascadeLow
+
+plotshape(triggerEntry ? close : na, style = shape.circle, location = location.absolute, color = color.green, size = size.tiny)
+
