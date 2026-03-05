@@ -79,20 +79,23 @@ if triggerExit
     isInsideRegime := false
 
 // plot //////////////////////////////////////////
-exitColor =
-     triggerStopExit ? color.red :
-     color.green
 
-exitPrice =
+isLossExit =
+     triggerStopExit
+     or (triggerExpiryExit and entryPrice > close)
+
+lossExitPrice =
      triggerStopExit ? probeLow :
-     triggerTakeProfit ? cascadeHigh :
      close
 
-plotshape(triggerExit ? exitPrice : na,
-     style = shape.xcross,
-     location = location.absolute,
-     color = exitColor,
-     size = size.small)
+if isLossExit
+    box.new(
+        entryBar,
+        entryPrice,
+        bar_index,
+        lossExitPrice,
+        bgcolor = color.new(color.red, 85),
+        border_color = color.new(color.red, 0))
 
 isProfitExit =
      triggerTakeProfit
@@ -135,8 +138,8 @@ if isCascadeActive and isRegimeExpired
 
 // plot //////////////////////////////////////////
 plotshape(triggerCascade, style = shape.triangledown, location = location.abovebar, color = color.red, size = size.small)
-plot(isCascadeActive ? cascadeHigh : na, color = color.orange, linewidth = 2, style = plot.style_linebr)
-plot(isCascadeActive ? cascadeLow : na, color = color.red, linewidth = 2, style = plot.style_linebr)
+plot(isCascadeActive ? cascadeHigh : na, color = color.yellow, linewidth = 1, style = plot.style_linebr)
+plot(isCascadeActive ? cascadeLow : na, color = color.yellow, linewidth = 1, style = plot.style_linebr)
 
 // ENTRY
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -158,7 +161,7 @@ if triggerEntry
     entryBar := bar_index
 
 // plot //////////////////////////////////////////
-plotshape(triggerEntry ? close : na, style = shape.circle, location = location.absolute, color = color.green, size = size.tiny)
+plotshape(triggerEntry ? close : na, style = shape.circle, location = location.absolute, color = color.blue, size = size.tiny)
 
 // alert //////////////////////////////////////////
 var string alertMessage = na
