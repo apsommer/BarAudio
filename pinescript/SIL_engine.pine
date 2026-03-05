@@ -99,12 +99,16 @@ isProfitExit =
      triggerWinExit
      or (triggerExpiryExit and close > entryPrice)
 
+profitExitPrice =
+     triggerWinExit ? cascadeHigh :
+     close
+
 if isProfitExit
     box.new(
         entryBar,
         entryPrice,
         bar_index,
-        close,
+        profitExitPrice,
         bgcolor = color.new(color.green, 85),
         border_color = color.new(color.green, 0))
 
