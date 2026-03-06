@@ -6,11 +6,21 @@ indicator(
     max_boxes_count = 500,
     max_bars_back = 2000)
 
-// INPUT
+
+
+// ASSET
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+isGold = str.contains(syminfo.ticker, "MGC")
+isSilver = str.contains(syminfo.ticker, "SIL")
+
+CASCADE_ATR_RATIO =
+     isSilver ? 2.0 :
+     isGold ? 2.0 :
+     2.2
+
+CASCADE_ATR_LENGTH = 20
 CASCADE_LOOKBACK = 60
-MIN_CASCADE_MOVE = 1.2
 REGIME_MAX_BARS = 60
 
 // lifecycle
@@ -29,9 +39,11 @@ var int entryBar = na
 
 // detect cascade
 avgRange = ta.sma(high - low, 20)
+atr = ta.atr(CASCADE_ATR_LENGTH)
+
 isLargeCascadeBar =
      (high - low) > avgRange * 2
-     and (high - low) > MIN_CASCADE_MOVE
+     and (high - low) > atr * CASCADE_ATR_RATIO
 body = math.abs(close - open)
 isBearBody = close < open
 isLowestLow = ta.lowest(low, CASCADE_LOOKBACK) == low
@@ -157,6 +169,26 @@ if isProfitExit
         profitExitPrice,
         bgcolor = color.new(color.green, 85),
         border_color = color.new(color.green, 0))
+
+// asset name (top right)
+
+assetName =
+     isSilver ? "Silver (SIL)" :
+     isGold ? "Gold (MGC)" :
+     "Untagged signal\n" + syminfo.description + " (" + syminfo.ticker + ")"
+
+var table assetTable = table.new(position.top_right, 1, 1)
+
+if barstate.islast
+    table.cell(
+         assetTable,
+         0,
+         0,
+         assetName,
+         text_color = color.white,
+         text_size = size.normal,
+         text_halign = text.align_right,
+         bgcolor = na)
 
 // ALERT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
