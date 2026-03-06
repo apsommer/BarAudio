@@ -78,41 +78,11 @@ triggerExit =
 if triggerExit
     isTradeActive := false
 
-// plot //////////////////////////////////////////
+isLossExit = triggerStopExit or (triggerExpiryExit and entryPrice > close)
+lossExitPrice = triggerStopExit ? probeLow : close
 
-isLossExit =
-     triggerStopExit
-     or (triggerExpiryExit and entryPrice > close)
-
-lossExitPrice =
-     triggerStopExit ? probeLow :
-     close
-
-if isLossExit
-    box.new(
-        entryBar,
-        entryPrice,
-        bar_index,
-        lossExitPrice,
-        bgcolor = color.new(color.red, 85),
-        border_color = color.new(color.red, 0))
-
-isProfitExit =
-     triggerTakeProfit
-     or (triggerExpiryExit and close > entryPrice)
-
-profitExitPrice =
-     triggerTakeProfit ? cascadeHigh :
-     close
-
-if isProfitExit
-    box.new(
-        entryBar,
-        entryPrice,
-        bar_index,
-        profitExitPrice,
-        bgcolor = color.new(color.green, 85),
-        border_color = color.new(color.green, 0))
+isProfitExit = triggerTakeProfit or (triggerExpiryExit and close > entryPrice)
+profitExitPrice = triggerTakeProfit ? cascadeHigh : close
 
 // EXTEND CASCADE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -136,11 +106,6 @@ if isCascadeActive and isRegimeExpired
     cascadeHigh := na
     cascadeLow := na
     cascadeRange := na
-
-// plot //////////////////////////////////////////
-plotshape(triggerCascade, style = shape.triangledown, location = location.abovebar, color = color.red, size = size.small)
-plot(isCascadeActive ? cascadeHigh : na, color = color.yellow, linewidth = 1, style = plot.style_linebr)
-plot(isCascadeActive ? cascadeLow : na, color = color.yellow, linewidth = 1, style = plot.style_linebr)
 
 // ENTRY
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -166,10 +131,38 @@ if triggerEntry
     entryPrice := close
     entryBar := bar_index
 
-// plot //////////////////////////////////////////
-plotshape(triggerEntry ? close : na, style = shape.circle, location = location.absolute, color = color.blue, size = size.tiny)
+// PLOT
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// alert //////////////////////////////////////////
+plotCascadeTrigger = triggerCascade
+plotEntryPrice = triggerEntry ? close : na
+plotCascadeHigh = isCascadeActive ? cascadeHigh : na
+plotCascadeLow = isCascadeActive ? cascadeLow : na
+
+plotshape(plotCascadeTrigger, style = shape.triangledown, location = location.abovebar, color = color.red, size = size.small)
+plotshape(plotEntryPrice, style = shape.circle, location = location.absolute, color = color.blue, size = size.tiny)
+plot(plotCascadeHigh, color = color.yellow, linewidth = 1, style = plot.style_linebr)
+plot(plotCascadeLow, color = color.yellow, linewidth = 1, style = plot.style_linebr)
+
+if isLossExit
+    box.new(
+        entryBar,
+        entryPrice,
+        bar_index,
+        lossExitPrice,
+        bgcolor = color.new(color.red, 85),
+        border_color = color.new(color.red, 0))
+if isProfitExit
+    box.new(
+        entryBar,
+        entryPrice,
+        bar_index,
+        profitExitPrice,
+        bgcolor = color.new(color.green, 85),
+        border_color = color.new(color.green, 0))
+
+// ALERT
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 var string alertMessage = na
 alertMessage := na
 
