@@ -200,27 +200,28 @@ if barstate.islast
 var string alertMessage = na
 alertMessage := na
 
-if triggerCascade
+if triggerCascade // wait for bar close to assess full magnitude
     totalMovePercentText = str.tostring(math.round(((high - low) / high) * 100.0, 2)) + "%"
-    alertMessage := "Downside stop cascade, " + totalMovePercentText + " move"
+    cascadeMessage = "Downside stop cascade, " + totalMovePercentText + " move"
+    alert(cascadeMessage, alert.freq_once_per_bar_close)
 
 else if triggerEntry
-    alertMessage := "Scalp long, " + str.tostring(close, format.mintick) + " / oz."
+    alertMessage := "Long scalp, " + str.tostring(close, format.mintick) + " / oz"
 
 else if triggerStopExit
     stopTicks = math.round((entryPrice - probeLow) / syminfo.mintick)
-    alertMessage := "Stop loss " + str.tostring(stopTicks) + " ticks"
+    alertMessage := "Stop loss, " + str.tostring(stopTicks) + " ticks"
 
 else if triggerTakeProfit
     profitTicks = math.round((cascadeHigh - entryPrice) / syminfo.mintick)
-    alertMessage := "Take profit " + str.tostring(profitTicks) + " ticks"
+    alertMessage := "Take profit, " + str.tostring(profitTicks) + " ticks"
 
 else if triggerExpiryExit
     expiryTicks = math.round(math.abs(close - entryPrice) / syminfo.mintick)
     alertMessage :=
          close > entryPrice ?
-         "Regime exhaustion, profit " + str.tostring(expiryTicks) + " ticks" :
-         "Regime exhaustion, loss " + str.tostring(expiryTicks) + " ticks"
+         "Cascade repair expired, profit " + str.tostring(expiryTicks) + " ticks" :
+         "Cascade repair expired, loss " + str.tostring(expiryTicks) + " ticks"
 
 if not na(alertMessage)
     alert(alertMessage, alert.freq_once_per_bar)
