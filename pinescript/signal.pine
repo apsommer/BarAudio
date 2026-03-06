@@ -1,6 +1,6 @@
 //@version=6
 indicator(
-    "SIL engine",
+    "signal",
     overlay = true,
     max_lines_count = 500,
     max_boxes_count = 500,
@@ -49,8 +49,8 @@ if triggerCascade and not isCascadeActive
     cascadeRange := high - low
     cascadeStartBar := bar_index
 
-// detect cascade extension
-isExtendingCascade =
+// extend regime
+triggerExtendingCascade =
      isCascadeActive
      and low < cascadeLow
 
@@ -118,18 +118,19 @@ if isProfitExit
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // extend regime before entry
-if isExtendingCascade
+if triggerExtendingCascade
     cascadeLow := low
     cascadeRange := cascadeHigh - cascadeLow
     isTradeActive := false
 
-// resolve regime
+// exit with profit
 if isCascadeActive and close > cascadeHigh
     isCascadeActive := false
     cascadeHigh := na
     cascadeLow := na
     cascadeRange := na
 
+// exit due to exipry (profit or loss)
 if isCascadeActive and isRegimeExpired
     isCascadeActive := false
     cascadeHigh := na
@@ -148,9 +149,7 @@ entryLevel = (close - cascadeLow) / cascadeRange
 isEntryLevelNearCascadeLow =
      entryLevel > 0
      and entryLevel < 0.2
-
 isNotExtendingCascade = low > cascadeLow
-
 isLargeBearBody = open > close and math.abs(close - open) / (high - low) > 0.5
 
 triggerEntry =
