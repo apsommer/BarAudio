@@ -177,6 +177,11 @@ assetName =
      isGold ? "Gold (MGC)" :
      "Untagged signal\n" + syminfo.description + " (" + syminfo.ticker + ")"
 
+assetNameColor =
+     isSilver ? color.silver :
+     isGold ? color.yellow :
+     color.red
+
 var table assetTable = table.new(position.top_right, 1, 1)
 
 if barstate.islast
@@ -185,7 +190,7 @@ if barstate.islast
          0,
          0,
          assetName,
-         text_color = color.white,
+         text_color = assetNameColor,
          text_size = size.normal,
          text_halign = text.align_right,
          bgcolor = na)
