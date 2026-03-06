@@ -202,25 +202,25 @@ alertMessage := na
 
 if triggerCascade
     totalMovePercentText = str.tostring(math.round(((high - low) / high) * 100.0, 2)) + "%"
-    alertMessage := "Downside stop cascade with " + totalMovePercentText + " move."
+    alertMessage := "Downside stop cascade, " + totalMovePercentText + " move"
 
 else if triggerEntry
-    alertMessage := "Long entry at " + str.tostring(close, format.mintick) + " / oz."
+    alertMessage := "Scalp long, " + str.tostring(close, format.mintick) + " / oz."
 
 else if triggerStopExit
     stopTicks = math.round((entryPrice - probeLow) / syminfo.mintick)
-    alertMessage := "Stop loss " + str.tostring(stopTicks) + " ticks."
+    alertMessage := "Stop loss " + str.tostring(stopTicks) + " ticks"
 
 else if triggerTakeProfit
     profitTicks = math.round((cascadeHigh - entryPrice) / syminfo.mintick)
-    alertMessage := "Take profit " + str.tostring(profitTicks) + " ticks."
+    alertMessage := "Take profit " + str.tostring(profitTicks) + " ticks"
 
 else if triggerExpiryExit
     expiryTicks = math.round(math.abs(close - entryPrice) / syminfo.mintick)
     alertMessage :=
          close > entryPrice ?
-         "Regime exhaustion exit with profit of " + str.tostring(expiryTicks) + " ticks." :
-         "Regime exhaustion exit with loss of " + str.tostring(expiryTicks) + " ticks."
+         "Regime exhaustion, profit " + str.tostring(expiryTicks) + " ticks" :
+         "Regime exhaustion, loss " + str.tostring(expiryTicks) + " ticks"
 
 if not na(alertMessage)
     alert(alertMessage, alert.freq_once_per_bar)
