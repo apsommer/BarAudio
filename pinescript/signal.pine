@@ -10,8 +10,8 @@ indicator(
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 CASCADE_LOOKBACK = 60
-MIN_CASCADE_MOVE = 0.5
-REGIME_MAX_BARS = 120
+MIN_CASCADE_MOVE = 1.2
+REGIME_MAX_BARS = 60
 
 // lifecycle
 var bool isCascadeActive = false
@@ -110,32 +110,29 @@ if isCascadeActive and isRegimeExpired
 // ENTRY
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-entryLevel = (close - cascadeLow) / cascadeRange
-isEntryLevelNearCascadeLow =
-     entryLevel > 0
-     and entryLevel < 0.2
-isNotExtendingCascade = low > cascadeLow
+entryLevel = cascadeLow + cascadeRange * 0.2
+isOpenInsideEntryZone = open < entryLevel
 isLargeBearBody = open > close and math.abs(close - open) / (high - low) > 0.5
 
 triggerEntry =
      isCascadeActive
      and not isTradeActive
      and bar_index > cascadeStartBar + 1
-     and isEntryLevelNearCascadeLow
-     and isNotExtendingCascade
+     and isOpenInsideEntryZone
+     and high > entryLevel
      and not isLargeBearBody
 
 if triggerEntry
     isTradeActive := true
     probeLow := cascadeLow
-    entryPrice := close
+    entryPrice := entryLevel
     entryBar := bar_index
 
 // PLOT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 plotCascadeTrigger = triggerCascade
-plotEntryPrice = triggerEntry ? close : na
+plotEntryPrice = triggerEntry ? entryLevel : na
 plotCascadeHigh = isCascadeActive ? cascadeHigh : na
 plotCascadeLow = isCascadeActive ? cascadeLow : na
 
@@ -189,4 +186,4 @@ else if triggerExpiryExit
          "Regime exhaustion exit with loss of " + str.tostring(expiryTicks) + " ticks."
 
 if not na(alertMessage)
-    alert(alertMessage, alert.freq_once_per_bar_close)
+    alert(alertMessage, alert.freq_once_per_bar)
