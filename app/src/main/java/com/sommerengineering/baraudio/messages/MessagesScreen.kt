@@ -52,7 +52,7 @@ fun MessagesScreen(
     // feed mode: linear, or grouped
     val feedMode = viewModel.feedMode
     val groups = remember(messages) { groupMessages(messages) }
-    val expandedGroups = remember { mutableStateMapOf<MessageOrigin, Boolean>() }
+    val expandedGroups = remember(feedMode) { mutableStateMapOf<MessageOrigin, Boolean>() }
 
     // toggle background image with dark mode
     val isDarkMode = viewModel.isDarkMode
