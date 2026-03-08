@@ -34,6 +34,7 @@ import com.sommerengineering.baraudio.source.resolveMessageOrigin
 import com.sommerengineering.baraudio.uitls.backgroundDarkAlpha
 import com.sommerengineering.baraudio.uitls.backgroundLightAlpha
 import com.sommerengineering.baraudio.uitls.edgePadding
+import com.sommerengineering.baraudio.uitls.rowHorizontalPadding
 import kotlinx.coroutines.launch
 
 @Composable
@@ -127,7 +128,7 @@ fun MessagesScreen(
                                         message = message,
                                         isShowDivider = !(groupIndex == groups.lastIndex && index == messages.lastIndex),
                                         modifier = Modifier
-                                            .padding(start = 20.dp)
+//                                            .padding(start = rowHorizontalPadding)
                                             .animateItem( // todo remove
                                                 fadeInSpec = null,
                                                 fadeOutSpec = null,

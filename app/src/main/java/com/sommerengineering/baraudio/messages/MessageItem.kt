@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -116,7 +117,7 @@ fun MessageItem(
                         viewModel.speakMessage(message) })
                 .animateContentSize(tween(messageItemExpansionTimeMillis))
                 .background(backgroundColor)
-                .padding(rowHorizontalPadding, rowVerticalPadding),
+                .padding(horizontal = rowHorizontalPadding),
             verticalAlignment = Alignment.CenterVertically) {
 
             // accent bar
@@ -124,13 +125,36 @@ fun MessageItem(
                 Modifier
                     .width(rowAccentWidth)
                     .fillMaxHeight()
-                    .clip(RoundedCornerShape(3.dp))
-                    .background(style.primary))
+            ) {
+
+                if (feedMode == FeedMode.Linear) {
+
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .padding(vertical = rowVerticalPadding)
+                            .clip(RoundedCornerShape(3.dp))
+                            .background(style.primary)
+                    )
+
+                } else {
+
+                    Box(
+                        Modifier
+                            .align(Alignment.Center)
+                            .width(rowAccentWidth / 2)
+                            .fillMaxHeight()
+                            .background(style.primary.copy(alpha = 0.6f))
+                    )
+                }
+            }
             Spacer(Modifier.width(rowIconPadding))
 
             // message, timestamp
             Column(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(vertical = rowVerticalPadding),
                 horizontalAlignment = Alignment.Start) {
                 Text(
                     text = displayText,
@@ -158,7 +182,10 @@ fun MessageItem(
                 painter = painterResource(style.iconRes),
                 contentDescription = null,
                 tint = if (style.isIconTinted) style.primary else Color.Unspecified,
-                modifier = Modifier.size(assetIconSize))
+                modifier = Modifier
+                    .padding(vertical = rowVerticalPadding)
+                    .size(assetIconSize)
+                    )
         }
 
         // divider between rows

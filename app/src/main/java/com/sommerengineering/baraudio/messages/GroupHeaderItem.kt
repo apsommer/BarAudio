@@ -1,5 +1,6 @@
 package com.sommerengineering.baraudio.messages
 
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -55,56 +57,78 @@ fun GroupHeaderItem(
 
     Column {
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(rowMinHeight)
-                .combinedClickable(onClick = { onExpand() })
-                .background(style.surface)
-                .padding(horizontal = rowHorizontalPadding),
-            verticalAlignment = Alignment.CenterVertically) {
+        Box {
 
-            // accent bar
-            Box(
-                Modifier
-                    .width(rowAccentWidth)
-                    .fillMaxHeight()
-                    .padding(vertical = rowVerticalPadding)
-                    .clip(RoundedCornerShape(3.dp))
-                    .background(style.primary))
-            Spacer(Modifier.width(rowIconPadding))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(rowMinHeight)
+                    .combinedClickable(onClick = { onExpand() })
+                    .background(style.surface)
+                    .padding(horizontal = rowHorizontalPadding),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
 
-            // display name and description
-            Column(
-                modifier = Modifier.weight(1f).height(rowMinHeight),
-                verticalArrangement = Arrangement.Center) {
+                // accent bar
+                Box(
+                    Modifier
+                        .width(rowAccentWidth)
+                        .fillMaxHeight()
+                        .padding(vertical = rowVerticalPadding)
+                        .clip(RoundedCornerShape(3.dp))
+                        .background(style.primary)
+                )
+                Spacer(Modifier.width(rowIconPadding))
+
+                // display name and description
+                Column(
+                    modifier = Modifier.weight(1f).height(rowMinHeight),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = displayName,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = style.text
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        text = description,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = style.accent,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+
+                // message count
+                Spacer(modifier = Modifier.width(rowIconPadding))
                 Text(
-                    text = displayName,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = style.text)
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    text = description,
+                    text = messageCount.toString(),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = style.accent,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis)
+                    color = style.accent
+                )
+
+                // chevron with rotation
+                val rotation by animateFloatAsState(if (isExpanded) 90f else 0f)
+                Icon(
+                    painter = painterResource(R.drawable.chevron),
+                    contentDescription = null,
+                    tint = style.primary,
+                    modifier = Modifier.rotate(rotation)
+                )
             }
 
-            // message count
-            Spacer(modifier = Modifier.width(rowIconPadding))
-            Text(
-                text = messageCount.toString(),
-                style = MaterialTheme.typography.bodyMedium,
-                color = style.accent)
-
-            // chevron with rotation
-            val rotation by animateFloatAsState(if (isExpanded) 90f else 0f)
-            Icon(
-                painter = painterResource(R.drawable.chevron),
-                contentDescription = null,
-                tint = style.primary,
-                modifier = Modifier.rotate(rotation))
+            // rail connector
+            if (isExpanded) {
+                val railWidth = rowAccentWidth / 2
+                Box(
+                    Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(start = rowHorizontalPadding + railWidth / 2)
+                        .width(railWidth)
+                        .height(8.dp + 6.dp)
+                        .background(style.primary.copy(alpha = 0.6f)))
+            }
         }
 
         // divider between rows
@@ -114,6 +138,7 @@ fun GroupHeaderItem(
                 color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 1f),
                 modifier = Modifier.fillMaxWidth())
         }
+
     }
 }
 
