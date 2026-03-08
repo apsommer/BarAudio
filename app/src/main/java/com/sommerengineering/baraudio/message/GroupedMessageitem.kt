@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.sommerengineering.baraudio.messages.EllipsisText
 import com.sommerengineering.baraudio.theme.timestampTextStyle
 import com.sommerengineering.baraudio.uitls.TimestampFormatter
 import com.sommerengineering.baraudio.uitls.assetIconSize
@@ -59,21 +60,24 @@ fun GroupedMessageItem(
             // collapsed
             if (!state.isExpanded) {
 
-                // message, timestamp
                 Row(
                     modifier = Modifier
                         .weight(1f)
                         .padding(vertical = rowVerticalPadding),
                     verticalAlignment = Alignment.CenterVertically) {
-                    Text(
+
+                    // message
+                    EllipsisText(
                         text = state.text,
-                        modifier = Modifier.weight(1f),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis)
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.weight(1f))
+
+                    // compact timestamp
                     Text(
                         text = state.beautifulTimestamp,
                         style = timestampTextStyle,
-                        color = MaterialTheme.colorScheme.outline)
+                        color = MaterialTheme.colorScheme.onSurface.copy(0.6f),
+                        modifier = Modifier.padding(start = rowHorizontalPadding))
                 }
             }
 
@@ -89,21 +93,24 @@ fun GroupedMessageItem(
                         .padding(vertical = rowVerticalPadding),
                     horizontalAlignment = Alignment.Start) {
 
-                    // message, timestamp
+                    // message
                     Text(
                         text = state.text,
                         style = MaterialTheme.typography.titleMedium)
                     Spacer(Modifier.height(4.dp))
+
+                    // compact timestamp
                     Text(
                         text = state.beautifulTimestamp,
-                        style = timestampTextStyle)
+                        style = timestampTextStyle,
+                        color = MaterialTheme.colorScheme.onSurface.copy(0.6f))
+                    Spacer(Modifier.height(4.dp))
 
                     // full timestamp
-                    Spacer(Modifier.height(4.dp))
                     Text(
                         text = TimestampFormatter.beautifyFull(state.timestamp),
                         style = timestampTextStyle,
-                        color = MaterialTheme.colorScheme.outline)
+                        color = MaterialTheme.colorScheme.onSurface.copy(0.45f))
                 }
 
                 // origin image

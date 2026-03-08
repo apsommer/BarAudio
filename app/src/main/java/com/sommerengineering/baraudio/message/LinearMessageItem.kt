@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.sommerengineering.baraudio.messages.EllipsisText
 import com.sommerengineering.baraudio.source.MessageOrigin
 import com.sommerengineering.baraudio.theme.timestampTextStyle
 import com.sommerengineering.baraudio.uitls.TimestampFormatter
@@ -72,29 +73,48 @@ fun LinearMessageItem(
             // todo isolate this expanded state and extract
             //  common to both Linear/GroupedMessageItem
 
-            // message, timestamp
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .padding(vertical = rowVerticalPadding),
                 horizontalAlignment = Alignment.Start) {
-                Text(
-                    text = displayText,
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = if (state.isExpanded) Int.MAX_VALUE else 1,
-                    overflow = TextOverflow.Ellipsis)
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    text = state.beautifulTimestamp,
-                    style = timestampTextStyle)
 
-                // expanded, full timestamp
-                if (state.isExpanded) {
+                // collapsed
+                if (!state.isExpanded) {
+
+                    // message
+                    EllipsisText(
+                        text = displayText,
+                        style = MaterialTheme.typography.titleMedium)
                     Spacer(Modifier.height(4.dp))
+
+                    // compact timestamp
+                    Text(
+                        text = state.beautifulTimestamp,
+                        style = timestampTextStyle,
+                        color = MaterialTheme.colorScheme.onSurface.copy(0.6f))
+
+                // expanded
+                } else {
+
+                    // message
+                    Text(
+                        text = displayText,
+                        style = MaterialTheme.typography.titleMedium)
+                    Spacer(Modifier.height(4.dp))
+
+                    // compact timestamp
+                    Text(
+                        text = state.beautifulTimestamp,
+                        style = timestampTextStyle,
+                        color = MaterialTheme.colorScheme.onSurface.copy(0.6f))
+                    Spacer(Modifier.height(4.dp))
+
+                    // full timestamp
                     Text(
                         text = TimestampFormatter.beautifyFull(state.timestamp),
                         style = timestampTextStyle,
-                        color = MaterialTheme.colorScheme.outline)
+                        color = MaterialTheme.colorScheme.onSurface.copy(0.45f))
                 }
             }
 
