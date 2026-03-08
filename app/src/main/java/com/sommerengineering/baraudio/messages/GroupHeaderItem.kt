@@ -81,9 +81,8 @@ fun GroupHeaderItem(
                 Text(
                     text = displayName,
                     style = MaterialTheme.typography.titleMedium,
-                    color = style.text,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis)
+                    color = style.text)
+                Spacer(Modifier.height(4.dp))
                 Text(
                     text = description,
                     style = MaterialTheme.typography.bodyMedium,
