@@ -30,8 +30,7 @@ import com.sommerengineering.baraudio.uitls.rowVerticalPadding
 @Composable
 fun GroupedMessageItem(
     state: MessageItemState,
-    isShowDivider: Boolean,
-) {
+    isShowDivider: Boolean) {
 
     Column {
         Row(
@@ -47,9 +46,8 @@ fun GroupedMessageItem(
 
             verticalAlignment = Alignment.CenterVertically) {
 
-            Rail(state.style.primary)
-
-            Spacer(Modifier.width(rowIconPadding))
+            // accent rail
+            GroupedRail(state.style.primary)
 
             // message, timestamp
             Column(
@@ -62,14 +60,12 @@ fun GroupedMessageItem(
                     text = state.text,
                     modifier = Modifier.weight(1f),
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+                    overflow = TextOverflow.Ellipsis)
 
                 Text(
                     text = state.beautifulTimestamp,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.outline
-                )
+                    color = MaterialTheme.colorScheme.outline)
 
                 // expanded, full timestamp
                 if (state.isExpanded) {
@@ -77,8 +73,7 @@ fun GroupedMessageItem(
                     Text(
                         text = TimestampFormatter.beautifyFull(state.timestamp),
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.outline
-                    )
+                        color = MaterialTheme.colorScheme.outline)
                 }
             }
         }

@@ -43,10 +43,9 @@ import com.sommerengineering.baraudio.uitls.rowVerticalPadding
 @Composable
 fun LinearMessageItem(
     state: MessageItemState,
-    isShowDivider: Boolean,
-    ) {
+    isShowDivider: Boolean) {
 
-    // prepend asset display name for streams in linear mode
+    // prepend asset display name for streams
     val displayText =
         if (state.origin is MessageOrigin.BroadcastStream) { "${state.origin.displayName}: ${state.text}" }
         else { state.text }
@@ -66,16 +65,8 @@ fun LinearMessageItem(
                 .padding(horizontal = rowHorizontalPadding),
             verticalAlignment = Alignment.CenterVertically) {
 
-            // accent bar
-            Box(
-                Modifier
-                    .width(rowAccentWidth)
-                    .fillMaxHeight()
-                    .padding(vertical = rowVerticalPadding)
-                    .clip(RoundedCornerShape(3.dp))
-                    .background(state.style.primary)
-            )
-            Spacer(Modifier.width(rowIconPadding))
+            // accent rail
+            LinearRail(state.style.primary)
 
             // message, timestamp
             Column(
