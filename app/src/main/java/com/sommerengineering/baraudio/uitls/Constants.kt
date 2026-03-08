@@ -137,7 +137,7 @@ val rowHorizontalPadding = 16.dp
 val rowVerticalPadding = 12.dp
 val rowIconPadding = 16.dp
 val rowAccentWidth = 6.dp
-val rowMinHeight = 56.dp
+val rowMinHeight = 72.dp
 val dividerThickness = 0.5.dp
 
 // onboarding
