@@ -65,13 +65,13 @@ fun GroupedMessageItem(
                         .padding(vertical = rowVerticalPadding)) {
                     Text(
                         text = state.text,
-                        modifier = Modifier
-                            .weight(1f),
+                        modifier = Modifier.weight(1f),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis)
                     Text(
                         text = state.beautifulTimestamp,
                         style = MaterialTheme.typography.bodySmall,
+//                        fontFamily = FontFamily.Monospace,
                         color = MaterialTheme.colorScheme.outline)
                 }
             }
