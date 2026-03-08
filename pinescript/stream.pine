@@ -1,6 +1,6 @@
 //@version=6
 indicator(
-    "signal engine",
+    "stream",
     overlay = true,
     max_boxes_count = 500,
     max_bars_back = 2000)

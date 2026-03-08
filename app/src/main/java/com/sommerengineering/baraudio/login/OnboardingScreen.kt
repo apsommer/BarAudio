@@ -39,7 +39,7 @@ import com.sommerengineering.baraudio.uitls.next
 import com.sommerengineering.baraudio.uitls.notificationAnimation
 import com.sommerengineering.baraudio.uitls.onboardingTotalPages
 import com.sommerengineering.baraudio.uitls.period
-import com.sommerengineering.baraudio.uitls.setupUrl
+import com.sommerengineering.baraudio.uitls.setupWebhookUrl
 import com.sommerengineering.baraudio.uitls.soundAnimation
 import com.sommerengineering.baraudio.uitls.ttsInstalledTitle
 import com.sommerengineering.baraudio.uitls.ttsNotInstalledTitle
@@ -130,7 +130,7 @@ fun OnboardingText(
                 append(webhookStartTitle)
                 withLink(
                     link = LinkAnnotation.Url(
-                        url = setupUrl,
+                        url = setupWebhookUrl,
                         styles = TextLinkStyles(
                             style = SpanStyle(
                                 textDecoration = TextDecoration.Underline,

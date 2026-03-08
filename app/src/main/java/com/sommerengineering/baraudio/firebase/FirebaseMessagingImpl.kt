@@ -25,7 +25,7 @@ class FirebaseServiceImpl: FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
 
         // ensure app is foreground or background
-        if (!processState.isAlive) return
+        if (!processState.isTaskAlive) return
 
         // convert remote message to domain model
         val message = remoteMessage.toMessage() ?: return

@@ -1,0 +1,225 @@
+//@version=6
+indicator(
+    "signal",
+    overlay = true,
+    max_lines_count = 500,
+    max_boxes_count = 500,
+    max_bars_back = 2000)
+
+// ASSET
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+isGold = str.contains(syminfo.ticker, "MGC")
+isSilver = str.contains(syminfo.ticker, "SIL")
+
+CASCADE_ATR_RATIO =
+     isSilver ? 2.0 :
+     isGold ? 2.0 :
+     2.2
+
+CASCADE_ATR_LENGTH = 20
+CASCADE_LOOKBACK = 60
+REGIME_MAX_BARS = 60
+
+// lifecycle
+var bool isCascadeActive = false
+var int cascadeStartBar = na
+var float cascadeHigh = na
+var float cascadeLow = na
+var float cascadeRange = na
+var bool isTradeActive = false
+var float probeLow = na
+var float entryPrice = na
+var int entryBar = na
+
+// CASCADE
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// detect cascade
+avgRange = ta.sma(high - low, 20)
+atr = ta.atr(CASCADE_ATR_LENGTH)
+
+isLargeCascadeBar =
+     (high - low) > avgRange * 2
+     and (high - low) > atr * CASCADE_ATR_RATIO
+body = math.abs(close - open)
+isBearBody = close < open
+isLowestLow = ta.lowest(low, CASCADE_LOOKBACK) == low
+
+triggerCascade =
+     isLargeCascadeBar
+     and isBearBody
+     and isLowestLow
+
+// start regime
+if triggerCascade and not isCascadeActive
+    isCascadeActive := true
+    cascadeHigh := high
+    cascadeLow := low
+    cascadeRange := high - low
+    cascadeStartBar := bar_index
+
+// extend regime
+triggerExtendingCascade =
+     isCascadeActive
+     and low < cascadeLow
+
+// EXIT
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+triggerStopExit =
+     isTradeActive
+     and low < probeLow
+
+triggerTakeProfit =
+     isTradeActive
+     and high > cascadeHigh
+
+isRegimeExpired = bar_index > cascadeStartBar + REGIME_MAX_BARS
+triggerExpiryExit =
+     isTradeActive
+     and isRegimeExpired
+
+triggerExit =
+     triggerStopExit
+     or triggerTakeProfit
+     or triggerExpiryExit
+
+if triggerExit
+    isTradeActive := false
+
+isLossExit = triggerStopExit or (triggerExpiryExit and entryPrice > close)
+lossExitPrice = triggerStopExit ? probeLow : close
+
+isProfitExit = triggerTakeProfit or (triggerExpiryExit and close > entryPrice)
+profitExitPrice = triggerTakeProfit ? cascadeHigh : close
+
+// EXTEND CASCADE
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// extend regime before entry
+if triggerExtendingCascade
+    cascadeLow := low
+    cascadeRange := cascadeHigh - cascadeLow
+    isTradeActive := false
+
+// exit with profit
+if isCascadeActive and close > cascadeHigh
+    isCascadeActive := false
+    cascadeHigh := na
+    cascadeLow := na
+    cascadeRange := na
+
+// exit due to exipry (profit or loss)
+if isCascadeActive and isRegimeExpired
+    isCascadeActive := false
+    cascadeHigh := na
+    cascadeLow := na
+    cascadeRange := na
+
+// ENTRY
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+entryLevel = cascadeLow + cascadeRange * 0.2
+isOpenInsideEntryZone = open < entryLevel
+isLargeBearBody = open > close and math.abs(close - open) / (high - low) > 0.5
+
+triggerEntry =
+     isCascadeActive
+     and not isTradeActive
+     and bar_index > cascadeStartBar + 1
+     and isOpenInsideEntryZone
+     and high > entryLevel
+     and not isLargeBearBody
+
+if triggerEntry
+    isTradeActive := true
+    probeLow := cascadeLow
+    entryPrice := entryLevel
+    entryBar := bar_index
+
+// PLOT
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+plotCascadeTrigger = triggerCascade
+plotEntryPrice = triggerEntry ? entryLevel : na
+plotCascadeHigh = isCascadeActive ? cascadeHigh : na
+plotCascadeLow = isCascadeActive ? cascadeLow : na
+
+plotshape(plotCascadeTrigger, style = shape.triangledown, location = location.abovebar, color = color.red, size = size.small)
+plotshape(plotEntryPrice, style = shape.circle, location = location.absolute, color = color.blue, size = size.tiny)
+plot(plotCascadeHigh, color = color.yellow, linewidth = 1, style = plot.style_linebr)
+plot(plotCascadeLow, color = color.yellow, linewidth = 1, style = plot.style_linebr)
+
+if isLossExit
+    box.new(
+        entryBar,
+        entryPrice,
+        bar_index,
+        lossExitPrice,
+        bgcolor = color.new(color.red, 85),
+        border_color = color.new(color.red, 0))
+if isProfitExit
+    box.new(
+        entryBar,
+        entryPrice,
+        bar_index,
+        profitExitPrice,
+        bgcolor = color.new(color.green, 85),
+        border_color = color.new(color.green, 0))
+
+// asset name (top right)
+
+assetName =
+     isSilver ? "Silver (SIL)" :
+     isGold ? "Gold (MGC)" :
+     "Untagged signal\n" + syminfo.description + " (" + syminfo.ticker + ")"
+
+assetNameColor =
+     isSilver ? color.silver :
+     isGold ? color.yellow :
+     color.red
+
+var table assetTable = table.new(position.top_right, 1, 1)
+
+if barstate.islast
+    table.cell(
+         assetTable,
+         0,
+         0,
+         assetName,
+         text_color = assetNameColor,
+         text_size = size.normal,
+         text_halign = text.align_right,
+         bgcolor = na)
+
+// ALERT
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+var string alertMessage = na
+alertMessage := na
+
+if triggerCascade // wait for bar close to assess full magnitude
+    totalMovePercentText = str.tostring(math.round(((high - low) / high) * 100.0, 2)) + "%"
+    cascadeMessage = "Downside stop cascade, " + totalMovePercentText
+    alert(cascadeMessage, alert.freq_once_per_bar_close)
+
+else if triggerEntry
+    alertMessage := "Long scalp, entry at " + str.tostring(close, format.mintick) + " / oz"
+
+else if triggerStopExit
+    stopTicks = math.round((entryPrice - probeLow) / syminfo.mintick)
+    alertMessage := "Stop loss, " + str.tostring(stopTicks) + " ticks"
+
+else if triggerTakeProfit
+    profitTicks = math.round((cascadeHigh - entryPrice) / syminfo.mintick)
+    alertMessage := "Take profit, " + str.tostring(profitTicks) + " ticks"
+
+else if triggerExpiryExit
+    expiryTicks = math.round(math.abs(close - entryPrice) / syminfo.mintick)
+    alertMessage :=
+         close > entryPrice ?
+         "Cascade repair expired, profit " + str.tostring(expiryTicks) + " ticks" :
+         "Cascade repair expired, loss " + str.tostring(expiryTicks) + " ticks"
+
+if not na(alertMessage)
+    alert(alertMessage, alert.freq_once_per_bar)

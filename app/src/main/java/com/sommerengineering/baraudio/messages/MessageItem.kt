@@ -21,7 +21,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -102,74 +101,72 @@ fun MessageItem(
         isLongPress = false
     }
 
-    Surface(modifier) {
-        Column {
+    Column {
 
-            Row(
-                modifier = Modifier
-                    .combinedClickable(
-                        onClick = { isExpanded = !isExpanded },
-                        onLongClick = {
-                            isExpanded = true
-                            isLongPress = true
-                            viewModel.speakMessage(message) })
-                    .animateContentSize(tween(messageItemExpansionTimeMillis))
-                    .height(IntrinsicSize.Min) // measure children, then update height (required for correct accent bar height)
-                    .background(backgroundColor)
-                    .heightIn(rowMinHeight)
-                    .padding(rowHorizontalPadding, rowVerticalPadding),
-                verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Min) // required for collapse/expand animation
+                .heightIn(min = rowMinHeight)
+                .combinedClickable(
+                    onClick = { isExpanded = !isExpanded },
+                    onLongClick = {
+                        isExpanded = true
+                        isLongPress = true
+                        viewModel.speakMessage(message) })
+                .animateContentSize(tween(messageItemExpansionTimeMillis))
+                .background(backgroundColor)
+                .padding(rowHorizontalPadding, rowVerticalPadding),
+            verticalAlignment = Alignment.CenterVertically) {
 
-                // accent bar
-                Box(
-                    Modifier
-                        .width(rowAccentWidth)
-                        .fillMaxHeight()
-                        .clip(RoundedCornerShape(3.dp))
-                        .background(style.primary)
-                )
-                Spacer(Modifier.width(rowIconPadding))
+            // accent bar
+            Box(
+                Modifier
+                    .width(rowAccentWidth)
+                    .fillMaxHeight()
+                    .clip(RoundedCornerShape(3.dp))
+                    .background(style.primary))
+            Spacer(Modifier.width(rowIconPadding))
 
-                // message, timestamp
-                Column(
-                    modifier = Modifier.weight(1f),
-                    horizontalAlignment = Alignment.Start) {
-                    Text(
-                        text = displayText,
-                        style = MaterialTheme.typography.titleMedium,
-                        maxLines = if (isExpanded) Int.MAX_VALUE else 1,
-                        overflow = TextOverflow.Ellipsis)
+            // message, timestamp
+            Column(
+                modifier = Modifier.weight(1f),
+                horizontalAlignment = Alignment.Start) {
+                Text(
+                    text = displayText,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = if (isExpanded) Int.MAX_VALUE else 1,
+                    overflow = TextOverflow.Ellipsis)
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = beautifulTimestamp,
+                    style = MaterialTheme.typography.bodyMedium)
+
+                // expanded, full timestamp
+                if (isExpanded) {
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        text = beautifulTimestamp,
-                        style = MaterialTheme.typography.bodyMedium)
-
-                    // expanded, full timestamp
-                    if (isExpanded) {
-                        Spacer(Modifier.height(4.dp))
-                        Text(
-                            text = TimestampFormatter.beautifyFull(timestamp),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.outline)
-                    }
+                        text = TimestampFormatter.beautifyFull(timestamp),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.outline)
                 }
-
-                // origin image
-                Spacer(Modifier.width(rowIconPadding))
-                Icon(
-                    painter = painterResource(style.iconRes),
-                    contentDescription = null,
-                    tint = if (style.isIconTinted) style.primary else Color.Unspecified,
-                    modifier = Modifier.size(assetIconSize))
             }
 
-            // divider between rows
-            if (isShowDivider) {
-                HorizontalDivider(
-                    thickness = dividerThickness,
-                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 1f),
-                    modifier = Modifier.fillMaxWidth())
-            }
+            // origin image
+            Spacer(Modifier.width(rowIconPadding))
+            Icon(
+                painter = painterResource(style.iconRes),
+                contentDescription = null,
+                tint = if (style.isIconTinted) style.primary else Color.Unspecified,
+                modifier = Modifier.size(assetIconSize))
+        }
+
+        // divider between rows
+        if (isShowDivider) {
+            HorizontalDivider(
+                thickness = dividerThickness,
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 1f),
+                modifier = modifier.fillMaxWidth())
         }
     }
 }

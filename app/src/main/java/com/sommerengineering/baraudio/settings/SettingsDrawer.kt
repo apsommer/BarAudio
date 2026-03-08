@@ -29,28 +29,34 @@ import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.source.MessageOrigin
 import com.sommerengineering.baraudio.source.gcAsset
 import com.sommerengineering.baraudio.source.nqAsset
+import com.sommerengineering.baraudio.source.siAsset
 import com.sommerengineering.baraudio.uitls.streamsDividerTitle
 import com.sommerengineering.baraudio.uitls.edgePadding
-import com.sommerengineering.baraudio.uitls.howToSetupTitle
 import com.sommerengineering.baraudio.uitls.legalDividerTitle
 import com.sommerengineering.baraudio.uitls.manageSubscriptionTitle
 import com.sommerengineering.baraudio.uitls.pitchChangeUtterance
 import com.sommerengineering.baraudio.uitls.pitchTitle
-import com.sommerengineering.baraudio.uitls.premiumStreamsDividerTitle
+import com.sommerengineering.baraudio.uitls.premiumDividerTitle
+import com.sommerengineering.baraudio.uitls.privacyPolicyTitle
+import com.sommerengineering.baraudio.uitls.privacyPolicyUrl
 import com.sommerengineering.baraudio.uitls.queueBehaviorTitle
 import com.sommerengineering.baraudio.uitls.screenTitle
-import com.sommerengineering.baraudio.uitls.setupUrl
+import com.sommerengineering.baraudio.uitls.setupWebhookUrl
 import com.sommerengineering.baraudio.uitls.signOutTitle
 import com.sommerengineering.baraudio.uitls.speedChangeUtterance
 import com.sommerengineering.baraudio.uitls.speedTitle
 import com.sommerengineering.baraudio.uitls.subscriptionUrl
-import com.sommerengineering.baraudio.uitls.systemTtsPackageName
+import com.sommerengineering.baraudio.uitls.systemTtsDescription
+import com.sommerengineering.baraudio.uitls.systemTtsInstallVoicesAction
 import com.sommerengineering.baraudio.uitls.systemTtsTitle
+import com.sommerengineering.baraudio.uitls.termsAndConditionsTitle
+import com.sommerengineering.baraudio.uitls.termsAndConditionsUrl
 import com.sommerengineering.baraudio.uitls.uiDividerTitle
 import com.sommerengineering.baraudio.uitls.uiModeTitle
 import com.sommerengineering.baraudio.uitls.voiceDividerTitle
 import com.sommerengineering.baraudio.uitls.voiceTitle
 import com.sommerengineering.baraudio.uitls.webhookBaseUrl
+import com.sommerengineering.baraudio.uitls.webhookDescription
 import com.sommerengineering.baraudio.uitls.webhookTitle
 
 @Composable
@@ -64,7 +70,6 @@ fun SettingsDrawer(
     val speed = viewModel.speed
     val pitch = viewModel.pitch
     val isQueueAdd = viewModel.isQueueAdd
-
     val voiceDescription = viewModel.voiceDescription
     val speedDescription = viewModel.speedDescription
     val pitchDescription = viewModel.pitchDescription
@@ -72,9 +77,11 @@ fun SettingsDrawer(
 
     val isNQ = viewModel.isNQ
     val isGC = viewModel.isGC
+    val isSI = viewModel.isSI
+    val webhookUrl = webhookBaseUrl + Firebase.auth.currentUser?.uid
+
     val isFullScreen = viewModel.isFullScreen
     val fullScreenDescription = viewModel.fullScreenDescription
-
     val isDarkMode = viewModel.isDarkMode
     val uiModeDescription = viewModel.darkModeDescription
 
@@ -93,7 +100,7 @@ fun SettingsDrawer(
 
             // voice
             item {
-                DialogSettingItem (
+                DialogItem (
                     iconRes = R.drawable.voice,
                     title = voiceTitle,
                     description = voiceDescription,
@@ -167,13 +174,14 @@ fun SettingsDrawer(
 
             // system tts settings
             item {
-                LinkSettingItem(
+                LinkItem(
                     iconRes = R.drawable.settings,
                     title = systemTtsTitle,
+                    description = systemTtsDescription,
                     onClick = {
                         with(context) {
                             startActivity(
-                                Intent(systemTtsPackageName)
+                                Intent(systemTtsInstallVoicesAction)
                                     .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
                         }
                     })
@@ -183,8 +191,6 @@ fun SettingsDrawer(
             item {
                 DividerItem(streamsDividerTitle)
             }
-
-            // todo refactor to AssetSettings composable, SourceSettings composable, premium composables, ...
 
             // stream NQ
             item {
@@ -197,7 +203,7 @@ fun SettingsDrawer(
 
             // divider
             item {
-                DividerItem(premiumStreamsDividerTitle)
+                DividerItem(premiumDividerTitle)
             }
 
             // stream GC
@@ -209,17 +215,23 @@ fun SettingsDrawer(
                     updateStream = { viewModel.updateGC(it) })
             }
 
+            // stream SI
+            item {
+                StreamSwitchItem(
+                    messageOrigin = MessageOrigin.BroadcastStream(siAsset),
+                    isDarkMode = isDarkMode,
+                    isStream = isSI,
+                    updateStream = { viewModel.updateSI(it) })
+            }
+
             // webhook
             item {
 
-                // set webhook url
-                val webhookUrl = webhookBaseUrl + Firebase.auth.currentUser?.uid
-
-                DialogSettingItem(
+                DialogItem(
                     iconRes = R.drawable.webhook,
                     title = webhookTitle,
-                    description = webhookUrl,
-                    onClick = { viewModel.saveToWebhookClipboard(webhookUrl) }) {
+                    description = webhookDescription,
+                    onClick = { uriHandler.openUri(setupWebhookUrl) }) {
 
                     IconButton(
                         onClick = { viewModel.saveToWebhookClipboard(webhookUrl) }) {
@@ -228,14 +240,6 @@ fun SettingsDrawer(
                             contentDescription = null)
                     }
                 }
-            }
-
-            // how to setup
-            item {
-                LinkSettingItem(
-                    iconRes = R.drawable.browser,
-                    title = howToSetupTitle,
-                    onClick = { uriHandler.openUri(setupUrl) })
             }
 
             // divider
@@ -276,15 +280,31 @@ fun SettingsDrawer(
 
             // manage subscription
             item {
-                LinkSettingItem(
+                LinkItem(
                     iconRes = R.drawable.credit_card_gear,
                     title = manageSubscriptionTitle,
                     onClick = { uriHandler.openUri(subscriptionUrl) })
             }
 
+            // terms and conditions
+            item {
+                LinkItem(
+                    iconRes = R.drawable.terms_and_conditions,
+                    title = termsAndConditionsTitle,
+                    onClick = { uriHandler.openUri(termsAndConditionsUrl) })
+            }
+
+            // privacy policy
+            item {
+                LinkItem(
+                    iconRes = R.drawable.privacy_policy,
+                    title = privacyPolicyTitle,
+                    onClick = { uriHandler.openUri(privacyPolicyUrl) })
+            }
+
             // sign-out
             item {
-                LinkSettingItem(
+                LinkItem(
                     iconRes = R.drawable.sign_out,
                     title = signOutTitle,
                     onClick = { onSignOut() })

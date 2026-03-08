@@ -34,8 +34,9 @@ object SingletonModule {
 
     @Provides
     @Singleton
-    fun provideProcessState() : ProcessState {
-        return ProcessState()
+    @ApplicationScope
+    fun provideApplicationScope(): CoroutineScope {
+        return CoroutineScope(SupervisorJob() + Dispatchers.IO)
     }
 
     @Provides
@@ -47,42 +48,8 @@ object SingletonModule {
 
     @Provides
     @Singleton
-    fun provideGoogleAuthenticator(
-        credentialManager: CredentialManager): GoogleAuthenticator {
-        return GoogleAuthenticator(credentialManager)
-    }
-
-    @Provides
-    @Singleton
     fun provideDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
         return context.dataStore
-    }
-
-    @Provides
-    @Singleton
-    fun provideTextToSpeech(
-        @ApplicationContext context: Context): TextToSpeechImpl {
-        return TextToSpeechImpl(context)
-    }
-
-    @Provides
-    @Singleton
-    fun provideBillingClient(
-        @ApplicationContext context: Context): BillingClientImpl {
-        return BillingClientImpl(context)
-    }
-
-    @Provides
-    @Singleton
-    @ApplicationScope
-    fun provideApplicationScope(): CoroutineScope {
-        return CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    }
-
-    @Provides
-    @Singleton
-    fun provideFirebaseDatabase(): FirebaseDatabaseImpl {
-        return FirebaseDatabaseImpl()
     }
 
     @Provides

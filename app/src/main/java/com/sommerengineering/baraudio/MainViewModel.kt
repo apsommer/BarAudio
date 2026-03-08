@@ -25,7 +25,6 @@ import com.sommerengineering.baraudio.uitls.uiDarkDescription
 import com.sommerengineering.baraudio.uitls.uiLightDescription
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
@@ -146,6 +145,14 @@ class MainViewModel @Inject constructor(
         repo.updateGC(enabled)
     }
 
+    // stream SI
+    var isSI by mutableStateOf(true)
+        private set
+    fun updateSI(enabled: Boolean) {
+        isSI = enabled
+        repo.updateSI(enabled)
+    }
+
     // feed mode: linear or grouped
     var feedMode by mutableStateOf(FeedMode.Linear)
         private set
@@ -185,6 +192,7 @@ class MainViewModel @Inject constructor(
             isOnboardingComplete = repo.loadOnboarding()
             isNQ = repo.loadNQ()
             isGC = repo.loadGC()
+            isSI = repo.loadSI()
             feedMode = repo.loadFeedMode()
             isFullScreen = repo.loadFullScreen()
         }

@@ -2,8 +2,6 @@ package com.sommerengineering.baraudio.uitls
 
 import android.speech.tts.TextToSpeech
 import android.util.Log
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import com.google.firebase.Firebase
 import com.google.firebase.crashlytics.crashlytics
@@ -23,9 +21,9 @@ const val colorTransitionTimeMillis = 100
 const val messageItemExpansionTimeMillis = 140
 
 // urls
-const val setupUrl = "https://sommerengineering.com/baraud.io"
-// const val privacyUrl = "https://sommerengineering.com/privacy_policy"
-// const val termsUrl = "https://sommerengineering.com/terms_and_conditions"
+const val setupWebhookUrl = "https://sommerengineering.com/baraud.io"
+const val termsAndConditionsUrl = "https://sommerengineering.com/terms_and_conditions"
+const val privacyPolicyUrl = "https://sommerengineering.com/privacy_policy"
 
 // room
 const val roomDatabaseName = "messages.db"
@@ -58,6 +56,7 @@ const val btcStream = "BTC"
 
 // premium streams
 const val gcStream = "GC"
+const val siStream = "SI"
 
 // user signals
 const val userSignalDescription = "Custom signal"
@@ -83,6 +82,7 @@ const val volumeKey = TextToSpeech.Engine.KEY_PARAM_VOLUME
 const val feedModeKey = "feedMode"
 const val isNQKey = "isNQ"
 const val isGCKey = "isGC"
+const val isSIKey = "isSI"
 
 // billing
 const val productId = "subscription" // match play store config
@@ -91,29 +91,32 @@ const val subscriptionUrl = "https://play.google.com/store/account/subscriptions
     productId + "&package=" + BuildConfig.APPLICATION_ID
 
 // settings
-const val systemTtsPackageName = "com.android.settings.TTS_SETTINGS"
-const val howToSetupTitle = "Customize your webhook"
-const val webhookTitle = "Webhook"
+const val voiceDividerTitle = "VOICE"
 const val voiceTitle = "Voice"
 const val speedTitle = "Speed"
 const val pitchTitle = "Pitch"
 const val queueBehaviorTitle = "Queue"
-const val uiModeTitle = "Theme"
-const val screenTitle = "Screen"
-const val systemTtsTitle = "System settings"
-const val manageSubscriptionTitle = "Manage subscription"
-const val signOutTitle = "Sign-out"
-const val voiceDividerTitle = "VOICE"
-const val uiDividerTitle = "THEME"
-const val streamsDividerTitle = "STREAMS"
-const val premiumStreamsDividerTitle = "PREMIUM STREAMS"
-const val legalDividerTitle = "ACCOUNT"
 const val queueFlushDescription = "Play new alerts immediately"
 const val queueAddDescription = "Add new alerts to queue"
-const val uiDarkDescription = "Dark"
-const val uiLightDescription = "Light"
+const val systemTtsTitle = "System settings"
+const val systemTtsDescription = "Install additional voices"
+const val systemTtsInstallVoicesAction = TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA
+const val streamsDividerTitle = "STREAMS"
+const val premiumDividerTitle = "PREMIUM"
+const val webhookTitle = "Custom signal"
+const val webhookDescription = "Webhook connection"
+const val uiDividerTitle = "THEME"
+const val screenTitle = "Screen"
 const val screenFullDescription = "Full screen"
 const val screenWindowedDescription = "Show system bars"
+const val uiModeTitle = "Theme"
+const val uiDarkDescription = "Dark"
+const val uiLightDescription = "Light"
+const val legalDividerTitle = "ACCOUNT"
+const val manageSubscriptionTitle = "Manage subscription"
+const val termsAndConditionsTitle = "Terms and conditions"
+const val privacyPolicyTitle = "Privacy"
+const val signOutTitle = "Sign-out"
 
 // images
 val loginButtonSize = 96.dp
@@ -134,7 +137,7 @@ val rowHorizontalPadding = 16.dp
 val rowVerticalPadding = 12.dp
 val rowIconPadding = 16.dp
 val rowAccentWidth = 6.dp
-val rowMinHeight = 56.dp
+val rowMinHeight = 72.dp
 val dividerThickness = 0.5.dp
 
 // onboarding

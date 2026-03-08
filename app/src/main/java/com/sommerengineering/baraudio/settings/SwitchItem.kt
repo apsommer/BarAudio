@@ -1,6 +1,5 @@
 package com.sommerengineering.baraudio.settings
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -21,7 +20,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.sommerengineering.baraudio.uitls.edgePadding
 import com.sommerengineering.baraudio.uitls.rowHorizontalPadding
 import com.sommerengineering.baraudio.uitls.rowIconPadding
 import com.sommerengineering.baraudio.uitls.rowMinHeight
