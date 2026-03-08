@@ -10,21 +10,28 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.uitls.TimestampFormatter
+import com.sommerengineering.baraudio.uitls.assetIconSize
 import com.sommerengineering.baraudio.uitls.dividerThickness
 import com.sommerengineering.baraudio.uitls.messageItemExpansionTimeMillis
 import com.sommerengineering.baraudio.uitls.rowHorizontalPadding
 import com.sommerengineering.baraudio.uitls.rowIconPadding
+import com.sommerengineering.baraudio.uitls.rowMinHeight
 import com.sommerengineering.baraudio.uitls.rowVerticalPadding
 
 @Composable
@@ -43,38 +50,70 @@ fun GroupedMessageItem(
                 .animateContentSize(tween(messageItemExpansionTimeMillis))
                 .background(state.backgroundColor)
                 .padding(horizontal = rowHorizontalPadding),
-
             verticalAlignment = Alignment.CenterVertically) {
 
             // accent rail
             GroupedRail(state.style.primary)
 
-            // message, timestamp
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(vertical = rowVerticalPadding),
-                horizontalAlignment = Alignment.Start) {
+            // collapsed
+            if (!state.isExpanded) {
 
-                Text(
-                    text = state.text,
-                    modifier = Modifier.weight(1f),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis)
+                // message, timestamp
+                Row(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(vertical = rowVerticalPadding)) {
+                    Text(
+                        text = state.text,
+                        modifier = Modifier
+                            .weight(1f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis)
+                    Text(
+                        text = state.beautifulTimestamp,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.outline)
+                }
+            }
 
-                Text(
-                    text = state.beautifulTimestamp,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.outline)
+            // todo isolate this expanded state and extract
+            //  common to both Linear/GroupedMessageItem
 
-                // expanded, full timestamp
-                if (state.isExpanded) {
+            // expanded, parity with expanded LinearMessageItem
+            else {
+
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(vertical = rowVerticalPadding),
+                    horizontalAlignment = Alignment.Start) {
+
+                    // message, timestamp
+                    Text(
+                        text = state.text,
+                        style = MaterialTheme.typography.titleMedium)
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        text = state.beautifulTimestamp,
+                        style = MaterialTheme.typography.bodyMedium)
+
+                    // full timestamp
                     Spacer(Modifier.height(4.dp))
                     Text(
                         text = TimestampFormatter.beautifyFull(state.timestamp),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.outline)
                 }
+
+                // origin image
+                Spacer(Modifier.width(rowIconPadding))
+                Icon(
+                    painter = painterResource(state.style.iconRes),
+                    contentDescription = null,
+                    tint = if (state.style.isIconTinted) state.style.primary else Color.Unspecified,
+                    modifier = Modifier
+                        .padding(vertical = rowVerticalPadding)
+                        .size(assetIconSize))
             }
         }
 

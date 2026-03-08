@@ -68,6 +68,9 @@ fun LinearMessageItem(
             // accent rail
             LinearRail(state.style.primary)
 
+            // todo isolate this expanded state and extract
+            //  common to both Linear/GroupedMessageItem
+
             // message, timestamp
             Column(
                 modifier = Modifier
@@ -102,8 +105,7 @@ fun LinearMessageItem(
                 tint = if (state.style.isIconTinted) state.style.primary else Color.Unspecified,
                 modifier = Modifier
                     .padding(vertical = rowVerticalPadding)
-                    .size(assetIconSize)
-            )
+                    .size(assetIconSize))
         }
 
         // divider between rows
