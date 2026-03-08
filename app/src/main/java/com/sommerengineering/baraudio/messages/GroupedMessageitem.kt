@@ -1,6 +1,5 @@
 package com.sommerengineering.baraudio.messages
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -11,97 +10,44 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.sommerengineering.baraudio.MainViewModel
-import com.sommerengineering.baraudio.source.Message
-import com.sommerengineering.baraudio.source.resolveMessageOrigin
 import com.sommerengineering.baraudio.uitls.TimestampFormatter
 import com.sommerengineering.baraudio.uitls.dividerThickness
 import com.sommerengineering.baraudio.uitls.messageItemExpansionTimeMillis
 import com.sommerengineering.baraudio.uitls.rowHorizontalPadding
 import com.sommerengineering.baraudio.uitls.rowIconPadding
-import com.sommerengineering.baraudio.uitls.rowMinHeight
 import com.sommerengineering.baraudio.uitls.rowVerticalPadding
-import kotlinx.coroutines.delay
 
 @Composable
-fun GroupedMessageRow(
-    viewModel: MainViewModel,
-    message: Message,
+fun GroupedMessageItem(
+    state: MessageItemState,
     isShowDivider: Boolean,
-    modifier: Modifier) {
-
-    // extract message attributes
-    val timestamp = message.timestamp
-    val text = message.message
-
-    // style from origin
-    val isDarkMode = viewModel.isDarkMode
-    val origin = resolveMessageOrigin(message)
-    val style = resolveMessageStyle(origin, isDarkMode)
-
-    // update timestamp once per minute
-    var beautifulTimestamp by remember { mutableStateOf("") }
-    LaunchedEffect(Unit) {
-        while (true) {
-            beautifulTimestamp = TimestampFormatter.beautifyCompact(timestamp)
-            val now = System.currentTimeMillis() // millis since epoch
-            val delayMillis = 60_000L - (now % 60_000L) // millis remaining in current minute
-            delay(delayMillis) // wait until next minute boundary
-        }
-    }
-
-    // detect tap (expand) and long press (speak)
-    var isExpanded by remember { mutableStateOf(false) }
-    var isLongPress by remember { mutableStateOf(false) }
-
-    // animate background color on click events
-    val backgroundColor by animateColorAsState(when {
-        isExpanded -> MaterialTheme.colorScheme.surfaceContainerHighest
-        isLongPress -> MaterialTheme.colorScheme.secondaryContainer
-        else -> MaterialTheme.colorScheme.surfaceContainer },
-        label = "background")
-
-    // clear long press animation after delay
-    LaunchedEffect(isLongPress) {
-        if (!isLongPress) return@LaunchedEffect
-        delay(180)
-        isLongPress = false
-    }
+) {
 
     Column {
         Row(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxWidth()
                 .height(IntrinsicSize.Min) // required for collapse/expand animation
                 .combinedClickable(
-                    onClick = { isExpanded = !isExpanded },
-                    onLongClick = {
-                        isExpanded = true
-                        isLongPress = true
-                        viewModel.speakMessage(message) })
+                    onClick = state.onClick,
+                    onLongClick = state.onLongClick)
                 .animateContentSize(tween(messageItemExpansionTimeMillis))
-                .background(backgroundColor)
+                .background(state.backgroundColor)
                 .padding(horizontal = rowHorizontalPadding),
 
             verticalAlignment = Alignment.CenterVertically) {
 
-            Rail(style.primary)
+            Rail(state.style.primary)
 
             Spacer(Modifier.width(rowIconPadding))
 
@@ -112,23 +58,23 @@ fun GroupedMessageRow(
                 horizontalAlignment = Alignment.Start) {
 
                 Text(
-                    text = text,
+                    text = state.text,
                     modifier = Modifier.weight(1f),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
 
                 Text(
-                    text = beautifulTimestamp,
+                    text = state.beautifulTimestamp,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.outline
                 )
 
                 // expanded, full timestamp
-                if (isExpanded) {
+                if (state.isExpanded) {
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        text = TimestampFormatter.beautifyFull(timestamp),
+                        text = TimestampFormatter.beautifyFull(state.timestamp),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.outline
                     )
@@ -141,7 +87,7 @@ fun GroupedMessageRow(
             HorizontalDivider(
                 thickness = dividerThickness,
                 color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 1f),
-                modifier = modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }

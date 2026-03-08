@@ -2,14 +2,14 @@ package com.sommerengineering.baraudio.source
 
 import androidx.compose.ui.graphics.Color
 import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.messages.ItemStyle
+import com.sommerengineering.baraudio.messages.MessageStyle
 
 val tradingViewSource = Source(
     key = "tradingview",
     displayName = "TradingView",
     order = 0,
     style = { isDark ->
-        ItemStyle(
+        MessageStyle(
             primary = Color(0xFF2962FF),
             accent = Color(0xFF82B1FF),
             surface = if (isDark) Color(0xFF0B1A3A) else Color(0xFFE8F0FF),
@@ -25,7 +25,7 @@ val trendSpiderSource = Source(
     displayName = "TrendSpider",
     order = 1,
     style = { isDark ->
-        ItemStyle(
+        MessageStyle(
             primary = Color(0xFF00C853),
             accent = Color(0xFF69F0AE),
             surface = if (isDark) Color(0xFF002B12) else Color(0xFFE8FBEF),
@@ -41,7 +41,7 @@ val insomniaSource = Source(
     displayName = "Insomnia",
     order = 2,
     style = { isDark ->
-        ItemStyle(
+        MessageStyle(
             primary = Color(0xFF4000BF),
             accent = Color(0xFF7C4DFF),
             surface = if (isDark) Color(0xFF1B0D3A) else Color(0xFFF2EDFF),
@@ -56,7 +56,7 @@ val unknownSource = Source(
     displayName = "Unknown",
     order = 3,
     style = { isDark ->
-        ItemStyle(
+        MessageStyle(
             primary = if (isDark) Color(0xFF8A8A8A) else Color(0xFF9E9E9E),
             accent = if (isDark) Color(0xFFB0B0B0) else Color(0xFFC7C7C7),
             surface = if (isDark) Color(0xFF1C1C1C) else Color(0xFFF2F2F2),

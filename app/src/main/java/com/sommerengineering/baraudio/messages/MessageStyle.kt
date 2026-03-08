@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import com.sommerengineering.baraudio.source.MessageOrigin
 
-data class ItemStyle(
+data class MessageStyle(
     val primary: Color,
     val accent: Color,
     val surface: Color,
@@ -21,3 +21,15 @@ fun resolveMessageStyle(
     is MessageOrigin.BroadcastStream -> origin.asset.style(isDarkMode)
     is MessageOrigin.UserSignal -> origin.source.style(isDarkMode)
 }
+
+data class MessageItemState(
+    val text: String,
+    val timestamp: String,
+    val beautifulTimestamp: String,
+    val origin: MessageOrigin,
+    val style: MessageStyle,
+    val isExpanded: Boolean,
+    val backgroundColor: Color,
+    val onClick: () -> Unit,
+    val onLongClick: () -> Unit
+)

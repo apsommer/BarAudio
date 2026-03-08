@@ -97,10 +97,11 @@ fun MessagesScreen(
                                 viewModel = viewModel,
                                 message = message,
                                 isShowDivider = index != messages.lastIndex,
-                                modifier = Modifier.animateItem(
-                                    fadeInSpec = null,
-                                    fadeOutSpec = null,
-                                    placementSpec = spring(stiffness = Spring.StiffnessLow))) }}
+//                                modifier = Modifier.animateItem(
+//                                    fadeInSpec = null,
+//                                    fadeOutSpec = null,
+//                                    placementSpec = spring(stiffness = Spring.StiffnessLow))
+                            ) }}
 
                     // grouped messages by origin, then by timestamp
                     FeedMode.Grouped -> {
@@ -127,12 +128,13 @@ fun MessagesScreen(
                                         viewModel = viewModel,
                                         message = message,
                                         isShowDivider = !(groupIndex == groups.lastIndex && index == messages.lastIndex),
-                                        modifier = Modifier
-//                                            .padding(start = rowHorizontalPadding)
-                                            .animateItem( // todo remove
-                                                fadeInSpec = null,
-                                                fadeOutSpec = null,
-                                                placementSpec = spring(stiffness = Spring.StiffnessLow)))
+//                                        modifier = Modifier
+////                                            .padding(start = rowHorizontalPadding)
+//                                            .animateItem( // todo remove
+//                                                fadeInSpec = null,
+//                                                fadeOutSpec = null,
+//                                                placementSpec = spring(stiffness = Spring.StiffnessLow))
+                                    )
                                 }
                             }
                         }

@@ -1,6 +1,6 @@
 package com.sommerengineering.baraudio.source
 
-import com.sommerengineering.baraudio.messages.ItemStyle
+import com.sommerengineering.baraudio.messages.MessageStyle
 
 data class Asset(
     val origin: String,
@@ -12,5 +12,5 @@ data class Asset(
     val assetDescription: String,
     val signalDescription: String,
     val order: Int,
-    val style: (isDark: Boolean) -> ItemStyle
+    val style: (isDark: Boolean) -> MessageStyle
 )
