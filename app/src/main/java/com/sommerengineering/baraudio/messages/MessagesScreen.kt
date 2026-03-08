@@ -1,7 +1,5 @@
 package com.sommerengineering.baraudio.messages
 
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -22,10 +20,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
+import com.sommerengineering.baraudio.message.GroupHeaderItem
+import com.sommerengineering.baraudio.message.MessageItem
 import com.sommerengineering.baraudio.settings.SettingsDrawer
 import com.sommerengineering.baraudio.source.Message
 import com.sommerengineering.baraudio.source.MessageGroup
@@ -34,7 +33,6 @@ import com.sommerengineering.baraudio.source.resolveMessageOrigin
 import com.sommerengineering.baraudio.uitls.backgroundDarkAlpha
 import com.sommerengineering.baraudio.uitls.backgroundLightAlpha
 import com.sommerengineering.baraudio.uitls.edgePadding
-import com.sommerengineering.baraudio.uitls.rowHorizontalPadding
 import kotlinx.coroutines.launch
 
 @Composable
@@ -101,7 +99,8 @@ fun MessagesScreen(
 //                                    fadeInSpec = null,
 //                                    fadeOutSpec = null,
 //                                    placementSpec = spring(stiffness = Spring.StiffnessLow))
-                            ) }}
+                            )
+                        }}
 
                     // grouped messages by origin, then by timestamp
                     FeedMode.Grouped -> {

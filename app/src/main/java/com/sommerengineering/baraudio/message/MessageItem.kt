@@ -1,10 +1,6 @@
-package com.sommerengineering.baraudio.messages
+package com.sommerengineering.baraudio.message
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -12,24 +8,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import com.sommerengineering.baraudio.MainViewModel
+import com.sommerengineering.baraudio.messages.FeedMode
 import com.sommerengineering.baraudio.source.Message
-import com.sommerengineering.baraudio.source.MessageOrigin
 import com.sommerengineering.baraudio.source.resolveMessageOrigin
 import com.sommerengineering.baraudio.uitls.TimestampFormatter
-import com.sommerengineering.baraudio.uitls.rowAccentWidth
 import kotlinx.coroutines.delay
 
 @Composable
 fun MessageItem(
     viewModel: MainViewModel,
     message: Message,
-    isShowDivider: Boolean,
-//    modifier: Modifier
-) {
+    isShowDivider: Boolean) {
 
     // extract message attributes
     val timestamp = message.timestamp
@@ -83,41 +73,17 @@ fun MessageItem(
             isExpanded = true
             isLongPress = true
             viewModel.speakMessage(message)
-        }
-    )
+        })
 
+    // feed mode
     val feedMode = viewModel.feedMode
-
     if (feedMode == FeedMode.Linear) {
-
         LinearMessageItem(
             state = messageItemState,
-            isShowDivider = isShowDivider
-        )
+            isShowDivider = isShowDivider)
         return
     }
-
     GroupedMessageItem(
         state = messageItemState,
-        isShowDivider = isShowDivider
-    )
-}
-
-@Composable
-fun Rail(color: Color) {
-
-    Box(
-        Modifier
-            .width(rowAccentWidth)
-            .fillMaxHeight()
-    ) {
-
-        Box(
-            Modifier
-                .align(Alignment.Center)
-                .width(rowAccentWidth / 2)
-                .fillMaxHeight()
-                .background(color.copy(alpha = 0.6f))
-        )
-    }
+        isShowDivider = isShowDivider)
 }
