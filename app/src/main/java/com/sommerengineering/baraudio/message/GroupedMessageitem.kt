@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.sommerengineering.baraudio.theme.timestampTextStyle
 import com.sommerengineering.baraudio.uitls.TimestampFormatter
 import com.sommerengineering.baraudio.uitls.assetIconSize
 import com.sommerengineering.baraudio.uitls.dividerThickness
@@ -62,7 +63,8 @@ fun GroupedMessageItem(
                 Row(
                     modifier = Modifier
                         .weight(1f)
-                        .padding(vertical = rowVerticalPadding)) {
+                        .padding(vertical = rowVerticalPadding),
+                    verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = state.text,
                         modifier = Modifier.weight(1f),
@@ -70,8 +72,7 @@ fun GroupedMessageItem(
                         overflow = TextOverflow.Ellipsis)
                     Text(
                         text = state.beautifulTimestamp,
-                        style = MaterialTheme.typography.bodySmall,
-//                        fontFamily = FontFamily.Monospace,
+                        style = timestampTextStyle,
                         color = MaterialTheme.colorScheme.outline)
                 }
             }
@@ -95,13 +96,13 @@ fun GroupedMessageItem(
                     Spacer(Modifier.height(4.dp))
                     Text(
                         text = state.beautifulTimestamp,
-                        style = MaterialTheme.typography.bodyMedium)
+                        style = timestampTextStyle)
 
                     // full timestamp
                     Spacer(Modifier.height(4.dp))
                     Text(
                         text = TimestampFormatter.beautifyFull(state.timestamp),
-                        style = MaterialTheme.typography.bodySmall,
+                        style = timestampTextStyle,
                         color = MaterialTheme.colorScheme.outline)
                 }
 

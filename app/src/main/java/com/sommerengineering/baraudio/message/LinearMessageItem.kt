@@ -30,6 +30,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.source.MessageOrigin
+import com.sommerengineering.baraudio.theme.timestampTextStyle
 import com.sommerengineering.baraudio.uitls.TimestampFormatter
 import com.sommerengineering.baraudio.uitls.assetIconSize
 import com.sommerengineering.baraudio.uitls.dividerThickness
@@ -85,14 +86,14 @@ fun LinearMessageItem(
                 Spacer(Modifier.height(4.dp))
                 Text(
                     text = state.beautifulTimestamp,
-                    style = MaterialTheme.typography.bodyMedium)
+                    style = timestampTextStyle)
 
                 // expanded, full timestamp
                 if (state.isExpanded) {
                     Spacer(Modifier.height(4.dp))
                     Text(
                         text = TimestampFormatter.beautifyFull(state.timestamp),
-                        style = MaterialTheme.typography.bodySmall,
+                        style = timestampTextStyle,
                         color = MaterialTheme.colorScheme.outline)
                 }
             }
