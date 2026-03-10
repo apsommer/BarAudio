@@ -1,7 +1,5 @@
 package com.sommerengineering.baraudio.messages
 
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -22,10 +20,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
+import com.sommerengineering.baraudio.message.GroupHeaderItem
+import com.sommerengineering.baraudio.message.MessageItem
 import com.sommerengineering.baraudio.settings.SettingsDrawer
 import com.sommerengineering.baraudio.source.Message
 import com.sommerengineering.baraudio.source.MessageGroup
@@ -96,10 +95,12 @@ fun MessagesScreen(
                                 viewModel = viewModel,
                                 message = message,
                                 isShowDivider = index != messages.lastIndex,
-                                modifier = Modifier.animateItem(
-                                    fadeInSpec = null,
-                                    fadeOutSpec = null,
-                                    placementSpec = spring(stiffness = Spring.StiffnessLow))) }}
+//                                modifier = Modifier.animateItem(
+//                                    fadeInSpec = null,
+//                                    fadeOutSpec = null,
+//                                    placementSpec = spring(stiffness = Spring.StiffnessLow))
+                            )
+                        }}
 
                     // grouped messages by origin, then by timestamp
                     FeedMode.Grouped -> {
@@ -126,12 +127,13 @@ fun MessagesScreen(
                                         viewModel = viewModel,
                                         message = message,
                                         isShowDivider = !(groupIndex == groups.lastIndex && index == messages.lastIndex),
-                                        modifier = Modifier
-                                            .padding(start = 20.dp)
-                                            .animateItem( // todo remove
-                                                fadeInSpec = null,
-                                                fadeOutSpec = null,
-                                                placementSpec = spring(stiffness = Spring.StiffnessLow)))
+//                                        modifier = Modifier
+////                                            .padding(start = rowHorizontalPadding)
+//                                            .animateItem( // todo remove
+//                                                fadeInSpec = null,
+//                                                fadeOutSpec = null,
+//                                                placementSpec = spring(stiffness = Spring.StiffnessLow))
+                                    )
                                 }
                             }
                         }

@@ -1,10 +1,10 @@
-package com.sommerengineering.baraudio.messages
+package com.sommerengineering.baraudio.message
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import com.sommerengineering.baraudio.source.MessageOrigin
 
-data class ItemStyle(
+data class MessageItemStyle(
     val primary: Color,
     val accent: Color,
     val surface: Color,

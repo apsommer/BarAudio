@@ -1,6 +1,6 @@
 package com.sommerengineering.baraudio.source
 
-import com.sommerengineering.baraudio.messages.ItemStyle
+import com.sommerengineering.baraudio.message.MessageItemStyle
 
 sealed interface MessageOrigin {
 
@@ -10,7 +10,7 @@ sealed interface MessageOrigin {
     val signalDescription: String // settings description
     val order: Int
     fun settingsTitle(): String
-    fun style(isDark: Boolean): ItemStyle
+    fun style(isDark: Boolean): MessageItemStyle
 
     data class BroadcastStream(val asset: Asset) : MessageOrigin {
         override val key = asset.origin

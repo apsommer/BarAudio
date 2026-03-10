@@ -2,7 +2,7 @@ package com.sommerengineering.baraudio.source
 
 import androidx.compose.ui.graphics.Color
 import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.messages.ItemStyle
+import com.sommerengineering.baraudio.message.MessageItemStyle
 import com.sommerengineering.baraudio.uitls.btcStream
 import com.sommerengineering.baraudio.uitls.esStream
 import com.sommerengineering.baraudio.uitls.gcStream
@@ -21,7 +21,7 @@ val nqAsset = Asset(
     order = 0,
     style = { isDark ->
         if (isDark) {
-            ItemStyle(
+            MessageItemStyle(
                 primary = Color(0xFF9A84FF),
                 accent = Color(0xFFC2B5FF),
                 surface = Color(0xFF15122A),
@@ -29,7 +29,7 @@ val nqAsset = Asset(
                 iconRes = R.drawable.nq
             )
         } else {
-            ItemStyle(
+            MessageItemStyle(
                 primary = Color(0xFF7B61FF),
                 accent = Color(0xFF9A84FF),
                 surface = Color(0xFFF3F0FF),
@@ -50,7 +50,7 @@ val esAsset = Asset(
     order = 1,
     style = { isDark ->
         if (isDark) {
-            ItemStyle(
+            MessageItemStyle(
                 primary = Color(0xFF69A6FF),
                 accent = Color(0xFF9CC4FF),
                 surface = Color(0xFF0D1A2B),
@@ -58,7 +58,7 @@ val esAsset = Asset(
                 iconRes = R.drawable.es
             )
         } else {
-            ItemStyle(
+            MessageItemStyle(
                 primary = Color(0xFF3A86FF),
                 accent = Color(0xFF69A6FF),
                 surface = Color(0xFFEEF4FF),
@@ -79,7 +79,7 @@ val btcAsset = Asset(
     order = 2,
     style = { isDark ->
         if (isDark) {
-            ItemStyle(
+            MessageItemStyle(
                 primary = Color(0xFFFFB454),
                 accent = Color(0xFFFFD089),
                 surface = Color(0xFF2A1B00),
@@ -87,7 +87,7 @@ val btcAsset = Asset(
                 iconRes = R.drawable.btc
             )
         } else {
-            ItemStyle(
+            MessageItemStyle(
                 primary = Color(0xFFF7931A),
                 accent = Color(0xFFFFB454),
                 surface = Color(0xFFFFF4E5),
@@ -110,7 +110,7 @@ val gcAsset = Asset(
     order = 3,
     style = { isDark ->
         if (isDark) {
-            ItemStyle(
+            MessageItemStyle(
                 primary = Color(0xFFE6C96A),
                 accent = Color(0xFFF4DE9A),
                 surface = Color(0xFF2B2400),
@@ -118,7 +118,7 @@ val gcAsset = Asset(
                 iconRes = R.drawable.coins
             )
         } else {
-            ItemStyle(
+            MessageItemStyle(
                 primary = Color(0xFFD4AF37),
                 accent = Color(0xFFE6C96A),
                 surface = Color(0xFFFFF8E1),
@@ -139,14 +139,14 @@ val siAsset = Asset(
     order = 4,
     style = { isDark ->
         if (isDark) {
-            ItemStyle(
+            MessageItemStyle(
                 primary = Color(0xFFE6EEF5),
                 accent = Color(0xFFFFFFFF),
                 surface = Color(0xFF0F1418),
                 text = Color(0xFFF5FAFF),
                 iconRes = R.drawable.coins)
         } else {
-            ItemStyle(
+            MessageItemStyle(
                 primary = Color(0xFFDCE6EE),
                 accent = Color(0xFFF8FCFF),
                 surface = Color(0xFFF6F9FC),
