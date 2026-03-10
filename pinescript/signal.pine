@@ -148,8 +148,8 @@ plotCascadeLow = isCascadeActive ? cascadeLow : na
 
 plotshape(plotCascadeTrigger, style = shape.triangledown, location = location.abovebar, color = color.red, size = size.small)
 plotshape(plotEntryPrice, style = shape.circle, location = location.absolute, color = color.blue, size = size.tiny)
-plot(plotCascadeHigh, color = color.yellow, linewidth = 1, style = plot.style_linebr)
-plot(plotCascadeLow, color = color.yellow, linewidth = 1, style = plot.style_linebr)
+plot(plotCascadeHigh, color = color.orange, linewidth = 1, style = plot.style_linebr)
+plot(plotCascadeLow, color = color.orange, linewidth = 1, style = plot.style_linebr)
 
 if isLossExit
     box.new(
@@ -193,26 +193,28 @@ if barstate.islast
 // ALERT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Event • Context • Value
+
 var string alertMessage = na
 alertMessage := na
 
 if triggerEntry
-    alertMessage := "Entry long | Scalp | " + str.format("{0,number,#,##0.00}", close) + " / oz"
+    alertMessage := "Entry • Long probe • " + str.format("{0,number,#,##0.00}", close) + " / oz"
 
 if triggerStopExit
     stopTicks = math.round((entryPrice - probeLow) / syminfo.mintick)
-    alertMessage := "Exit long | Stop loss | " + str.tostring(stopTicks) + " ticks"
+    alertMessage := "Exit • Stop loss • " + str.tostring(stopTicks) + " ticks"
 
 if triggerTakeProfit
-    profitTicks = math.round((cascadeHigh[1] - entryPrice) / syminfo.mintick) // [1] because cascadeHigh reset on exit, todo: clean up
-    alertMessage := "Exit long | Take profit | " + str.tostring(profitTicks) + " ticks"
+    profitTicks = math.round((cascadeHigh[1] - entryPrice) / syminfo.mintick)
+    alertMessage := "Exit • Take profit • " + str.tostring(profitTicks) + " ticks"
 
 if triggerExpiryExit
     expiryTicks = math.round(math.abs(open - entryPrice) / syminfo.mintick)
     alertMessage :=
          open > entryPrice ?
-         "Cascade repair expired | Take profit | " + str.tostring(expiryTicks) + " ticks" :
-         "Cascade repair expired | Stop loss | " + str.tostring(expiryTicks) + " ticks"
+         "Exit • Expiry profit • " + str.tostring(expiryTicks) + " ticks" :
+         "Exit • Expiry loss • " + str.tostring(expiryTicks) + " ticks"
 
 if not na(alertMessage)
     alert(alertMessage, alert.freq_once_per_bar)
@@ -220,5 +222,5 @@ if not na(alertMessage)
 // wait for bar close to assess full magnitude
 if triggerCascade
     totalMovePercentText = str.tostring(math.round(((high - low) / high) * 100.0, 2)) + "%"
-    cascadeMessage = "Stop cascade | Downside | " + totalMovePercentText
+    cascadeMessage = "Market • Cascade • Long liquidation • " + totalMovePercentText
     alert(cascadeMessage, alert.freq_once_per_bar_close)
