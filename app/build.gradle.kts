@@ -147,11 +147,12 @@ dependencies {
     implementation(libs.dotlottie.android)
     implementation(libs.hilt.android)
     implementation(libs.androidx.lifecycle.process)
-    ksp(libs.hilt.compiler)
-    ksp(libs.kotlin.metadata)
-
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
+    implementation("com.ibm.icu:icu4j:78.2")
+
+    ksp(libs.hilt.compiler)
+    ksp(libs.kotlin.metadata)
     ksp(libs.androidx.room.compiler)
 
     testImplementation(libs.junit)
