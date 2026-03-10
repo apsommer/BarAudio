@@ -49,7 +49,7 @@ fun LinearMessageItem(
 
     // prepend asset display name for streams
     val displayText =
-        if (state.origin is MessageOrigin.BroadcastStream) { "${state.origin.displayName}: ${state.text}" }
+        if (state.origin is MessageOrigin.BroadcastStream) { "${state.origin.displayName} • ${state.text}" }
         else { state.text }
 
     Column {
