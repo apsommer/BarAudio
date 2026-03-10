@@ -149,7 +149,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.process)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
-    implementation("com.ibm.icu:icu4j:78.2")
+    implementation(libs.icu4j)
 
     ksp(libs.hilt.compiler)
     ksp(libs.kotlin.metadata)
