@@ -126,14 +126,37 @@ class TextToSpeechImpl @Inject constructor(
         spokenText = Regex("""\b(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII|XIII|XIV|XV|XVI|XVII|XVIII|XIX|XX)\b""")
             .replace(spokenText) { RomanNumerals.toWord(it.value) }
 
+        val formatter = RuleBasedNumberFormat(Locale.US, RuleBasedNumberFormat.SPELLOUT)
+
+        // trader-style price grouping: 5123.25 → fifty one, twenty three point two five
+        spokenText = Regex("""\b(\d{4})\.(\d{2})\b""")
+            .replace(spokenText) {
+
+                // split into integer and decimals
+                val integer = it.groupValues[1]
+                val decimals = it.groupValues[2]
+
+                // segregate integer in pairs
+                val first = integer.substring(0, 2).toInt()
+                val second = integer.substring(2, 4).toInt()
+                val firstPair = formatter.format(first)
+                val secondPair = formatter.format(second)
+
+                val decimalWords = decimals
+                    .map { formatter.format(it.toString().toInt()) }
+                    .joinToString(" ")
+
+                "$firstPair $secondPair point $decimalWords"
+            }
+
         // numbers to words, prevent "oh" instead of "zero", etc
         spokenText = Regex("""-?\d[\d,]*(\.\d+)?""")
             .replace(spokenText) {
                 val number = it.value.toDouble()
-                RuleBasedNumberFormat(Locale.US, RuleBasedNumberFormat.SPELLOUT).format(number)
+                formatter.format(number)
             }
 
-        logMessage("spokenText: $spokenText")
+        logMessage("spoken text: $spokenText")
         return spokenText
     }
 }
