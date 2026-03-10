@@ -139,7 +139,7 @@ class MainRepository @Inject constructor(
         // prepend name of stream, if needed
         val origin = resolveMessageOrigin(message)
         val spokenText =
-            if (origin is MessageOrigin.BroadcastStream) { "${origin.asset.spokenName}. ${message.message}" }
+            if (origin is MessageOrigin.BroadcastStream) { "${origin.asset.spokenName}, ${message.message}" }
             else { message.message }
 
         tts.speak(message.timestamp, spokenText)

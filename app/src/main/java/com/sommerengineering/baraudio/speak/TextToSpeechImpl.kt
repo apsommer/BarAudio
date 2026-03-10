@@ -5,13 +5,16 @@ import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.speech.tts.Voice
 import androidx.core.os.bundleOf
+import com.ibm.icu.text.RuleBasedNumberFormat
 import com.sommerengineering.baraudio.uitls.RomanNumerals
+import com.sommerengineering.baraudio.uitls.logMessage
 import com.sommerengineering.baraudio.uitls.volumeKey
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.suspendCancellableCoroutine
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.resume
@@ -112,46 +115,25 @@ class TextToSpeechImpl @Inject constructor(
         _isInit.update { true }
     }
 
-    // normalize message for speech: roman numerals and numbers to words
-    private fun normalizeMessage(message: String) =
-        replaceNumbers(
-            replaceRomanNumerals(message))
+    fun normalizeMessage(message: String): String {
 
-    // guarantee engine speaks roman numerals correctly
-    private val romanRegex =
-        Regex("""\b(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII|XIII|XIV|XV|XVI|XVII|XVIII|XIX|XX)\b""")
-    private fun replaceRomanNumerals(text: String) =
-        romanRegex.replace(text) { RomanNumerals.toWord(it.value) }
+        // punctuation
+        var spokenText = message
+            .replace(Regex("""\s*•\s*"""), ", ") // bullet to comma
+            .replace(Regex("""(?<=\d),(?=\d)"""), "") // remove thousands separators
 
-    // guarantee engine speaks numbers correctly, prevent "oh" instead of "zero", etc
-    private val numberRegex =
-        Regex("""-?\d+(\.\d+)?([eE][-+]?\d+)?""")
-    private fun replaceNumbers(message: String) =
-        numberRegex.replace(message) {
-            val token = it.value // space delineated tokens
-            if (token == "0" || "." in token) { numberToWord(token) }
-            else token
-        }
-    private fun numberToWord(message: String): String {
-        val builder = StringBuilder()
-        for (char in message) {
-            when (char) {
-                '-' -> builder.append("minus ")
-                '.' -> builder.append("point ")
-                'e', 'E' -> builder.append("e ")
-                '+' -> builder.append("plus ")
-                '0' -> builder.append("zero ")
-                '1' -> builder.append("one ")
-                '2' -> builder.append("two ")
-                '3' -> builder.append("three ")
-                '4' -> builder.append("four ")
-                '5' -> builder.append("five ")
-                '6' -> builder.append("six ")
-                '7' -> builder.append("seven ")
-                '8' -> builder.append("eight ")
-                '9' -> builder.append("nine ")
+        // roman numerals to words
+        spokenText = Regex("""\b(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII|XIII|XIV|XV|XVI|XVII|XVIII|XIX|XX)\b""")
+            .replace(spokenText) { RomanNumerals.toWord(it.value) }
+
+        // numbers to words, prevent "oh" instead of "zero", etc
+        spokenText = Regex("""-?\d[\d,]*(\.\d+)?""")
+            .replace(spokenText) {
+                val number = it.value.toDouble()
+                RuleBasedNumberFormat(Locale.US, RuleBasedNumberFormat.SPELLOUT).format(number)
             }
-        }
-        return builder.toString().trim()
+
+        logMessage("spokenText: $spokenText")
+        return spokenText
     }
 }
