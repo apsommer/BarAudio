@@ -10,13 +10,17 @@ from firebase_functions import https_fn
 # view logs
 # https://console.cloud.google.com/run/detail/us-central1/baraudio/observability/logs?inv=1&invt=AbhuYw&project=com-sommerengineering-baraudio
 
+# todo production notes
+# credential only required for local environment, can be removed for cloud only production
+# min-instances=0 by default, change to 1 for to keep container running at all times, reduce latency by 500ms, cost $2-4/month
+
 # initialize admin sdk
 APP = initialize_app(
-    credential = credentials.Certificate('admin.json'), # only required for local environment, can be removed for cloud only production
+    credential = credentials.Certificate('admin.json'),
     options = {'databaseURL': 'https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/'})
 
 # streams
-STREAMS = {'NQ', 'GC', 'SI'}
+STREAMS = frozenset({'NQ', 'GC', 'SI'})
 
 # user sources
 TRADINGVIEW = {'52.89.214.238', '34.212.75.30', '54.218.53.128', '52.32.178.7'}
@@ -51,7 +55,7 @@ def baraudio(req: https_fn.Request) -> https_fn.Response:
     message = message.strip()[:200] if message else '' # keep messages short for client display
 
     # calculate raw utc timestamp from system (millis)
-    timestamp = int(time.time() * 1000)
+    timestamp = time.time_ns() // 1_000_000 # // floor division discards remainder after ms
 
     # catch malformed request
     if req.method != 'POST':
