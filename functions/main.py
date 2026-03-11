@@ -1,4 +1,4 @@
-import time, json
+import time
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
@@ -12,7 +12,7 @@ from firebase_functions import https_fn
 
 # initialize admin sdk
 APP = initialize_app(
-    credential = credentials.Certificate('admin.json'),
+    credential = credentials.Certificate('admin.json'), # only required for local environment, can be removed for cloud only production
     options = {'databaseURL': 'https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/'})
 
 # streams
