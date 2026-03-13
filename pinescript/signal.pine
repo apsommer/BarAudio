@@ -222,5 +222,5 @@ if not na(alertMessage)
 // wait for bar close to assess full magnitude
 if triggerCascade
     totalMovePercentText = str.tostring(math.round(((high - low) / high) * 100.0, 2)) + "%"
-    cascadeMessage = "Market • Cascade • Long liquidation • " + totalMovePercentText
+    cascadeMessage = "Cascade • Long liquidation • " + totalMovePercentText
     alert(cascadeMessage, alert.freq_once_per_bar_close)
