@@ -92,7 +92,7 @@ isLossExit = triggerStopExit or (triggerExpiryExit and entryPrice > close)
 lossExitPrice = triggerStopExit ? probeLow : close
 
 isProfitExit = triggerTakeProfit or (triggerExpiryExit and close > entryPrice)
-profitExitPrice = triggerTakeProfit ? cascadeHigh : close
+profitExitPrice = triggerTakeProfit ? cascadeHigh : open
 
 // EXTEND CASCADE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -122,7 +122,6 @@ if isCascadeActive and isRegimeExpired
 
 entryLevel = cascadeLow + cascadeRange * 0.2
 isOpenInsideEntryZone = open < entryLevel
-isLargeBearBody = open > close and math.abs(close - open) / (high - low) > 0.5
 
 triggerEntry =
      isCascadeActive
@@ -130,7 +129,6 @@ triggerEntry =
      and bar_index > cascadeStartBar + 1
      and isOpenInsideEntryZone
      and high > entryLevel
-     and not isLargeBearBody
 
 if triggerEntry
     isTradeActive := true
