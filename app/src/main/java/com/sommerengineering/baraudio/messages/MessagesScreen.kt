@@ -16,10 +16,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.times
@@ -27,7 +25,6 @@ import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.message.GroupHeaderItem
 import com.sommerengineering.baraudio.message.MessageItem
-import com.sommerengineering.baraudio.navigation.SetupNavigation
 import com.sommerengineering.baraudio.settings.SettingsDrawer
 import com.sommerengineering.baraudio.source.Message
 import com.sommerengineering.baraudio.source.MessageGroup
@@ -41,7 +38,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun MessagesScreen(
     viewModel: MainViewModel,
-    onSignOut: () -> Unit) {
+    onSignOut: () -> Unit,
+    onLaunchSetupOnboarding: () -> Unit) {
 
     // lazy column of messages
     val messages by viewModel.messages.collectAsState()
@@ -62,104 +60,80 @@ fun MessagesScreen(
         if (isDarkMode) R.drawable.background_skyline_dark
         else R.drawable.background_skyline
 
-    // setup webhook onboarding
-    var showSetupOnboarding by remember { mutableStateOf(false) }
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet {
+                SettingsDrawer(
+                    viewModel = viewModel,
+                    onSignOut = onSignOut,
+                    onLaunchSetupOnboarding = onLaunchSetupOnboarding) }},
+        gesturesEnabled = true,
+        scrimColor = DrawerDefaults.scrimColor.copy(alpha = 0.5f)) {
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        ModalNavigationDrawer(
-            drawerState = drawerState,
-            drawerContent = {
-                ModalDrawerSheet {
-                    SettingsDrawer(
-                        viewModel = viewModel,
-                        onSignOut = onSignOut,
-                        onLaunchSetupOnboarding = {
-                            coroutineScope.launch { drawerState.close() }
-                            showSetupOnboarding = true
-                        })
-                }
-            },
-            gesturesEnabled = true,
-            scrimColor = DrawerDefaults.scrimColor.copy(alpha = 0.5f)) {
+        Scaffold(
+            topBar = { MessagesTopBar(
+                viewModel = viewModel,
+                onSettingsClick = { coroutineScope.launch { drawerState.open() } },
+                onToggleFeedMode = { viewModel.toggleFeedMode() })},
+            floatingActionButton = { MessagesFloatingActionButton(viewModel) },
+            bottomBar = { AllowNotificationsBottomBar(viewModel.areNotificationsEnabled) }) { padding ->
 
-            Scaffold(
-                topBar = {
-                    MessagesTopBar(
-                        viewModel = viewModel,
-                        onSettingsClick = { coroutineScope.launch { drawerState.open() } },
-                        onToggleFeedMode = { viewModel.toggleFeedMode() })
-                },
-                floatingActionButton = { MessagesFloatingActionButton(viewModel) },
-                bottomBar = { AllowNotificationsBottomBar(viewModel.areNotificationsEnabled) }) { padding ->
+            Box(Modifier.fillMaxSize().padding(padding)) {
 
-                Box(Modifier.fillMaxSize().padding(padding)) {
+                // background image
+                ScrimImage(
+                    iconRes = backgroundRes,
+                    alpha = if (isDarkMode) backgroundDarkAlpha else backgroundLightAlpha,
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .padding(2 * edgePadding))
 
-                    // background image
-                    ScrimImage(
-                        iconRes = backgroundRes,
-                        alpha = if (isDarkMode) backgroundDarkAlpha else backgroundLightAlpha,
-                        modifier = Modifier
-                            .align(Alignment.Center)
-                            .padding(2 * edgePadding)
-                    )
+                // messages
+                LazyColumn(state = listState) { when (feedMode) {
 
-                    // messages
-                    LazyColumn(state = listState) {
-                        when (feedMode) {
+                    // all messages by timestamp
+                    FeedMode.Linear -> {
+                        itemsIndexed(
+                            items = messages,
+                            key = { _, it -> it.timestamp }) { index, message ->
+                            MessageItem(
+                                viewModel = viewModel,
+                                message = message,
+                                isShowDivider = index != messages.lastIndex)
+                        }}
 
-                            // all messages by timestamp
-                            FeedMode.Linear -> {
+                    // grouped messages by origin, then by timestamp
+                    FeedMode.Grouped -> {
+                        groups.forEachIndexed { groupIndex, (origin, messages) ->
+
+                            // group header
+                            val isExpanded = expandedGroups[origin] == true
+                            item(origin.key) {
+                                GroupHeaderItem(
+                                    viewModel = viewModel,
+                                    origin = origin,
+                                    messageCount = messages.size,
+                                    isExpanded = isExpanded,
+                                    isShowDivider = groupIndex != groups.size - 1,
+                                    onExpand = { expandedGroups[origin] = !isExpanded })
+                            }
+
+                            // messages in group
+                            if (isExpanded) {
                                 itemsIndexed(
                                     items = messages,
-                                    key = { _, it -> it.timestamp }) { index, message ->
+                                    key = { _, it -> origin.key + it.timestamp }) { index, message ->
                                     MessageItem(
                                         viewModel = viewModel,
                                         message = message,
-                                        isShowDivider = index != messages.lastIndex
-                                    )
-                                }
-                            }
-
-                            // grouped messages by origin, then by timestamp
-                            FeedMode.Grouped -> {
-                                groups.forEachIndexed { groupIndex, (origin, messages) ->
-
-                                    // group header
-                                    val isExpanded = expandedGroups[origin] == true
-                                    item(origin.key) {
-                                        GroupHeaderItem(
-                                            viewModel = viewModel,
-                                            origin = origin,
-                                            messageCount = messages.size,
-                                            isExpanded = isExpanded,
-                                            isShowDivider = groupIndex != groups.size - 1,
-                                            onExpand = { expandedGroups[origin] = !isExpanded })
-                                    }
-
-                                    // messages in group
-                                    if (isExpanded) {
-                                        itemsIndexed(
-                                            items = messages,
-                                            key = { _, it -> origin.key + it.timestamp }) { index, message ->
-                                            MessageItem(
-                                                viewModel = viewModel,
-                                                message = message,
-                                                isShowDivider = !(groupIndex == groups.lastIndex && index == messages.lastIndex)
-                                            )
-                                        }
-                                    }
+                                        isShowDivider = !(groupIndex == groups.lastIndex && index == messages.lastIndex))
                                 }
                             }
                         }
                     }
-                }
+                }}
             }
-        }
-
-        // setup webhook onboarding
-        if (showSetupOnboarding) {
-            SetupNavigation(
-                onClose = { showSetupOnboarding = false })
         }
     }
 }

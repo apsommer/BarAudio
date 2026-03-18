@@ -7,25 +7,20 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.sommerengineering.baraudio.onboarding.OnboardingScreen
-import com.sommerengineering.baraudio.onboarding.WebhookSetup
-import com.sommerengineering.baraudio.onboarding.WebhookSetup.CopyWebhook
-import com.sommerengineering.baraudio.onboarding.WebhookSetup.PasteWebhook
-import com.sommerengineering.baraudio.onboarding.WebhookSetup.SignalArmed
 import com.sommerengineering.baraudio.uitls.CopyWebhookScreenRoute
 import com.sommerengineering.baraudio.uitls.PasteWebhookScreenRoute
 import com.sommerengineering.baraudio.uitls.SignalArmedScreenRoute
 import com.sommerengineering.baraudio.onboarding.OnboardingMode.WebhookSetup
 
 @Composable
-fun SetupNavigation(
+fun SetupWebhookNavigation(
     onClose: () -> Unit) {
 
     val controller = rememberNavController()
 
     NavHost(
         navController = controller,
-        startDestination = CopyWebhookScreenRoute,
-        modifier = Modifier.fillMaxSize()) {
+        startDestination = CopyWebhookScreenRoute) {
 
         // copy webhook
         composable(CopyWebhookScreenRoute) {

@@ -67,6 +67,8 @@ const val OnboardingTextToSpeechScreenRoute = "OnboardingTextToSpeechScreen"
 const val OnboardingNotificationsScreenRoute = "OnboardingNotificationsScreen"
 const val OnboardingWebhookScreenRoute = "OnboardingWebhookScreen"
 const val MessagesScreenRoute = "MessagesScreen"
+const val AppOnboardingRoute = "AppOnboarding"
+const val SetupOnboardingRoute = "SetupOnboarding"
 
 // navigation (setup)
 const val CopyWebhookScreenRoute = "CopyWebHookScreen"

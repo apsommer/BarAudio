@@ -1,0 +1,82 @@
+package com.sommerengineering.baraudio.navigation
+
+import android.Manifest
+import android.os.Build
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.sommerengineering.baraudio.MainActivity
+import com.sommerengineering.baraudio.MainViewModel
+import com.sommerengineering.baraudio.onboarding.OnboardingMode.AppOnboarding
+import com.sommerengineering.baraudio.onboarding.OnboardingScreen
+import com.sommerengineering.baraudio.uitls.MessagesScreenRoute
+import com.sommerengineering.baraudio.uitls.OnboardingNotificationsScreenRoute
+import com.sommerengineering.baraudio.uitls.OnboardingTextToSpeechScreenRoute
+import com.sommerengineering.baraudio.uitls.OnboardingWebhookScreenRoute
+
+@Composable
+fun AppOnboardingNavigation(
+    viewModel: MainViewModel) {
+
+    val context = LocalContext.current
+    val controller = rememberNavController()
+
+    NavHost(
+        navController = controller,
+        startDestination = OnboardingTextToSpeechScreenRoute) {
+
+        // onboarding screen: text-to-speech
+        composable(OnboardingTextToSpeechScreenRoute) {
+            OnboardingScreen(
+                onboardingMode = AppOnboarding,
+                pageNumber = 0,
+                onNextClick = { controller.navigate(OnboardingNotificationsScreenRoute) })
+        }
+
+        // onboarding screen: notifications
+        composable(OnboardingNotificationsScreenRoute) {
+
+            // ask for permission again if the first request is declined
+            val areNotificationsEnabled = viewModel.areNotificationsEnabled
+            val count = remember { mutableIntStateOf(0) }
+
+            // navigate forward if notifications are granted
+            LaunchedEffect(areNotificationsEnabled) {
+                if (areNotificationsEnabled && Build.VERSION.SDK_INT >= 33) {
+                    controller.navigate(OnboardingWebhookScreenRoute)
+                }
+            }
+
+            OnboardingScreen(
+                onboardingMode = AppOnboarding,
+                pageNumber = 1,
+                onNextClick = {
+                    if (Build.VERSION.SDK_INT >= 33 && 2 > count.intValue) {
+                        (context as MainActivity).requestNotificationPermissionLauncher
+                            .launch(Manifest.permission.POST_NOTIFICATIONS)
+                        count.intValue++
+                    } else {
+                        controller.navigate(OnboardingWebhookScreenRoute)
+                    }
+                })
+        }
+
+        // onboarding screen: webhook
+        composable(OnboardingWebhookScreenRoute) {
+            OnboardingScreen(
+                onboardingMode = AppOnboarding,
+                pageNumber = 2,
+                onNextClick = {
+                    viewModel.updateOnboarding(true)
+                    controller.navigate(MessagesScreenRoute) {
+                        popUpTo(OnboardingTextToSpeechScreenRoute) { inclusive = true }
+                    }
+                })
+        }
+    }
+}
