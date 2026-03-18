@@ -2,12 +2,8 @@ package com.sommerengineering.baraudio
 
 import android.Manifest
 import android.os.Build
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
@@ -39,20 +35,12 @@ fun Navigation(
         else if (!isOnboardingComplete) OnboardingTextToSpeechScreenRoute
         else MessagesScreenRoute
 
-    // animate screen transitions
-    val fadeIn = fadeIn(spring(stiffness = 10f))
-    val fadeOut = fadeOut(spring(stiffness = 10f))
-
     NavHost(
         navController = controller,
         startDestination = startDestination) {
 
         // login screen
-        composable(
-            route = LoginScreenRoute,
-            enterTransition = { fadeIn },
-            exitTransition = { fadeOut }) {
-
+        composable(LoginScreenRoute) {
             LoginScreen(
                 viewModel = viewModel,
                 onAuthentication = {
@@ -64,23 +52,15 @@ fun Navigation(
         }
 
         // onboarding screen: text-to-speech
-        composable(
-            route = OnboardingTextToSpeechScreenRoute,
-            enterTransition = { fadeIn },
-            exitTransition = { fadeOut }) {
-
+        composable(OnboardingTextToSpeechScreenRoute) {
             OnboardingScreen(
                 viewModel = viewModel,
                 pageNumber = 0,
-                onNextClick = { controller.navigate(OnboardingNotificationsScreenRoute) },
-                isNextEnabled = viewModel.isTtsReady.collectAsState().value) // todo remove?
+                onNextClick = { controller.navigate(OnboardingNotificationsScreenRoute) })
         }
 
         // onboarding screen: notifications
-        composable(
-            route = OnboardingNotificationsScreenRoute,
-            enterTransition = { fadeIn },
-            exitTransition = { fadeOut }) {
+        composable(OnboardingNotificationsScreenRoute) {
 
             // ask for permission again if the first request is declined
             val areNotificationsEnabled = viewModel.areNotificationsEnabled
@@ -97,32 +77,21 @@ fun Navigation(
                 viewModel = viewModel,
                 pageNumber = 1,
                 onNextClick = {
-
-                    // request notification permission
                     if (Build.VERSION.SDK_INT >= 33 && 2 > count.intValue) {
                         (context as MainActivity).requestNotificationPermissionLauncher
                             .launch(Manifest.permission.POST_NOTIFICATIONS)
                         count.intValue ++
                     }
-
-                    else {
-                        controller.navigate(OnboardingWebhookScreenRoute)
-                    }
+                    else { controller.navigate(OnboardingWebhookScreenRoute) }
                 })
         }
 
         // onboarding screen: webhook
-        composable(
-            route = OnboardingWebhookScreenRoute,
-            enterTransition = { fadeIn },
-            exitTransition = { fadeOut }) {
-
+        composable(OnboardingWebhookScreenRoute) {
             OnboardingScreen(
                 viewModel = viewModel,
                 pageNumber = 2,
                 onNextClick = {
-
-                    // onboarding complete
                     viewModel.updateOnboarding(true)
                     controller.navigate(MessagesScreenRoute) {
                         popUpTo(OnboardingTextToSpeechScreenRoute) { inclusive = true }
@@ -131,11 +100,7 @@ fun Navigation(
         }
 
         // messages screen
-        composable(
-            route = MessagesScreenRoute,
-            enterTransition = { fadeIn },
-            exitTransition = { fadeOut }) {
-
+        composable(MessagesScreenRoute) {
             MessagesScreen(
                 viewModel = viewModel,
                 onSignOut = {
