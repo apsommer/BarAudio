@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio
+package com.sommerengineering.baraudio.navigation
 
 import android.Manifest
 import android.os.Build
@@ -12,8 +12,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import com.sommerengineering.baraudio.MainActivity
+import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.login.LoginScreen
-import com.sommerengineering.baraudio.login.OnboardingScreen
 import com.sommerengineering.baraudio.messages.MessagesScreen
 import com.sommerengineering.baraudio.uitls.LoginScreenRoute
 import com.sommerengineering.baraudio.uitls.MessagesScreenRoute
@@ -22,7 +23,7 @@ import com.sommerengineering.baraudio.uitls.OnboardingTextToSpeechScreenRoute
 import com.sommerengineering.baraudio.uitls.OnboardingWebhookScreenRoute
 
 @Composable
-fun Navigation(
+fun MainNavigation(
     viewModel: MainViewModel) {
 
     val context = LocalContext.current

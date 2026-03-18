@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.settings.setup
+package com.sommerengineering.baraudio.navigation
 
 enum class SetupStep {
     CopyWebhook,

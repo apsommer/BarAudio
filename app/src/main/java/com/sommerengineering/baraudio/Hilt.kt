@@ -6,11 +6,8 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.room.Room
-import com.sommerengineering.baraudio.firebase.FirebaseDatabaseImpl
-import com.sommerengineering.baraudio.login.GoogleAuthenticator
 import com.sommerengineering.baraudio.room.MessageDao
 import com.sommerengineering.baraudio.room.MessageDatabase
-import com.sommerengineering.baraudio.speak.TextToSpeechImpl
 import com.sommerengineering.baraudio.uitls.localCache
 import com.sommerengineering.baraudio.uitls.roomDatabaseName
 import dagger.Module

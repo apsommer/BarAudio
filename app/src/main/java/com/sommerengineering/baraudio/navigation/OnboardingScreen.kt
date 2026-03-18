@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.login
+package com.sommerengineering.baraudio.navigation
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
