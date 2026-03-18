@@ -21,6 +21,7 @@ import com.sommerengineering.baraudio.uitls.MessagesScreenRoute
 import com.sommerengineering.baraudio.uitls.OnboardingNotificationsScreenRoute
 import com.sommerengineering.baraudio.uitls.OnboardingTextToSpeechScreenRoute
 import com.sommerengineering.baraudio.uitls.OnboardingWebhookScreenRoute
+import com.sommerengineering.baraudio.navigation.OnboardingMode.AppOnboarding
 
 @Composable
 fun MainNavigation(
@@ -56,6 +57,7 @@ fun MainNavigation(
         composable(OnboardingTextToSpeechScreenRoute) {
             OnboardingScreen(
                 viewModel = viewModel,
+                onboardingMode = AppOnboarding,
                 pageNumber = 0,
                 onNextClick = { controller.navigate(OnboardingNotificationsScreenRoute) })
         }
@@ -76,6 +78,7 @@ fun MainNavigation(
 
             OnboardingScreen(
                 viewModel = viewModel,
+                onboardingMode = AppOnboarding,
                 pageNumber = 1,
                 onNextClick = {
                     if (Build.VERSION.SDK_INT >= 33 && 2 > count.intValue) {
@@ -91,6 +94,7 @@ fun MainNavigation(
         composable(OnboardingWebhookScreenRoute) {
             OnboardingScreen(
                 viewModel = viewModel,
+                onboardingMode = AppOnboarding,
                 pageNumber = 2,
                 onNextClick = {
                     viewModel.updateOnboarding(true)

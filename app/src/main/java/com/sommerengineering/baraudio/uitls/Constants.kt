@@ -148,12 +148,9 @@ val dividerThickness = 0.5.dp
 // onboarding
 const val onboardingTotalPages = 3
 const val next = "Next"
-const val ttsInstalledTitle = "BarAudio uses text-to-speech to announce alerts."
-const val ttsNotInstalledTitle = "BarAudio requires text-to-speech, please install it to continue."
+const val onboardingTtsTitle = "BarAudio uses text-to-speech to announce alerts."
 const val allowNotificationsTitle = "Allow notifications for realtime data."
-const val webhookStartTitle = "Customize your webhook with a simple "
-const val webhookEndTitle = "setup"
-const val period = "."
+const val onboardingWebhookTitle = "Customize your webhook with a simple setup."
 const val soundAnimation = "sound.json"
 const val notificationAnimation = "notification.json"
 const val linkAnimation = "link.json"

@@ -15,40 +15,26 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.LinkAnnotation
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextLinkStyles
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.dp
 import com.dotlottie.dlplayer.Mode
 import com.lottiefiles.dotlottie.core.compose.ui.DotLottieAnimation
 import com.lottiefiles.dotlottie.core.util.DotLottieSource
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.uitls.allowNotificationsTitle
 import com.sommerengineering.baraudio.uitls.edgePadding
 import com.sommerengineering.baraudio.uitls.linkAnimation
 import com.sommerengineering.baraudio.uitls.next
 import com.sommerengineering.baraudio.uitls.notificationAnimation
 import com.sommerengineering.baraudio.uitls.onboardingTotalPages
-import com.sommerengineering.baraudio.uitls.period
-import com.sommerengineering.baraudio.uitls.setupWebhookUrl
 import com.sommerengineering.baraudio.uitls.soundAnimation
-import com.sommerengineering.baraudio.uitls.ttsInstalledTitle
-import com.sommerengineering.baraudio.uitls.ttsNotInstalledTitle
-import com.sommerengineering.baraudio.uitls.webhookEndTitle
-import com.sommerengineering.baraudio.uitls.webhookStartTitle
 
 @Composable
 fun OnboardingScreen(
     viewModel: MainViewModel,
+    onboardingMode: OnboardingMode,
     pageNumber: Int,
     onNextClick: () -> Unit,
     isNextEnabled: Boolean = true) {
@@ -63,16 +49,16 @@ fun OnboardingScreen(
 
             // text
             Column(
-                modifier = Modifier
-                    .weight(1f),
+                modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.Center) {
                 OnboardingText(
-                    viewModel = viewModel,
+                    onboardingMode = onboardingMode,
                     pageNumber = pageNumber)
             }
 
             // image
             OnboardingImage(
+                onboardingMode = onboardingMode,
                 pageNumber = pageNumber)
 
             Column(
@@ -107,95 +93,7 @@ fun OnboardingScreen(
     }
 }
 
-@Composable
-fun OnboardingText(
-    viewModel: MainViewModel,
-    pageNumber: Int) {
 
-    val annotatedString =
-        buildAnnotatedString { when (pageNumber) {
 
-            0 -> {
-                val text =
-                    if (viewModel.isTtsReady.collectAsState().value) ttsInstalledTitle
-                    else ttsNotInstalledTitle
-                append(text)
-            }
 
-            1 -> {
-                append(allowNotificationsTitle)
-            }
 
-            2 -> {
-                append(webhookStartTitle)
-                withLink(
-                    link = LinkAnnotation.Url(
-                        url = setupWebhookUrl,
-                        styles = TextLinkStyles(
-                            style = SpanStyle(
-                                textDecoration = TextDecoration.Underline,
-                                color = MaterialTheme.colorScheme.primary)))) {
-                    append(webhookEndTitle)
-                }
-                append(period)
-            }
-
-            else -> append("")
-        }
-    }
-
-    Text(
-        text = annotatedString,
-        textAlign = TextAlign.Center,
-        style = MaterialTheme.typography.titleLarge)
-}
-
-@Composable
-fun ColumnScope.OnboardingImage(
-    pageNumber: Int) {
-
-    val source = when (pageNumber) {
-        0 -> soundAnimation
-        1 -> notificationAnimation
-        2 -> linkAnimation
-        else -> ""
-    }
-
-    DotLottieAnimation(
-        modifier = Modifier
-            .fillMaxWidth()
-            .weight(1f),
-        source = DotLottieSource.Asset(source),
-        autoplay = true,
-        loop = true,
-        speed = 1f,
-        useFrameInterpolation = false,
-        playMode = Mode.FORWARD)
-}
-
-@Composable
-fun PageIndicator(
-    pageNumber: Int,
-    totalPages: Int,
-    modifier: Modifier) {
-
-    // page indicator
-    Row(
-        modifier = modifier) {
-
-        for (i in 0..< totalPages) {
-
-            val imageId =
-                if (i == pageNumber) R.drawable.indicator_filled
-                else R.drawable.indicator_open
-
-            Icon(
-                modifier = Modifier
-                    .padding(6.dp)
-                    .size(12.dp),
-                tint = MaterialTheme.colorScheme.outline,
-                painter = painterResource(imageId),
-                contentDescription = null)
-        }
-    }
-}

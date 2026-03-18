@@ -4,9 +4,9 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.sommerengineering.baraudio.navigation.SetupStep.CopyWebhook
-import com.sommerengineering.baraudio.navigation.SetupStep.PasteWebhook
-import com.sommerengineering.baraudio.navigation.SetupStep.SignalArmed
+import com.sommerengineering.baraudio.navigation.SetupScreen.CopyWebhook
+import com.sommerengineering.baraudio.navigation.SetupScreen.PasteWebhook
+import com.sommerengineering.baraudio.navigation.SetupScreen.SignalArmed
 import com.sommerengineering.baraudio.uitls.CopyWebhookScreenRoute
 import com.sommerengineering.baraudio.uitls.PasteWebhookScreenRoute
 import com.sommerengineering.baraudio.uitls.SignalArmedScreenRoute
