@@ -6,10 +6,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import com.sommerengineering.baraudio.onboarding.OnboardingMode.WebhookSetup
 import com.sommerengineering.baraudio.onboarding.OnboardingScreen
-import com.sommerengineering.baraudio.uitls.CopyWebhookScreenRoute
-import com.sommerengineering.baraudio.uitls.PasteWebhookScreenRoute
+import com.sommerengineering.baraudio.uitls.SetupOnboardingCopyWebhookRoute
+import com.sommerengineering.baraudio.uitls.SetupOnboardingPasteWebhookRoute
 import com.sommerengineering.baraudio.uitls.SetupOnboardingRoute
-import com.sommerengineering.baraudio.uitls.SignalArmedScreenRoute
+import com.sommerengineering.baraudio.uitls.SetupOnboardingSignalArmedRoute
 
 fun NavGraphBuilder.SetupWebhookNavigation(
     controller: NavHostController,
@@ -17,33 +17,33 @@ fun NavGraphBuilder.SetupWebhookNavigation(
 
     navigation(
         route = SetupOnboardingRoute,
-        startDestination = CopyWebhookScreenRoute) {
+        startDestination = SetupOnboardingCopyWebhookRoute) {
 
         // copy webhook
-        composable(CopyWebhookScreenRoute) {
+        composable(SetupOnboardingCopyWebhookRoute) {
             OnboardingScreen(
                 onboardingMode = WebhookSetup,
                 pageNumber = 0,
                 onNextClick = {
-                    controller.navigate(PasteWebhookScreenRoute) {
-                        popUpTo(CopyWebhookScreenRoute) { inclusive = true }
+                    controller.navigate(SetupOnboardingPasteWebhookRoute) {
+                        popUpTo(SetupOnboardingCopyWebhookRoute) { inclusive = true }
                     }
                 })
         }
 
         // paste webhook
-        composable(PasteWebhookScreenRoute) {
+        composable(SetupOnboardingPasteWebhookRoute) {
             OnboardingScreen(
                 onboardingMode = WebhookSetup,
                 pageNumber = 1,
                 onNextClick = {
-                    controller.navigate(SignalArmedScreenRoute) {
-                        popUpTo(PasteWebhookScreenRoute) { inclusive = true }
+                    controller.navigate(SetupOnboardingSignalArmedRoute) {
+                        popUpTo(SetupOnboardingPasteWebhookRoute) { inclusive = true }
                     }})
         }
 
         // signal armed (setup complete)
-        composable(SignalArmedScreenRoute) {
+        composable(SetupOnboardingSignalArmedRoute) {
             OnboardingScreen(
                 onboardingMode = WebhookSetup,
                 pageNumber = 2,

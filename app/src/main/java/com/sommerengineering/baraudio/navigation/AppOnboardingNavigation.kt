@@ -16,9 +16,9 @@ import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.onboarding.OnboardingMode.AppOnboarding
 import com.sommerengineering.baraudio.onboarding.OnboardingScreen
 import com.sommerengineering.baraudio.uitls.AppOnboardingRoute
-import com.sommerengineering.baraudio.uitls.OnboardingNotificationsScreenRoute
-import com.sommerengineering.baraudio.uitls.OnboardingTextToSpeechScreenRoute
-import com.sommerengineering.baraudio.uitls.OnboardingWebhookScreenRoute
+import com.sommerengineering.baraudio.uitls.AppOnboardingNotificationsRoute
+import com.sommerengineering.baraudio.uitls.AppOnboardingTextToSpeechRoute
+import com.sommerengineering.baraudio.uitls.AppOnboardingWebhookRoute
 
 fun NavGraphBuilder.AppOnboardingNavigation(
     controller: NavController,
@@ -27,19 +27,19 @@ fun NavGraphBuilder.AppOnboardingNavigation(
 
     navigation(
         route = AppOnboardingRoute,
-        startDestination = OnboardingTextToSpeechScreenRoute) {
+        startDestination = AppOnboardingTextToSpeechRoute) {
 
         // onboarding screen: text-to-speech
-        composable(OnboardingTextToSpeechScreenRoute) {
+        composable(AppOnboardingTextToSpeechRoute) {
             BackHandler { (context as MainActivity).moveTaskToBack(true) }
             OnboardingScreen(
                 onboardingMode = AppOnboarding,
                 pageNumber = 0,
-                onNextClick = { controller.navigate(OnboardingNotificationsScreenRoute) })
+                onNextClick = { controller.navigate(AppOnboardingNotificationsRoute) })
         }
 
         // onboarding screen: notifications
-        composable(OnboardingNotificationsScreenRoute) {
+        composable(AppOnboardingNotificationsRoute) {
 
             // ask for permission again if the first request is declined
             val areNotificationsEnabled = viewModel.areNotificationsEnabled
@@ -48,7 +48,7 @@ fun NavGraphBuilder.AppOnboardingNavigation(
             // navigate forward if notifications are granted
             LaunchedEffect(areNotificationsEnabled) {
                 if (areNotificationsEnabled && Build.VERSION.SDK_INT >= 33) {
-                    controller.navigate(OnboardingWebhookScreenRoute)
+                    controller.navigate(AppOnboardingWebhookRoute)
                 }
             }
 
@@ -62,13 +62,13 @@ fun NavGraphBuilder.AppOnboardingNavigation(
                             .launch(Manifest.permission.POST_NOTIFICATIONS)
                         count.intValue++
                     } else {
-                        controller.navigate(OnboardingWebhookScreenRoute)
+                        controller.navigate(AppOnboardingWebhookRoute)
                     }
                 })
         }
 
         // onboarding screen: webhook
-        composable(OnboardingWebhookScreenRoute) {
+        composable(AppOnboardingWebhookRoute) {
             BackHandler { (context as MainActivity).moveTaskToBack(true) }
             OnboardingScreen(
                 onboardingMode = AppOnboarding,

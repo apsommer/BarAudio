@@ -10,12 +10,10 @@ import com.google.firebase.auth.auth
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.login.LoginScreen
 import com.sommerengineering.baraudio.messages.MessagesScreen
-import com.sommerengineering.baraudio.navigation.AppOnboardingNavigation
 import com.sommerengineering.baraudio.uitls.AppOnboardingRoute
 import com.sommerengineering.baraudio.uitls.SetupOnboardingRoute
-import com.sommerengineering.baraudio.uitls.LoginScreenRoute
-import com.sommerengineering.baraudio.uitls.MessagesScreenRoute
-import com.sommerengineering.baraudio.uitls.OnboardingTextToSpeechScreenRoute
+import com.sommerengineering.baraudio.uitls.LoginRoute
+import com.sommerengineering.baraudio.uitls.MessagesRoute
 
 @Composable
 fun MainNavigation(
@@ -27,14 +25,14 @@ fun MainNavigation(
     // start destination
     val isOnboardingComplete = viewModel.isOnboardingComplete
     val startDestination = when {
-        Firebase.auth.currentUser == null -> LoginScreenRoute
+        Firebase.auth.currentUser == null -> LoginRoute
         !isOnboardingComplete -> AppOnboardingRoute
-        else -> MessagesScreenRoute
+        else -> MessagesRoute
     }
 
     // post login destination
     val postLoginDestination =
-        if (isOnboardingComplete) MessagesScreenRoute
+        if (isOnboardingComplete) MessagesRoute
         else AppOnboardingRoute
 
     NavHost(
@@ -42,12 +40,12 @@ fun MainNavigation(
         startDestination = startDestination) {
 
         // login screen
-        composable(LoginScreenRoute) {
+        composable(LoginRoute) {
             LoginScreen(
                 viewModel = viewModel,
                 onAuthentication = {
                     controller.navigate(postLoginDestination) {
-                        popUpTo(LoginScreenRoute) { inclusive = true }
+                        popUpTo(LoginRoute) { inclusive = true }
                     }
                 })
         }
@@ -59,13 +57,13 @@ fun MainNavigation(
             viewModel = viewModel)
 
         // messages screen
-        composable(MessagesScreenRoute) {
+        composable(MessagesRoute) {
             MessagesScreen(
                 viewModel = viewModel,
                 onSignOut = {
                     viewModel.signOut()
-                    controller.navigate(LoginScreenRoute) {
-                        popUpTo(MessagesScreenRoute) { inclusive = true }
+                    controller.navigate(LoginRoute) {
+                        popUpTo(MessagesRoute) { inclusive = true }
                     }
                 },
                 onLaunchSetupOnboarding = {
