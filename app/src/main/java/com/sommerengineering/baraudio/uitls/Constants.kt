@@ -61,12 +61,17 @@ const val siStream = "SI"
 // user signals
 const val userSignalDescription = "Custom signal"
 
-// navigation
+// navigation (main)
 const val LoginScreenRoute = "LoginScreen"
 const val OnboardingTextToSpeechScreenRoute = "OnboardingTextToSpeechScreen"
 const val OnboardingNotificationsScreenRoute = "OnboardingNotificationsScreen"
 const val OnboardingWebhookScreenRoute = "OnboardingWebhookScreen"
 const val MessagesScreenRoute = "MessagesScreen"
+
+// navigation (setup)
+const val CopyWebhookScreenRoute = "CopyWebHookScreen"
+const val PasteWebhookScreenRoute = "PasteWebhookScreen"
+const val SignalArmedScreenRoute = "SignalArmedScreen"
 
 // datastore
 const val localCache = "localCache"
