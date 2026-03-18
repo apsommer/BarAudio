@@ -282,24 +282,6 @@ class MainRepository @Inject constructor(
         tts.isMute = readPreference(booleanPreferencesKey(isMuteKey)) ?: false
     }
 
-    fun saveToClipboard(
-        webhookUrl: String) {
-
-        // save url to clipboard
-        val clipboardManager = context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
-        val clip = ClipData.newPlainText("", webhookUrl)
-        clipboardManager.setPrimaryClip(clip)
-
-        // toast for older api
-        if (31 > android.os.Build.VERSION.SDK_INT) {
-            Toast.makeText(
-                context,
-                webhookUrl,
-                Toast.LENGTH_SHORT)
-                .show()
-        }
-    }
-
     fun signOut() =
         Firebase.auth.signOut()
 

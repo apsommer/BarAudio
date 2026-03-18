@@ -54,6 +54,9 @@ fun ColumnScope.OnboardingImage(
             }
 
             Image(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
                 painter = painterResource(resId),
                 contentDescription = null)
         }

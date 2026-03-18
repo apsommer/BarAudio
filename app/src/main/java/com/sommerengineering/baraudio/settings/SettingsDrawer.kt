@@ -26,6 +26,7 @@ import com.google.firebase.auth.auth
 import com.sommerengineering.baraudio.BuildConfig
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
+import com.sommerengineering.baraudio.navigation.SetupNavigation
 import com.sommerengineering.baraudio.source.MessageOrigin
 import com.sommerengineering.baraudio.source.gcAsset
 import com.sommerengineering.baraudio.source.nqAsset
@@ -41,7 +42,6 @@ import com.sommerengineering.baraudio.uitls.privacyPolicyTitle
 import com.sommerengineering.baraudio.uitls.privacyPolicyUrl
 import com.sommerengineering.baraudio.uitls.queueBehaviorTitle
 import com.sommerengineering.baraudio.uitls.screenTitle
-import com.sommerengineering.baraudio.uitls.setupWebhookUrl
 import com.sommerengineering.baraudio.uitls.signOutTitle
 import com.sommerengineering.baraudio.uitls.speedChangeUtterance
 import com.sommerengineering.baraudio.uitls.speedTitle
@@ -62,7 +62,8 @@ import com.sommerengineering.baraudio.uitls.webhookTitle
 @Composable
 fun SettingsDrawer(
     viewModel: MainViewModel,
-    onSignOut: () -> Unit) {
+    onSignOut: () -> Unit,
+    onLaunchSetupOnboarding: () -> Unit) {
 
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
@@ -231,10 +232,10 @@ fun SettingsDrawer(
                     iconRes = R.drawable.webhook,
                     title = webhookTitle,
                     description = webhookDescription,
-                    onClick = { uriHandler.openUri(setupWebhookUrl) }) {
+                    onClick = onLaunchSetupOnboarding) {
 
                     IconButton(
-                        onClick = { viewModel.saveToWebhookClipboard(webhookUrl) }) {
+                        onClick = { viewModel.saveToWebhookClipboard(context, webhookUrl) }) {
                         Icon(
                             painter = painterResource(R.drawable.copy),
                             contentDescription = null)

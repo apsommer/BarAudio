@@ -1,8 +1,12 @@
 package com.sommerengineering.baraudio.onboarding
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import com.sommerengineering.baraudio.onboarding.OnboardingMode.AppOnboarding
@@ -12,7 +16,7 @@ import com.sommerengineering.baraudio.uitls.onboardingTtsTitle
 import com.sommerengineering.baraudio.uitls.onboardingWebhookTitle
 
 @Composable
-fun OnboardingText(
+fun ColumnScope.OnboardingText(
     onboardingMode: OnboardingMode,
     pageNumber: Int) {
 
@@ -31,8 +35,13 @@ fun OnboardingText(
         }}
     }}
 
-    Text(
-        text = annotatedString,
-        textAlign = TextAlign.Center,
-        style = MaterialTheme.typography.titleLarge)
+    Column(
+        modifier = Modifier.weight(1f),
+        verticalArrangement = Arrangement.Center) {
+
+        Text(
+            text = annotatedString,
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.titleLarge)
+    }
 }

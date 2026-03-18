@@ -24,21 +24,14 @@ fun OnboardingScreen(
                 .padding(edgePadding),
             verticalArrangement = Arrangement.Center) {
 
-            // title
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.Center) {
-                OnboardingText(
-                    onboardingMode = onboardingMode,
-                    pageNumber = pageNumber)
-            }
+            OnboardingText(
+                onboardingMode = onboardingMode,
+                pageNumber = pageNumber)
 
-            // animation, or image
             OnboardingImage(
                 onboardingMode = onboardingMode,
                 pageNumber = pageNumber)
 
-            // next button and page indicator
             OnboardingButton(
                 onboardingMode = onboardingMode,
                 pageNumber = pageNumber,

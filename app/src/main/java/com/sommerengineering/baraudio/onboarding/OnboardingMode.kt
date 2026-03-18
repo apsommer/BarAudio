@@ -5,9 +5,13 @@ enum class OnboardingMode {
     WebhookSetup
 }
 
-// todo login screen enum
+enum class AppOnboarding {
+    TextToSpeech,
+    Notifications,
+    Webhook
+}
 
-enum class SetupScreen {
+enum class WebhookSetup {
     CopyWebhook,
     PasteWebhook,
     SignalArmed
