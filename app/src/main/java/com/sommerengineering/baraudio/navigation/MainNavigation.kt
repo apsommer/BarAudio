@@ -21,7 +21,8 @@ import com.sommerengineering.baraudio.uitls.MessagesScreenRoute
 import com.sommerengineering.baraudio.uitls.OnboardingNotificationsScreenRoute
 import com.sommerengineering.baraudio.uitls.OnboardingTextToSpeechScreenRoute
 import com.sommerengineering.baraudio.uitls.OnboardingWebhookScreenRoute
-import com.sommerengineering.baraudio.navigation.OnboardingMode.AppOnboarding
+import com.sommerengineering.baraudio.onboarding.OnboardingMode.AppOnboarding
+import com.sommerengineering.baraudio.onboarding.OnboardingScreen
 
 @Composable
 fun MainNavigation(
@@ -56,7 +57,6 @@ fun MainNavigation(
         // onboarding screen: text-to-speech
         composable(OnboardingTextToSpeechScreenRoute) {
             OnboardingScreen(
-                viewModel = viewModel,
                 onboardingMode = AppOnboarding,
                 pageNumber = 0,
                 onNextClick = { controller.navigate(OnboardingNotificationsScreenRoute) })
@@ -77,23 +77,22 @@ fun MainNavigation(
             }
 
             OnboardingScreen(
-                viewModel = viewModel,
                 onboardingMode = AppOnboarding,
                 pageNumber = 1,
                 onNextClick = {
                     if (Build.VERSION.SDK_INT >= 33 && 2 > count.intValue) {
                         (context as MainActivity).requestNotificationPermissionLauncher
                             .launch(Manifest.permission.POST_NOTIFICATIONS)
-                        count.intValue ++
+                        count.intValue++
+                    } else {
+                        controller.navigate(OnboardingWebhookScreenRoute)
                     }
-                    else { controller.navigate(OnboardingWebhookScreenRoute) }
                 })
         }
 
         // onboarding screen: webhook
         composable(OnboardingWebhookScreenRoute) {
             OnboardingScreen(
-                viewModel = viewModel,
                 onboardingMode = AppOnboarding,
                 pageNumber = 2,
                 onNextClick = {

@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.navigation
+package com.sommerengineering.baraudio.onboarding
 
 enum class OnboardingMode {
     AppOnboarding,

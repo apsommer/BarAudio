@@ -1,12 +1,12 @@
-package com.sommerengineering.baraudio.navigation
+package com.sommerengineering.baraudio.onboarding
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
-import com.sommerengineering.baraudio.navigation.OnboardingMode.AppOnboarding
-import com.sommerengineering.baraudio.navigation.OnboardingMode.WebhookSetup
+import com.sommerengineering.baraudio.onboarding.OnboardingMode.AppOnboarding
+import com.sommerengineering.baraudio.onboarding.OnboardingMode.WebhookSetup
 import com.sommerengineering.baraudio.uitls.allowNotificationsTitle
 import com.sommerengineering.baraudio.uitls.onboardingTtsTitle
 import com.sommerengineering.baraudio.uitls.onboardingWebhookTitle

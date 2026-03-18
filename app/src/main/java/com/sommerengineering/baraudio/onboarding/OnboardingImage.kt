@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.navigation
+package com.sommerengineering.baraudio.onboarding
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.ColumnScope
@@ -13,8 +13,8 @@ import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.uitls.linkAnimation
 import com.sommerengineering.baraudio.uitls.notificationAnimation
 import com.sommerengineering.baraudio.uitls.soundAnimation
-import com.sommerengineering.baraudio.navigation.OnboardingMode.AppOnboarding
-import com.sommerengineering.baraudio.navigation.OnboardingMode.WebhookSetup
+import com.sommerengineering.baraudio.onboarding.OnboardingMode.AppOnboarding
+import com.sommerengineering.baraudio.onboarding.OnboardingMode.WebhookSetup
 
 @Composable
 fun ColumnScope.OnboardingImage(
