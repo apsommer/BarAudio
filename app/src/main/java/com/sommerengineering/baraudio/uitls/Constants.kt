@@ -19,7 +19,6 @@ fun logException(e: Exception) {
 const val bottomBarTransitionTimeMillis = 1000
 const val colorTransitionTimeMillis = 0
 const val messageItemExpansionTimeMillis = 140
-// todo put screen fades here, reduce them to 10% of current
 
 // urls
 const val setupWebhookUrl = "https://sommerengineering.com/baraud.io"

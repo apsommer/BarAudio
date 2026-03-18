@@ -94,12 +94,7 @@ fun MessagesScreen(
                             MessageItem(
                                 viewModel = viewModel,
                                 message = message,
-                                isShowDivider = index != messages.lastIndex,
-//                                modifier = Modifier.animateItem(
-//                                    fadeInSpec = null,
-//                                    fadeOutSpec = null,
-//                                    placementSpec = spring(stiffness = Spring.StiffnessLow))
-                            )
+                                isShowDivider = index != messages.lastIndex)
                         }}
 
                     // grouped messages by origin, then by timestamp
@@ -126,14 +121,7 @@ fun MessagesScreen(
                                     MessageItem(
                                         viewModel = viewModel,
                                         message = message,
-                                        isShowDivider = !(groupIndex == groups.lastIndex && index == messages.lastIndex),
-//                                        modifier = Modifier
-////                                            .padding(start = rowHorizontalPadding)
-//                                            .animateItem( // todo remove
-//                                                fadeInSpec = null,
-//                                                fadeOutSpec = null,
-//                                                placementSpec = spring(stiffness = Spring.StiffnessLow))
-                                    )
+                                        isShowDivider = !(groupIndex == groups.lastIndex && index == messages.lastIndex))
                                 }
                             }
                         }
