@@ -1,6 +1,7 @@
 package com.sommerengineering.baraudio.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -9,6 +10,7 @@ import com.google.firebase.auth.auth
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.login.LoginScreen
 import com.sommerengineering.baraudio.messages.MessagesScreen
+import com.sommerengineering.baraudio.navigation.AppOnboardingNavigation
 import com.sommerengineering.baraudio.uitls.AppOnboardingRoute
 import com.sommerengineering.baraudio.uitls.SetupOnboardingRoute
 import com.sommerengineering.baraudio.uitls.LoginScreenRoute
@@ -19,15 +21,21 @@ import com.sommerengineering.baraudio.uitls.OnboardingTextToSpeechScreenRoute
 fun MainNavigation(
     viewModel: MainViewModel) {
 
+    val context = LocalContext.current
     val controller = rememberNavController()
 
-    // determine start destination
+    // start destination
     val isOnboardingComplete = viewModel.isOnboardingComplete
     val startDestination = when {
         Firebase.auth.currentUser == null -> LoginScreenRoute
-        !isOnboardingComplete -> OnboardingTextToSpeechScreenRoute
+        !isOnboardingComplete -> AppOnboardingRoute
         else -> MessagesScreenRoute
     }
+
+    // post login destination
+    val postLoginDestination =
+        if (isOnboardingComplete) MessagesScreenRoute
+        else AppOnboardingRoute
 
     NavHost(
         navController = controller,
@@ -38,18 +46,17 @@ fun MainNavigation(
             LoginScreen(
                 viewModel = viewModel,
                 onAuthentication = {
-                    val nextDestination = viewModel.postLoginDestination
-                    controller.navigate(nextDestination) {
+                    controller.navigate(postLoginDestination) {
                         popUpTo(LoginScreenRoute) { inclusive = true }
                     }
                 })
         }
 
         // app onboarding
-        composable(AppOnboardingRoute) {
-            AppOnboardingNavigation(
-                viewModel = viewModel)
-        }
+        AppOnboardingNavigation(
+            controller = controller,
+            context = context,
+            viewModel = viewModel)
 
         // messages screen
         composable(MessagesScreenRoute) {
@@ -59,20 +66,17 @@ fun MainNavigation(
                     viewModel.signOut()
                     controller.navigate(LoginScreenRoute) {
                         popUpTo(MessagesScreenRoute) { inclusive = true }
-                }},
+                    }
+                },
                 onLaunchSetupOnboarding = {
                     controller.navigate(SetupOnboardingRoute)
                 })
         }
 
         // setup webhook onboarding
-        composable(SetupOnboardingRoute) {
-            SetupWebhookNavigation(
-                onClose = { controller.navigate(MessagesScreenRoute) {
-                    popUpTo(SetupOnboardingRoute) { inclusive = true }
-                }})
-        }
-
+        SetupWebhookNavigation(
+            controller = controller,
+            onClose = { controller.popBackStack() })
     }
 }
 

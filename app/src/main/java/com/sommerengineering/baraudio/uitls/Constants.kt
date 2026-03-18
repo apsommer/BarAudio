@@ -61,7 +61,7 @@ const val siStream = "SI"
 // user signals
 const val userSignalDescription = "Custom signal"
 
-// navigation (main)
+// navigation
 const val LoginScreenRoute = "LoginScreen"
 const val OnboardingTextToSpeechScreenRoute = "OnboardingTextToSpeechScreen"
 const val OnboardingNotificationsScreenRoute = "OnboardingNotificationsScreen"
@@ -69,8 +69,6 @@ const val OnboardingWebhookScreenRoute = "OnboardingWebhookScreen"
 const val MessagesScreenRoute = "MessagesScreen"
 const val AppOnboardingRoute = "AppOnboarding"
 const val SetupOnboardingRoute = "SetupOnboarding"
-
-// navigation (setup)
 const val CopyWebhookScreenRoute = "CopyWebHookScreen"
 const val PasteWebhookScreenRoute = "PasteWebhookScreen"
 const val SignalArmedScreenRoute = "SignalArmedScreen"

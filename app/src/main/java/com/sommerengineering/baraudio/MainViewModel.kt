@@ -129,9 +129,6 @@ class MainViewModel @Inject constructor(
         isOnboardingComplete = enabled
         repo.updateOnboarding(enabled)
     }
-    val postLoginDestination get() =
-        if (isOnboardingComplete) MessagesScreenRoute
-        else OnboardingTextToSpeechScreenRoute
 
     // stream NQ
     var isNQ by mutableStateOf(true)

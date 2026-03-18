@@ -1,37 +1,37 @@
 package com.sommerengineering.baraudio.navigation
 
 import android.Manifest
+import android.content.Context
 import android.os.Build
-import androidx.compose.runtime.Composable
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
-import androidx.navigation.compose.NavHost
+import androidx.navigation.NavController
+import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
+import androidx.navigation.compose.navigation
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.onboarding.OnboardingMode.AppOnboarding
 import com.sommerengineering.baraudio.onboarding.OnboardingScreen
-import com.sommerengineering.baraudio.uitls.MessagesScreenRoute
+import com.sommerengineering.baraudio.uitls.AppOnboardingRoute
 import com.sommerengineering.baraudio.uitls.OnboardingNotificationsScreenRoute
 import com.sommerengineering.baraudio.uitls.OnboardingTextToSpeechScreenRoute
 import com.sommerengineering.baraudio.uitls.OnboardingWebhookScreenRoute
 
-@Composable
-fun AppOnboardingNavigation(
+fun NavGraphBuilder.AppOnboardingNavigation(
+    controller: NavController,
+    context: Context,
     viewModel: MainViewModel) {
 
-    val context = LocalContext.current
-    val controller = rememberNavController()
-
-    NavHost(
-        navController = controller,
+    navigation(
+        route = AppOnboardingRoute,
         startDestination = OnboardingTextToSpeechScreenRoute) {
 
         // onboarding screen: text-to-speech
         composable(OnboardingTextToSpeechScreenRoute) {
+            BackHandler { (context as MainActivity).moveTaskToBack(true) }
             OnboardingScreen(
                 onboardingMode = AppOnboarding,
                 pageNumber = 0,
@@ -52,6 +52,7 @@ fun AppOnboardingNavigation(
                 }
             }
 
+            BackHandler { (context as MainActivity).moveTaskToBack(true) }
             OnboardingScreen(
                 onboardingMode = AppOnboarding,
                 pageNumber = 1,
@@ -68,14 +69,13 @@ fun AppOnboardingNavigation(
 
         // onboarding screen: webhook
         composable(OnboardingWebhookScreenRoute) {
+            BackHandler { (context as MainActivity).moveTaskToBack(true) }
             OnboardingScreen(
                 onboardingMode = AppOnboarding,
                 pageNumber = 2,
                 onNextClick = {
                     viewModel.updateOnboarding(true)
-                    controller.navigate(MessagesScreenRoute) {
-                        popUpTo(OnboardingTextToSpeechScreenRoute) { inclusive = true }
-                    }
+                    controller.popBackStack()
                 })
         }
     }
