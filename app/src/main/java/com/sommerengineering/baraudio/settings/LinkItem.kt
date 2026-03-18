@@ -34,11 +34,15 @@ fun LinkItem(
     description: String? = null,
     onClick: () -> Unit) {
 
+    val rowHeight =
+        if (description == null) rowMinHeight * 0.75f
+        else rowMinHeight
+
     Surface {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(rowMinHeight)
+                .heightIn(rowHeight)
                 .clickable { onClick() }
                 .padding(
                     start = rowHorizontalPadding + 4.dp,

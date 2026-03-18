@@ -17,7 +17,7 @@ fun logException(e: Exception) {
 
 // durations
 const val bottomBarTransitionTimeMillis = 1000
-const val colorTransitionTimeMillis = 100
+const val colorTransitionTimeMillis = 0
 const val messageItemExpansionTimeMillis = 140
 
 // urls
