@@ -21,8 +21,6 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
 import com.sommerengineering.baraudio.BuildConfig
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
@@ -54,7 +52,6 @@ import com.sommerengineering.baraudio.uitls.uiDividerTitle
 import com.sommerengineering.baraudio.uitls.uiModeTitle
 import com.sommerengineering.baraudio.uitls.voiceDividerTitle
 import com.sommerengineering.baraudio.uitls.voiceTitle
-import com.sommerengineering.baraudio.uitls.webhookBaseUrl
 import com.sommerengineering.baraudio.uitls.webhookDescription
 import com.sommerengineering.baraudio.uitls.webhookTitle
 
@@ -78,7 +75,7 @@ fun SettingsDrawer(
     val isNQ = viewModel.isNQ
     val isGC = viewModel.isGC
     val isSI = viewModel.isSI
-    val webhookUrl = webhookBaseUrl + Firebase.auth.currentUser?.uid
+    val webhookUrl = viewModel.webhookUrl
 
     val isFullScreen = viewModel.isFullScreen
     val fullScreenDescription = viewModel.fullScreenDescription
@@ -234,7 +231,7 @@ fun SettingsDrawer(
                     onClick = onLaunchSetupOnboarding) {
 
                     IconButton(
-                        onClick = { viewModel.saveToWebhookClipboard(context, webhookUrl) }) {
+                        onClick = { viewModel.copyWebhook(context) }) {
                         Icon(
                             painter = painterResource(R.drawable.copy),
                             contentDescription = null)

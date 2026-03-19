@@ -38,6 +38,7 @@ import com.sommerengineering.baraudio.uitls.pitchKey
 import com.sommerengineering.baraudio.uitls.siStream
 import com.sommerengineering.baraudio.uitls.speedKey
 import com.sommerengineering.baraudio.uitls.voiceNameKey
+import com.sommerengineering.baraudio.uitls.webhookBaseUrl
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -59,6 +60,9 @@ class MainRepository @Inject constructor(
     val roomDb: RoomImpl,
     val firebaseDb: FirebaseDatabaseImpl,
     val dataStore: DataStore<Preferences>) {
+
+    // firebase authentication
+    lateinit var webhookUrl: String
 
     // room database
     val messages = roomDb.messages
@@ -267,6 +271,9 @@ class MainRepository @Inject constructor(
 
             // cold start hydration sync of firebase to local room database
             appScope.launch { hydrateMessages() }
+
+            // set webhook url
+            webhookUrl = "$webhookBaseUrl$uid"
         }
     }
 

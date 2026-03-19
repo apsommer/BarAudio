@@ -74,6 +74,7 @@ fun MainNavigation(
         // setup webhook onboarding
         SetupWebhookNavigation(
             controller = controller,
+            viewModel = viewModel,
             onClose = { controller.popBackStack() })
     }
 }

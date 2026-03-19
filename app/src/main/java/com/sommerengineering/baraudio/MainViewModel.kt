@@ -221,9 +221,9 @@ class MainViewModel @Inject constructor(
             else queueFlushDescription
     }
 
-    fun saveToWebhookClipboard(
-        context: Context,
-        webhookUrl: String) {
+    val webhookUrl get() = repo.webhookUrl
+    fun copyWebhook(
+        context: Context) {
 
         // save url to clipboard
         val clipboardManager = context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
