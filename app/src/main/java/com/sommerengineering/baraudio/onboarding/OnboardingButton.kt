@@ -18,15 +18,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.R
+import com.sommerengineering.baraudio.uitls.buttonText
 import com.sommerengineering.baraudio.uitls.edgePadding
-import com.sommerengineering.baraudio.uitls.next
-import com.sommerengineering.baraudio.onboarding.OnboardingMode.AppOnboarding
-import com.sommerengineering.baraudio.onboarding.OnboardingMode.WebhookSetup
 import com.sommerengineering.baraudio.uitls.onboardingTotalPages
 
 @Composable
 fun ColumnScope.OnboardingButton(
-    onboardingMode: OnboardingMode,
     pageNumber: Int,
     onNextClick: () -> Unit,
     isNextEnabled: Boolean = true) {
@@ -66,17 +63,7 @@ fun ColumnScope.OnboardingButton(
                 modifier = Modifier.align(Alignment.BottomEnd),
                 enabled = isNextEnabled,
                 onClick = onNextClick) {
-
-                val text = when (onboardingMode) {
-                    AppOnboarding -> next
-                    WebhookSetup -> when (pageNumber) {
-                        0 -> next
-                        1 -> "I pasted it"
-                        2 -> "Done"
-                        else -> ""
-                }}
-
-                Text(text)
+                Text(buttonText)
             }
         }
     }

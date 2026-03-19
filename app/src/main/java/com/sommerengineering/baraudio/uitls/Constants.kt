@@ -147,10 +147,13 @@ val dividerThickness = 0.5.dp
 
 // onboarding
 const val onboardingTotalPages = 3
-const val next = "Next"
-const val onboardingTtsTitle = "BarAudio uses text-to-speech to announce alerts."
-const val allowNotificationsTitle = "Allow notifications for realtime data."
-const val onboardingWebhookTitle = "Customize your webhook with a simple setup."
+const val appOnboardingTtsTitle = "BarAudio uses text-to-speech to announce alerts."
+const val allowNotificationsMessage = "Allow notifications for realtime data."
+const val appOnboardingWebhookTitle = "Customize your webhook with a simple setup."
+const val setupOnboardingCopyTitle = "Copy your webhook URL."
+const val setupOnboardingPasteTitle = "Paste it into a TradingView alert."
+const val setupOnboardingSignalTitle = "You're live. Send a test alert."
+const val buttonText = "Next"
 const val soundAnimation = "sound.json"
 const val notificationAnimation = "notification.json"
 const val linkAnimation = "link.json"

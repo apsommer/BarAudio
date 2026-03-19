@@ -11,9 +11,12 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import com.sommerengineering.baraudio.onboarding.OnboardingMode.AppOnboarding
 import com.sommerengineering.baraudio.onboarding.OnboardingMode.WebhookSetup
-import com.sommerengineering.baraudio.uitls.allowNotificationsTitle
-import com.sommerengineering.baraudio.uitls.onboardingTtsTitle
-import com.sommerengineering.baraudio.uitls.onboardingWebhookTitle
+import com.sommerengineering.baraudio.uitls.allowNotificationsMessage
+import com.sommerengineering.baraudio.uitls.appOnboardingTtsTitle
+import com.sommerengineering.baraudio.uitls.appOnboardingWebhookTitle
+import com.sommerengineering.baraudio.uitls.setupOnboardingCopyTitle
+import com.sommerengineering.baraudio.uitls.setupOnboardingPasteTitle
+import com.sommerengineering.baraudio.uitls.setupOnboardingSignalTitle
 
 @Composable
 fun ColumnScope.OnboardingText(
@@ -23,15 +26,15 @@ fun ColumnScope.OnboardingText(
     val annotatedString = buildAnnotatedString { when (onboardingMode) {
 
         AppOnboarding -> { when (pageNumber) {
-            0 -> { append(onboardingTtsTitle) }
-            1 -> { append(allowNotificationsTitle) }
-            2 -> { append(onboardingWebhookTitle) }
+            0 -> { append(appOnboardingTtsTitle) }
+            1 -> { append(allowNotificationsMessage) }
+            2 -> { append(appOnboardingWebhookTitle) }
         }}
 
         WebhookSetup -> { when (pageNumber) {
-            0 -> append("Copy your webhook URL into TradingView.")
-            1 -> append("Create a TradingView alert and paste the webhook URL.")
-            2 -> append("We’re now listening. Send a test alert to verify.")
+            0 -> append(setupOnboardingCopyTitle)
+            1 -> append(setupOnboardingPasteTitle)
+            2 -> append(setupOnboardingSignalTitle)
         }}
     }}
 

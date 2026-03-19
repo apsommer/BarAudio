@@ -33,7 +33,6 @@ fun OnboardingScreen(
                 pageNumber = pageNumber)
 
             OnboardingButton(
-                onboardingMode = onboardingMode,
                 pageNumber = pageNumber,
                 onNextClick = onNextClick,
                 isNextEnabled = isNextEnabled)
