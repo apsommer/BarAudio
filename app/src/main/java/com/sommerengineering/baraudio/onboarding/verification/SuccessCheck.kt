@@ -32,7 +32,7 @@ fun SuccessCheck() {
         contentDescription = null,
         tint = MaterialTheme.colorScheme.primary,
         modifier = Modifier
-            .size(28.dp)
+            .size(96.dp)
             .graphicsLayer {
                 scaleX = scale.value
                 scaleY = scale.value

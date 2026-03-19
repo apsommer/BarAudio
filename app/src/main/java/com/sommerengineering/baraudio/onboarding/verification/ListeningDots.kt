@@ -24,7 +24,7 @@ fun ListeningDots() {
     val infiniteTransition = rememberInfiniteTransition()
     val delays = listOf(0, 150, 300)
 
-    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         delays.forEach { delay ->
             val alpha by infiniteTransition.animateFloat(
                 initialValue = 0.2f,
@@ -33,7 +33,7 @@ fun ListeningDots() {
                     animation = tween(600, delayMillis = delay),
                     repeatMode = RepeatMode.Reverse))
             Box(Modifier
-                .size(10.dp)
+                .size(24.dp)
                 .alpha(alpha)
                 .background(
                     color = MaterialTheme.colorScheme.primary,
