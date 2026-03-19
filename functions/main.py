@@ -92,7 +92,7 @@ def baraudio(req: https_fn.Request) -> https_fn.Response:
 
         # get source from ip
         if source_override: source = source_override # dev environment
-        else: source = resolve_source_from_ip(source_ip)
+        else: source = resolve_source_from_ip(source_ip) # user signal
 
         send_message_to_single_device(uid, device_token, timestamp, message, source)
         write_user_message_to_database(uid, timestamp, message, source)
