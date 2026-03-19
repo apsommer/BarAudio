@@ -47,7 +47,7 @@ fun ColumnScope.OnboardingImage(
         WebhookSetup -> {
 
             val resId = when (pageNumber) {
-                0 -> R.drawable.speed
+                0 -> R.drawable.webhook
                 1 -> R.drawable.ungroup
                 2 -> R.drawable.group
                 else -> R.drawable.webhook
