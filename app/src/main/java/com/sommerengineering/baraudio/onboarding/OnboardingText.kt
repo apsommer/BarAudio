@@ -11,12 +11,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import com.sommerengineering.baraudio.onboarding.OnboardingMode.AppOnboarding
 import com.sommerengineering.baraudio.onboarding.OnboardingMode.SetupWebhook
 import com.sommerengineering.baraudio.uitls.allowNotificationsMessage
 import com.sommerengineering.baraudio.uitls.appOnboardingTtsTitle
 import com.sommerengineering.baraudio.uitls.appOnboardingWebhookTitle
 import com.sommerengineering.baraudio.uitls.setupOnboardingCopyTitle
+import com.sommerengineering.baraudio.uitls.setupOnboardingPasteSubtitle
 import com.sommerengineering.baraudio.uitls.setupOnboardingPasteTitle
 import com.sommerengineering.baraudio.uitls.setupOnboardingSignalTitle
 
@@ -35,7 +37,11 @@ fun ColumnScope.OnboardingText(
 
         SetupWebhook -> { when (pageNumber) {
             0 -> append(setupOnboardingCopyTitle)
-            1 -> append(setupOnboardingPasteTitle)
+            1 -> {
+                append(setupOnboardingPasteTitle)
+                withStyle(style = MaterialTheme.typography.bodyMedium.toSpanStyle()) {
+                    append(setupOnboardingPasteSubtitle) }
+            }
             2 -> append(setupOnboardingSignalTitle)
         }}
     }}

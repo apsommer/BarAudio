@@ -2,10 +2,16 @@ package com.sommerengineering.baraudio.navigation
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.motionEventSpy
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraphBuilder
@@ -21,6 +27,7 @@ import com.sommerengineering.baraudio.uitls.SetupOnboardingCopyWebhookRoute
 import com.sommerengineering.baraudio.uitls.SetupOnboardingPasteWebhookRoute
 import com.sommerengineering.baraudio.uitls.SetupOnboardingRoute
 import com.sommerengineering.baraudio.uitls.SetupOnboardingSignalArmedRoute
+import com.sommerengineering.baraudio.uitls.edgePadding
 
 fun NavGraphBuilder.SetupWebhookNavigation(
     controller: NavHostController,
@@ -65,7 +72,10 @@ fun NavGraphBuilder.SetupWebhookNavigation(
                 onNextClick = onClose,
                 isNextEnabled = verificationState == RECEIVED) {
                 Column(
-                    verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(edgePadding),
+                    horizontalAlignment = Alignment.CenterHorizontally) {
                     when (verificationState) {
                         WAITING -> { Text("Waiting for your first signal...") }
                         RECEIVED -> { Text("Signal received successfully.") }

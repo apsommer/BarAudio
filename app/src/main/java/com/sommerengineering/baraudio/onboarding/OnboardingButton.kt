@@ -24,6 +24,7 @@ import com.sommerengineering.baraudio.uitls.nextText
 import com.sommerengineering.baraudio.uitls.edgePadding
 import com.sommerengineering.baraudio.uitls.onboardingTotalPages
 import com.sommerengineering.baraudio.onboarding.OnboardingMode.SetupWebhook
+import com.sommerengineering.baraudio.uitls.doneText
 
 @Composable
 fun ColumnScope.OnboardingButton(
@@ -63,9 +64,11 @@ fun ColumnScope.OnboardingButton(
                 onClick = onNextClick) {
                 Text(
                     textAlign = TextAlign.Center,
-                    text =
-                        if (onboardingMode == SetupWebhook && pageNumber == 0) copyText
-                        else nextText)
+                    text = when (onboardingMode) {
+                        SetupWebhook if pageNumber == 0 -> copyText
+                        SetupWebhook if pageNumber == 2 -> doneText
+                        else -> nextText
+                    })
             }
         }
     }
