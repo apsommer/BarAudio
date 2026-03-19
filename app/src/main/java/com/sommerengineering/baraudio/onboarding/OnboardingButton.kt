@@ -16,14 +16,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.uitls.buttonText
+import com.sommerengineering.baraudio.uitls.copyText
+import com.sommerengineering.baraudio.uitls.nextText
 import com.sommerengineering.baraudio.uitls.edgePadding
 import com.sommerengineering.baraudio.uitls.onboardingTotalPages
+import com.sommerengineering.baraudio.onboarding.OnboardingMode.WebhookSetup
 
 @Composable
 fun ColumnScope.OnboardingButton(
+    onboardingMode: OnboardingMode,
     pageNumber: Int,
     onNextClick: () -> Unit,
     isNextEnabled: Boolean = true) {
@@ -41,19 +45,13 @@ fun ColumnScope.OnboardingButton(
 
             // page indicator
             Row(Modifier.align(Alignment.Center)) {
-
                 for (i in 0 ..< onboardingTotalPages) {
-
-                    val imageId =
-                        if (i == pageNumber) R.drawable.indicator_filled
-                        else R.drawable.indicator_open
-
                     Icon(
-                        modifier = Modifier
-                            .padding(6.dp)
-                            .size(12.dp),
+                        modifier = Modifier.padding(6.dp).size(12.dp),
                         tint = MaterialTheme.colorScheme.outline,
-                        painter = painterResource(imageId),
+                        painter = painterResource(
+                            if (i == pageNumber) R.drawable.indicator_filled
+                            else R.drawable.indicator_open),
                         contentDescription = null)
                 }
             }
@@ -63,7 +61,11 @@ fun ColumnScope.OnboardingButton(
                 modifier = Modifier.align(Alignment.BottomEnd),
                 enabled = isNextEnabled,
                 onClick = onNextClick) {
-                Text(buttonText)
+                Text(
+                    textAlign = TextAlign.Center,
+                    text =
+                        if (onboardingMode == WebhookSetup && pageNumber == 0) copyText
+                        else nextText)
             }
         }
     }

@@ -1,16 +1,5 @@
 package com.sommerengineering.baraudio.navigation
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -35,33 +24,15 @@ fun NavGraphBuilder.SetupWebhookNavigation(
 
         // copy webhook
         composable(SetupOnboardingCopyWebhookRoute) {
-
-            // disable next button until user copies webhook
             val context = LocalContext.current
-            var isCopied by remember { mutableStateOf(false) }
-
             OnboardingScreen(
                 onboardingMode = WebhookSetup,
                 pageNumber = 0,
                 onNextClick = {
+                    viewModel.copyWebhook(context)
                     controller.navigate(SetupOnboardingPasteWebhookRoute) {
                         popUpTo(SetupOnboardingCopyWebhookRoute) { inclusive = true }
-                    }
-                },
-                isNextEnabled = isCopied) {
-
-                Column(
-                    modifier = Modifier.fillMaxWidth().weight(1f),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally) {
-                    Button(
-                        onClick = {
-                            viewModel.copyWebhook(context)
-                            isCopied = true }) {
-                        Text("Copy webhook")
-                    }
-                }
-            }
+                    }})
         }
 
         // paste webhook
