@@ -17,8 +17,10 @@ import androidx.lifecycle.viewModelScope
 import com.sommerengineering.baraudio.login.GitHubAuthenticator
 import com.sommerengineering.baraudio.login.GoogleAuthenticator
 import com.sommerengineering.baraudio.messages.FeedMode
+import com.sommerengineering.baraudio.onboarding.VerificationState
 import com.sommerengineering.baraudio.onboarding.VerificationState.WAITING
 import com.sommerengineering.baraudio.onboarding.VerificationState.RECEIVED
+import com.sommerengineering.baraudio.onboarding.VerificationUiState
 import com.sommerengineering.baraudio.source.Message
 import com.sommerengineering.baraudio.uitls.RomanNumerals
 import com.sommerengineering.baraudio.uitls.queueAddDescription
@@ -29,6 +31,7 @@ import com.sommerengineering.baraudio.uitls.uiDarkDescription
 import com.sommerengineering.baraudio.uitls.uiLightDescription
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -290,24 +293,29 @@ class MainViewModel @Inject constructor(
     }
 
     // onboarding: setup webhook, verify user signal received
-    private var verificationStartTime: Long? = null
     private var isVerifiedLocked = false
+    private var verificationStartTime: Long? = null
     fun setVerificationStartTime() {
         verificationStartTime = System.currentTimeMillis()
         isVerifiedLocked = false
     }
-    val verificationState = messages.map { messages ->
-        if (isVerifiedLocked) return@map RECEIVED
+    val verificationUiState = messages.map { messages ->
         val startTime = verificationStartTime
-        val isVerified =
-            startTime != null &&
-            messages.any { it.source != null && it.timestamp.toLong() > startTime }
-        if (isVerified) {
+        val latestMessage =
+            startTime?.let {
+                messages.firstOrNull {
+                    it.source != null &&
+                    it.timestamp.toLong() > startTime
+                }
+            }
+        if (latestMessage != null) {
             isVerifiedLocked = true
-            RECEIVED
-        } else { WAITING }
-    }.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(),
-        WAITING)
+            VerificationUiState(RECEIVED, latestMessage.message)
+        } else {
+            VerificationUiState(WAITING)
+        }
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(),
+        VerificationUiState(WAITING))
 }

@@ -16,8 +16,3 @@ enum class WebhookSetup {
     Paste,
     Verification
 }
-
-enum class VerificationState {
-    WAITING,
-    RECEIVED
-}
