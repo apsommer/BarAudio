@@ -11,8 +11,8 @@ import androidx.navigation.compose.navigation
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.onboarding.OnboardingMode.SetupWebhook
 import com.sommerengineering.baraudio.onboarding.OnboardingScreen
-import com.sommerengineering.baraudio.onboarding.VerificationContent
-import com.sommerengineering.baraudio.onboarding.VerificationState
+import com.sommerengineering.baraudio.onboarding.verification.VerificationContent
+import com.sommerengineering.baraudio.onboarding.verification.VerificationState
 import com.sommerengineering.baraudio.uitls.SetupOnboardingCopyWebhookRoute
 import com.sommerengineering.baraudio.uitls.SetupOnboardingPasteWebhookRoute
 import com.sommerengineering.baraudio.uitls.SetupOnboardingRoute

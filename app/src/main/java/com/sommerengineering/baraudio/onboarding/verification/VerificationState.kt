@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.onboarding
+package com.sommerengineering.baraudio.onboarding.verification
 
 enum class VerificationState {
     WAITING,

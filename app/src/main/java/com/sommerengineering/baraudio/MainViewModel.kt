@@ -17,10 +17,9 @@ import androidx.lifecycle.viewModelScope
 import com.sommerengineering.baraudio.login.GitHubAuthenticator
 import com.sommerengineering.baraudio.login.GoogleAuthenticator
 import com.sommerengineering.baraudio.messages.FeedMode
-import com.sommerengineering.baraudio.onboarding.VerificationState
-import com.sommerengineering.baraudio.onboarding.VerificationState.WAITING
-import com.sommerengineering.baraudio.onboarding.VerificationState.RECEIVED
-import com.sommerengineering.baraudio.onboarding.VerificationUiState
+import com.sommerengineering.baraudio.onboarding.verification.VerificationState.WAITING
+import com.sommerengineering.baraudio.onboarding.verification.VerificationState.RECEIVED
+import com.sommerengineering.baraudio.onboarding.verification.VerificationUiState
 import com.sommerengineering.baraudio.source.Message
 import com.sommerengineering.baraudio.uitls.RomanNumerals
 import com.sommerengineering.baraudio.uitls.queueAddDescription
@@ -31,7 +30,6 @@ import com.sommerengineering.baraudio.uitls.uiDarkDescription
 import com.sommerengineering.baraudio.uitls.uiLightDescription
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map

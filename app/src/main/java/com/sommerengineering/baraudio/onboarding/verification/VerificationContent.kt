@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.onboarding
+package com.sommerengineering.baraudio.onboarding.verification
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
@@ -14,8 +14,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.sommerengineering.baraudio.onboarding.VerificationState.RECEIVED
-import com.sommerengineering.baraudio.onboarding.VerificationState.WAITING
+import com.sommerengineering.baraudio.onboarding.verification.VerificationState.RECEIVED
+import com.sommerengineering.baraudio.onboarding.verification.VerificationState.WAITING
 import com.sommerengineering.baraudio.uitls.edgePadding
 
 @Composable
