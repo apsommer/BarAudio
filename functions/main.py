@@ -25,7 +25,7 @@ STREAMS = frozenset({'NQ', 'GC', 'SI'})
 # user sources
 TRADINGVIEW = {'52.89.214.238', '34.212.75.30', '54.218.53.128', '52.32.178.7'}
 TRENDSPIDER = '3.12.143.24'
-INSOMNIA = '84.123.224.196'
+# todo MT5
 
 # configure notification
 BASE_CONFIG = messaging.AndroidConfig(
@@ -50,6 +50,7 @@ def baraudio(req: https_fn.Request) -> https_fn.Response:
     uid = req.args.get(key = 'uid', type = str) # query param
     message = req.get_data(as_text = True) # message as plain/text from body
     source_ip = req.headers.get('X-Forwarded-For') # extract source ip from header
+    source_override = req.headers.get('dev-source') # catch dev environment: postman, insomnia, ...
 
     # clean raw message
     message = message.strip()[:200] if message else '' # keep messages short for client display
@@ -90,7 +91,8 @@ def baraudio(req: https_fn.Request) -> https_fn.Response:
             return https_fn.Response(f'Sign-in to hear message')
 
         # get source from ip
-        source = resolve_source_from_ip(source_ip)
+        if source_override: source = source_override # dev environment
+        else: source = resolve_source_from_ip(source_ip)
 
         send_message_to_single_device(uid, device_token, timestamp, message, source)
         write_user_message_to_database(uid, timestamp, message, source)
@@ -202,6 +204,6 @@ def resolve_source_from_ip(source_ip: str) -> str:
 
     if ip in TRADINGVIEW: return 'tradingview'
     if ip == TRENDSPIDER: return 'trendspider'
-    if ip == INSOMNIA: return 'insomnia'
+    # todo MT5
 
     return 'unknown'
