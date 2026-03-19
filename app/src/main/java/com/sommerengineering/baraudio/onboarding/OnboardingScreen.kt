@@ -30,7 +30,7 @@ fun OnboardingScreen(
                 onboardingMode = onboardingMode,
                 pageNumber = pageNumber)
 
-            // dynamic content for webhook setup, step 2 (paste)
+            // dynamic content for webhook setup
             if (content != null) {
                 content()
             } else {

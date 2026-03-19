@@ -1,5 +1,8 @@
 package com.sommerengineering.baraudio.navigation
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -8,6 +11,8 @@ import androidx.navigation.compose.navigation
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.onboarding.OnboardingMode.WebhookSetup
 import com.sommerengineering.baraudio.onboarding.OnboardingScreen
+import com.sommerengineering.baraudio.onboarding.SetupWebhookVerificationColumn
+import com.sommerengineering.baraudio.onboarding.VerificationState
 import com.sommerengineering.baraudio.uitls.SetupOnboardingCopyWebhookRoute
 import com.sommerengineering.baraudio.uitls.SetupOnboardingPasteWebhookRoute
 import com.sommerengineering.baraudio.uitls.SetupOnboardingRoute
@@ -48,10 +53,16 @@ fun NavGraphBuilder.SetupWebhookNavigation(
 
         // signal armed (setup complete)
         composable(SetupOnboardingSignalArmedRoute) {
+            val verificationState by remember { mutableStateOf(VerificationState.WAITING) }
             OnboardingScreen(
                 onboardingMode = WebhookSetup,
                 pageNumber = 2,
-                onNextClick = onClose)
+                onNextClick = onClose,
+                isNextEnabled = verificationState == VerificationState.RECEIVED) {
+                SetupWebhookVerificationColumn(
+                    verificationState = verificationState
+                )
+            }
         }
     }
 }
