@@ -17,6 +17,8 @@ import androidx.lifecycle.viewModelScope
 import com.sommerengineering.baraudio.login.GitHubAuthenticator
 import com.sommerengineering.baraudio.login.GoogleAuthenticator
 import com.sommerengineering.baraudio.messages.FeedMode
+import com.sommerengineering.baraudio.onboarding.VerificationState.WAITING
+import com.sommerengineering.baraudio.onboarding.VerificationState.RECEIVED
 import com.sommerengineering.baraudio.source.Message
 import com.sommerengineering.baraudio.uitls.RomanNumerals
 import com.sommerengineering.baraudio.uitls.queueAddDescription
@@ -29,6 +31,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -47,9 +50,6 @@ class MainViewModel @Inject constructor(
         viewModelScope,
         SharingStarted.WhileSubscribed(),
         emptyList())
-
-    // text-to-speech
-    val isTtsReady = repo.isTtsReady
 
     // voice
     var voices by mutableStateOf<List<Voice>>(emptyList())
@@ -221,25 +221,6 @@ class MainViewModel @Inject constructor(
             else queueFlushDescription
     }
 
-    val webhookUrl get() = repo.webhookUrl
-    fun copyWebhook(
-        context: Context) {
-
-        // save url to clipboard
-        val clipboardManager = context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
-        val clip = ClipData.newPlainText("", webhookUrl)
-        clipboardManager.setPrimaryClip(clip)
-
-        // toast for older api
-        if (31 > android.os.Build.VERSION.SDK_INT) {
-            Toast.makeText(
-                context,
-                webhookUrl,
-                Toast.LENGTH_SHORT)
-                .show()
-        }
-    }
-
     fun signOut() {
         repo.signOut()
         viewModelScope.launch {
@@ -287,4 +268,46 @@ class MainViewModel @Inject constructor(
                 }
             }
     }
+
+    // copy webhook
+    val webhookUrl get() = repo.webhookUrl
+    fun copyWebhook(
+        context: Context) {
+
+        // save url to clipboard
+        val clipboardManager = context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipData.newPlainText("", webhookUrl)
+        clipboardManager.setPrimaryClip(clip)
+
+        // toast for older api
+        if (31 > android.os.Build.VERSION.SDK_INT) {
+            Toast.makeText(
+                context,
+                webhookUrl,
+                Toast.LENGTH_SHORT)
+                .show()
+        }
+    }
+
+    // onboarding: setup webhook, verify user signal received
+    private var verificationStartTime: Long? = null
+    private var isVerifiedLocked = false
+    fun setVerificationStartTime() {
+        verificationStartTime = System.currentTimeMillis()
+        isVerifiedLocked = false
+    }
+    val verificationState = messages.map { messages ->
+        if (isVerifiedLocked) return@map RECEIVED
+        val startTime = verificationStartTime
+        val isVerified =
+            startTime != null &&
+            messages.any { it.source != null && it.timestamp.toLong() > startTime }
+        if (isVerified) {
+            isVerifiedLocked = true
+            RECEIVED
+        } else { WAITING }
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(),
+        WAITING)
 }

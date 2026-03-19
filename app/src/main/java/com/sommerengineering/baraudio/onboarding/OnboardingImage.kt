@@ -14,7 +14,7 @@ import com.sommerengineering.baraudio.uitls.linkAnimation
 import com.sommerengineering.baraudio.uitls.notificationAnimation
 import com.sommerengineering.baraudio.uitls.soundAnimation
 import com.sommerengineering.baraudio.onboarding.OnboardingMode.AppOnboarding
-import com.sommerengineering.baraudio.onboarding.OnboardingMode.WebhookSetup
+import com.sommerengineering.baraudio.onboarding.OnboardingMode.SetupWebhook
 
 @Composable
 fun ColumnScope.OnboardingImage(
@@ -44,7 +44,7 @@ fun ColumnScope.OnboardingImage(
                 playMode = Mode.FORWARD)
         }
 
-        WebhookSetup -> {
+        SetupWebhook -> {
 
             val resId = when (pageNumber) {
                 0 -> R.drawable.webhook

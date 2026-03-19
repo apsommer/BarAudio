@@ -2,7 +2,7 @@ package com.sommerengineering.baraudio.onboarding
 
 enum class OnboardingMode {
     AppOnboarding,
-    WebhookSetup
+    SetupWebhook
 }
 
 enum class AppOnboarding {
@@ -12,7 +12,12 @@ enum class AppOnboarding {
 }
 
 enum class WebhookSetup {
-    CopyWebhook,
-    PasteWebhook,
-    SignalArmed
+    Copy,
+    Paste,
+    Verification
+}
+
+enum class VerificationState {
+    WAITING,
+    RECEIVED
 }

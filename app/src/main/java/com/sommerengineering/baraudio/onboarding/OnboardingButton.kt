@@ -23,7 +23,7 @@ import com.sommerengineering.baraudio.uitls.copyText
 import com.sommerengineering.baraudio.uitls.nextText
 import com.sommerengineering.baraudio.uitls.edgePadding
 import com.sommerengineering.baraudio.uitls.onboardingTotalPages
-import com.sommerengineering.baraudio.onboarding.OnboardingMode.WebhookSetup
+import com.sommerengineering.baraudio.onboarding.OnboardingMode.SetupWebhook
 
 @Composable
 fun ColumnScope.OnboardingButton(
@@ -64,7 +64,7 @@ fun ColumnScope.OnboardingButton(
                 Text(
                     textAlign = TextAlign.Center,
                     text =
-                        if (onboardingMode == WebhookSetup && pageNumber == 0) copyText
+                        if (onboardingMode == SetupWebhook && pageNumber == 0) copyText
                         else nextText)
             }
         }

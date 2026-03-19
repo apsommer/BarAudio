@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import com.sommerengineering.baraudio.onboarding.OnboardingMode.AppOnboarding
-import com.sommerengineering.baraudio.onboarding.OnboardingMode.WebhookSetup
+import com.sommerengineering.baraudio.onboarding.OnboardingMode.SetupWebhook
 import com.sommerengineering.baraudio.uitls.allowNotificationsMessage
 import com.sommerengineering.baraudio.uitls.appOnboardingTtsTitle
 import com.sommerengineering.baraudio.uitls.appOnboardingWebhookTitle
@@ -33,7 +33,7 @@ fun ColumnScope.OnboardingText(
             2 -> { append(appOnboardingWebhookTitle) }
         }}
 
-        WebhookSetup -> { when (pageNumber) {
+        SetupWebhook -> { when (pageNumber) {
             0 -> append(setupOnboardingCopyTitle)
             1 -> append(setupOnboardingPasteTitle)
             2 -> append(setupOnboardingSignalTitle)

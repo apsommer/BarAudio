@@ -1,18 +1,22 @@
 package com.sommerengineering.baraudio.navigation
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import com.sommerengineering.baraudio.MainViewModel
-import com.sommerengineering.baraudio.onboarding.OnboardingMode.WebhookSetup
+import com.sommerengineering.baraudio.onboarding.OnboardingMode.SetupWebhook
 import com.sommerengineering.baraudio.onboarding.OnboardingScreen
-import com.sommerengineering.baraudio.onboarding.SetupWebhookVerificationColumn
-import com.sommerengineering.baraudio.onboarding.VerificationState
+import com.sommerengineering.baraudio.onboarding.VerificationState.RECEIVED
+import com.sommerengineering.baraudio.onboarding.VerificationState.WAITING
 import com.sommerengineering.baraudio.uitls.SetupOnboardingCopyWebhookRoute
 import com.sommerengineering.baraudio.uitls.SetupOnboardingPasteWebhookRoute
 import com.sommerengineering.baraudio.uitls.SetupOnboardingRoute
@@ -31,7 +35,7 @@ fun NavGraphBuilder.SetupWebhookNavigation(
         composable(SetupOnboardingCopyWebhookRoute) {
             val context = LocalContext.current
             OnboardingScreen(
-                onboardingMode = WebhookSetup,
+                onboardingMode = SetupWebhook,
                 pageNumber = 0,
                 onNextClick = {
                     viewModel.copyWebhook(context)
@@ -43,7 +47,7 @@ fun NavGraphBuilder.SetupWebhookNavigation(
         // paste webhook
         composable(SetupOnboardingPasteWebhookRoute) {
             OnboardingScreen(
-                onboardingMode = WebhookSetup,
+                onboardingMode = SetupWebhook,
                 pageNumber = 1,
                 onNextClick = {
                     controller.navigate(SetupOnboardingSignalArmedRoute) {
@@ -53,15 +57,20 @@ fun NavGraphBuilder.SetupWebhookNavigation(
 
         // signal armed (setup complete)
         composable(SetupOnboardingSignalArmedRoute) {
-            val verificationState by remember { mutableStateOf(VerificationState.WAITING) }
+            val verificationState by viewModel.verificationState.collectAsState()
+            LaunchedEffect(Unit) { viewModel.setVerificationStartTime() }
             OnboardingScreen(
-                onboardingMode = WebhookSetup,
+                onboardingMode = SetupWebhook,
                 pageNumber = 2,
                 onNextClick = onClose,
-                isNextEnabled = verificationState == VerificationState.RECEIVED) {
-                SetupWebhookVerificationColumn(
-                    verificationState = verificationState
-                )
+                isNextEnabled = verificationState == RECEIVED) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    when (verificationState) {
+                        WAITING -> { Text("Waiting for your first signal...") }
+                        RECEIVED -> { Text("Signal received successfully.") }
+                    }
+                }
             }
         }
     }
