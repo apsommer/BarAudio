@@ -57,8 +57,8 @@ fun MessagesScreen(
     // toggle background image with dark mode
     val isDarkMode = viewModel.isDarkMode
     val backgroundRes =
-        if (isDarkMode) R.drawable.background_skyline_dark
-        else R.drawable.background_skyline
+        if (isDarkMode) R.drawable.background_dark
+        else R.drawable.background
 
     ModalNavigationDrawer(
         drawerState = drawerState,
