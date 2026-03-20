@@ -14,7 +14,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.uitls.edgePadding
 import com.sommerengineering.baraudio.uitls.logoDarkAlpha
 import com.sommerengineering.baraudio.uitls.logoLightAlpha
 import com.sommerengineering.baraudio.uitls.rowHorizontalPadding
@@ -51,7 +50,7 @@ fun MessagesTopBar(
         // logo
         title = {
             Box { ScrimImage(
-                iconRes = R.drawable.logo_banner,
+                iconRes = R.drawable.banner,
                 alpha = if (isDarkMode) logoDarkAlpha else logoLightAlpha,
                 modifier = Modifier.padding(horizontal = 2 * rowHorizontalPadding)) }},
 

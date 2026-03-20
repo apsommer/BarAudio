@@ -284,7 +284,7 @@ fun SettingsDrawer(
             // manage subscription
             item {
                 LinkItem(
-                    iconRes = R.drawable.credit_card_gear,
+                    iconRes = R.drawable.manage_subscription,
                     title = manageSubscriptionTitle,
                     onClick = { uriHandler.openUri(subscriptionUrl) })
             }

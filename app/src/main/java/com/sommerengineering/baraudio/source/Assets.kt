@@ -26,7 +26,7 @@ val nqAsset = Asset(
                 accent = Color(0xFFC2B5FF),
                 surface = Color(0xFF15122A),
                 text = Color(0xFFEAE6FF),
-                iconRes = R.drawable.nq
+                iconRes = R.drawable.NQ
             )
         } else {
             MessageItemStyle(
@@ -34,7 +34,7 @@ val nqAsset = Asset(
                 accent = Color(0xFF9A84FF),
                 surface = Color(0xFFF3F0FF),
                 text = Color(0xFF1F1B2E),
-                iconRes = R.drawable.nq
+                iconRes = R.drawable.NQ
             )
         }})
 
@@ -55,7 +55,7 @@ val esAsset = Asset(
                 accent = Color(0xFF9CC4FF),
                 surface = Color(0xFF0D1A2B),
                 text = Color(0xFFE6F0FF),
-                iconRes = R.drawable.es
+                iconRes = R.drawable.ES
             )
         } else {
             MessageItemStyle(
@@ -63,7 +63,7 @@ val esAsset = Asset(
                 accent = Color(0xFF69A6FF),
                 surface = Color(0xFFEEF4FF),
                 text = Color(0xFF0F1C2E),
-                iconRes = R.drawable.es
+                iconRes = R.drawable.ES
             )
         }})
 

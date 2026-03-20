@@ -28,7 +28,7 @@ fun SuccessCheck() {
     }
 
     Icon(
-        painter = painterResource(R.drawable.check_circle),
+        painter = painterResource(R.drawable.check),
         contentDescription = null,
         tint = MaterialTheme.colorScheme.primary,
         modifier = Modifier
