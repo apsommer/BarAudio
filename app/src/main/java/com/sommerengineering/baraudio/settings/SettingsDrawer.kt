@@ -28,6 +28,7 @@ import com.sommerengineering.baraudio.source.MessageOrigin
 import com.sommerengineering.baraudio.source.gcAsset
 import com.sommerengineering.baraudio.source.nqAsset
 import com.sommerengineering.baraudio.source.siAsset
+import com.sommerengineering.baraudio.uitls.customDividerTitle
 import com.sommerengineering.baraudio.uitls.streamsDividerTitle
 import com.sommerengineering.baraudio.uitls.edgePadding
 import com.sommerengineering.baraudio.uitls.legalDividerTitle
@@ -52,8 +53,8 @@ import com.sommerengineering.baraudio.uitls.uiDividerTitle
 import com.sommerengineering.baraudio.uitls.uiModeTitle
 import com.sommerengineering.baraudio.uitls.voiceDividerTitle
 import com.sommerengineering.baraudio.uitls.voiceTitle
-import com.sommerengineering.baraudio.uitls.webhookDescription
-import com.sommerengineering.baraudio.uitls.webhookTitle
+import com.sommerengineering.baraudio.uitls.customDescription
+import com.sommerengineering.baraudio.uitls.customTitle
 
 @Composable
 fun SettingsDrawer(
@@ -221,19 +222,24 @@ fun SettingsDrawer(
                     updateStream = { viewModel.updateSI(it) })
             }
 
+            // divider
+            item {
+                DividerItem(customDividerTitle)
+            }
+
             // webhook
             item {
 
                 DialogItem(
                     iconRes = R.drawable.webhook,
-                    title = webhookTitle,
-                    description = webhookDescription,
+                    title = customTitle,
+                    description = customDescription,
                     onClick = onLaunchSetupOnboarding) {
 
                     IconButton(
-                        onClick = { viewModel.copyWebhook(context) }) {
+                        onClick = { }) {
                         Icon(
-                            painter = painterResource(R.drawable.copy),
+                            painter = painterResource(R.drawable.chevron),
                             contentDescription = null)
                     }
                 }
