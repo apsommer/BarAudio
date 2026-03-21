@@ -67,16 +67,13 @@ fun SettingsDrawer(
 
     val speed = viewModel.speed
     val pitch = viewModel.pitch
-    val isQueueAdd = viewModel.isQueueAdd
     val voiceDescription = viewModel.voiceDescription
     val speedDescription = viewModel.speedDescription
     val pitchDescription = viewModel.pitchDescription
-    val queueDescription = viewModel.queueDescription
 
     val isNQ = viewModel.isNQ
     val isGC = viewModel.isGC
     val isSI = viewModel.isSI
-    val webhookUrl = viewModel.webhookUrl
 
     val isFullScreen = viewModel.isFullScreen
     val fullScreenDescription = viewModel.fullScreenDescription
@@ -155,19 +152,6 @@ fun SettingsDrawer(
                                 viewModel.speakUtterance(pitchChangeUtterance + it)
                             })
                         }
-            }
-
-            // queue behavior
-            item {
-                SwitchItem(
-                    iconRes = R.drawable.text_to_speech,
-                    title = queueBehaviorTitle,
-                    description = queueDescription) {
-
-                        Switch(
-                            checked = isQueueAdd,
-                            onCheckedChange = { viewModel.updateQueueAdd(it) })
-                    }
             }
 
             // system tts settings

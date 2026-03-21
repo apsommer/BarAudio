@@ -119,14 +119,6 @@ class MainRepository @Inject constructor(
             writePreference(floatPreferencesKey(pitchKey), roundedPitch)
         }
 
-    // queue behavior
-    var isQueueAdd
-        get() = tts.isQueueAdd
-        set(value) {
-            tts.isQueueAdd = value
-            writePreference(booleanPreferencesKey(isQueueAddKey), value)
-        }
-
     // mute
     var isMute
         get() = tts.isMute
@@ -285,7 +277,6 @@ class MainRepository @Inject constructor(
                     ?: voice
         tts.speed = readPreference(floatPreferencesKey(speedKey)) ?: 1f
         tts.pitch = readPreference(floatPreferencesKey(pitchKey)) ?: 1f
-        tts.isQueueAdd = readPreference(booleanPreferencesKey(isQueueAddKey)) ?: true
         tts.isMute = readPreference(booleanPreferencesKey(isMuteKey)) ?: false
     }
 

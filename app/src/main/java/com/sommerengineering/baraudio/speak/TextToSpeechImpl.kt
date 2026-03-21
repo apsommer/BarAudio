@@ -61,14 +61,6 @@ class TextToSpeechImpl @Inject constructor(
             _textToSpeech.setPitch(value)
         }
 
-    // queue behavior
-    private var _isQueueAdd = true
-    var isQueueAdd
-        get() = _isQueueAdd
-        set(value) {
-            _isQueueAdd = value
-        }
-
     // volume (mute)
     private var _volume = 1f
     var isMute
@@ -104,7 +96,7 @@ class TextToSpeechImpl @Inject constructor(
         // speak message
         _textToSpeech.speak(
             normalizeMessage(message),
-            _isQueueAdd.compareTo(false),
+            TextToSpeech.QUEUE_ADD,
             bundleOf(volumeKey to _volume),
             timestamp)
     }
