@@ -16,7 +16,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.uitls.edgePadding
 import com.sommerengineering.baraudio.uitls.loginButtonSize
 
 @Composable
