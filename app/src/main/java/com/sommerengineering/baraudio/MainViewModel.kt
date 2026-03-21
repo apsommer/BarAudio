@@ -279,15 +279,6 @@ class MainViewModel @Inject constructor(
         val clipboardManager = context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
         val clip = ClipData.newPlainText("", webhookUrl)
         clipboardManager.setPrimaryClip(clip)
-
-        // toast for older api
-        if (31 > android.os.Build.VERSION.SDK_INT) {
-            Toast.makeText(
-                context,
-                webhookUrl,
-                Toast.LENGTH_SHORT)
-                .show()
-        }
     }
 
     // onboarding: setup webhook, verify user signal received
