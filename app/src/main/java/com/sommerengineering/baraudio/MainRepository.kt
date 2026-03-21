@@ -19,9 +19,11 @@ import com.sommerengineering.baraudio.source.MessageOrigin
 import com.sommerengineering.baraudio.source.resolveMessageOrigin
 import com.sommerengineering.baraudio.speak.TextToSpeechImpl
 import com.sommerengineering.baraudio.uitls.defaultVoice
+import com.sommerengineering.baraudio.uitls.esStream
 import com.sommerengineering.baraudio.uitls.feedModeKey
 import com.sommerengineering.baraudio.uitls.gcStream
 import com.sommerengineering.baraudio.uitls.isDarkModeKey
+import com.sommerengineering.baraudio.uitls.isESKey
 import com.sommerengineering.baraudio.uitls.isFullScreenKey
 import com.sommerengineering.baraudio.uitls.isGCKey
 import com.sommerengineering.baraudio.uitls.isMuteKey
@@ -71,6 +73,7 @@ class MainRepository @Inject constructor(
 
         // streams
         if (loadNQ()) messages.addAll(firebaseDb.fetchStreamMessages(nqStream))
+        if (loadES()) messages.addAll(firebaseDb.fetchStreamMessages(esStream))
         if (loadGC()) messages.addAll(firebaseDb.fetchStreamMessages(gcStream))
         if (loadSI()) messages.addAll(firebaseDb.fetchStreamMessages(siStream))
 
@@ -150,6 +153,14 @@ class MainRepository @Inject constructor(
         writePreference(booleanPreferencesKey(isNQKey), enabled)
     }
 
+    // stream ES
+    suspend fun loadES() =
+        readPreference(booleanPreferencesKey(isESKey)) ?: true
+    fun updateES(enabled: Boolean) {
+        syncStream(esStream, enabled)
+        writePreference(booleanPreferencesKey(isESKey), enabled)
+    }
+
     // stream GC
     suspend fun loadGC() =
         readPreference(booleanPreferencesKey(isGCKey)) ?: true
@@ -219,7 +230,7 @@ class MainRepository @Inject constructor(
             _isTtsReady.update { true }
         }
 
-        // wait for firebase to initialize to ensure valid ui
+        // wait for firebase to initialize to ensure uid is valid
         FirebaseAuth.getInstance().addAuthStateListener { onAuth(it) }
     }
 
@@ -295,6 +306,7 @@ class MainRepository @Inject constructor(
         appScope.launch {
             FirebaseMessaging.getInstance().apply {
                 if (loadNQ()) subscribeToTopic(nqStream) else unsubscribeFromTopic(nqStream)
+                if (loadES()) subscribeToTopic(esStream) else unsubscribeFromTopic(esStream)
                 if (loadGC()) subscribeToTopic(gcStream) else unsubscribeFromTopic(gcStream)
                 if (loadSI()) subscribeToTopic(siStream) else unsubscribeFromTopic(siStream)
             }

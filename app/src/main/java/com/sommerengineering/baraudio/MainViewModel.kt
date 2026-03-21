@@ -21,8 +21,6 @@ import com.sommerengineering.baraudio.onboarding.webhook.VerificationState.RECEI
 import com.sommerengineering.baraudio.onboarding.webhook.VerificationUiState
 import com.sommerengineering.baraudio.source.Message
 import com.sommerengineering.baraudio.uitls.RomanNumerals
-import com.sommerengineering.baraudio.uitls.queueAddDescription
-import com.sommerengineering.baraudio.uitls.queueFlushDescription
 import com.sommerengineering.baraudio.uitls.screenFullDescription
 import com.sommerengineering.baraudio.uitls.screenWindowedDescription
 import com.sommerengineering.baraudio.uitls.uiDarkDescription
@@ -121,6 +119,14 @@ class MainViewModel @Inject constructor(
         repo.updateNQ(enabled)
     }
 
+    // stream ES
+    var isES by mutableStateOf(true)
+        private set
+    fun updateES(enabled: Boolean) {
+        isES = enabled
+        repo.updateES(enabled)
+    }
+
     // stream GC
     var isGC by mutableStateOf(true)
         private set
@@ -175,6 +181,7 @@ class MainViewModel @Inject constructor(
         runBlocking {
             isOnboardingComplete = repo.loadOnboarding()
             isNQ = repo.loadNQ()
+            isES = repo.loadES()
             isGC = repo.loadGC()
             isSI = repo.loadSI()
             feedMode = repo.loadFeedMode()

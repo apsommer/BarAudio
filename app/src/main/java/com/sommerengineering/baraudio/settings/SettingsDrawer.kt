@@ -25,6 +25,7 @@ import com.sommerengineering.baraudio.BuildConfig
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.source.MessageOrigin
+import com.sommerengineering.baraudio.source.esAsset
 import com.sommerengineering.baraudio.source.gcAsset
 import com.sommerengineering.baraudio.source.nqAsset
 import com.sommerengineering.baraudio.source.siAsset
@@ -69,6 +70,7 @@ fun SettingsDrawer(
     val pitchDescription = viewModel.pitchDescription
 
     val isNQ = viewModel.isNQ
+    val isES = viewModel.isES
     val isGC = viewModel.isGC
     val isSI = viewModel.isSI
 
@@ -178,6 +180,15 @@ fun SettingsDrawer(
                     isDarkMode = isDarkMode,
                     isStream = isNQ,
                     updateStream = { viewModel.updateNQ(it) })
+            }
+
+            // stream ES
+            item {
+                StreamSwitchItem(
+                    messageOrigin = MessageOrigin.BroadcastStream(esAsset),
+                    isDarkMode = isDarkMode,
+                    isStream = isES,
+                    updateStream = { viewModel.updateES(it) })
             }
 
             // divider
