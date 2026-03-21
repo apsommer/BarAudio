@@ -248,22 +248,9 @@ class MainRepository @Inject constructor(
         }
 
         // wait for firebase to initialize to ensure uid is valid
-        FirebaseAuth.getInstance().addAuthStateListener { auth ->
-
-            val uid = auth.currentUser?.uid ?: return@addAuthStateListener
-            firebaseDb.setUid(uid)
-
-            // write new token to firebase database, if needed
-            newToken?.let { token -> writeNewToken(token) }
-
-            // cold start hydration sync of firebase to local room database
-            appScope.launch { hydrateMessages() }
-
-            // set webhook url
-            webhookUrl = "$webhookBaseUrl$uid"
-        }
+        FirebaseAuth.getInstance().addAuthStateListener { onAuth(it) }
     }
-
+    
     suspend fun initTtsSettings() {
 
         tts.voice = readPreference(stringPreferencesKey(voiceNameKey))
@@ -279,6 +266,23 @@ class MainRepository @Inject constructor(
         Firebase.auth.signOut()
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // firebase authentication
+    private fun onAuth(
+        auth: FirebaseAuth) {
+
+        val uid = auth.currentUser?.uid ?: return
+        firebaseDb.setUid(uid)
+
+        // write new token to firebase database, if needed
+        newToken?.let { token -> writeNewToken(token) }
+
+        // cold start hydration sync of firebase to local room database
+        appScope.launch { hydrateMessages() }
+
+        // set webhook url
+        webhookUrl = "$webhookBaseUrl$uid"
+    }
 
     // firebase database (token)
     var newToken: String? = null
