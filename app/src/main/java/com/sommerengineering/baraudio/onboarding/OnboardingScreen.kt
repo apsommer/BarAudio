@@ -1,12 +1,14 @@
 package com.sommerengineering.baraudio.onboarding
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.uitls.edgePadding
 
 @Composable
@@ -17,9 +19,11 @@ fun OnboardingScreen(
     isNextEnabled: Boolean = true,
     content: @Composable (() -> Unit)? = null) {
 
-    Box(Modifier
-        .fillMaxSize()
-        .padding(horizontal = edgePadding)) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = edgePadding)
+    ) {
 
         // title
         OnboardingText(
@@ -27,20 +31,22 @@ fun OnboardingScreen(
             pageNumber = pageNumber,
             modifier = Modifier
                 .fillMaxWidth()
-                .align(Alignment.TopCenter)
                 .padding(top = edgePadding * 5))
 
         // dynamic content: animation, image, verification ui, ...
-        if (content != null) {
-            content()
-        } else {
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .padding(vertical = edgePadding * 2),
+            contentAlignment = Alignment.Center) {
+            content?.let { it() } ?:
             OnboardingImage(
                 onboardingMode = onboardingMode,
                 pageNumber = pageNumber,
                 modifier = Modifier
                     .fillMaxSize()
-                    .align(Alignment.Center)
-            )
+                    .align(Alignment.Center))
         }
 
         // page indicators and button
@@ -51,7 +57,6 @@ fun OnboardingScreen(
             isNextEnabled = isNextEnabled,
             modifier = Modifier
                 .fillMaxWidth()
-                .align(Alignment.BottomEnd)
                 .padding(bottom = edgePadding * 2))
     }
 }

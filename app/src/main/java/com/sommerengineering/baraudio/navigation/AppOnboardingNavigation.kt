@@ -19,6 +19,7 @@ import com.sommerengineering.baraudio.uitls.AppOnboardingRoute
 import com.sommerengineering.baraudio.uitls.AppOnboardingNotificationsRoute
 import com.sommerengineering.baraudio.uitls.AppOnboardingTextToSpeechRoute
 import com.sommerengineering.baraudio.uitls.AppOnboardingWebhookRoute
+import com.sommerengineering.baraudio.uitls.MessagesRoute
 
 fun NavGraphBuilder.AppOnboardingNavigation(
     controller: NavController,
@@ -75,7 +76,9 @@ fun NavGraphBuilder.AppOnboardingNavigation(
                 pageNumber = 2,
                 onNextClick = {
                     viewModel.updateOnboarding(true)
-                    controller.popBackStack()
+                    controller.navigate(MessagesRoute) {
+                        popUpTo(MessagesRoute) { inclusive = true }
+                    }
                 })
         }
     }

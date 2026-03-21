@@ -47,8 +47,7 @@ fun OnboardingImage(
             val resId = when (pageNumber) {
                 0 -> R.drawable.webhook
                 1 -> R.drawable.screenshot
-                2 -> R.drawable.group
-                else -> R.drawable.webhook
+                else -> R.drawable.error // not possible
             }
 
             Image(
