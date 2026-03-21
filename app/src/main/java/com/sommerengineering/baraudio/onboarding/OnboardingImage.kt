@@ -1,8 +1,7 @@
 package com.sommerengineering.baraudio.onboarding
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -10,16 +9,17 @@ import com.dotlottie.dlplayer.Mode
 import com.lottiefiles.dotlottie.core.compose.ui.DotLottieAnimation
 import com.lottiefiles.dotlottie.core.util.DotLottieSource
 import com.sommerengineering.baraudio.R
+import com.sommerengineering.baraudio.onboarding.OnboardingMode.AppOnboarding
+import com.sommerengineering.baraudio.onboarding.OnboardingMode.SetupWebhook
 import com.sommerengineering.baraudio.uitls.linkAnimation
 import com.sommerengineering.baraudio.uitls.notificationAnimation
 import com.sommerengineering.baraudio.uitls.soundAnimation
-import com.sommerengineering.baraudio.onboarding.OnboardingMode.AppOnboarding
-import com.sommerengineering.baraudio.onboarding.OnboardingMode.SetupWebhook
 
 @Composable
-fun ColumnScope.OnboardingImage(
+fun OnboardingImage(
     onboardingMode: OnboardingMode,
-    pageNumber: Int) {
+    pageNumber: Int,
+    modifier: Modifier) {
 
     when (onboardingMode) {
 
@@ -33,9 +33,7 @@ fun ColumnScope.OnboardingImage(
             }
 
             DotLottieAnimation(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
+                modifier = modifier,
                 source = DotLottieSource.Asset(animationPath),
                 autoplay = true,
                 loop = true,
@@ -54,9 +52,7 @@ fun ColumnScope.OnboardingImage(
             }
 
             Image(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
+                modifier = modifier,
                 painter = painterResource(resId),
                 contentDescription = null)
         }

@@ -1,9 +1,7 @@
 package com.sommerengineering.baraudio.onboarding
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -19,30 +17,23 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.uitls.copyText
-import com.sommerengineering.baraudio.uitls.nextText
-import com.sommerengineering.baraudio.uitls.edgePadding
-import com.sommerengineering.baraudio.uitls.onboardingTotalPages
 import com.sommerengineering.baraudio.onboarding.OnboardingMode.SetupWebhook
+import com.sommerengineering.baraudio.uitls.copyText
 import com.sommerengineering.baraudio.uitls.doneText
+import com.sommerengineering.baraudio.uitls.nextText
+import com.sommerengineering.baraudio.uitls.onboardingTotalPages
 
 @Composable
-fun ColumnScope.OnboardingButton(
+fun OnboardingButton(
     onboardingMode: OnboardingMode,
     pageNumber: Int,
     onNextClick: () -> Unit,
-    isNextEnabled: Boolean = true) {
+    isNextEnabled: Boolean = true,
+    modifier: Modifier) {
 
-    Column(
-        modifier = Modifier
-            .weight(1f)
-            .fillMaxWidth(),
-        verticalArrangement = Arrangement.Bottom) {
+    Column(modifier) {
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = edgePadding)) {
+        Box(Modifier.fillMaxWidth()) {
 
             // page indicator
             Row(Modifier.align(Alignment.Center)) {
@@ -59,7 +50,7 @@ fun ColumnScope.OnboardingButton(
 
             // next button
             Button(
-                modifier = Modifier.align(Alignment.BottomEnd),
+                modifier = Modifier.align(Alignment.CenterEnd),
                 enabled = isNextEnabled,
                 onClick = onNextClick) {
                 Text(

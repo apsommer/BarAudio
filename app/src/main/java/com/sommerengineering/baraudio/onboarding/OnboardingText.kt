@@ -1,13 +1,8 @@
 package com.sommerengineering.baraudio.onboarding
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
@@ -23,9 +18,10 @@ import com.sommerengineering.baraudio.uitls.setupOnboardingPasteTitle
 import com.sommerengineering.baraudio.uitls.setupOnboardingSignalTitle
 
 @Composable
-fun ColumnScope.OnboardingText(
+fun OnboardingText(
     onboardingMode: OnboardingMode,
-    pageNumber: Int) {
+    pageNumber: Int,
+    modifier: Modifier) {
 
     val annotatedString = buildAnnotatedString { when (onboardingMode) {
 
@@ -46,14 +42,9 @@ fun ColumnScope.OnboardingText(
         }}
     }}
 
-    Column(
-        modifier = Modifier.fillMaxSize().weight(1f),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally) {
-
-        Text(
-            text = annotatedString,
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.titleLarge)
-    }
+    Text(
+        modifier = modifier,
+        text = annotatedString,
+        textAlign = TextAlign.Center,
+        style = MaterialTheme.typography.titleLarge)
 }
