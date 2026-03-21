@@ -6,6 +6,7 @@ from firebase_admin import initialize_app, credentials, db, messaging
 from firebase_admin.exceptions import FirebaseError
 from firebase_admin.messaging import UnregisteredError
 from firebase_functions import https_fn
+from firebase_functions import scheduler_fn
 
 # view logs
 # https://console.cloud.google.com/run/detail/us-central1/baraudio/observability/logs?inv=1&invt=AbhuYw&project=com-sommerengineering-baraudio
@@ -207,3 +208,20 @@ def resolve_source_from_ip(source_ip: str) -> str:
     # todo MT5
 
     return 'unknown'
+
+# purge user signals before market open on Sunday
+@scheduler_fn.on_schedule(
+    schedule = "0 17 * * 0",
+    timezone = "America/New_York")
+def purge_weekly(event):
+
+    # calculate raw utc timestamp from system (millis)
+    timestamp = time.time_ns() // 1_000_000 # // floor division discards remainder after ms
+
+    # get user node
+    users = USERS_NODE.get(shallow = True)
+    if not users: return
+
+    # purge stale user signals
+    for uid in users.keys():
+        purge_node(USERS_NODE.child(uid), timestamp)

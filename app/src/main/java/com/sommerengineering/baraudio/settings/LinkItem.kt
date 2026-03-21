@@ -30,19 +30,16 @@ import com.sommerengineering.baraudio.uitls.settingsIconSize
 @Composable
 fun LinkItem(
     iconRes: Int,
+    iconTint: Boolean = false,
     title: String,
-    description: String? = null,
+    description: String,
     onClick: () -> Unit) {
-
-    val rowHeight =
-        if (description == null) rowMinHeight * 0.75f
-        else rowMinHeight
 
     Surface {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(rowHeight)
+                .heightIn(rowMinHeight)
                 .clickable { onClick() }
                 .padding(
                     start = rowHorizontalPadding + 4.dp,
@@ -54,6 +51,9 @@ fun LinkItem(
             Icon(
                 modifier = Modifier.size(settingsIconSize),
                 painter = painterResource(iconRes),
+                tint =
+                    if (iconTint) LocalContentColor.current.copy(alpha = 0.6f)
+                    else LocalContentColor.current,
                 contentDescription = null)
             Spacer(Modifier.width(rowIconPadding + 4.dp))
 
@@ -63,15 +63,13 @@ fun LinkItem(
                     text = title,
                     style = MaterialTheme.typography.titleMedium,
                     color = LocalContentColor.current)
-                description?.let {
-                    Text(
-                        modifier = Modifier.padding(top = 4.dp),
-                        text = description,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = LocalContentColor.current.copy(alpha = 0.7f),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis)
-                }
+                Text(
+                    modifier = Modifier.padding(top = 4.dp),
+                    text = description,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = LocalContentColor.current.copy(alpha = 0.7f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis)
             }
         }
     }

@@ -89,21 +89,6 @@ class MainViewModel @Inject constructor(
         pitchDescription = repo.pitch.toString()
     }
 
-    // queue behavior
-    var isQueueAdd by mutableStateOf(true)
-        private set
-    var queueDescription by mutableStateOf("")
-        private set
-    fun updateQueueAdd(enabled: Boolean) {
-        isQueueAdd = enabled
-        repo.isQueueAdd = enabled
-        val newQueueDescription =
-            if (enabled) queueAddDescription
-            else queueFlushDescription
-        queueDescription = newQueueDescription
-        speakUtterance(newQueueDescription)
-    }
-
     // mute
     var isMute by mutableStateOf(false)
         private set
@@ -211,14 +196,10 @@ class MainViewModel @Inject constructor(
         // voices and voice exposed by tts engine after initialization
         speed = repo.speed
         pitch = repo.pitch
-        isQueueAdd = repo.isQueueAdd
         isMute = repo.isMute
         voiceDescription = beautifyVoiceName(repo.voice.name)
         speedDescription = repo.speed.toString()
         pitchDescription = repo.pitch.toString()
-        queueDescription =
-            if (isQueueAdd) queueAddDescription
-            else queueFlushDescription
     }
 
     fun signOut() {

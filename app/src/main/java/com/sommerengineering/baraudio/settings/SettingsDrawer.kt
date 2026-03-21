@@ -36,9 +36,6 @@ import com.sommerengineering.baraudio.uitls.manageSubscriptionTitle
 import com.sommerengineering.baraudio.uitls.pitchChangeUtterance
 import com.sommerengineering.baraudio.uitls.pitchTitle
 import com.sommerengineering.baraudio.uitls.premiumDividerTitle
-import com.sommerengineering.baraudio.uitls.privacyPolicyTitle
-import com.sommerengineering.baraudio.uitls.privacyPolicyUrl
-import com.sommerengineering.baraudio.uitls.queueBehaviorTitle
 import com.sommerengineering.baraudio.uitls.screenTitle
 import com.sommerengineering.baraudio.uitls.signOutTitle
 import com.sommerengineering.baraudio.uitls.speedChangeUtterance
@@ -47,14 +44,14 @@ import com.sommerengineering.baraudio.uitls.subscriptionUrl
 import com.sommerengineering.baraudio.uitls.systemTtsDescription
 import com.sommerengineering.baraudio.uitls.systemTtsInstallVoicesAction
 import com.sommerengineering.baraudio.uitls.systemTtsTitle
-import com.sommerengineering.baraudio.uitls.termsAndConditionsTitle
-import com.sommerengineering.baraudio.uitls.termsAndConditionsUrl
 import com.sommerengineering.baraudio.uitls.uiDividerTitle
 import com.sommerengineering.baraudio.uitls.uiModeTitle
 import com.sommerengineering.baraudio.uitls.voiceDividerTitle
 import com.sommerengineering.baraudio.uitls.voiceTitle
 import com.sommerengineering.baraudio.uitls.customDescription
 import com.sommerengineering.baraudio.uitls.customTitle
+import com.sommerengineering.baraudio.uitls.manageSubscriptionDescription
+import com.sommerengineering.baraudio.uitls.signOutDescription
 
 @Composable
 fun SettingsDrawer(
@@ -67,16 +64,13 @@ fun SettingsDrawer(
 
     val speed = viewModel.speed
     val pitch = viewModel.pitch
-    val isQueueAdd = viewModel.isQueueAdd
     val voiceDescription = viewModel.voiceDescription
     val speedDescription = viewModel.speedDescription
     val pitchDescription = viewModel.pitchDescription
-    val queueDescription = viewModel.queueDescription
 
     val isNQ = viewModel.isNQ
     val isGC = viewModel.isGC
     val isSI = viewModel.isSI
-    val webhookUrl = viewModel.webhookUrl
 
     val isFullScreen = viewModel.isFullScreen
     val fullScreenDescription = viewModel.fullScreenDescription
@@ -155,19 +149,6 @@ fun SettingsDrawer(
                                 viewModel.speakUtterance(pitchChangeUtterance + it)
                             })
                         }
-            }
-
-            // queue behavior
-            item {
-                SwitchItem(
-                    iconRes = R.drawable.text_to_speech,
-                    title = queueBehaviorTitle,
-                    description = queueDescription) {
-
-                        Switch(
-                            checked = isQueueAdd,
-                            onCheckedChange = { viewModel.updateQueueAdd(it) })
-                    }
             }
 
             // system tts settings
@@ -286,30 +267,17 @@ fun SettingsDrawer(
                 LinkItem(
                     iconRes = R.drawable.manage_subscription,
                     title = manageSubscriptionTitle,
+                    description = manageSubscriptionDescription,
                     onClick = { uriHandler.openUri(subscriptionUrl) })
-            }
-
-            // terms and conditions
-            item {
-                LinkItem(
-                    iconRes = R.drawable.terms_and_conditions,
-                    title = termsAndConditionsTitle,
-                    onClick = { uriHandler.openUri(termsAndConditionsUrl) })
-            }
-
-            // privacy policy
-            item {
-                LinkItem(
-                    iconRes = R.drawable.privacy_policy,
-                    title = privacyPolicyTitle,
-                    onClick = { uriHandler.openUri(privacyPolicyUrl) })
             }
 
             // sign-out
             item {
                 LinkItem(
                     iconRes = R.drawable.sign_out,
+                    iconTint = true,
                     title = signOutTitle,
+                    description = signOutDescription,
                     onClick = { onSignOut() })
             }
 

@@ -1,10 +1,6 @@
 package com.sommerengineering.baraudio
 
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.Context
-import android.content.Context.CLIPBOARD_SERVICE
-import android.widget.Toast
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -17,8 +13,8 @@ import com.google.firebase.auth.auth
 import com.google.firebase.messaging.FirebaseMessaging
 import com.sommerengineering.baraudio.firebase.FirebaseDatabaseImpl
 import com.sommerengineering.baraudio.messages.FeedMode
-import com.sommerengineering.baraudio.source.Message
 import com.sommerengineering.baraudio.room.RoomImpl
+import com.sommerengineering.baraudio.source.Message
 import com.sommerengineering.baraudio.source.MessageOrigin
 import com.sommerengineering.baraudio.source.resolveMessageOrigin
 import com.sommerengineering.baraudio.speak.TextToSpeechImpl
@@ -30,7 +26,6 @@ import com.sommerengineering.baraudio.uitls.isFullScreenKey
 import com.sommerengineering.baraudio.uitls.isGCKey
 import com.sommerengineering.baraudio.uitls.isMuteKey
 import com.sommerengineering.baraudio.uitls.isNQKey
-import com.sommerengineering.baraudio.uitls.isQueueAddKey
 import com.sommerengineering.baraudio.uitls.isSIKey
 import com.sommerengineering.baraudio.uitls.nqStream
 import com.sommerengineering.baraudio.uitls.onboardingKey
@@ -117,14 +112,6 @@ class MainRepository @Inject constructor(
             val roundedPitch = ((value * 10).roundToInt()).toFloat() / 10
             tts.pitch = roundedPitch
             writePreference(floatPreferencesKey(pitchKey), roundedPitch)
-        }
-
-    // queue behavior
-    var isQueueAdd
-        get() = tts.isQueueAdd
-        set(value) {
-            tts.isQueueAdd = value
-            writePreference(booleanPreferencesKey(isQueueAddKey), value)
         }
 
     // mute
@@ -285,7 +272,6 @@ class MainRepository @Inject constructor(
                     ?: voice
         tts.speed = readPreference(floatPreferencesKey(speedKey)) ?: 1f
         tts.pitch = readPreference(floatPreferencesKey(pitchKey)) ?: 1f
-        tts.isQueueAdd = readPreference(booleanPreferencesKey(isQueueAddKey)) ?: true
         tts.isMute = readPreference(booleanPreferencesKey(isMuteKey)) ?: false
     }
 
