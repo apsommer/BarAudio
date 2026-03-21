@@ -1,9 +1,22 @@
 package com.sommerengineering.baraudio.navigation
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -13,6 +26,9 @@ import com.sommerengineering.baraudio.onboarding.OnboardingMode.SetupWebhook
 import com.sommerengineering.baraudio.onboarding.OnboardingScreen
 import com.sommerengineering.baraudio.onboarding.verification.VerificationContent
 import com.sommerengineering.baraudio.onboarding.verification.VerificationState
+import com.sommerengineering.baraudio.onboarding.verification.WebhookUrlCard
+import com.sommerengineering.baraudio.theme.monospacedFontFamily
+import com.sommerengineering.baraudio.theme.timestampTextStyle
 import com.sommerengineering.baraudio.uitls.SetupOnboardingCopyWebhookRoute
 import com.sommerengineering.baraudio.uitls.SetupOnboardingPasteWebhookRoute
 import com.sommerengineering.baraudio.uitls.SetupOnboardingRoute
@@ -30,14 +46,19 @@ fun NavGraphBuilder.SetupWebhookNavigation(
         // copy webhook
         composable(SetupOnboardingCopyWebhookRoute) {
             val context = LocalContext.current
+            val onClick = {
+                viewModel.copyWebhook(context)
+                controller.navigate(SetupOnboardingPasteWebhookRoute) {
+                popUpTo(SetupOnboardingCopyWebhookRoute) { inclusive = true }
+            }}
             OnboardingScreen(
                 onboardingMode = SetupWebhook,
                 pageNumber = 0,
-                onNextClick = {
-                    viewModel.copyWebhook(context)
-                    controller.navigate(SetupOnboardingPasteWebhookRoute) {
-                        popUpTo(SetupOnboardingCopyWebhookRoute) { inclusive = true }
-                    }})
+                onNextClick = onClick) {
+                WebhookUrlCard(
+                    viewModel = viewModel,
+                    onClick = onClick)
+            }
         }
 
         // paste webhook
