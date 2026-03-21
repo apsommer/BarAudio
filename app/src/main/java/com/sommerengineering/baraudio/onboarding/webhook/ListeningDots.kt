@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.onboarding.verification
+package com.sommerengineering.baraudio.onboarding.webhook
 
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat

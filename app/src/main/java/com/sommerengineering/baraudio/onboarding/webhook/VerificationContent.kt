@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.onboarding.verification
+package com.sommerengineering.baraudio.onboarding.webhook
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
@@ -8,10 +8,8 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,8 +17,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.sommerengineering.baraudio.onboarding.verification.VerificationState.RECEIVED
-import com.sommerengineering.baraudio.onboarding.verification.VerificationState.WAITING
+import com.sommerengineering.baraudio.onboarding.webhook.VerificationState.RECEIVED
+import com.sommerengineering.baraudio.onboarding.webhook.VerificationState.WAITING
 
 @Composable
 fun VerificationContent(

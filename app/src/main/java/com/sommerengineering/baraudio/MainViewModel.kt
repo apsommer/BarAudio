@@ -5,7 +5,6 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
 import android.speech.tts.Voice
-import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -17,9 +16,9 @@ import androidx.lifecycle.viewModelScope
 import com.sommerengineering.baraudio.login.GitHubAuthenticator
 import com.sommerengineering.baraudio.login.GoogleAuthenticator
 import com.sommerengineering.baraudio.messages.FeedMode
-import com.sommerengineering.baraudio.onboarding.verification.VerificationState.WAITING
-import com.sommerengineering.baraudio.onboarding.verification.VerificationState.RECEIVED
-import com.sommerengineering.baraudio.onboarding.verification.VerificationUiState
+import com.sommerengineering.baraudio.onboarding.webhook.VerificationState.WAITING
+import com.sommerengineering.baraudio.onboarding.webhook.VerificationState.RECEIVED
+import com.sommerengineering.baraudio.onboarding.webhook.VerificationUiState
 import com.sommerengineering.baraudio.source.Message
 import com.sommerengineering.baraudio.uitls.RomanNumerals
 import com.sommerengineering.baraudio.uitls.queueAddDescription
