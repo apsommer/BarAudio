@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
@@ -18,6 +19,7 @@ import com.sommerengineering.baraudio.uitls.loginButtonSize
 @Composable
 fun LoginButton(
     iconRes: Int,
+    iconRatio: Float,
     onClick: () -> Unit) {
 
     Box(Modifier
@@ -30,7 +32,9 @@ fun LoginButton(
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)),
             shape = CircleShape)) {
         Image(
-            modifier = Modifier.size(loginButtonSize),
+            modifier = Modifier
+                .size(loginButtonSize * iconRatio)
+                .align(Alignment.Center),
             painter = painterResource(iconRes),
             contentDescription = null)
     }

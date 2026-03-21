@@ -125,7 +125,7 @@ const val signOutTitle = "Sign-out"
 const val signOutDescription = "End session"
 
 // images
-val loginButtonSize = 64.dp
+val loginButtonSize = 96.dp
 val fabSize = 72.dp
 val edgePadding = 24.dp
 
