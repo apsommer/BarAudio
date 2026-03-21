@@ -275,6 +275,7 @@ fun SettingsDrawer(
             item {
                 LinkItem(
                     iconRes = R.drawable.sign_out,
+                    iconTint = true,
                     title = signOutTitle,
                     description = signOutDescription,
                     onClick = { onSignOut() })
