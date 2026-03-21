@@ -125,10 +125,9 @@ const val signOutTitle = "Sign-out"
 const val signOutDescription = "End session"
 
 // images
-val loginButtonSize = 96.dp
+val loginButtonSize = 64.dp
 val fabSize = 72.dp
-val loginLogoPadding = 64.dp // todo remove
-val edgePadding = 24.dp // todo remove
+val edgePadding = 24.dp
 
 // scrim logo and background
 val logoDarkAlpha = 0.4f

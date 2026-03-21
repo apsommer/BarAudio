@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -25,7 +26,6 @@ import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.uitls.loginButtonSize
-import com.sommerengineering.baraudio.uitls.loginLogoPadding
 
 @Composable
 fun LoginScreen (
@@ -38,83 +38,59 @@ fun LoginScreen (
         if (isDarkMode) R.drawable.github_light
         else R.drawable.github_dark
 
-    Surface {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxSize()) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center) {
 
-            // logo
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(loginLogoPadding),
-                verticalArrangement = Arrangement.Center) {
+        // logo
+        Image(
+            modifier = Modifier.fillMaxWidth(0.7f),
+            painter = painterResource(R.drawable.logo_full),
+            contentDescription = null)
+
+        Spacer(Modifier.height(48.dp))
+
+        // google
+        Column(
+            verticalArrangement = Arrangement.Center) {
+            Box(Modifier
+                .size(loginButtonSize)
+                .clip(CircleShape)
+                .clickable { viewModel.signInWithGoogle(context, onAuthentication) }
+                .border(
+                    border = BorderStroke(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)),
+                    shape = CircleShape)) {
                 Image(
-                    painter = painterResource(R.drawable.logo_full),
+                    modifier = Modifier.size(loginButtonSize),
+                    painter = painterResource(R.drawable.google),
                     contentDescription = null)
             }
 
-            // google
-            Column(
-                modifier = Modifier
-                    .weight(1f),
-                verticalArrangement = Arrangement.Center) {
+            Spacer(Modifier.height(24.dp))
 
-                Box(
-                    modifier = Modifier
-                        .size(loginButtonSize)
-                        .clip(CircleShape)
-                        .clickable {
-                            viewModel.signInWithGoogle(
-                                context = context,
-                                onAuthentication = onAuthentication)
-                        }
-                        .border(
-                            border = BorderStroke(
-                                width = 1.dp,
-                                color = MaterialTheme.colorScheme.onSurface),
-                            shape = CircleShape)) {
-
+            // github
+            Box(Modifier
+                .size(loginButtonSize)
+                .clip(CircleShape)
+                .clickable { viewModel.signInWithGitHub(context, onAuthentication) }
+                .border(
+                    border = BorderStroke(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)),
+                    shape = CircleShape)) {
+                Box(Modifier
+                    .align(Alignment.Center)
+                    .size(loginButtonSize + 2.dp) // touch over half circularButtonSize to align with google
+                    .clip(CircleShape)) {
                     Image(
-                        modifier = Modifier
-                            .size(loginButtonSize),
-                        painter = painterResource(R.drawable.google),
+                        painter = painterResource(gitHubImageId),
                         contentDescription = null)
-                }
-
-                Spacer(
-                    modifier = Modifier
-                        .height(loginButtonSize / 2))
-
-                // github
-                Box(
-                    modifier = Modifier
-                        .size(loginButtonSize)
-                        .clip(CircleShape)
-                        .clickable {
-                            viewModel.signInWithGitHub(
-                                context = context,
-                                onAuthentication = onAuthentication)
-                        }
-                        .border(
-                            border = BorderStroke(
-                                width = 1.dp,
-                                color = MaterialTheme.colorScheme.onSurface),
-                            shape = CircleShape)) {
-
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.Center)
-                            .size(loginButtonSize + 2.dp) // touch over half circularButtonSize to align with google
-                            .clip(CircleShape)) {
-
-                        Image(
-                            painter = painterResource(gitHubImageId),
-                            contentDescription = null)
-                    }
                 }
             }
         }
     }
+
 }
