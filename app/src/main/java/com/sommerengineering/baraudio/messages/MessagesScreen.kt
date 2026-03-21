@@ -38,7 +38,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun MessagesScreen(
     viewModel: MainViewModel,
-    onSignOut: () -> Unit) {
+    onSignOut: () -> Unit,
+    onLaunchSetupOnboarding: () -> Unit) {
 
     // lazy column of messages
     val messages by viewModel.messages.collectAsState()
@@ -46,7 +47,7 @@ fun MessagesScreen(
 
     // setting drawer
     val drawerState = rememberDrawerState(DrawerValue.Closed)
-    val composableScope = rememberCoroutineScope()
+    val coroutineScope = rememberCoroutineScope()
 
     // feed mode: linear, or grouped
     val feedMode = viewModel.feedMode
@@ -56,19 +57,24 @@ fun MessagesScreen(
     // toggle background image with dark mode
     val isDarkMode = viewModel.isDarkMode
     val backgroundRes =
-        if (isDarkMode) R.drawable.background_skyline_dark
-        else R.drawable.background_skyline
+        if (isDarkMode) R.drawable.background_dark
+        else R.drawable.background
 
     ModalNavigationDrawer(
         drawerState = drawerState,
-        drawerContent = { ModalDrawerSheet { SettingsDrawer(viewModel, onSignOut) } },
+        drawerContent = {
+            ModalDrawerSheet {
+                SettingsDrawer(
+                    viewModel = viewModel,
+                    onSignOut = onSignOut,
+                    onLaunchSetupOnboarding = onLaunchSetupOnboarding) }},
         gesturesEnabled = true,
         scrimColor = DrawerDefaults.scrimColor.copy(alpha = 0.5f)) {
 
         Scaffold(
             topBar = { MessagesTopBar(
                 viewModel = viewModel,
-                onSettingsClick = { composableScope.launch { drawerState.open() } },
+                onSettingsClick = { coroutineScope.launch { drawerState.open() } },
                 onToggleFeedMode = { viewModel.toggleFeedMode() })},
             floatingActionButton = { MessagesFloatingActionButton(viewModel) },
             bottomBar = { AllowNotificationsBottomBar(viewModel.areNotificationsEnabled) }) { padding ->

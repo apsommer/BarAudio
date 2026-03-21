@@ -20,7 +20,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.BuildConfig
-import com.sommerengineering.baraudio.uitls.allowNotificationsTitle
+import com.sommerengineering.baraudio.uitls.allowNotificationsMessage
 import com.sommerengineering.baraudio.uitls.bottomBarTransitionTimeMillis
 import com.sommerengineering.baraudio.uitls.channelId
 import com.sommerengineering.baraudio.uitls.edgePadding
@@ -56,7 +56,7 @@ fun AllowNotificationsBottomBar(
                     .fillMaxWidth()
                     .background(Color.Red)
                     .padding(horizontal = edgePadding, vertical = 12.dp),
-                text = allowNotificationsTitle,
+                text = allowNotificationsMessage,
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.titleMedium,
                 color = Color.White)

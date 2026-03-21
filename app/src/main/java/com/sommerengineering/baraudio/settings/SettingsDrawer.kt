@@ -21,8 +21,6 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
 import com.sommerengineering.baraudio.BuildConfig
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
@@ -30,6 +28,7 @@ import com.sommerengineering.baraudio.source.MessageOrigin
 import com.sommerengineering.baraudio.source.gcAsset
 import com.sommerengineering.baraudio.source.nqAsset
 import com.sommerengineering.baraudio.source.siAsset
+import com.sommerengineering.baraudio.uitls.customDividerTitle
 import com.sommerengineering.baraudio.uitls.streamsDividerTitle
 import com.sommerengineering.baraudio.uitls.edgePadding
 import com.sommerengineering.baraudio.uitls.legalDividerTitle
@@ -41,7 +40,6 @@ import com.sommerengineering.baraudio.uitls.privacyPolicyTitle
 import com.sommerengineering.baraudio.uitls.privacyPolicyUrl
 import com.sommerengineering.baraudio.uitls.queueBehaviorTitle
 import com.sommerengineering.baraudio.uitls.screenTitle
-import com.sommerengineering.baraudio.uitls.setupWebhookUrl
 import com.sommerengineering.baraudio.uitls.signOutTitle
 import com.sommerengineering.baraudio.uitls.speedChangeUtterance
 import com.sommerengineering.baraudio.uitls.speedTitle
@@ -55,14 +53,14 @@ import com.sommerengineering.baraudio.uitls.uiDividerTitle
 import com.sommerengineering.baraudio.uitls.uiModeTitle
 import com.sommerengineering.baraudio.uitls.voiceDividerTitle
 import com.sommerengineering.baraudio.uitls.voiceTitle
-import com.sommerengineering.baraudio.uitls.webhookBaseUrl
-import com.sommerengineering.baraudio.uitls.webhookDescription
-import com.sommerengineering.baraudio.uitls.webhookTitle
+import com.sommerengineering.baraudio.uitls.customDescription
+import com.sommerengineering.baraudio.uitls.customTitle
 
 @Composable
 fun SettingsDrawer(
     viewModel: MainViewModel,
-    onSignOut: () -> Unit) {
+    onSignOut: () -> Unit,
+    onLaunchSetupOnboarding: () -> Unit) {
 
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
@@ -78,7 +76,7 @@ fun SettingsDrawer(
     val isNQ = viewModel.isNQ
     val isGC = viewModel.isGC
     val isSI = viewModel.isSI
-    val webhookUrl = webhookBaseUrl + Firebase.auth.currentUser?.uid
+    val webhookUrl = viewModel.webhookUrl
 
     val isFullScreen = viewModel.isFullScreen
     val fullScreenDescription = viewModel.fullScreenDescription
@@ -224,19 +222,24 @@ fun SettingsDrawer(
                     updateStream = { viewModel.updateSI(it) })
             }
 
+            // divider
+            item {
+                DividerItem(customDividerTitle)
+            }
+
             // webhook
             item {
 
                 DialogItem(
                     iconRes = R.drawable.webhook,
-                    title = webhookTitle,
-                    description = webhookDescription,
-                    onClick = { uriHandler.openUri(setupWebhookUrl) }) {
+                    title = customTitle,
+                    description = customDescription,
+                    onClick = onLaunchSetupOnboarding) {
 
                     IconButton(
-                        onClick = { viewModel.saveToWebhookClipboard(webhookUrl) }) {
+                        onClick = { }) {
                         Icon(
-                            painter = painterResource(R.drawable.copy),
+                            painter = painterResource(R.drawable.chevron),
                             contentDescription = null)
                     }
                 }
@@ -281,7 +284,7 @@ fun SettingsDrawer(
             // manage subscription
             item {
                 LinkItem(
-                    iconRes = R.drawable.credit_card_gear,
+                    iconRes = R.drawable.manage_subscription,
                     title = manageSubscriptionTitle,
                     onClick = { uriHandler.openUri(subscriptionUrl) })
             }

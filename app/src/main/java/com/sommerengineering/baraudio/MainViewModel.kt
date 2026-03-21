@@ -1,6 +1,9 @@
 package com.sommerengineering.baraudio
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
+import android.content.Context.CLIPBOARD_SERVICE
 import android.speech.tts.Voice
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -13,9 +16,10 @@ import androidx.lifecycle.viewModelScope
 import com.sommerengineering.baraudio.login.GitHubAuthenticator
 import com.sommerengineering.baraudio.login.GoogleAuthenticator
 import com.sommerengineering.baraudio.messages.FeedMode
+import com.sommerengineering.baraudio.onboarding.webhook.VerificationState.WAITING
+import com.sommerengineering.baraudio.onboarding.webhook.VerificationState.RECEIVED
+import com.sommerengineering.baraudio.onboarding.webhook.VerificationUiState
 import com.sommerengineering.baraudio.source.Message
-import com.sommerengineering.baraudio.uitls.MessagesScreenRoute
-import com.sommerengineering.baraudio.uitls.OnboardingTextToSpeechScreenRoute
 import com.sommerengineering.baraudio.uitls.RomanNumerals
 import com.sommerengineering.baraudio.uitls.queueAddDescription
 import com.sommerengineering.baraudio.uitls.queueFlushDescription
@@ -27,6 +31,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -45,9 +50,6 @@ class MainViewModel @Inject constructor(
         viewModelScope,
         SharingStarted.WhileSubscribed(),
         emptyList())
-
-    // text-to-speech
-    val isTtsReady = repo.isTtsReady
 
     // voice
     var voices by mutableStateOf<List<Voice>>(emptyList())
@@ -125,9 +127,6 @@ class MainViewModel @Inject constructor(
         isOnboardingComplete = enabled
         repo.updateOnboarding(enabled)
     }
-    val postLoginDestination get() =
-        if (isOnboardingComplete) MessagesScreenRoute
-        else OnboardingTextToSpeechScreenRoute
 
     // stream NQ
     var isNQ by mutableStateOf(true)
@@ -222,8 +221,6 @@ class MainViewModel @Inject constructor(
             else queueFlushDescription
     }
 
-    fun saveToWebhookClipboard(webhookUrl: String) = repo.saveToClipboard(webhookUrl)
-
     fun signOut() {
         repo.signOut()
         viewModelScope.launch {
@@ -271,4 +268,42 @@ class MainViewModel @Inject constructor(
                 }
             }
     }
+
+    // copy webhook
+    val webhookUrl get() = repo.webhookUrl
+    fun copyWebhook(
+        context: Context) {
+
+        // save url to clipboard
+        val clipboardManager = context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipData.newPlainText("", webhookUrl)
+        clipboardManager.setPrimaryClip(clip)
+    }
+
+    // onboarding: setup webhook, verify user signal received
+    private var isVerifiedLocked = false
+    private var verificationStartTime: Long? = null
+    fun setVerificationStartTime() {
+        verificationStartTime = System.currentTimeMillis()
+        isVerifiedLocked = false
+    }
+    val verificationUiState = messages.map { messages ->
+        val startTime = verificationStartTime
+        val latestMessage =
+            startTime?.let {
+                messages.firstOrNull {
+                    it.source != null &&
+                    it.timestamp.toLong() > startTime
+                }
+            }
+        if (latestMessage != null) {
+            isVerifiedLocked = true
+            VerificationUiState(RECEIVED, latestMessage.message)
+        } else {
+            VerificationUiState(WAITING)
+        }
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(),
+        VerificationUiState(WAITING))
 }
