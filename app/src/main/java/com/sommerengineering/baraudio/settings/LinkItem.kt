@@ -31,18 +31,14 @@ import com.sommerengineering.baraudio.uitls.settingsIconSize
 fun LinkItem(
     iconRes: Int,
     title: String,
-    description: String? = null,
+    description: String,
     onClick: () -> Unit) {
-
-    val rowHeight =
-        if (description == null) rowMinHeight * 0.75f
-        else rowMinHeight
 
     Surface {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(rowHeight)
+                .heightIn(rowMinHeight)
                 .clickable { onClick() }
                 .padding(
                     start = rowHorizontalPadding + 4.dp,

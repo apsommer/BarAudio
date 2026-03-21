@@ -120,9 +120,9 @@ const val uiDarkDescription = "Dark"
 const val uiLightDescription = "Light"
 const val legalDividerTitle = "ACCOUNT"
 const val manageSubscriptionTitle = "Manage subscription"
-const val termsAndConditionsTitle = "Terms and conditions"
-const val privacyPolicyTitle = "Privacy"
+const val manageSubscriptionDescription = "Billing and plan"
 const val signOutTitle = "Sign-out"
+const val signOutDescription = "End session"
 
 // images
 val loginButtonSize = 96.dp
