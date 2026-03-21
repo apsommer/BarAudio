@@ -53,8 +53,6 @@ const val sourceKey = "source"
 const val nqStream = "NQ"
 const val esStream = "ES"
 const val btcStream = "BTC"
-
-// premium streams
 const val gcStream = "GC"
 const val siStream = "SI"
 
@@ -86,6 +84,7 @@ const val volumeKey = TextToSpeech.Engine.KEY_PARAM_VOLUME
 const val feedModeKey = "feedMode"
 const val isNQKey = "isNQ"
 const val isESKey = "isES"
+const val isBTCKey = "isBTC"
 const val isGCKey = "isGC"
 const val isSIKey = "isSI"
 

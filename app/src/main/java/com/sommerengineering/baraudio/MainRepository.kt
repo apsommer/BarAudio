@@ -18,10 +18,12 @@ import com.sommerengineering.baraudio.source.Message
 import com.sommerengineering.baraudio.source.MessageOrigin
 import com.sommerengineering.baraudio.source.resolveMessageOrigin
 import com.sommerengineering.baraudio.speak.TextToSpeechImpl
+import com.sommerengineering.baraudio.uitls.btcStream
 import com.sommerengineering.baraudio.uitls.defaultVoice
 import com.sommerengineering.baraudio.uitls.esStream
 import com.sommerengineering.baraudio.uitls.feedModeKey
 import com.sommerengineering.baraudio.uitls.gcStream
+import com.sommerengineering.baraudio.uitls.isBTCKey
 import com.sommerengineering.baraudio.uitls.isDarkModeKey
 import com.sommerengineering.baraudio.uitls.isESKey
 import com.sommerengineering.baraudio.uitls.isFullScreenKey
@@ -74,6 +76,7 @@ class MainRepository @Inject constructor(
         // streams
         if (loadNQ()) messages.addAll(firebaseDb.fetchStreamMessages(nqStream))
         if (loadES()) messages.addAll(firebaseDb.fetchStreamMessages(esStream))
+        if (loadBTC()) messages.addAll(firebaseDb.fetchStreamMessages(btcStream))
         if (loadGC()) messages.addAll(firebaseDb.fetchStreamMessages(gcStream))
         if (loadSI()) messages.addAll(firebaseDb.fetchStreamMessages(siStream))
 
@@ -159,6 +162,14 @@ class MainRepository @Inject constructor(
     fun updateES(enabled: Boolean) {
         syncStream(esStream, enabled)
         writePreference(booleanPreferencesKey(isESKey), enabled)
+    }
+
+    // stream BTC
+    suspend fun loadBTC() =
+        readPreference(booleanPreferencesKey(isBTCKey)) ?: true
+    fun updateBTC(enabled: Boolean) {
+        syncStream(btcStream, enabled)
+        writePreference(booleanPreferencesKey(isBTCKey), enabled)
     }
 
     // stream GC
@@ -307,6 +318,7 @@ class MainRepository @Inject constructor(
             FirebaseMessaging.getInstance().apply {
                 if (loadNQ()) subscribeToTopic(nqStream) else unsubscribeFromTopic(nqStream)
                 if (loadES()) subscribeToTopic(esStream) else unsubscribeFromTopic(esStream)
+                if (loadBTC()) subscribeToTopic(btcStream) else unsubscribeFromTopic(btcStream)
                 if (loadGC()) subscribeToTopic(gcStream) else unsubscribeFromTopic(gcStream)
                 if (loadSI()) subscribeToTopic(siStream) else unsubscribeFromTopic(siStream)
             }

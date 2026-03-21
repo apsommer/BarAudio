@@ -127,6 +127,14 @@ class MainViewModel @Inject constructor(
         repo.updateES(enabled)
     }
 
+    // stream BTC
+    var isBTC by mutableStateOf(true)
+        private set
+    fun updateBTC(enabled: Boolean) {
+        isBTC = enabled
+        repo.updateBTC(enabled)
+    }
+
     // stream GC
     var isGC by mutableStateOf(true)
         private set
@@ -182,6 +190,7 @@ class MainViewModel @Inject constructor(
             isOnboardingComplete = repo.loadOnboarding()
             isNQ = repo.loadNQ()
             isES = repo.loadES()
+            isBTC = repo.loadBTC()
             isGC = repo.loadGC()
             isSI = repo.loadSI()
             feedMode = repo.loadFeedMode()
