@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.uitls.edgePadding
 
 @Composable
@@ -33,16 +32,15 @@ fun OnboardingScreen(
                 .fillMaxWidth()
                 .padding(top = edgePadding * 5))
 
-        // dynamic content: animation, image, verification ui, ...
+        // dynamic content
         Box(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
                 .padding(vertical = edgePadding * 2),
             contentAlignment = Alignment.Center) {
-            content?.let { it() } ?:
-            OnboardingImage(
-                onboardingMode = onboardingMode,
+            content?.let { it() } ?: // image, verification ui, ...
+            OnboardingAnimation( // app onboarding animation
                 pageNumber = pageNumber,
                 modifier = Modifier
                     .fillMaxSize()
