@@ -212,45 +212,17 @@ class MainRepository @Inject constructor(
             isTtsInit.filter { it }.first()
 
             // ensure voices are stable, can take 500 milliseconds on slow devices
-            var voiceCount = -1
-            var stablePasses = 0
-            var attempts = 0
-            val maxAttempts = 40
-            while (true) {
-
-                // query engine state
-                val voices = tts.voices
-                val currentVoiceCount = voices.size
-
-                // check size of voices and their attributes
-                val isSizeStable = currentVoiceCount > 0 && currentVoiceCount == voiceCount
-                val areVoicesStable = voices.all { it.name != null && it.locale != null }
-
-                if (isSizeStable && areVoicesStable) {
-                    stablePasses ++
-                    if (stablePasses > 3) break // size and voices are stable, finish
-                } else { stablePasses = 0 }
-
-                // fail-safe exit
-                // todo if this fail safe occurs tts engine is unusable, entire app will not function
-                //  surface this to user in the existing AllowNotificationBottomBar
-                attempts ++
-                if (attempts > maxAttempts) break
-
-                // voices unstable, try again
-                voiceCount = currentVoiceCount
-                delay(50)
-            }
+            stabilizeVoices()
 
             // finish tts engine with store preferences
             initTtsSettings()
             _isTtsReady.update { true }
         }
 
-        // wait for firebase to initialize to ensure uid is valid
+        // wait for firebase to initialize to ensure valid ui
         FirebaseAuth.getInstance().addAuthStateListener { onAuth(it) }
     }
-    
+
     suspend fun initTtsSettings() {
 
         tts.voice = readPreference(stringPreferencesKey(voiceNameKey))
@@ -267,7 +239,39 @@ class MainRepository @Inject constructor(
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // firebase authentication
+    private suspend fun stabilizeVoices() {
+
+        var voiceCount = -1
+        var stablePasses = 0
+        var attempts = 0
+        val maxAttempts = 40
+        while (true) {
+
+            // query engine state
+            val voices = tts.voices
+            val currentVoiceCount = voices.size
+
+            // check size of voices and their attributes
+            val isSizeStable = currentVoiceCount > 0 && currentVoiceCount == voiceCount
+            val areVoicesStable = voices.all { it.name != null && it.locale != null }
+
+            if (isSizeStable && areVoicesStable) {
+                stablePasses ++
+                if (stablePasses > 3) break // size and voices are stable, finish
+            } else { stablePasses = 0 }
+
+            // fail-safe exit
+            // todo if this fail safe occurs tts engine is unusable, entire app will not function
+            //  surface this to user in the existing AllowNotificationBottomBar
+            attempts ++
+            if (attempts > maxAttempts) break
+
+            // voices unstable, try again
+            voiceCount = currentVoiceCount
+            delay(50)
+        }
+    }
+
     private fun onAuth(
         auth: FirebaseAuth) {
 
