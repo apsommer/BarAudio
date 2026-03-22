@@ -6,7 +6,6 @@ from firebase_admin import initialize_app, credentials, db, messaging
 from firebase_admin.exceptions import FirebaseError
 from firebase_admin.messaging import UnregisteredError
 from firebase_functions import https_fn
-from firebase_functions import scheduler_fn
 
 # view logs
 # https://console.cloud.google.com/run/detail/us-central1/baraudio/observability/logs?inv=1&invt=AbhuYw&project=com-sommerengineering-baraudio
@@ -21,7 +20,7 @@ APP = initialize_app(
     options = {'databaseURL': 'https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/'})
 
 # streams
-STREAMS = frozenset({'NQ', 'GC', 'SI'})
+STREAMS = frozenset({'NQ', 'ES', 'BTC', 'GC', 'SI'})
 
 # user sources
 TRADINGVIEW = {'52.89.214.238', '34.212.75.30', '54.218.53.128', '52.32.178.7'}
@@ -36,6 +35,7 @@ BASE_CONFIG = messaging.AndroidConfig(
 # time adjustments
 NYC = ZoneInfo('America/New_York')
 DAY_MILLIS = 86400000
+WEEK_MILLIS = 7 * DAY_MILLIS
 
 # database
 USERS_NODE = db.reference('users')
@@ -208,20 +208,3 @@ def resolve_source_from_ip(source_ip: str) -> str:
     # todo MT5
 
     return 'unknown'
-
-# purge user signals before market open on Sunday
-@scheduler_fn.on_schedule(
-    schedule = "0 17 * * 0",
-    timezone = "America/New_York")
-def purge_weekly(event):
-
-    # calculate raw utc timestamp from system (millis)
-    timestamp = time.time_ns() // 1_000_000 # // floor division discards remainder after ms
-
-    # get user node
-    users = USERS_NODE.get(shallow = True)
-    if not users: return
-
-    # purge stale user signals
-    for uid in users.keys():
-        purge_node(USERS_NODE.child(uid), timestamp)

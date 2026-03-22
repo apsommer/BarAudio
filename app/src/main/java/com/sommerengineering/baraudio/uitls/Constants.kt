@@ -53,8 +53,6 @@ const val sourceKey = "source"
 const val nqStream = "NQ"
 const val esStream = "ES"
 const val btcStream = "BTC"
-
-// premium streams
 const val gcStream = "GC"
 const val siStream = "SI"
 
@@ -76,16 +74,18 @@ const val SetupOnboardingSignalArmedRoute = "SetupOnboardingSignalArmed"
 // datastore
 const val localCache = "localCache"
 const val onboardingKey = "onboarding"
+const val emptyStateKey = "emptyState"
 const val voiceNameKey = "voice"
 const val speedKey = "speed"
 const val pitchKey = "pitch"
-const val isQueueAddKey = "isQueueAdd"
 const val isMuteKey = "isMuteKey"
 const val isDarkModeKey = "isDarkMode"
 const val isFullScreenKey = "isFullScreen"
 const val volumeKey = TextToSpeech.Engine.KEY_PARAM_VOLUME
 const val feedModeKey = "feedMode"
 const val isNQKey = "isNQ"
+const val isESKey = "isES"
+const val isBTCKey = "isBTC"
 const val isGCKey = "isGC"
 const val isSIKey = "isSI"
 
@@ -100,9 +100,6 @@ const val voiceDividerTitle = "VOICE"
 const val voiceTitle = "Voice"
 const val speedTitle = "Speed"
 const val pitchTitle = "Pitch"
-const val queueBehaviorTitle = "Queue"
-const val queueFlushDescription = "Play new alerts immediately"
-const val queueAddDescription = "Add new alerts to queue"
 const val systemTtsTitle = "System settings"
 const val systemTtsDescription = "Install additional voices"
 const val systemTtsInstallVoicesAction = TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA

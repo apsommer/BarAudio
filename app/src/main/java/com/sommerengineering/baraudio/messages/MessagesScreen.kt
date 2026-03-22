@@ -33,6 +33,7 @@ import com.sommerengineering.baraudio.source.resolveMessageOrigin
 import com.sommerengineering.baraudio.uitls.backgroundDarkAlpha
 import com.sommerengineering.baraudio.uitls.backgroundLightAlpha
 import com.sommerengineering.baraudio.uitls.edgePadding
+import com.sommerengineering.baraudio.uitls.logMessage
 import kotlinx.coroutines.launch
 
 @Composable
@@ -48,6 +49,9 @@ fun MessagesScreen(
     // setting drawer
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
+
+    // user signal empty state
+    val isEmptyState = viewModel.isEmptyState
 
     // feed mode: linear, or grouped
     val feedMode = viewModel.feedMode
@@ -90,49 +94,61 @@ fun MessagesScreen(
                         .padding(2 * edgePadding))
 
                 // messages
-                LazyColumn(state = listState) { when (feedMode) {
+                LazyColumn(state = listState) {
 
-                    // all messages by timestamp
-                    FeedMode.Linear -> {
-                        itemsIndexed(
-                            items = messages,
-                            key = { _, it -> it.timestamp }) { index, message ->
-                            MessageItem(
-                                viewModel = viewModel,
-                                message = message,
-                                isShowDivider = index != messages.lastIndex)
-                        }}
+                    // user signal empty state
+                    if (isEmptyState) {
+                        item {
+                            EmptyStateCard(
+                                onClick = { onLaunchSetupOnboarding() },
+                                onDismiss = { viewModel.updateEmptyState(false) })
+                        }
+                    }
 
-                    // grouped messages by origin, then by timestamp
-                    FeedMode.Grouped -> {
-                        groups.forEachIndexed { groupIndex, (origin, messages) ->
+                    when (feedMode) {
 
-                            // group header
-                            val isExpanded = expandedGroups[origin] == true
-                            item(origin.key) {
-                                GroupHeaderItem(
+                        // all messages by timestamp
+                        FeedMode.Linear -> {
+                            itemsIndexed(
+                                items = messages,
+                                key = { _, it -> it.timestamp }) { index, message ->
+                                MessageItem(
                                     viewModel = viewModel,
-                                    origin = origin,
-                                    messageCount = messages.size,
-                                    isExpanded = isExpanded,
-                                    isShowDivider = groupIndex != groups.size - 1,
-                                    onExpand = { expandedGroups[origin] = !isExpanded })
-                            }
+                                    message = message,
+                                    isShowDivider = index != messages.lastIndex)
+                            }}
 
-                            // messages in group
-                            if (isExpanded) {
-                                itemsIndexed(
-                                    items = messages,
-                                    key = { _, it -> origin.key + it.timestamp }) { index, message ->
-                                    MessageItem(
+                        // grouped messages by origin, then by timestamp
+                        FeedMode.Grouped -> {
+                            groups.forEachIndexed { groupIndex, (origin, messages) ->
+
+                                // group header
+                                val isExpanded = expandedGroups[origin] == true
+                                item(origin.key) {
+                                    GroupHeaderItem(
                                         viewModel = viewModel,
-                                        message = message,
-                                        isShowDivider = !(groupIndex == groups.lastIndex && index == messages.lastIndex))
+                                        origin = origin,
+                                        messageCount = messages.size,
+                                        isExpanded = isExpanded,
+                                        isShowDivider = groupIndex != groups.size - 1,
+                                        onExpand = { expandedGroups[origin] = !isExpanded })
+                                }
+
+                                // messages in group
+                                if (isExpanded) {
+                                    itemsIndexed(
+                                        items = messages,
+                                        key = { _, it -> origin.key + it.timestamp }) { index, message ->
+                                        MessageItem(
+                                            viewModel = viewModel,
+                                            message = message,
+                                            isShowDivider = !(groupIndex == groups.lastIndex && index == messages.lastIndex))
+                                    }
                                 }
                             }
                         }
                     }
-                }}
+                }
             }
         }
     }

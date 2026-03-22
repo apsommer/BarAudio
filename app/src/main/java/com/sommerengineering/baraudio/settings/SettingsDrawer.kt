@@ -25,6 +25,8 @@ import com.sommerengineering.baraudio.BuildConfig
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.source.MessageOrigin
+import com.sommerengineering.baraudio.source.btcAsset
+import com.sommerengineering.baraudio.source.esAsset
 import com.sommerengineering.baraudio.source.gcAsset
 import com.sommerengineering.baraudio.source.nqAsset
 import com.sommerengineering.baraudio.source.siAsset
@@ -69,6 +71,8 @@ fun SettingsDrawer(
     val pitchDescription = viewModel.pitchDescription
 
     val isNQ = viewModel.isNQ
+    val isES = viewModel.isES
+    val isBTC = viewModel.isBTC
     val isGC = viewModel.isGC
     val isSI = viewModel.isSI
 
@@ -180,6 +184,24 @@ fun SettingsDrawer(
                     updateStream = { viewModel.updateNQ(it) })
             }
 
+            // stream ES
+            item {
+                StreamSwitchItem(
+                    messageOrigin = MessageOrigin.BroadcastStream(esAsset),
+                    isDarkMode = isDarkMode,
+                    isStream = isES,
+                    updateStream = { viewModel.updateES(it) })
+            }
+
+            // bream BTC
+            item {
+                StreamSwitchItem(
+                    messageOrigin = MessageOrigin.BroadcastStream(btcAsset),
+                    isDarkMode = isDarkMode,
+                    isStream = isBTC,
+                    updateStream = { viewModel.updateBTC(it) })
+            }
+
             // divider
             item {
                 DividerItem(premiumDividerTitle)
@@ -210,19 +232,14 @@ fun SettingsDrawer(
 
             // webhook
             item {
-
                 DialogItem(
                     iconRes = R.drawable.webhook,
                     title = customTitle,
                     description = customDescription,
                     onClick = onLaunchSetupOnboarding) {
-
-                    IconButton(
-                        onClick = { }) {
-                        Icon(
-                            painter = painterResource(R.drawable.chevron),
-                            contentDescription = null)
-                    }
+                    Icon(
+                        painter = painterResource(R.drawable.chevron),
+                        contentDescription = null)
                 }
             }
 

@@ -21,8 +21,6 @@ import com.sommerengineering.baraudio.onboarding.webhook.VerificationState.RECEI
 import com.sommerengineering.baraudio.onboarding.webhook.VerificationUiState
 import com.sommerengineering.baraudio.source.Message
 import com.sommerengineering.baraudio.uitls.RomanNumerals
-import com.sommerengineering.baraudio.uitls.queueAddDescription
-import com.sommerengineering.baraudio.uitls.queueFlushDescription
 import com.sommerengineering.baraudio.uitls.screenFullDescription
 import com.sommerengineering.baraudio.uitls.screenWindowedDescription
 import com.sommerengineering.baraudio.uitls.uiDarkDescription
@@ -36,6 +34,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
+import com.sommerengineering.baraudio.onboarding.webhook.VerificationState.RECEIVED
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
@@ -113,12 +112,35 @@ class MainViewModel @Inject constructor(
         repo.updateOnboarding(enabled)
     }
 
+    var isEmptyState by mutableStateOf(true)
+        private set
+    fun updateEmptyState(enabled: Boolean) {
+        isEmptyState = enabled
+        repo.updateEmptyState(enabled)
+    }
+
     // stream NQ
     var isNQ by mutableStateOf(true)
         private set
     fun updateNQ(enabled: Boolean) {
         isNQ = enabled
         repo.updateNQ(enabled)
+    }
+
+    // stream ES
+    var isES by mutableStateOf(true)
+        private set
+    fun updateES(enabled: Boolean) {
+        isES = enabled
+        repo.updateES(enabled)
+    }
+
+    // stream BTC
+    var isBTC by mutableStateOf(true)
+        private set
+    fun updateBTC(enabled: Boolean) {
+        isBTC = enabled
+        repo.updateBTC(enabled)
     }
 
     // stream GC
@@ -166,26 +188,6 @@ class MainViewModel @Inject constructor(
     fun updateDarkMode(enabled: Boolean) {
         isDarkMode = enabled
         repo.updateDarkMode(enabled)
-    }
-
-    init {
-
-        // load settings from preferences
-        // block main thread is acceptable for datastore read ~3 ms each
-        runBlocking {
-            isOnboardingComplete = repo.loadOnboarding()
-            isNQ = repo.loadNQ()
-            isGC = repo.loadGC()
-            isSI = repo.loadSI()
-            feedMode = repo.loadFeedMode()
-            isFullScreen = repo.loadFullScreen()
-        }
-
-        // wait for repo to finish initializing tts engine, takes a few seconds
-        viewModelScope.launch {
-            repo.isTtsReady.filter { it }.first()
-            refreshTtsSettingsUi()
-        }
     }
 
     private fun refreshTtsSettingsUi() {
@@ -287,4 +289,39 @@ class MainViewModel @Inject constructor(
             viewModelScope,
             SharingStarted.WhileSubscribed(),
         VerificationUiState(WAITING))
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+
+    init {
+
+        // load settings from preferences
+        // block main thread is acceptable for datastore read ~3 ms each
+        runBlocking {
+            isOnboardingComplete = repo.loadOnboarding()
+            isEmptyState = repo.loadEmptyState()
+            isNQ = repo.loadNQ()
+            isES = repo.loadES()
+            isBTC = repo.loadBTC()
+            isGC = repo.loadGC()
+            isSI = repo.loadSI()
+            feedMode = repo.loadFeedMode()
+            isFullScreen = repo.loadFullScreen()
+        }
+
+        // wait for repo to finish initializing tts engine, takes a few seconds
+        viewModelScope.launch {
+            repo.isTtsReady.filter { it }.first()
+            refreshTtsSettingsUi()
+        }
+
+        // dismiss empty state card on first user signal
+        viewModelScope.launch {
+            messages.collect { messages ->
+                val hasUserSignal = messages.any { it.source != null }
+                if (hasUserSignal && isEmptyState) {
+                    updateEmptyState(false)
+                }
+            }
+        }
+    }
 }
