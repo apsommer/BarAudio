@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.R
+import com.sommerengineering.baraudio.uitls.edgePadding
 
 @Composable
 fun EmptyStateCard(
@@ -31,34 +32,38 @@ fun EmptyStateCard(
 
     Card(Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .padding(horizontal = 16.dp, vertical = 10.dp)
             .clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)){
 
-        Box {
+        Box(Modifier.fillMaxWidth()) {
 
             // title, subtitle
-            Column(Modifier
-                .padding(20.dp)
-                .fillMaxWidth()) {
+            Column(Modifier.fillMaxWidth().padding(20.dp)) {
                 Text(
                     text = "Custom signal",
                     style = MaterialTheme.typography.titleMedium)
                 Spacer(Modifier.size(6.dp))
                 Text(
-                    text = "Set up your webhook to receive alerts",
+                    text = "Set up your webhook to receive alerts →",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f))
             }
 
             // close button
             IconButton(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(top = 6.dp, end = 6.dp)
+                    .size(36.dp),
                 onClick = onDismiss,
-                modifier = Modifier.align(Alignment.TopEnd)) {
+                colors = IconButtonDefaults.iconButtonColors(
+                    contentColor = LocalContentColor.current.copy(alpha = 0.6f))) {
                 Icon(
                     painter = painterResource(R.drawable.close),
-                    tint = LocalContentColor.current.copy(alpha = 0.6f),
                     contentDescription = null)
             }
         }
