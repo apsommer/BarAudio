@@ -111,6 +111,13 @@ class MainViewModel @Inject constructor(
         repo.updateOnboarding(enabled)
     }
 
+    var isEmptyState by mutableStateOf(true)
+        private set
+    fun updateEmptyState(enabled: Boolean) {
+        isEmptyState = enabled
+        repo.updateEmptyState(enabled)
+    }
+
     // stream NQ
     var isNQ by mutableStateOf(true)
         private set
@@ -188,6 +195,7 @@ class MainViewModel @Inject constructor(
         // block main thread is acceptable for datastore read ~3 ms each
         runBlocking {
             isOnboardingComplete = repo.loadOnboarding()
+            isEmptyState = repo.loadEmptyState()
             isNQ = repo.loadNQ()
             isES = repo.loadES()
             isBTC = repo.loadBTC()

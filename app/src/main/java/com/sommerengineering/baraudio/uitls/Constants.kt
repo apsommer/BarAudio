@@ -74,6 +74,7 @@ const val SetupOnboardingSignalArmedRoute = "SetupOnboardingSignalArmed"
 // datastore
 const val localCache = "localCache"
 const val onboardingKey = "onboarding"
+const val emptyStateKey = "emptyState"
 const val voiceNameKey = "voice"
 const val speedKey = "speed"
 const val pitchKey = "pitch"

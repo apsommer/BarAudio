@@ -20,6 +20,7 @@ import com.sommerengineering.baraudio.source.resolveMessageOrigin
 import com.sommerengineering.baraudio.speak.TextToSpeechImpl
 import com.sommerengineering.baraudio.uitls.btcStream
 import com.sommerengineering.baraudio.uitls.defaultVoice
+import com.sommerengineering.baraudio.uitls.emptyStateKey
 import com.sommerengineering.baraudio.uitls.esStream
 import com.sommerengineering.baraudio.uitls.feedModeKey
 import com.sommerengineering.baraudio.uitls.gcStream
@@ -147,6 +148,12 @@ class MainRepository @Inject constructor(
         readPreference(booleanPreferencesKey(onboardingKey)) ?: false
     fun updateOnboarding(enabled: Boolean) =
         writePreference(booleanPreferencesKey(onboardingKey), enabled)
+
+    // user signal empty state
+    suspend fun loadEmptyState() =
+        readPreference(booleanPreferencesKey(emptyStateKey)) ?: true
+    fun updateEmptyState(enabled: Boolean) =
+        writePreference(booleanPreferencesKey(emptyStateKey), enabled)
 
     // stream NQ
     suspend fun loadNQ() =
