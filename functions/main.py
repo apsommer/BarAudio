@@ -36,6 +36,7 @@ BASE_CONFIG = messaging.AndroidConfig(
 # time adjustments
 NYC = ZoneInfo('America/New_York')
 DAY_MILLIS = 86400000
+WEEK_MILLIS = 7 * DAY_MILLIS
 
 # database
 USERS_NODE = db.reference('users')
@@ -209,7 +210,7 @@ def resolve_source_from_ip(source_ip: str) -> str:
 
     return 'unknown'
 
-# purge user signals before market open on Sunday
+# purge stale user signals before market open on Sunday
 @scheduler_fn.on_schedule(
     schedule = "0 17 * * 0",
     timezone = "America/New_York")
@@ -218,10 +219,28 @@ def purge_weekly(event):
     # calculate raw utc timestamp from system (millis)
     timestamp = time.time_ns() // 1_000_000 # // floor division discards remainder after ms
 
-    # get user node
+    # get users
     users = USERS_NODE.get(shallow = True)
     if not users: return
 
-    # purge stale user signals
     for uid in users.keys():
-        purge_node(USERS_NODE.child(uid), timestamp)
+
+        # get user
+        user_node = USERS_NODE.child(uid)
+
+        # purge stale signals
+        if is_user_stale(user_node, timestamp):
+            user_node.delete()
+
+def is_user_stale(user_node, timestamp):
+
+    # get latest message
+    latest = user_node.order_by_key().limit_to_last(1).get()
+
+    # catch empty or missing node
+    if not latest:
+        return True
+
+    # no signals in 7 days, user considered inactive
+    latest_timestamp = int(max(latest.keys()))
+    return (timestamp - latest_timestamp) > WEEK_MILLIS
