@@ -233,25 +233,6 @@ class MainRepository @Inject constructor(
     fun updateDarkMode(enabled: Boolean) =
         writePreference(booleanPreferencesKey(isDarkModeKey), enabled)
 
-    init {
-
-        appScope.launch {
-
-            // wait for system initialization of tts engine, takes a few milliseconds
-            isTtsInit.filter { it }.first()
-
-            // ensure voices are stable, can take 500 milliseconds on slow devices
-            stabilizeVoices()
-
-            // finish tts engine with store preferences
-            initTtsSettings()
-            _isTtsReady.update { true }
-        }
-
-        // wait for firebase to initialize to ensure uid is valid
-        FirebaseAuth.getInstance().addAuthStateListener { onAuth(it) }
-    }
-
     suspend fun initTtsSettings() {
 
         tts.voice = readPreference(stringPreferencesKey(voiceNameKey))
@@ -344,4 +325,25 @@ class MainRepository @Inject constructor(
         appScope.launch {
             dataStore.edit { it[key] = value }
         }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+
+    init {
+
+        appScope.launch {
+
+            // wait for system initialization of tts engine, takes a few milliseconds
+            isTtsInit.filter { it }.first()
+
+            // ensure voices are stable, can take 500 milliseconds on slow devices
+            stabilizeVoices()
+
+            // finish tts engine with store preferences
+            initTtsSettings()
+            _isTtsReady.update { true }
+        }
+
+        // wait for firebase to initialize to ensure uid is valid
+        FirebaseAuth.getInstance().addAuthStateListener { onAuth(it) }
+    }
 }

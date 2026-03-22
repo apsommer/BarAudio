@@ -34,6 +34,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
+import com.sommerengineering.baraudio.onboarding.webhook.VerificationState.RECEIVED
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
@@ -189,29 +190,6 @@ class MainViewModel @Inject constructor(
         repo.updateDarkMode(enabled)
     }
 
-    init {
-
-        // load settings from preferences
-        // block main thread is acceptable for datastore read ~3 ms each
-        runBlocking {
-            isOnboardingComplete = repo.loadOnboarding()
-            isEmptyState = repo.loadEmptyState()
-            isNQ = repo.loadNQ()
-            isES = repo.loadES()
-            isBTC = repo.loadBTC()
-            isGC = repo.loadGC()
-            isSI = repo.loadSI()
-            feedMode = repo.loadFeedMode()
-            isFullScreen = repo.loadFullScreen()
-        }
-
-        // wait for repo to finish initializing tts engine, takes a few seconds
-        viewModelScope.launch {
-            repo.isTtsReady.filter { it }.first()
-            refreshTtsSettingsUi()
-        }
-    }
-
     private fun refreshTtsSettingsUi() {
 
         // add roman numerals to voice locale groups
@@ -311,4 +289,38 @@ class MainViewModel @Inject constructor(
             viewModelScope,
             SharingStarted.WhileSubscribed(),
         VerificationUiState(WAITING))
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+
+    init {
+
+        // load settings from preferences
+        // block main thread is acceptable for datastore read ~3 ms each
+        runBlocking {
+            isOnboardingComplete = repo.loadOnboarding()
+            isEmptyState = repo.loadEmptyState()
+            isNQ = repo.loadNQ()
+            isES = repo.loadES()
+            isBTC = repo.loadBTC()
+            isGC = repo.loadGC()
+            isSI = repo.loadSI()
+            feedMode = repo.loadFeedMode()
+            isFullScreen = repo.loadFullScreen()
+        }
+
+        // wait for repo to finish initializing tts engine, takes a few seconds
+        viewModelScope.launch {
+            repo.isTtsReady.filter { it }.first()
+            refreshTtsSettingsUi()
+        }
+
+        // listen for first user signal
+        viewModelScope.launch {
+            verificationUiState.collect {
+                if (it.state == RECEIVED && isEmptyState) {
+                    updateEmptyState(false)
+                }
+            }
+        }
+    }
 }

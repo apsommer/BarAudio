@@ -13,6 +13,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,11 +27,9 @@ import com.sommerengineering.baraudio.R
 @Composable
 fun EmptyStateCard(
     onClick: () -> Unit,
-    onDismiss: () -> Unit,
-    modifier: Modifier = Modifier) {
+    onDismiss: () -> Unit) {
 
-    Card(
-        modifier = modifier
+    Card(Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 12.dp)
             .clickable { onClick() },
@@ -58,6 +58,7 @@ fun EmptyStateCard(
                 modifier = Modifier.align(Alignment.TopEnd)) {
                 Icon(
                     painter = painterResource(R.drawable.close),
+                    tint = LocalContentColor.current.copy(alpha = 0.6f),
                     contentDescription = null)
             }
         }

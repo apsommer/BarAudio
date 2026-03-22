@@ -33,6 +33,7 @@ import com.sommerengineering.baraudio.source.resolveMessageOrigin
 import com.sommerengineering.baraudio.uitls.backgroundDarkAlpha
 import com.sommerengineering.baraudio.uitls.backgroundLightAlpha
 import com.sommerengineering.baraudio.uitls.edgePadding
+import com.sommerengineering.baraudio.uitls.logMessage
 import kotlinx.coroutines.launch
 
 @Composable
@@ -48,6 +49,9 @@ fun MessagesScreen(
     // setting drawer
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
+
+    // user signal empty state
+    val isEmptyState = viewModel.isEmptyState
 
     // feed mode: linear, or grouped
     val feedMode = viewModel.feedMode
@@ -90,7 +94,18 @@ fun MessagesScreen(
                         .padding(2 * edgePadding))
 
                 // messages
-                LazyColumn(state = listState) { when (feedMode) {
+                LazyColumn(state = listState) {
+
+                    // user signal empty state
+                    if (isEmptyState) {
+                        item {
+                            EmptyStateCard(
+                                onClick = { logMessage("show onboarding ..") },
+                                onDismiss = { viewModel.updateEmptyState(false) })
+                        }
+                    }
+
+                    when (feedMode) {
 
                     // all messages by timestamp
                     FeedMode.Linear -> {
