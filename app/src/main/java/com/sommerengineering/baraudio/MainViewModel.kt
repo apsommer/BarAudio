@@ -314,10 +314,11 @@ class MainViewModel @Inject constructor(
             refreshTtsSettingsUi()
         }
 
-        // listen for first user signal
+        // dismiss empty state card on first user signal
         viewModelScope.launch {
-            verificationUiState.collect {
-                if (it.state == RECEIVED && isEmptyState) {
+            messages.collect { messages ->
+                val hasUserSignal = messages.any { it.source != null }
+                if (hasUserSignal && isEmptyState) {
                     updateEmptyState(false)
                 }
             }

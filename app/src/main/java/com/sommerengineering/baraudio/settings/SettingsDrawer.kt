@@ -232,19 +232,14 @@ fun SettingsDrawer(
 
             // webhook
             item {
-
                 DialogItem(
                     iconRes = R.drawable.webhook,
                     title = customTitle,
                     description = customDescription,
                     onClick = onLaunchSetupOnboarding) {
-
-                    IconButton(
-                        onClick = { }) {
-                        Icon(
-                            painter = painterResource(R.drawable.chevron),
-                            contentDescription = null)
-                    }
+                    Icon(
+                        painter = painterResource(R.drawable.chevron),
+                        contentDescription = null)
                 }
             }
 

@@ -100,54 +100,55 @@ fun MessagesScreen(
                     if (isEmptyState) {
                         item {
                             EmptyStateCard(
-                                onClick = { logMessage("show onboarding ..") },
+                                onClick = { onLaunchSetupOnboarding() },
                                 onDismiss = { viewModel.updateEmptyState(false) })
                         }
                     }
 
                     when (feedMode) {
 
-                    // all messages by timestamp
-                    FeedMode.Linear -> {
-                        itemsIndexed(
-                            items = messages,
-                            key = { _, it -> it.timestamp }) { index, message ->
-                            MessageItem(
-                                viewModel = viewModel,
-                                message = message,
-                                isShowDivider = index != messages.lastIndex)
-                        }}
-
-                    // grouped messages by origin, then by timestamp
-                    FeedMode.Grouped -> {
-                        groups.forEachIndexed { groupIndex, (origin, messages) ->
-
-                            // group header
-                            val isExpanded = expandedGroups[origin] == true
-                            item(origin.key) {
-                                GroupHeaderItem(
+                        // all messages by timestamp
+                        FeedMode.Linear -> {
+                            itemsIndexed(
+                                items = messages,
+                                key = { _, it -> it.timestamp }) { index, message ->
+                                MessageItem(
                                     viewModel = viewModel,
-                                    origin = origin,
-                                    messageCount = messages.size,
-                                    isExpanded = isExpanded,
-                                    isShowDivider = groupIndex != groups.size - 1,
-                                    onExpand = { expandedGroups[origin] = !isExpanded })
-                            }
+                                    message = message,
+                                    isShowDivider = index != messages.lastIndex)
+                            }}
 
-                            // messages in group
-                            if (isExpanded) {
-                                itemsIndexed(
-                                    items = messages,
-                                    key = { _, it -> origin.key + it.timestamp }) { index, message ->
-                                    MessageItem(
+                        // grouped messages by origin, then by timestamp
+                        FeedMode.Grouped -> {
+                            groups.forEachIndexed { groupIndex, (origin, messages) ->
+
+                                // group header
+                                val isExpanded = expandedGroups[origin] == true
+                                item(origin.key) {
+                                    GroupHeaderItem(
                                         viewModel = viewModel,
-                                        message = message,
-                                        isShowDivider = !(groupIndex == groups.lastIndex && index == messages.lastIndex))
+                                        origin = origin,
+                                        messageCount = messages.size,
+                                        isExpanded = isExpanded,
+                                        isShowDivider = groupIndex != groups.size - 1,
+                                        onExpand = { expandedGroups[origin] = !isExpanded })
+                                }
+
+                                // messages in group
+                                if (isExpanded) {
+                                    itemsIndexed(
+                                        items = messages,
+                                        key = { _, it -> origin.key + it.timestamp }) { index, message ->
+                                        MessageItem(
+                                            viewModel = viewModel,
+                                            message = message,
+                                            isShowDivider = !(groupIndex == groups.lastIndex && index == messages.lastIndex))
+                                    }
                                 }
                             }
                         }
                     }
-                }}
+                }
             }
         }
     }

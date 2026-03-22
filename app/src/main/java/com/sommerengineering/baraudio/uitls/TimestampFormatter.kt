@@ -9,6 +9,7 @@ object TimestampFormatter {
     private const val minute = 60_000L
     private const val hour = 60 * minute
     private const val day = 24 * hour
+    private const val week = 7 * day
     private val clockFormat = SimpleDateFormat("HH:mm", Locale.getDefault()) // 14:32
     private val weekdayFormat = SimpleDateFormat("EEE", Locale.getDefault()) // Mon
     private val dateFormat = SimpleDateFormat("MMM d", Locale.getDefault()) // Oct 30
@@ -27,7 +28,8 @@ object TimestampFormatter {
             day > diff -> "${diff / hour}h ago"
             day * 2 > diff -> "Yesterday ${clockFormat.format(date)}"
             day * 4 > diff -> "${weekdayFormat.format(date)} ${clockFormat.format(date)}"
-            else -> "${dateFormat.format(date)} • ${clockFormat.format(date)}"
+            week > diff -> "${dateFormat.format(date)} • ${clockFormat.format(date)}"
+            else -> "over 1 week ago"
         }
     }
 
