@@ -36,6 +36,10 @@ The system ensures:
 
 ## Architecture
 
+The system is designed as a real-time, event-driven pipeline from signal generation to voice delivery:
+
+![BarAudio Architecture](readme/architecture.png)
+
 ### Client (Android)
 
 * **Language:** Kotlin
