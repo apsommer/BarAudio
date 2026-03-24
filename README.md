@@ -6,8 +6,6 @@ BarAudio is a production Android application that delivers real-time financial m
 
 The app ingests external trading signals via webhook endpoints, persists them locally, and delivers them as spoken alerts using a lifecycle-aware architecture. The core design prioritizes reliability, low latency, and predictable behavior across foreground, background, and cold-start states.
 
----
-
 ## Problem
 
 Active traders must constantly monitor charts across multiple instruments and timeframes. This leads to:
@@ -21,8 +19,6 @@ Existing alerting systems are typically:
 * Visual-first (notifications, charts)
 * Noisy or inconsistent
 * Not lifecycle-aware (duplicate alerts, missed delivery)
-
----
 
 ## Solution
 
@@ -38,9 +34,11 @@ The system ensures:
 * No missed alerts during reconnect
 * Clear separation between live delivery and historical replay
 
----
-
 ## Architecture
+
+The system is designed as a real-time, event-driven pipeline from signal generation to voice delivery:
+
+![BarAudio Architecture](readme/architecture.png)
 
 ### Client (Android)
 
@@ -56,8 +54,6 @@ The system ensures:
 * **Realtime sync:** Firebase Realtime Database
 * **Push delivery:** Firebase Cloud Messaging
 
----
-
 ## Data Flow
 
 1. External platform sends signal → webhook endpoint
@@ -69,8 +65,6 @@ The system ensures:
 
 **Key invariant:**
 Room is always the source of truth. No UI or TTS logic reads directly from Firebase.
-
----
 
 ## Voice Delivery System
 
@@ -90,8 +84,6 @@ Additional guarantees:
 * Speech occurs exactly once per message
 * No speech during cold-start hydration
 * Asset name is always prepended at the TTS layer
-
----
 
 ## Key Engineering Decisions
 
@@ -124,8 +116,6 @@ Speech behavior is explicitly tied to process state:
 * Eliminates duplicate notifications
 * Ensures predictable UX
 
----
-
 ## Features
 
 * Real-time signal ingestion via secure webhooks
@@ -135,15 +125,26 @@ Speech behavior is explicitly tied to process state:
 * Federated authentication (Google, GitHub)
 * Unlimited message retention
 
----
-
 ## Monetization
 
-* 1-week free trial
-* Subscription: $5.99/month
-* No advertisements
+BarAudio monetizes based on access to higher-signal, domain-specific data rather than restricting core functionality.
 
----
+The free tier provides a complete voice-first experience with limited asset coverage, allowing users to evaluate the system in real trading conditions.
+
+The paid tier unlocks additional premium streams designed to provide deeper market coverage and trading edge.
+
+* Free tier:
+
+  * Core assets (e.g., NQ, ES, BTC)
+  * Full voice delivery and webhook support
+
+* Paid subscription:
+
+  * $9.99/month
+  * Additional premium assets (e.g., GC, ZN, CL)
+  * Expanded signal coverage
+
+BarAudio does not use advertisements. The product is designed as a focused trading tool, where value comes from signal quality and delivery reliability rather than feature gating.
 
 ## Engineering Focus
 
@@ -155,14 +156,10 @@ This project emphasizes:
 * Low-latency user feedback systems
 * Clean separation of concerns
 
----
-
 ## Links
 
 * Website: https://baraud.io/
 * Play Store: https://play.google.com/store/apps/details?id=com.sommerengineering.baraudio
-
----
 
 ## Summary
 
