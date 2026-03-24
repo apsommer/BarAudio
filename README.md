@@ -123,9 +123,24 @@ Speech behavior is explicitly tied to process state:
 
 ## Monetization
 
-* 1-week free trial
-* Subscription: $5.99/month
-* No advertisements
+BarAudio monetizes based on access to higher-signal, domain-specific data rather than restricting core functionality.
+
+The free tier provides a complete voice-first experience with limited asset coverage, allowing users to evaluate the system in real trading conditions.
+
+The paid tier unlocks additional premium streams designed to provide deeper market coverage and trading edge.
+
+* Free tier:
+
+  * Core assets (e.g., NQ, ES, BTC)
+  * Full voice delivery and webhook support
+
+* Paid subscription:
+
+  * $9.99/month
+  * Additional premium assets (e.g., GC, ZN, CL)
+  * Expanded signal coverage
+
+BarAudio does not use advertisements. The product is designed as a focused trading tool, where value comes from signal quality and delivery reliability rather than feature gating.
 
 ## Engineering Focus
 
