@@ -6,8 +6,6 @@ BarAudio is a production Android application that delivers real-time financial m
 
 The app ingests external trading signals via webhook endpoints, persists them locally, and delivers them as spoken alerts using a lifecycle-aware architecture. The core design prioritizes reliability, low latency, and predictable behavior across foreground, background, and cold-start states.
 
----
-
 ## Problem
 
 Active traders must constantly monitor charts across multiple instruments and timeframes. This leads to:
@@ -22,8 +20,6 @@ Existing alerting systems are typically:
 * Noisy or inconsistent
 * Not lifecycle-aware (duplicate alerts, missed delivery)
 
----
-
 ## Solution
 
 BarAudio introduces a **voice-first delivery system**:
@@ -37,8 +33,6 @@ The system ensures:
 * No duplicate alerts
 * No missed alerts during reconnect
 * Clear separation between live delivery and historical replay
-
----
 
 ## Architecture
 
@@ -56,8 +50,6 @@ The system ensures:
 * **Realtime sync:** Firebase Realtime Database
 * **Push delivery:** Firebase Cloud Messaging
 
----
-
 ## Data Flow
 
 1. External platform sends signal → webhook endpoint
@@ -69,8 +61,6 @@ The system ensures:
 
 **Key invariant:**
 Room is always the source of truth. No UI or TTS logic reads directly from Firebase.
-
----
 
 ## Voice Delivery System
 
@@ -90,8 +80,6 @@ Additional guarantees:
 * Speech occurs exactly once per message
 * No speech during cold-start hydration
 * Asset name is always prepended at the TTS layer
-
----
 
 ## Key Engineering Decisions
 
@@ -124,8 +112,6 @@ Speech behavior is explicitly tied to process state:
 * Eliminates duplicate notifications
 * Ensures predictable UX
 
----
-
 ## Features
 
 * Real-time signal ingestion via secure webhooks
@@ -135,15 +121,11 @@ Speech behavior is explicitly tied to process state:
 * Federated authentication (Google, GitHub)
 * Unlimited message retention
 
----
-
 ## Monetization
 
 * 1-week free trial
 * Subscription: $5.99/month
 * No advertisements
-
----
 
 ## Engineering Focus
 
@@ -155,14 +137,10 @@ This project emphasizes:
 * Low-latency user feedback systems
 * Clean separation of concerns
 
----
-
 ## Links
 
 * Website: https://baraud.io/
 * Play Store: https://play.google.com/store/apps/details?id=com.sommerengineering.baraudio
-
----
 
 ## Summary
 
