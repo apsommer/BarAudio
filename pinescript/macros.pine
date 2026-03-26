@@ -1,0 +1,44 @@
+//@version=6
+indicator(
+    "ZN • 6E",
+    overlay = true,
+    max_bars_back = 2000)
+
+// INPUT
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+ZN_LOOKBACK = 20
+E6_LOOKBACK = 5
+
+// DATA
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+isZN = syminfo.root == "ZN"
+isE6 = syminfo.root == "6E"
+ZN = request.security("CBOT:ZN1!", timeframe.period, high)
+E6 = request.security("CME:6E1!", timeframe.period, high)
+
+// LOGIC
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// bar is moving up
+isUp = high > high[1] or high > high[2]
+
+// trend is up
+isRelativeHigh =
+     isZN ? high >= ta.highest(ZN, ZN_LOOKBACK) :
+     high >= ta.highest(E6, E6_LOOKBACK)
+
+// combine
+isEntryValid =
+     isUp and isRelativeHigh
+
+// PLOT
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+barColor =
+     isZN and isEntryValid ? color.blue :
+     isZN ? color.new(color.blue, 60) :
+     isE6 and isEntryValid ? color.purple :
+     isE6 ? color.new(color.purple, 60) : na
+barcolor(barColor)
