@@ -8,37 +8,53 @@ indicator(
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ZN_LOOKBACK = 20
-E6_LOOKBACK = 5
+E6_LOOKBACK = 10
 
 // DATA
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 isZN = syminfo.root == "ZN"
 isE6 = syminfo.root == "6E"
-ZN = request.security("CBOT:ZN1!", timeframe.period, high)
-E6 = request.security("CME:6E1!", timeframe.period, high)
+ZN_high = request.security("CBOT:ZN1!", timeframe.period, high)
+ZN_low = request.security("CBOT:ZN1!", timeframe.period, low)
+E6_high = request.security("CME:6E1!", timeframe.period, high)
+E6_low = request.security("CME:6E1!", timeframe.period, low)
+
+h = isZN ? ZN_high : E6_high
+l = isZN ? ZN_low : E6_low
+lookback = isZN ? ZN_LOOKBACK : E6_LOOKBACK
 
 // LOGIC
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// bar is moving up
-isUp = high > high[1] or high > high[2]
+// impulse
+isUpBar = h > h[1]
+isStrongUp = h > ta.highest(h[1], 2)
+isDownBar = l < l[1]
+isStrongDown = l < ta.lowest(l[1], 2)
+isUpImpulse = isUpBar or isStrongUp
+isDownImpulse = isDownBar or isStrongDown
 
-// trend is up
-isRelativeHigh =
-     isZN ? high >= ta.highest(ZN, ZN_LOOKBACK) :
-     high >= ta.highest(E6, E6_LOOKBACK)
+// range
+rangeHigh = ta.highest(h, lookback)
+rangeLow = ta.lowest(l, lookback)
+isNearHigh = h >= rangeHigh - (rangeHigh - rangeLow) * 0.2
+isNearLow = l <= rangeLow + (rangeHigh - rangeLow) * 0.2
 
-// combine
-isEntryValid =
-     isUp and isRelativeHigh
+// classify
+isSupportive = isUpImpulse and not isNearLow
+isHostile = isDownImpulse and not isNearHigh
 
 // PLOT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 barColor =
-     isZN and isEntryValid ? color.blue :
-     isZN ? color.new(color.blue, 60) :
-     isE6 and isEntryValid ? color.purple :
-     isE6 ? color.new(color.purple, 60) : na
+     isZN and isSupportive ? color.blue :
+     isZN and isHostile ? color.red :
+     isZN ? color.new(color.blue, 70) :
+
+     isE6 and isSupportive ? color.blue :
+     isE6 and isHostile ? color.red :
+     isE6 ? color.new(color.purple, 70) : na
+
 barcolor(barColor)
