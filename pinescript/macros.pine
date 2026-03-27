@@ -1,6 +1,6 @@
 //@version=6
 indicator(
-    "ZN • 6E",
+    "ZN • 6E • GC",
     overlay = true,
     max_bars_back = 2000)
 
@@ -9,52 +9,101 @@ indicator(
 
 ZN_LOOKBACK = 20
 E6_LOOKBACK = 10
+GC_LOOKBACK = 20
 
 // DATA
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 isZN = syminfo.root == "ZN"
 isE6 = syminfo.root == "6E"
+isGC = syminfo.root == "GC" or syminfo.root == "MGC"
+
 ZN_high = request.security("CBOT:ZN1!", timeframe.period, high)
 ZN_low = request.security("CBOT:ZN1!", timeframe.period, low)
 E6_high = request.security("CME:6E1!", timeframe.period, high)
 E6_low = request.security("CME:6E1!", timeframe.period, low)
+GC_high = request.security("COMEX:GC1!", timeframe.period, high)
+GC_low = request.security("COMEX:GC1!", timeframe.period, low)
 
-h = isZN ? ZN_high : E6_high
-l = isZN ? ZN_low : E6_low
-lookback = isZN ? ZN_LOOKBACK : E6_LOOKBACK
-
-// LOGIC
+// ZN LOGIC
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// impulse
-isUpBar = h > h[1]
-isStrongUp = h > ta.highest(h[1], 2)
-isDownBar = l < l[1]
-isStrongDown = l < ta.lowest(l[1], 2)
-isUpImpulse = isUpBar or isStrongUp
-isDownImpulse = isDownBar or isStrongDown
+ZN_isUpBar = ZN_high > ZN_high[1]
+ZN_isStrongUp = ZN_high > ta.highest(ZN_high[1], 2)
+ZN_isDownBar = ZN_low < ZN_low[1]
+ZN_isStrongDown = ZN_low < ta.lowest(ZN_low[1], 2)
+ZN_isUpImpulse = ZN_isUpBar or ZN_isStrongUp
+ZN_isDownImpulse = ZN_isDownBar or ZN_isStrongDown
 
-// range
-rangeHigh = ta.highest(h, lookback)
-rangeLow = ta.lowest(l, lookback)
-isNearHigh = h >= rangeHigh - (rangeHigh - rangeLow) * 0.2
-isNearLow = l <= rangeLow + (rangeHigh - rangeLow) * 0.2
+ZN_rangeHigh = ta.highest(ZN_high, ZN_LOOKBACK)
+ZN_rangeLow = ta.lowest(ZN_low, ZN_LOOKBACK)
+ZN_isNearHigh = ZN_high >= ZN_rangeHigh - (ZN_rangeHigh - ZN_rangeLow) * 0.2
+ZN_isNearLow = ZN_low <= ZN_rangeLow + (ZN_rangeHigh - ZN_rangeLow) * 0.2
 
-// classify
-isSupportive = isUpImpulse and not isNearLow
-isHostile = isDownImpulse and not isNearHigh
+ZN_isSupportive = ZN_isUpImpulse and not ZN_isNearLow
+ZN_isHostile = ZN_isDownImpulse and not ZN_isNearHigh
+
+// E6 LOGIC
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+E6_isUpBar = E6_high > E6_high[1]
+E6_isStrongUp = E6_high > ta.highest(E6_high[1], 2)
+E6_isDownBar = E6_low < E6_low[1]
+E6_isStrongDown = E6_low < ta.lowest(E6_low[1], 2)
+E6_isUpImpulse = E6_isUpBar or E6_isStrongUp
+E6_isDownImpulse = E6_isDownBar or E6_isStrongDown
+
+E6_rangeHigh = ta.highest(E6_high, E6_LOOKBACK)
+E6_rangeLow = ta.lowest(E6_low, E6_LOOKBACK)
+E6_isNearHigh = E6_high >= E6_rangeHigh - (E6_rangeHigh - E6_rangeLow) * 0.2
+E6_isNearLow = E6_low <= E6_rangeLow + (E6_rangeHigh - E6_rangeLow) * 0.2
+
+E6_isSupportive = E6_isUpImpulse and not E6_isNearLow
+E6_isHostile = E6_isDownImpulse and not E6_isNearHigh
+
+// GC LOGIC
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+GC_isUpBar = GC_high > GC_high[1]
+GC_isStrongUp = GC_high > ta.highest(GC_high[1], 2)
+GC_isDownBar = GC_low < GC_low[1]
+GC_isStrongDown = GC_low < ta.lowest(GC_low[1], 2)
+GC_isUpImpulse = GC_isUpBar or GC_isStrongUp
+GC_isDownImpulse = GC_isDownBar or GC_isStrongDown
+
+GC_breakUp = GC_high > ta.highest(GC_high[1], GC_LOOKBACK)
+GC_breakDown = GC_low < ta.lowest(GC_low[1], GC_LOOKBACK)
+
+GC_isLong = GC_isUpImpulse and GC_breakUp
+GC_isShort = GC_isDownImpulse and GC_breakDown
+
+// MACRO
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+isMacroLong = ZN_isSupportive and E6_isSupportive
+isMacroShort = ZN_isHostile and E6_isHostile
+isMacroMixed = not isMacroLong and not isMacroShort
 
 // PLOT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-barColor =
-     isZN and isSupportive ? color.blue :
-     isZN and isHostile ? color.red :
-     isZN ? color.new(color.blue, 70) :
+ZN_color = color.blue
+E6_color = color.purple
+GC_color = color.yellow
+long_color = color.blue
+short_color = color.red
 
-     isE6 and isSupportive ? color.blue :
-     isE6 and isHostile ? color.red :
-     isE6 ? color.new(color.purple, 70) : na
+barColor =
+     isZN and ZN_isSupportive ? long_color :
+     isZN and ZN_isHostile ? short_color :
+     isZN ? color.new(ZN_color, 70) :
+
+     isE6 and E6_isSupportive ? long_color :
+     isE6 and E6_isHostile ? short_color :
+     isE6 ? color.new(E6_color, 70) :
+
+     isGC and isMacroLong ? long_color :
+     isGC and isMacroShort ? short_color :
+     isGC ? GC_color : na
 
 barcolor(barColor)
