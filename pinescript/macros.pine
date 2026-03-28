@@ -11,25 +11,25 @@ ZN_LOOKBACK = 5
 E6_LOOKBACK = 5
 GC_LOOKBACK = 5
 
-ZN_NUETRAL_TICKS = 0
-E6_NUETRAL_TICKS = 0
+GC_PULLBACK_TICKS = 20
 
 // DATA
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 isZN = syminfo.root == "ZN"
 isE6 = syminfo.root == "6E"
-isGC = syminfo.root == "GC" or syminfo.root == "MGC"
+isGC = syminfo.root == "MGC"
 
 ZN_high = request.security("CBOT:ZN1!", timeframe.period, high)
 ZN_low = request.security("CBOT:ZN1!", timeframe.period, low)
 E6_high = request.security("CME:6E1!", timeframe.period, high)
 E6_low = request.security("CME:6E1!", timeframe.period, low)
-GC_high = request.security("COMEX:GC1!", timeframe.period, high)
-GC_low = request.security("COMEX:GC1!", timeframe.period, low)
+GC_high = request.security("COMEX_MINI:MGC1!", timeframe.period, high)
+GC_low = request.security("COMEX_MINI:MGC1!", timeframe.period, low)
 
 ZN_tick_size = request.security("CBOT:ZN1!", timeframe.period, syminfo.mintick)
 E6_tick_size = request.security("CME:6E1!", timeframe.period, syminfo.mintick)
+GC_tick_size = request.security("COMEX_MINI:MGC1!", timeframe.period, syminfo.mintick)
 
 // MACRO STATE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -66,47 +66,32 @@ isMacroMixed = not isMacroLong and not isMacroShort
 // GC LOGIC
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// 1 = supportive, -1 = hostile
-var GC_state = 1
-
-GC_tick_size = request.security("COMEX:GC1!", timeframe.period, syminfo.mintick)
-
-GC_high_tick_change = math.round((GC_high - GC_high[1]) / GC_tick_size)
-GC_low_tick_change = math.round((GC_low - GC_low[1]) / GC_tick_size)
-GC_bar_score = GC_high_tick_change + GC_low_tick_change
-
-GC_total_score = math.sum(GC_bar_score, GC_LOOKBACK)
-
-GC_state :=
-     GC_total_score > 0 ? 1 :
-     GC_total_score < 0 ? -1 :
-     GC_state[1]
-
 GC_recent_high = ta.highest(GC_high[1], GC_LOOKBACK)
 GC_recent_low = ta.lowest(GC_low[1], GC_LOOKBACK)
 
 GC_pullback_ticks = math.round((GC_recent_high - open) / GC_tick_size)
 GC_bounce_ticks = math.round((open - GC_recent_low) / GC_tick_size)
 
-GC_hasPulledBackForLong = GC_pullback_ticks > 10
-GC_hasBouncedForShort = GC_bounce_ticks > 10
+GC_hasPulledBackForLong = GC_pullback_ticks > GC_PULLBACK_TICKS
+GC_hasBouncedForShort = GC_bounce_ticks > GC_PULLBACK_TICKS
 
-GC_isLong = GC_state == 1 and isMacroLong
-GC_isShort = GC_state == -1 and isMacroShort
+GC_lastBarBouncedForLong =
+     GC_high[1] > GC_high[2] and
+     GC_low[1] > GC_low[2]
+
+GC_lastBarFailedForShort =
+     GC_high[2] > GC_high[1] and
+     GC_low[2] > GC_low[1]
 
 GC_isLongSignal =
-     GC_state == 1 and
      isMacroLong and
-     GC_bar_score > 0 and
-     GC_bar_score[1] < 0 and
-     GC_hasPulledBackForLong
+     GC_hasPulledBackForLong and
+     GC_lastBarBouncedForLong
 
 GC_isShortSignal =
-     GC_state == -1 and
      isMacroShort and
-     GC_bar_score < 0 and
-     GC_bar_score[1] > 0 and
-     GC_hasBouncedForShort
+     GC_hasBouncedForShort and
+     GC_lastBarFailedForShort
 
 // PLOT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
