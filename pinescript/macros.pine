@@ -51,20 +51,13 @@ E6_RANGE_LOOKBACK = 30
 E6_UPPER_BAND = 0.7
 E6_LOWER_BAND = 0.3
 
-GC_RANGE_LOOKBACK = 30
-GC_UPPER_BAND = 0.7
-GC_LOWER_BAND = 0.3
-
 // ZN
 ZN_recent_high = ta.highest(ZN_high[1], ZN_RANGE_LOOKBACK)
 ZN_recent_low = ta.lowest(ZN_low[1], ZN_RANGE_LOOKBACK)
 ZN_range = ZN_recent_high - ZN_recent_low
 ZN_position = ZN_range > 0 ? (ZN_open - ZN_recent_low) / ZN_range : 0.5
 
-ZN_state =
-     ZN_position > ZN_UPPER_BAND ? 1 :
-     ZN_LOWER_BAND > ZN_position ? -1 :
-     0
+ZN_state = ZN_position > ZN_UPPER_BAND ? 1 : ZN_LOWER_BAND > ZN_position ? -1 : 0
 
 // E6
 E6_recent_high = ta.highest(E6_high[1], E6_RANGE_LOOKBACK)
@@ -72,53 +65,56 @@ E6_recent_low = ta.lowest(E6_low[1], E6_RANGE_LOOKBACK)
 E6_range = E6_recent_high - E6_recent_low
 E6_position = E6_range > 0 ? (E6_open - E6_recent_low) / E6_range : 0.5
 
-E6_state =
-     E6_position > E6_UPPER_BAND ? 1 :
-     E6_LOWER_BAND > E6_position ? -1 :
-     0
+E6_state = E6_position > E6_UPPER_BAND ? 1 : E6_LOWER_BAND > E6_position ? -1 : 0
 
-// GC
-GC_recent_high = ta.highest(GC_high[1], GC_RANGE_LOOKBACK)
-GC_recent_low = ta.lowest(GC_low[1], GC_RANGE_LOOKBACK)
-GC_range = GC_recent_high - GC_recent_low
-GC_position = GC_range > 0 ? (GC_open - GC_recent_low) / GC_range : 0.5
-
-GC_state =
-     GC_position > GC_UPPER_BAND ? 1 :
-     GC_LOWER_BAND > GC_position ? -1 :
-     0
-
-// MACRO ALIGNMENT
 isMacroSupportive = ZN_state == 1 and E6_state == 1
 isMacroHostile = ZN_state == -1 and E6_state == -1
+isMacroNuetral = not isMacroSupportive and not isMacroHostile
 
-// CONTINUATION EXHAUSTION SETUPS
-isBullContinuationExhausted = isMacroSupportive and GC_state == 1
-isBearContinuationExhausted = isMacroHostile and GC_state == -1
+// GC CASCADE DETECTION
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// REVERSAL TRIGGER
-GC_previousBarWasBullishPush =
-     GC_high[1] > GC_high[2] and
-     GC_low[1] > GC_low[2]
+// threshold (ticks)
+GC_CASCADE_TICKS = 50
 
-GC_previousBarWasBearishPush =
-     GC_high[2] > GC_high[1] and
-     GC_low[2] > GC_low[1]
+// tick movement
+GC_body_tick_change = math.round((GC_close - GC_open) / GC_tick_size)
+GC_range_tick = math.round((GC_high - GC_low) / GC_tick_size)
 
-GC_isLongReversalTrigger =
-     isBearContinuationExhausted and
-     GC_previousBarWasBullishPush and
-     GC_high > GC_high[1] and
-     GC_low > GC_low[1]
+// directional bodies
+GC_isDownBody = GC_open > GC_close
+GC_isUpBody = GC_close > GC_open
 
-GC_isShortReversalTrigger =
-     isBullContinuationExhausted and
-     GC_previousBarWasBearishPush and
-     GC_high[1] > GC_high and
-     GC_low[1] > GC_low
+// displacement conditions (force, not noise)
+GC_hasLargeDownBody = GC_isDownBody and (GC_body_tick_change * -1) > GC_CASCADE_TICKS
+GC_hasLargeUpBody = GC_isUpBody and GC_body_tick_change > GC_CASCADE_TICKS
 
-isLongSignal = GC_isLongReversalTrigger
-isShortSignal = GC_isShortReversalTrigger
+// optional: require expansion (avoid small-range prints)
+GC_hasExpansion = GC_range_tick > GC_CASCADE_TICKS
+
+// final cascade signals
+GC_isDownCascade = GC_hasLargeDownBody and GC_hasExpansion
+GC_isUpCascade = GC_hasLargeUpBody and GC_hasExpansion
+
+// PLOT CASCADES
+plotshape(
+     isGC and GC_isDownCascade,
+     title = "GC Down Cascade",
+     style = shape.triangledown,
+     location = location.abovebar,
+     color = color.red,
+     size = size.small)
+
+plotshape(
+     isGC and GC_isUpCascade,
+     title = "GC Up Cascade",
+     style = shape.triangleup,
+     location = location.belowbar,
+     color = color.blue,
+     size = size.small)
+
+isLongSignal = isMacroSupportive
+isShortSignal = isMacroHostile
 
 // PLOT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -143,6 +139,3 @@ barColor =
      isGC ? GC_color : na
 
 barcolor(barColor)
-
-plotshape(isLongSignal and isGC, style = shape.circle, location = location.belowbar, color = color.blue, size = size.small)
-plotshape(isShortSignal and isGC, style = shape.circle, location = location.abovebar, color = color.red, size = size.small)
