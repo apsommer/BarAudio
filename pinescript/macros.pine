@@ -23,68 +23,102 @@ isGC = syminfo.root == "MGC"
 ZN_open = request.security("CBOT:ZN1!", timeframe.period, open)
 ZN_high = request.security("CBOT:ZN1!", timeframe.period, high)
 ZN_low = request.security("CBOT:ZN1!", timeframe.period, low)
+ZN_close = request.security("CBOT:ZN1!", timeframe.period, close)
+ZN_tick_size = request.security("CBOT:ZN1!", timeframe.period, syminfo.mintick)
+
 E6_open = request.security("CME:6E1!", timeframe.period, open)
 E6_high = request.security("CME:6E1!", timeframe.period, high)
 E6_low = request.security("CME:6E1!", timeframe.period, low)
+E6_close = request.security("CME:6E1!", timeframe.period, close)
+E6_tick_size = request.security("CME:6E1!", timeframe.period, syminfo.mintick)
+
 GC_open = request.security("COMEX_MINI:MGC1!", timeframe.period, open)
 GC_high = request.security("COMEX_MINI:MGC1!", timeframe.period, high)
 GC_low = request.security("COMEX_MINI:MGC1!", timeframe.period, low)
-
-ZN_tick_size = request.security("CBOT:ZN1!", timeframe.period, syminfo.mintick)
-E6_tick_size = request.security("CME:6E1!", timeframe.period, syminfo.mintick)
+GC_close = request.security("COMEX_MINI:MGC1!", timeframe.period, close)
 GC_tick_size = request.security("COMEX_MINI:MGC1!", timeframe.period, syminfo.mintick)
 
-// MACRO STATE (range-band classification)
+// MACRO + GC STATE (range-position model — continuation exhaustion + reversal trigger)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // 1 = supportive, 0 = neutral, -1 = hostile
 
-MACRO_RANGE_LOOKBACK = 12
-MACRO_UPPER_BAND = 0.65
-MACRO_LOWER_BAND = 0.35
+ZN_RANGE_LOOKBACK = 30
+ZN_UPPER_BAND = 0.7
+ZN_LOWER_BAND = 0.3
 
-ZN_recent_high = ta.highest(ZN_high[1], MACRO_RANGE_LOOKBACK)
-ZN_recent_low = ta.lowest(ZN_low[1], MACRO_RANGE_LOOKBACK)
+E6_RANGE_LOOKBACK = 30
+E6_UPPER_BAND = 0.7
+E6_LOWER_BAND = 0.3
+
+GC_RANGE_LOOKBACK = 30
+GC_UPPER_BAND = 0.7
+GC_LOWER_BAND = 0.3
+
+// ZN
+ZN_recent_high = ta.highest(ZN_high[1], ZN_RANGE_LOOKBACK)
+ZN_recent_low = ta.lowest(ZN_low[1], ZN_RANGE_LOOKBACK)
 ZN_range = ZN_recent_high - ZN_recent_low
 ZN_position = ZN_range > 0 ? (ZN_open - ZN_recent_low) / ZN_range : 0.5
 
-E6_recent_high = ta.highest(E6_high[1], MACRO_RANGE_LOOKBACK)
-E6_recent_low = ta.lowest(E6_low[1], MACRO_RANGE_LOOKBACK)
+ZN_state =
+     ZN_position > ZN_UPPER_BAND ? 1 :
+     ZN_LOWER_BAND > ZN_position ? -1 :
+     0
+
+// E6
+E6_recent_high = ta.highest(E6_high[1], E6_RANGE_LOOKBACK)
+E6_recent_low = ta.lowest(E6_low[1], E6_RANGE_LOOKBACK)
 E6_range = E6_recent_high - E6_recent_low
 E6_position = E6_range > 0 ? (E6_open - E6_recent_low) / E6_range : 0.5
 
-ZN_state =
-     ZN_position > MACRO_UPPER_BAND ? 1 :
-     MACRO_LOWER_BAND > ZN_position ? -1 :
-     0
-
 E6_state =
-     E6_position > MACRO_UPPER_BAND ? 1 :
-     MACRO_LOWER_BAND > E6_position ? -1 :
+     E6_position > E6_UPPER_BAND ? 1 :
+     E6_LOWER_BAND > E6_position ? -1 :
      0
 
-isMacroLong = ZN_state == 1 and E6_state == 1
-isMacroShort = ZN_state == -1 and E6_state == -1
-isMacroMixed = not isMacroLong and not isMacroShort
+// GC
+GC_recent_high = ta.highest(GC_high[1], GC_RANGE_LOOKBACK)
+GC_recent_low = ta.lowest(GC_low[1], GC_RANGE_LOOKBACK)
+GC_range = GC_recent_high - GC_recent_low
+GC_position = GC_range > 0 ? (GC_open - GC_recent_low) / GC_range : 0.5
 
-// GC LOGIC
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+GC_state =
+     GC_position > GC_UPPER_BAND ? 1 :
+     GC_LOWER_BAND > GC_position ? -1 :
+     0
 
-GC_lastBarPulledBackForLong =
-     GC_high[2] > GC_high[1] and
-     GC_low[2] > GC_low[1]
+// MACRO ALIGNMENT
+isMacroSupportive = ZN_state == 1 and E6_state == 1
+isMacroHostile = ZN_state == -1 and E6_state == -1
 
-GC_lastBarBouncedForShort =
+// CONTINUATION EXHAUSTION SETUPS
+isBullContinuationExhausted = isMacroSupportive and GC_state == 1
+isBearContinuationExhausted = isMacroHostile and GC_state == -1
+
+// REVERSAL TRIGGER
+GC_previousBarWasBullishPush =
      GC_high[1] > GC_high[2] and
      GC_low[1] > GC_low[2]
 
-GC_isLongSignal =
-     isMacroLong and
-     GC_lastBarPulledBackForLong
+GC_previousBarWasBearishPush =
+     GC_high[2] > GC_high[1] and
+     GC_low[2] > GC_low[1]
 
-GC_isShortSignal =
-     isMacroShort and
-     GC_lastBarBouncedForShort
+GC_isLongReversalTrigger =
+     isBearContinuationExhausted and
+     GC_previousBarWasBullishPush and
+     GC_high > GC_high[1] and
+     GC_low > GC_low[1]
+
+GC_isShortReversalTrigger =
+     isBullContinuationExhausted and
+     GC_previousBarWasBearishPush and
+     GC_high[1] > GC_high and
+     GC_low[1] > GC_low
+
+isLongSignal = GC_isLongReversalTrigger
+isShortSignal = GC_isShortReversalTrigger
 
 // PLOT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -104,8 +138,11 @@ barColor =
      isE6 and E6_state == -1 ? short_color :
      isE6 ? color.new(E6_color, 70) :
 
-     isGC and GC_isLongSignal ? long_color :
-     isGC and GC_isShortSignal ? short_color :
+     isGC and isLongSignal ? long_color :
+     isGC and isShortSignal ? short_color :
      isGC ? GC_color : na
 
 barcolor(barColor)
+
+plotshape(isLongSignal and isGC, style = shape.circle, location = location.belowbar, color = color.blue, size = size.small)
+plotshape(isShortSignal and isGC, style = shape.circle, location = location.abovebar, color = color.red, size = size.small)
