@@ -7,9 +7,12 @@ indicator(
 // INPUT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ZN_LOOKBACK = 20
-E6_LOOKBACK = 10
-GC_LOOKBACK = 20
+ZN_LOOKBACK = 5
+E6_LOOKBACK = 5
+GC_LOOKBACK = 5
+
+ZN_NUETRAL_TICKS = 0
+E6_NUETRAL_TICKS = 0
 
 // DATA
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -25,64 +28,85 @@ E6_low = request.security("CME:6E1!", timeframe.period, low)
 GC_high = request.security("COMEX:GC1!", timeframe.period, high)
 GC_low = request.security("COMEX:GC1!", timeframe.period, low)
 
-// ZN LOGIC
+ZN_tick_size = request.security("CBOT:ZN1!", timeframe.period, syminfo.mintick)
+E6_tick_size = request.security("CME:6E1!", timeframe.period, syminfo.mintick)
+
+// MACRO STATE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ZN_isUpBar = ZN_high > ZN_high[1]
-ZN_isStrongUp = ZN_high > ta.highest(ZN_high[1], 2)
-ZN_isDownBar = ZN_low < ZN_low[1]
-ZN_isStrongDown = ZN_low < ta.lowest(ZN_low[1], 2)
-ZN_isUpImpulse = ZN_isUpBar or ZN_isStrongUp
-ZN_isDownImpulse = ZN_isDownBar or ZN_isStrongDown
+// 1 = supportive, -1 = hostile
+var ZN_state = 1
+var E6_state = 1
 
-ZN_rangeHigh = ta.highest(ZN_high, ZN_LOOKBACK)
-ZN_rangeLow = ta.lowest(ZN_low, ZN_LOOKBACK)
-ZN_isNearHigh = ZN_high >= ZN_rangeHigh - (ZN_rangeHigh - ZN_rangeLow) * 0.2
-ZN_isNearLow = ZN_low <= ZN_rangeLow + (ZN_rangeHigh - ZN_rangeLow) * 0.2
+ZN_high_tick_change = math.round((ZN_high - ZN_high[1]) / ZN_tick_size)
+ZN_low_tick_change = math.round((ZN_low - ZN_low[1]) / ZN_tick_size)
+ZN_bar_score = ZN_high_tick_change + ZN_low_tick_change
 
-ZN_isSupportive = ZN_isUpImpulse and not ZN_isNearLow
-ZN_isHostile = ZN_isDownImpulse and not ZN_isNearHigh
+E6_high_tick_change = math.round((E6_high - E6_high[1]) / E6_tick_size)
+E6_low_tick_change = math.round((E6_low - E6_low[1]) / E6_tick_size)
+E6_bar_score = E6_high_tick_change + E6_low_tick_change
 
-// E6 LOGIC
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ZN_total_score = math.sum(ZN_bar_score, ZN_LOOKBACK)
+E6_total_score = math.sum(E6_bar_score, E6_LOOKBACK)
 
-E6_isUpBar = E6_high > E6_high[1]
-E6_isStrongUp = E6_high > ta.highest(E6_high[1], 2)
-E6_isDownBar = E6_low < E6_low[1]
-E6_isStrongDown = E6_low < ta.lowest(E6_low[1], 2)
-E6_isUpImpulse = E6_isUpBar or E6_isStrongUp
-E6_isDownImpulse = E6_isDownBar or E6_isStrongDown
+ZN_state :=
+     ZN_total_score > 0 ? 1 :
+     ZN_total_score < 0 ? -1 :
+     ZN_state[1]
 
-E6_rangeHigh = ta.highest(E6_high, E6_LOOKBACK)
-E6_rangeLow = ta.lowest(E6_low, E6_LOOKBACK)
-E6_isNearHigh = E6_high >= E6_rangeHigh - (E6_rangeHigh - E6_rangeLow) * 0.2
-E6_isNearLow = E6_low <= E6_rangeLow + (E6_rangeHigh - E6_rangeLow) * 0.2
+E6_state :=
+     E6_total_score > 0 ? 1 :
+     E6_total_score < 0 ? -1 :
+     E6_state[1]
 
-E6_isSupportive = E6_isUpImpulse and not E6_isNearLow
-E6_isHostile = E6_isDownImpulse and not E6_isNearHigh
+isMacroLong = ZN_state == 1 and E6_state == 1
+isMacroShort = ZN_state == -1 and E6_state == -1
+isMacroMixed = not isMacroLong and not isMacroShort
 
 // GC LOGIC
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-GC_isUpBar = GC_high > GC_high[1]
-GC_isStrongUp = GC_high > ta.highest(GC_high[1], 2)
-GC_isDownBar = GC_low < GC_low[1]
-GC_isStrongDown = GC_low < ta.lowest(GC_low[1], 2)
-GC_isUpImpulse = GC_isUpBar or GC_isStrongUp
-GC_isDownImpulse = GC_isDownBar or GC_isStrongDown
+// 1 = supportive, -1 = hostile
+var GC_state = 1
 
-GC_breakUp = GC_high > ta.highest(GC_high[1], GC_LOOKBACK)
-GC_breakDown = GC_low < ta.lowest(GC_low[1], GC_LOOKBACK)
+GC_tick_size = request.security("COMEX:GC1!", timeframe.period, syminfo.mintick)
 
-GC_isLong = GC_isUpImpulse and GC_breakUp
-GC_isShort = GC_isDownImpulse and GC_breakDown
+GC_high_tick_change = math.round((GC_high - GC_high[1]) / GC_tick_size)
+GC_low_tick_change = math.round((GC_low - GC_low[1]) / GC_tick_size)
+GC_bar_score = GC_high_tick_change + GC_low_tick_change
 
-// MACRO
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+GC_total_score = math.sum(GC_bar_score, GC_LOOKBACK)
 
-isMacroLong = ZN_isSupportive and E6_isSupportive
-isMacroShort = ZN_isHostile and E6_isHostile
-isMacroMixed = not isMacroLong and not isMacroShort
+GC_state :=
+     GC_total_score > 0 ? 1 :
+     GC_total_score < 0 ? -1 :
+     GC_state[1]
+
+GC_recent_high = ta.highest(GC_high[1], GC_LOOKBACK)
+GC_recent_low = ta.lowest(GC_low[1], GC_LOOKBACK)
+
+GC_pullback_ticks = math.round((GC_recent_high - open) / GC_tick_size)
+GC_bounce_ticks = math.round((open - GC_recent_low) / GC_tick_size)
+
+GC_hasPulledBackForLong = GC_pullback_ticks > 10
+GC_hasBouncedForShort = GC_bounce_ticks > 10
+
+GC_isLong = GC_state == 1 and isMacroLong
+GC_isShort = GC_state == -1 and isMacroShort
+
+GC_isLongSignal =
+     GC_state == 1 and
+     isMacroLong and
+     GC_bar_score > 0 and
+     GC_bar_score[1] < 0 and
+     GC_hasPulledBackForLong
+
+GC_isShortSignal =
+     GC_state == -1 and
+     isMacroShort and
+     GC_bar_score < 0 and
+     GC_bar_score[1] > 0 and
+     GC_hasBouncedForShort
 
 // PLOT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -94,16 +118,20 @@ long_color = color.blue
 short_color = color.red
 
 barColor =
-     isZN and ZN_isSupportive ? long_color :
-     isZN and ZN_isHostile ? short_color :
+     isZN and ZN_state == 1 ? long_color :
+     isZN and ZN_state == -1 ? short_color :
      isZN ? color.new(ZN_color, 70) :
 
-     isE6 and E6_isSupportive ? long_color :
-     isE6 and E6_isHostile ? short_color :
+     isE6 and E6_state == 1 ? long_color :
+     isE6 and E6_state == -1 ? short_color :
      isE6 ? color.new(E6_color, 70) :
 
-     isGC and isMacroLong ? long_color :
-     isGC and isMacroShort ? short_color :
+     isGC and GC_isLongSignal ? long_color :
+     isGC and GC_isShortSignal ? short_color :
+    //  isGC and GC_isLong ? long_color :
+    //  isGC and GC_isShort ? short_color :
+    //  isGC and GC_state == 1 ? long_color :
+    //  isGC and GC_state == -1 ? short_color :
      isGC ? GC_color : na
 
 barcolor(barColor)
