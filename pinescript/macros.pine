@@ -128,10 +128,6 @@ barColor =
 
      isGC and GC_isLongSignal ? long_color :
      isGC and GC_isShortSignal ? short_color :
-    //  isGC and GC_isLong ? long_color :
-    //  isGC and GC_isShort ? short_color :
-    //  isGC and GC_state == 1 ? long_color :
-    //  isGC and GC_state == -1 ? short_color :
      isGC ? GC_color : na
 
 barcolor(barColor)
