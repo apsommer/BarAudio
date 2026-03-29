@@ -7,10 +7,15 @@ indicator(
 // INPUT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-MACRO_ENTRY_PERSISTENCE_BARS = 3
-MACRO_EXIT_PERSISTENCE_BARS = 2
-GC_LOOKBACK = 5
-GC_POSITION_THRESHOLD = 0.60
+
+
+
+
+// SESSION CONTROL
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+sessionTimes = "1810-1659" // 10 minute warmup
+isInSession = not na(time(timeframe.period, sessionTimes))
 
 // MACRO REGIME
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -52,8 +57,13 @@ isMacroNuetral = not isMacroSupportive and not isMacroHostile
 // GC LOGIC
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-var bool isTradeActive = false
-var bool isLongTrade = false
+MACRO_ENTRY_PERSISTENCE_BARS = 3
+MACRO_EXIT_PERSISTENCE_BARS = 5
+GC_LOOKBACK = 5
+GC_POSITION_THRESHOLD = 0.60
+
+var bool isLongTradeActive = false
+var bool isShortTradeActive = false
 
 isMacroSupportivePersistent = math.sum(isMacroSupportive ? 1 : 0, MACRO_ENTRY_PERSISTENCE_BARS) == MACRO_ENTRY_PERSISTENCE_BARS
 isMacroHostilePersistent = math.sum(isMacroHostile ? 1 : 0, MACRO_ENTRY_PERSISTENCE_BARS) == MACRO_ENTRY_PERSISTENCE_BARS
@@ -66,34 +76,56 @@ GC_recent_low = ta.lowest(low[1], GC_LOOKBACK)
 GC_range = GC_recent_high - GC_recent_low
 GC_position = (open - GC_recent_low) / GC_range
 
-isGCPositionValidForLong = GC_position > GC_POSITION_THRESHOLD
-isGCPositionValidForShort = GC_position < (1 - GC_POSITION_THRESHOLD)
+isGCPositionValidForLong = true // GC_position > GC_POSITION_THRESHOLD
+isGCPositionValidForShort = true // GC_position < (1 - GC_POSITION_THRESHOLD)
 
 isLongSignal =
      isGCPositionValidForLong
-     and not isTradeActive
+     and not isLongTradeActive
+     and not isShortTradeActive
      and isMacroSupportivePersistent
      and not isMacroSupportivePersistent[1]
+     and isInSession
 
 isShortSignal =
      isGCPositionValidForShort
-     and not isTradeActive
+     and not isLongTradeActive
+     and not isShortTradeActive
      and isMacroHostilePersistent
      and not isMacroHostilePersistent[1]
+     and isInSession
 
-isLongExit = isTradeActive and isLongTrade and isMacroNotSupportivePersistent and not isMacroNotSupportivePersistent[1]
-isShortExit = isTradeActive and not isLongTrade and isMacroNotHostilePersistent and not isMacroNotHostilePersistent[1]
+isLongExit =
+     isLongTradeActive
+     and (
+          not isInSession
+          or (
+               isMacroNotSupportivePersistent
+               and not isMacroNotSupportivePersistent[1]
+          )
+     )
 
+isShortExit =
+     isShortTradeActive
+     and (
+          not isInSession
+          or (
+               isMacroNotHostilePersistent
+               and not isMacroNotHostilePersistent[1]
+          )
+     )
+
+// update stae
 if isLongSignal
-    isTradeActive := true
-    isLongTrade := true
-
+    isLongTradeActive := true
+    isShortTradeActive := false
 if isShortSignal
-    isTradeActive := true
-    isLongTrade := false
-
-if isLongExit or isShortExit
-    isTradeActive := false
+    isLongTradeActive := false
+    isShortTradeActive := true
+if isLongExit
+    isLongTradeActive := false
+if isShortExit
+    isShortTradeActive := false
 
 // PLOT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
