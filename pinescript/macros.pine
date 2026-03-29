@@ -184,5 +184,23 @@ plotshape(
      color = short_color,
      size = size.tiny)
 
-gc_vwap = ta.vwap(close)
-plot(isGC ? gc_vwap : na, color = color.new(color.white, 70), linewidth = 1)
+// vwap
+ZN_vwap = request.security(
+     "CBOT:ZN1!",
+     timeframe.period,
+     ta.vwap(open),
+     gaps = barmerge.gaps_on,
+     lookahead = barmerge.lookahead_off)
+
+E6_vwap = request.security(
+     "CME:6E1!",
+     timeframe.period,
+     ta.vwap(open),
+     gaps = barmerge.gaps_on,
+     lookahead = barmerge.lookahead_off)
+
+GC_vwap = ta.vwap(open)
+
+plot(isZN ? ZN_vwap : na, color = color.new(color.white, 70), linewidth = 1)
+plot(isE6 ? E6_vwap : na, color = color.new(color.white, 70), linewidth = 1)
+plot(isGC ? GC_vwap : na, color = color.new(color.white, 70), linewidth = 1)
