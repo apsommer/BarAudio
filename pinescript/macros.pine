@@ -7,69 +7,35 @@ indicator(
 // INPUT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ZN_CONFIRM_BARS = 2
-E6_CONFIRM_BARS = 2
+MACRO_VWAP_STD_LOOKBACK = 20
 
-GC_LOOKBACK = 10
-GC_PULLBACK_TICKS = 20
-
-// DATA
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-isZN = syminfo.root == "ZN"
-isE6 = syminfo.root == "6E"
-isGC = syminfo.root == "MGC"
-
-ZN_open = request.security("CBOT:ZN1!", timeframe.period, open)
-ZN_high = request.security("CBOT:ZN1!", timeframe.period, high)
-ZN_low = request.security("CBOT:ZN1!", timeframe.period, low)
-ZN_close = request.security("CBOT:ZN1!", timeframe.period, close)
-ZN_tick_size = request.security("CBOT:ZN1!", timeframe.period, syminfo.mintick)
-
-E6_open = request.security("CME:6E1!", timeframe.period, open)
-E6_high = request.security("CME:6E1!", timeframe.period, high)
-E6_low = request.security("CME:6E1!", timeframe.period, low)
-E6_close = request.security("CME:6E1!", timeframe.period, close)
-E6_tick_size = request.security("CME:6E1!", timeframe.period, syminfo.mintick)
-
-GC_open = request.security("COMEX_MINI:MGC1!", timeframe.period, open)
-GC_high = request.security("COMEX_MINI:MGC1!", timeframe.period, high)
-GC_low = request.security("COMEX_MINI:MGC1!", timeframe.period, low)
-GC_close = request.security("COMEX_MINI:MGC1!", timeframe.period, close)
-GC_tick_size = request.security("COMEX_MINI:MGC1!", timeframe.period, syminfo.mintick)
+GC_VWAP_STD_LOOKBACK = 20
+GC_VWAP_STD_MULTIPLIER = 1.5
 
 // MACRO REGIME
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // 1 = supportive, 0 = neutral, -1 = hostile
 
-MACRO_VWAP_STD_LOOKBACK = 20
+isZNsupportive = request.security(
+     "CBOT:ZN1!",
+     timeframe.period,
+     high - ta.vwap(high) + ta.stdev(high - ta.vwap(high), MACRO_VWAP_STD_LOOKBACK) > 0)
 
-var ZN_state = 0
-var E6_state = 0
+isZNhostile = request.security(
+     "CBOT:ZN1!",
+     timeframe.period,
+     ta.stdev(low - ta.vwap(low), MACRO_VWAP_STD_LOOKBACK) - (low - ta.vwap(low)) > 0)
 
-ZN_vwap_high = ta.vwap(ZN_high)
-ZN_vwap_low = ta.vwap(ZN_low)
-E6_vwap_high = ta.vwap(E6_high)
-E6_vwap_low = ta.vwap(E6_low)
+isE6supportive = request.security(
+     "CME:6E1!",
+     timeframe.period,
+     high - ta.vwap(high) + ta.stdev(high - ta.vwap(high), MACRO_VWAP_STD_LOOKBACK) > 0)
 
-ZN_vwap_distance_high = ZN_high - ZN_vwap_high
-ZN_vwap_distance_low = ZN_low - ZN_vwap_low
-E6_vwap_distance_high = E6_high - E6_vwap_high
-E6_vwap_distance_low = E6_low - E6_vwap_low
-
-ZN_vwap_std_high = ta.stdev(ZN_high - ZN_vwap_high, MACRO_VWAP_STD_LOOKBACK)
-ZN_vwap_std_low = ta.stdev(ZN_low - ZN_vwap_low, MACRO_VWAP_STD_LOOKBACK)
-E6_vwap_std_high = ta.stdev(E6_high - E6_vwap_high, MACRO_VWAP_STD_LOOKBACK)
-E6_vwap_std_low = ta.stdev(E6_low - E6_vwap_low, MACRO_VWAP_STD_LOOKBACK)
-
-ZN_state := ZN_high > ZN_high[1] ? 1 : ZN_low[1] > ZN_low ? -1 : ZN_state[1]
-E6_state := E6_high > E6_high[1] ? 1 : E6_low[1] > E6_low ? -1 : E6_state[1]
-
-isZNsupportive = ZN_vwap_distance_high + ZN_vwap_std_high > 0
-isE6supportive = E6_vwap_distance_high + E6_vwap_std_high > 0
-isZNhostile = ZN_vwap_std_low - ZN_vwap_distance_low > 0
-isE6hostile = E6_vwap_std_low - E6_vwap_distance_low > 0
+isE6hostile = request.security(
+     "CME:6E1!",
+     timeframe.period,
+     ta.stdev(low - ta.vwap(low), MACRO_VWAP_STD_LOOKBACK) - (low - ta.vwap(low)) > 0)
 
 isMacroSupportive = isZNsupportive and isE6supportive
 isMacroHostile = isZNhostile and isE6hostile
@@ -78,41 +44,54 @@ isMacroNuetral = not isMacroSupportive and not isMacroHostile
 // GC LOGIC
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-GC_VWAP_STD_LOOKBACK = 20
+GC_vwap_high = ta.vwap(high)
+GC_vwap_low = ta.vwap(low)
 
-GC_vwap_high = ta.vwap(GC_high)
-GC_vwap_low = ta.vwap(GC_low)
-
-GC_vwap_distance_high = GC_high - GC_vwap_high
-GC_vwap_distance_low = GC_low - GC_vwap_low
+GC_vwap_distance_high = high - GC_vwap_high
+GC_vwap_distance_low = low - GC_vwap_low
 
 GC_vwap_std_high = ta.stdev(GC_vwap_distance_high, GC_VWAP_STD_LOOKBACK)
 GC_vwap_std_low = ta.stdev(GC_vwap_distance_low, GC_VWAP_STD_LOOKBACK)
 
-isGcdamagedForLong = GC_vwap_std_low + GC_vwap_distance_low < 0
-isGcdamagedForShort = GC_vwap_distance_high - GC_vwap_std_high > 0
+isGcdamagedForLong = GC_vwap_std_low * GC_VWAP_STD_MULTIPLIER + GC_vwap_distance_low < 0
+isGcdamagedForShort = GC_vwap_distance_high - GC_vwap_std_high * GC_VWAP_STD_MULTIPLIER > 0
 
 // GC CASCADE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-GC_CASCADE_TICKS = 120
+GC_CASCADE_TICKS = 100
+GC_REPAIR_LOOKBACK = 4
 
-GC_range_tick = math.round((GC_high - GC_low) / GC_tick_size)
+var float GC_downCascadeOriginHigh = na
+var float GC_downCascadeLow = na
+var float GC_upCascadeOriginLow = na
+var float GC_upCascadeHigh = na
+
+GC_range_tick = math.round((high - low) / syminfo.mintick)
 GC_isCascade = GC_range_tick > GC_CASCADE_TICKS
 
-GC_isDownCascade = GC_isCascade and GC_low[1] - GC_low > GC_high - GC_high[1]
-GC_isUpCascade = GC_isCascade and GC_high - GC_high[1] > GC_low[1] - GC_low
+GC_isDownCascade = GC_isCascade and low[1] - low > high - high[1]
+GC_isUpCascade = GC_isCascade and high - high[1] > low[1] - low
 
-GC_REPAIR_LOOKBACK = 3
+if GC_isDownCascade
+    GC_downCascadeOriginHigh := high
+    GC_downCascadeLow := low
+
+if GC_isUpCascade
+    GC_upCascadeOriginLow := low
+    GC_upCascadeHigh := high
 
 GC_hadRecentDownCascade = ta.barssince(GC_isDownCascade) < GC_REPAIR_LOOKBACK
 GC_hadRecentUpCascade = ta.barssince(GC_isUpCascade) < GC_REPAIR_LOOKBACK
 
-GC_isRepairingLong = GC_hadRecentDownCascade and GC_low > GC_low[1] and GC_high > GC_high[1]
-GC_isRepairingShort = GC_hadRecentUpCascade and GC_high[1] > GC_high and GC_low[1] > GC_low
+GC_downCascadeMid = (GC_downCascadeOriginHigh + GC_downCascadeLow) / 2
+GC_upCascadeMid = (GC_upCascadeOriginLow + GC_upCascadeHigh) / 2
 
-isLongSignal = isGcdamagedForLong and GC_isRepairingLong
-isShortSignal = isGcdamagedForShort and GC_isRepairingShort
+GC_isRepairingLong = GC_hadRecentDownCascade and low > low[1] and high > high[1]
+GC_isRepairingShort = GC_hadRecentUpCascade and high[1] > high and low[1] > low
+
+isLongSignal = isMacroSupportive and isGcdamagedForLong and GC_isRepairingLong and GC_downCascadeMid > low
+isShortSignal = isMacroHostile and isGcdamagedForShort and GC_isRepairingShort and high > GC_upCascadeMid
 
 // PLOT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -123,42 +102,29 @@ GC_color = color.yellow
 long_color = color.blue
 short_color = color.red
 
-// ZN bands
-plot(isZN ? ZN_vwap_high + ZN_vwap_std_high : na, color = short_color)
-plot(isZN ? ZN_vwap_low - ZN_vwap_std_low : na, color = long_color)
-
-// E6 bands
-plot(isE6 ? E6_vwap_high + E6_vwap_std_high : na, color = short_color)
-plot(isE6 ? E6_vwap_low - E6_vwap_std_low : na, color = long_color)
+isZN = syminfo.root == "ZN"
+isE6 = syminfo.root == "6E"
+isGC = syminfo.root == "MGC"
 
 // GC bands
-plot(isGC ? GC_vwap_high + GC_vwap_std_high : na, color = short_color)
-plot(isGC ? GC_vwap_low - GC_vwap_std_low : na, color = long_color)
+plot(isGC ? GC_vwap_high + GC_vwap_std_high * GC_VWAP_STD_MULTIPLIER : na, color = short_color)
+plot(isGC ? GC_vwap_low - GC_vwap_std_low * GC_VWAP_STD_MULTIPLIER : na, color = long_color)
 
 // bar colors (ZN + E6 only)
 barColor =
-     isZN and ZN_state == 1 ? long_color :
-     isZN and ZN_state == -1 ? short_color :
+     isZN and isZNsupportive ? long_color :
+     isZN and isZNhostile ? short_color :
      isZN ? color.new(ZN_color, 70) :
 
-     isE6 and E6_state == 1 ? long_color :
-     isE6 and E6_state == -1 ? short_color :
-     isE6 ? color.new(E6_color, 70) : na
+     isE6 and isE6supportive ? long_color :
+     isE6 and isE6hostile ? short_color :
+     isE6 ? color.new(E6_color, 70) :
+
+     isGC and isMacroSupportive ? color.new(long_color, 50) :
+     isGC and isMacroHostile ? color.new(short_color, 50) :
+     isGC ? color.new(GC_color, 70) : na
 
 barcolor(barColor)
-
-// signals
-plot(
-     isGC and isLongSignal ? open : na,
-     style = plot.style_circles,
-     color = long_color,
-     linewidth = 6)
-
-plot(
-     isGC and isShortSignal ? open : na,
-     style = plot.style_circles,
-     color = short_color,
-     linewidth = 6)
 
 // cascade
 plotshape(
@@ -177,3 +143,18 @@ plotshape(
      color = long_color,
      size = size.tiny)
 
+// signals
+GC_longEntryPlot = GC_downCascadeMid > high ? high : GC_downCascadeMid
+GC_shortEntryPlot = low > GC_upCascadeMid ? low : GC_upCascadeMid
+
+plot(
+     isGC and isLongSignal ? GC_longEntryPlot : na,
+     style = plot.style_circles,
+     color = long_color,
+     linewidth = 6)
+
+plot(
+     isGC and isShortSignal ? GC_shortEntryPlot : na,
+     style = plot.style_circles,
+     color = short_color,
+     linewidth = 6)
