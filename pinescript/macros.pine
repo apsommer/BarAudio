@@ -38,83 +38,81 @@ GC_low = request.security("COMEX_MINI:MGC1!", timeframe.period, low)
 GC_close = request.security("COMEX_MINI:MGC1!", timeframe.period, close)
 GC_tick_size = request.security("COMEX_MINI:MGC1!", timeframe.period, syminfo.mintick)
 
-// MACRO + GC STATE (range-position model — continuation exhaustion + reversal trigger)
+// MACRO REGIME
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // 1 = supportive, 0 = neutral, -1 = hostile
 
-ZN_RANGE_LOOKBACK = 30
-ZN_UPPER_BAND = 0.7
-ZN_LOWER_BAND = 0.3
+MACRO_VWAP_STD_LOOKBACK = 20
 
-E6_RANGE_LOOKBACK = 30
-E6_UPPER_BAND = 0.7
-E6_LOWER_BAND = 0.3
+var ZN_state = 0
+var E6_state = 0
 
-// ZN
-ZN_recent_high = ta.highest(ZN_high[1], ZN_RANGE_LOOKBACK)
-ZN_recent_low = ta.lowest(ZN_low[1], ZN_RANGE_LOOKBACK)
-ZN_range = ZN_recent_high - ZN_recent_low
-ZN_position = ZN_range > 0 ? (ZN_open - ZN_recent_low) / ZN_range : 0.5
+ZN_vwap_high = ta.vwap(ZN_high)
+ZN_vwap_low = ta.vwap(ZN_low)
+E6_vwap_high = ta.vwap(E6_high)
+E6_vwap_low = ta.vwap(E6_low)
 
-ZN_state = ZN_position > ZN_UPPER_BAND ? 1 : ZN_LOWER_BAND > ZN_position ? -1 : 0
+ZN_vwap_distance_high = ZN_high - ZN_vwap_high
+ZN_vwap_distance_low = ZN_low - ZN_vwap_low
+E6_vwap_distance_high = E6_high - E6_vwap_high
+E6_vwap_distance_low = E6_low - E6_vwap_low
 
-// E6
-E6_recent_high = ta.highest(E6_high[1], E6_RANGE_LOOKBACK)
-E6_recent_low = ta.lowest(E6_low[1], E6_RANGE_LOOKBACK)
-E6_range = E6_recent_high - E6_recent_low
-E6_position = E6_range > 0 ? (E6_open - E6_recent_low) / E6_range : 0.5
+ZN_vwap_std_high = ta.stdev(ZN_high - ZN_vwap_high, MACRO_VWAP_STD_LOOKBACK)
+ZN_vwap_std_low = ta.stdev(ZN_low - ZN_vwap_low, MACRO_VWAP_STD_LOOKBACK)
+E6_vwap_std_high = ta.stdev(E6_high - E6_vwap_high, MACRO_VWAP_STD_LOOKBACK)
+E6_vwap_std_low = ta.stdev(E6_low - E6_vwap_low, MACRO_VWAP_STD_LOOKBACK)
 
-E6_state = E6_position > E6_UPPER_BAND ? 1 : E6_LOWER_BAND > E6_position ? -1 : 0
+ZN_state := ZN_high > ZN_high[1] ? 1 : ZN_low[1] > ZN_low ? -1 : ZN_state[1]
+E6_state := E6_high > E6_high[1] ? 1 : E6_low[1] > E6_low ? -1 : E6_state[1]
 
-isMacroSupportive = ZN_state == 1 and E6_state == 1
-isMacroHostile = ZN_state == -1 and E6_state == -1
+isZNsupportive = ZN_vwap_distance_high + ZN_vwap_std_high > 0
+isE6supportive = E6_vwap_distance_high + E6_vwap_std_high > 0
+isZNhostile = ZN_vwap_std_low - ZN_vwap_distance_low > 0
+isE6hostile = E6_vwap_std_low - E6_vwap_distance_low > 0
+
+isMacroSupportive = isZNsupportive and isE6supportive
+isMacroHostile = isZNhostile and isE6hostile
 isMacroNuetral = not isMacroSupportive and not isMacroHostile
 
-// GC CASCADE DETECTION
+// GC LOGIC
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// threshold (ticks)
-GC_CASCADE_TICKS = 50
+GC_VWAP_STD_LOOKBACK = 20
 
-// tick movement
-GC_body_tick_change = math.round((GC_close - GC_open) / GC_tick_size)
+GC_vwap_high = ta.vwap(GC_high)
+GC_vwap_low = ta.vwap(GC_low)
+
+GC_vwap_distance_high = GC_high - GC_vwap_high
+GC_vwap_distance_low = GC_low - GC_vwap_low
+
+GC_vwap_std_high = ta.stdev(GC_vwap_distance_high, GC_VWAP_STD_LOOKBACK)
+GC_vwap_std_low = ta.stdev(GC_vwap_distance_low, GC_VWAP_STD_LOOKBACK)
+
+isGcdamagedForLong = GC_vwap_std_low + GC_vwap_distance_low < 0
+isGcdamagedForShort = GC_vwap_distance_high - GC_vwap_std_high > 0
+
+// GC CASCADE
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+GC_CASCADE_TICKS = 120
+
 GC_range_tick = math.round((GC_high - GC_low) / GC_tick_size)
+GC_isCascade = GC_range_tick > GC_CASCADE_TICKS
 
-// directional bodies
-GC_isDownBody = GC_open > GC_close
-GC_isUpBody = GC_close > GC_open
+GC_isDownCascade = GC_isCascade and GC_low[1] - GC_low > GC_high - GC_high[1]
+GC_isUpCascade = GC_isCascade and GC_high - GC_high[1] > GC_low[1] - GC_low
 
-// displacement conditions (force, not noise)
-GC_hasLargeDownBody = GC_isDownBody and (GC_body_tick_change * -1) > GC_CASCADE_TICKS
-GC_hasLargeUpBody = GC_isUpBody and GC_body_tick_change > GC_CASCADE_TICKS
+GC_REPAIR_LOOKBACK = 3
 
-// optional: require expansion (avoid small-range prints)
-GC_hasExpansion = GC_range_tick > GC_CASCADE_TICKS
+GC_hadRecentDownCascade = ta.barssince(GC_isDownCascade) < GC_REPAIR_LOOKBACK
+GC_hadRecentUpCascade = ta.barssince(GC_isUpCascade) < GC_REPAIR_LOOKBACK
 
-// final cascade signals
-GC_isDownCascade = GC_hasLargeDownBody and GC_hasExpansion
-GC_isUpCascade = GC_hasLargeUpBody and GC_hasExpansion
+GC_isRepairingLong = GC_hadRecentDownCascade and GC_low > GC_low[1] and GC_high > GC_high[1]
+GC_isRepairingShort = GC_hadRecentUpCascade and GC_high[1] > GC_high and GC_low[1] > GC_low
 
-// PLOT CASCADES
-plotshape(
-     isGC and GC_isDownCascade,
-     title = "GC Down Cascade",
-     style = shape.triangledown,
-     location = location.abovebar,
-     color = color.red,
-     size = size.small)
-
-plotshape(
-     isGC and GC_isUpCascade,
-     title = "GC Up Cascade",
-     style = shape.triangleup,
-     location = location.belowbar,
-     color = color.blue,
-     size = size.small)
-
-isLongSignal = isMacroSupportive
-isShortSignal = isMacroHostile
+isLongSignal = isGcdamagedForLong and GC_isRepairingLong
+isShortSignal = isGcdamagedForShort and GC_isRepairingShort
 
 // PLOT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -125,6 +123,19 @@ GC_color = color.yellow
 long_color = color.blue
 short_color = color.red
 
+// ZN bands
+plot(isZN ? ZN_vwap_high + ZN_vwap_std_high : na, color = short_color)
+plot(isZN ? ZN_vwap_low - ZN_vwap_std_low : na, color = long_color)
+
+// E6 bands
+plot(isE6 ? E6_vwap_high + E6_vwap_std_high : na, color = short_color)
+plot(isE6 ? E6_vwap_low - E6_vwap_std_low : na, color = long_color)
+
+// GC bands
+plot(isGC ? GC_vwap_high + GC_vwap_std_high : na, color = short_color)
+plot(isGC ? GC_vwap_low - GC_vwap_std_low : na, color = long_color)
+
+// bar colors (ZN + E6 only)
 barColor =
      isZN and ZN_state == 1 ? long_color :
      isZN and ZN_state == -1 ? short_color :
@@ -132,10 +143,37 @@ barColor =
 
      isE6 and E6_state == 1 ? long_color :
      isE6 and E6_state == -1 ? short_color :
-     isE6 ? color.new(E6_color, 70) :
-
-     isGC and isLongSignal ? long_color :
-     isGC and isShortSignal ? short_color :
-     isGC ? GC_color : na
+     isE6 ? color.new(E6_color, 70) : na
 
 barcolor(barColor)
+
+// signals
+plot(
+     isGC and isLongSignal ? open : na,
+     style = plot.style_circles,
+     color = long_color,
+     linewidth = 6)
+
+plot(
+     isGC and isShortSignal ? open : na,
+     style = plot.style_circles,
+     color = short_color,
+     linewidth = 6)
+
+// cascade
+plotshape(
+     isGC and GC_isDownCascade,
+     title = "GC Down Cascade",
+     style = shape.triangledown,
+     location = location.abovebar,
+     color = short_color,
+     size = size.tiny)
+
+plotshape(
+     isGC and GC_isUpCascade,
+     title = "GC Up Cascade",
+     style = shape.triangleup,
+     location = location.belowbar,
+     color = long_color,
+     size = size.tiny)
+
