@@ -20,22 +20,30 @@ GC_VWAP_STD_MULTIPLIER = 1.5
 isZNsupportive = request.security(
      "CBOT:ZN1!",
      timeframe.period,
-     high - ta.vwap(high) + ta.stdev(high - ta.vwap(high), MACRO_VWAP_STD_LOOKBACK) > 0)
+     open > ta.vwap(open),
+     gaps = barmerge.gaps_on,
+     lookahead = barmerge.lookahead_off)
 
 isZNhostile = request.security(
      "CBOT:ZN1!",
      timeframe.period,
-     ta.stdev(low - ta.vwap(low), MACRO_VWAP_STD_LOOKBACK) - (low - ta.vwap(low)) > 0)
+     open < ta.vwap(open),
+     gaps = barmerge.gaps_on,
+     lookahead = barmerge.lookahead_off)
 
 isE6supportive = request.security(
      "CME:6E1!",
      timeframe.period,
-     high - ta.vwap(high) + ta.stdev(high - ta.vwap(high), MACRO_VWAP_STD_LOOKBACK) > 0)
+     open > ta.vwap(open),
+     gaps = barmerge.gaps_on,
+     lookahead = barmerge.lookahead_off)
 
 isE6hostile = request.security(
      "CME:6E1!",
      timeframe.period,
-     ta.stdev(low - ta.vwap(low), MACRO_VWAP_STD_LOOKBACK) - (low - ta.vwap(low)) > 0)
+     open < ta.vwap(open),
+     gaps = barmerge.gaps_on,
+     lookahead = barmerge.lookahead_off)
 
 isMacroSupportive = isZNsupportive and isE6supportive
 isMacroHostile = isZNhostile and isE6hostile
@@ -44,54 +52,13 @@ isMacroNuetral = not isMacroSupportive and not isMacroHostile
 // GC LOGIC
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-GC_vwap_high = ta.vwap(high)
-GC_vwap_low = ta.vwap(low)
+MACRO_PERSISTENCE_BARS = 5
 
-GC_vwap_distance_high = high - GC_vwap_high
-GC_vwap_distance_low = low - GC_vwap_low
+isMacroSupportivePersistent = math.sum(isMacroSupportive ? 1 : 0, MACRO_PERSISTENCE_BARS) == MACRO_PERSISTENCE_BARS
+isMacroHostilePersistent = math.sum(isMacroHostile ? 1 : 0, MACRO_PERSISTENCE_BARS) == MACRO_PERSISTENCE_BARS
 
-GC_vwap_std_high = ta.stdev(GC_vwap_distance_high, GC_VWAP_STD_LOOKBACK)
-GC_vwap_std_low = ta.stdev(GC_vwap_distance_low, GC_VWAP_STD_LOOKBACK)
-
-isGcdamagedForLong = GC_vwap_std_low * GC_VWAP_STD_MULTIPLIER + GC_vwap_distance_low < 0
-isGcdamagedForShort = GC_vwap_distance_high - GC_vwap_std_high * GC_VWAP_STD_MULTIPLIER > 0
-
-// GC CASCADE
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-GC_CASCADE_TICKS = 100
-GC_REPAIR_LOOKBACK = 4
-
-var float GC_downCascadeOriginHigh = na
-var float GC_downCascadeLow = na
-var float GC_upCascadeOriginLow = na
-var float GC_upCascadeHigh = na
-
-GC_range_tick = math.round((high - low) / syminfo.mintick)
-GC_isCascade = GC_range_tick > GC_CASCADE_TICKS
-
-GC_isDownCascade = GC_isCascade and low[1] - low > high - high[1]
-GC_isUpCascade = GC_isCascade and high - high[1] > low[1] - low
-
-if GC_isDownCascade
-    GC_downCascadeOriginHigh := high
-    GC_downCascadeLow := low
-
-if GC_isUpCascade
-    GC_upCascadeOriginLow := low
-    GC_upCascadeHigh := high
-
-GC_hadRecentDownCascade = ta.barssince(GC_isDownCascade) < GC_REPAIR_LOOKBACK
-GC_hadRecentUpCascade = ta.barssince(GC_isUpCascade) < GC_REPAIR_LOOKBACK
-
-GC_downCascadeMid = (GC_downCascadeOriginHigh + GC_downCascadeLow) / 2
-GC_upCascadeMid = (GC_upCascadeOriginLow + GC_upCascadeHigh) / 2
-
-GC_isRepairingLong = GC_hadRecentDownCascade and low > low[1] and high > high[1]
-GC_isRepairingShort = GC_hadRecentUpCascade and high[1] > high and low[1] > low
-
-isLongSignal = isMacroSupportive and isGcdamagedForLong and GC_isRepairingLong and GC_downCascadeMid > low
-isShortSignal = isMacroHostile and isGcdamagedForShort and GC_isRepairingShort and high > GC_upCascadeMid
+isLongSignal = isMacroSupportivePersistent and not isMacroSupportivePersistent[1]
+isShortSignal = isMacroHostilePersistent and not isMacroHostilePersistent[1]
 
 // PLOT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -105,10 +72,6 @@ short_color = color.red
 isZN = syminfo.root == "ZN"
 isE6 = syminfo.root == "6E"
 isGC = syminfo.root == "MGC"
-
-// GC bands
-plot(isGC ? GC_vwap_high + GC_vwap_std_high * GC_VWAP_STD_MULTIPLIER : na, color = short_color)
-plot(isGC ? GC_vwap_low - GC_vwap_std_low * GC_VWAP_STD_MULTIPLIER : na, color = long_color)
 
 // bar colors (ZN + E6 only)
 barColor =
@@ -126,35 +89,17 @@ barColor =
 
 barcolor(barColor)
 
-// cascade
-plotshape(
-     isGC and GC_isDownCascade,
-     title = "GC Down Cascade",
-     style = shape.triangledown,
-     location = location.abovebar,
-     color = short_color,
-     size = size.tiny)
-
-plotshape(
-     isGC and GC_isUpCascade,
-     title = "GC Up Cascade",
-     style = shape.triangleup,
-     location = location.belowbar,
-     color = long_color,
-     size = size.tiny)
-
-// signals
-GC_longEntryPlot = GC_downCascadeMid > high ? high : GC_downCascadeMid
-GC_shortEntryPlot = low > GC_upCascadeMid ? low : GC_upCascadeMid
-
 plot(
-     isGC and isLongSignal ? GC_longEntryPlot : na,
+     isGC and isLongSignal ? open : na,
      style = plot.style_circles,
      color = long_color,
      linewidth = 6)
 
 plot(
-     isGC and isShortSignal ? GC_shortEntryPlot : na,
+     isGC and isShortSignal ? open : na,
      style = plot.style_circles,
      color = short_color,
      linewidth = 6)
+
+gc_vwap = ta.vwap(close)
+plot(isGC ? gc_vwap : na, color = color.new(color.white, 70), linewidth = 1)
