@@ -9,6 +9,8 @@ indicator(
 
 MACRO_ENTRY_PERSISTENCE_BARS = 3
 MACRO_EXIT_PERSISTENCE_BARS = 2
+GC_LOOKBACK = 5
+GC_POSITION_THRESHOLD = 0.60
 
 // MACRO REGIME
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -59,8 +61,25 @@ isMacroHostilePersistent = math.sum(isMacroHostile ? 1 : 0, MACRO_ENTRY_PERSISTE
 isMacroNotSupportivePersistent = math.sum(not isMacroSupportive ? 1 : 0, MACRO_EXIT_PERSISTENCE_BARS) == MACRO_EXIT_PERSISTENCE_BARS
 isMacroNotHostilePersistent = math.sum(not isMacroHostile ? 1 : 0, MACRO_EXIT_PERSISTENCE_BARS) == MACRO_EXIT_PERSISTENCE_BARS
 
-isLongSignal = not isTradeActive and isMacroSupportivePersistent and not isMacroSupportivePersistent[1]
-isShortSignal = not isTradeActive and isMacroHostilePersistent and not isMacroHostilePersistent[1]
+GC_recent_high = ta.highest(high[1], GC_LOOKBACK)
+GC_recent_low = ta.lowest(low[1], GC_LOOKBACK)
+GC_range = GC_recent_high - GC_recent_low
+GC_position = (open - GC_recent_low) / GC_range
+
+isGCPositionValidForLong = GC_position > GC_POSITION_THRESHOLD
+isGCPositionValidForShort = GC_position < (1 - GC_POSITION_THRESHOLD)
+
+isLongSignal =
+     isGCPositionValidForLong
+     and not isTradeActive
+     and isMacroSupportivePersistent
+     and not isMacroSupportivePersistent[1]
+
+isShortSignal =
+     isGCPositionValidForShort
+     and not isTradeActive
+     and isMacroHostilePersistent
+     and not isMacroHostilePersistent[1]
 
 isLongExit = isTradeActive and isLongTrade and isMacroNotSupportivePersistent and not isMacroNotSupportivePersistent[1]
 isShortExit = isTradeActive and not isLongTrade and isMacroNotHostilePersistent and not isMacroNotHostilePersistent[1]
