@@ -7,10 +7,8 @@ indicator(
 // INPUT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-MACRO_VWAP_STD_LOOKBACK = 20
-
-GC_VWAP_STD_LOOKBACK = 20
-GC_VWAP_STD_MULTIPLIER = 1.5
+MACRO_ENTRY_PERSISTENCE_BARS = 3
+MACRO_EXIT_PERSISTENCE_BARS = 2
 
 // MACRO REGIME
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -52,13 +50,31 @@ isMacroNuetral = not isMacroSupportive and not isMacroHostile
 // GC LOGIC
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-MACRO_PERSISTENCE_BARS = 5
+var bool isTradeActive = false
+var bool isLongTrade = false
 
-isMacroSupportivePersistent = math.sum(isMacroSupportive ? 1 : 0, MACRO_PERSISTENCE_BARS) == MACRO_PERSISTENCE_BARS
-isMacroHostilePersistent = math.sum(isMacroHostile ? 1 : 0, MACRO_PERSISTENCE_BARS) == MACRO_PERSISTENCE_BARS
+isMacroSupportivePersistent = math.sum(isMacroSupportive ? 1 : 0, MACRO_ENTRY_PERSISTENCE_BARS) == MACRO_ENTRY_PERSISTENCE_BARS
+isMacroHostilePersistent = math.sum(isMacroHostile ? 1 : 0, MACRO_ENTRY_PERSISTENCE_BARS) == MACRO_ENTRY_PERSISTENCE_BARS
 
-isLongSignal = isMacroSupportivePersistent and not isMacroSupportivePersistent[1]
-isShortSignal = isMacroHostilePersistent and not isMacroHostilePersistent[1]
+isMacroNotSupportivePersistent = math.sum(not isMacroSupportive ? 1 : 0, MACRO_EXIT_PERSISTENCE_BARS) == MACRO_EXIT_PERSISTENCE_BARS
+isMacroNotHostilePersistent = math.sum(not isMacroHostile ? 1 : 0, MACRO_EXIT_PERSISTENCE_BARS) == MACRO_EXIT_PERSISTENCE_BARS
+
+isLongSignal = not isTradeActive and isMacroSupportivePersistent and not isMacroSupportivePersistent[1]
+isShortSignal = not isTradeActive and isMacroHostilePersistent and not isMacroHostilePersistent[1]
+
+isLongExit = isTradeActive and isLongTrade and isMacroNotSupportivePersistent and not isMacroNotSupportivePersistent[1]
+isShortExit = isTradeActive and not isLongTrade and isMacroNotHostilePersistent and not isMacroNotHostilePersistent[1]
+
+if isLongSignal
+    isTradeActive := true
+    isLongTrade := true
+
+if isShortSignal
+    isTradeActive := true
+    isLongTrade := false
+
+if isLongExit or isShortExit
+    isTradeActive := false
 
 // PLOT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -100,6 +116,22 @@ plot(
      style = plot.style_circles,
      color = short_color,
      linewidth = 6)
+
+plotshape(
+     isGC and isLongExit ? open : na,
+     title = "Long Exit",
+     style = shape.xcross,
+     location = location.absolute,
+     color = long_color,
+     size = size.tiny)
+
+plotshape(
+     isGC and isShortExit ? open : na,
+     title = "Short Exit",
+     style = shape.xcross,
+     location = location.absolute,
+     color = short_color,
+     size = size.tiny)
 
 gc_vwap = ta.vwap(close)
 plot(isGC ? gc_vwap : na, color = color.new(color.white, 70), linewidth = 1)
