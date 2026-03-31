@@ -43,7 +43,6 @@ calc_blended_vwap() =>
 
 ZN_SYMBOL = "CBOT:ZN1!"
 E6_SYMBOL = "CME:6E1!"
-MGC_SYMBOL = "COMEX:MGC1!"
 
 ZN_open = request.security(
      ZN_SYMBOL,
@@ -71,6 +70,7 @@ isZNhostile = ZN_open < ZN_blended_vwap
 isE6supportive = E6_open > E6_blended_vwap
 isE6hostile = E6_open < E6_blended_vwap
 
+// 1 = supportive, 0 = neutral, -1 = hostile
 isMacroSupportive = isZNsupportive and isE6supportive
 isMacroHostile = isZNhostile and isE6hostile
 isMacroNuetral = not isMacroSupportive and not isMacroHostile
@@ -79,23 +79,41 @@ isMacroNuetral = not isMacroSupportive and not isMacroHostile
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 MACRO_ENTRY_PERSISTENCE_BARS = 3
-MACRO_EXIT_PERSISTENCE_BARS = 5
-GC_LOOKBACK = 5
-GC_POSITION_THRESHOLD = 0.60
+MACRO_EXIT_PERSISTENCE_BARS = 3
 
+var int macroPersistentState = 0
+var int macroSupportiveCount = 0
+var int macroHostileCount = 0
+var int macroNeutralCount = 0
 var bool isLongTradeActive = false
 var bool isShortTradeActive = false
 
-isMacroSupportivePersistent = math.sum(isMacroSupportive ? 1 : 0, MACRO_ENTRY_PERSISTENCE_BARS) == MACRO_ENTRY_PERSISTENCE_BARS
-isMacroHostilePersistent = math.sum(isMacroHostile ? 1 : 0, MACRO_ENTRY_PERSISTENCE_BARS) == MACRO_ENTRY_PERSISTENCE_BARS
+// count consecutive regime bars
+macroSupportiveCount := isMacroSupportive ? macroSupportiveCount[1] + 1 : 0
+macroHostileCount := isMacroHostile ? macroHostileCount[1] + 1 : 0
+macroNeutralCount := isMacroNuetral ? macroNeutralCount[1] + 1 : 0
 
-isMacroNotSupportivePersistent = math.sum(not isMacroSupportive ? 1 : 0, MACRO_EXIT_PERSISTENCE_BARS) == MACRO_EXIT_PERSISTENCE_BARS
-isMacroNotHostilePersistent = math.sum(not isMacroHostile ? 1 : 0, MACRO_EXIT_PERSISTENCE_BARS) == MACRO_EXIT_PERSISTENCE_BARS
+// entry into supportive / hostile
+if macroPersistentState == 0 and macroSupportiveCount > MACRO_ENTRY_PERSISTENCE_BARS
+    macroPersistentState := 1
+if macroPersistentState == 0 and macroHostileCount > MACRO_ENTRY_PERSISTENCE_BARS
+    macroPersistentState := -1
 
-GC_recent_high = ta.highest(high[1], GC_LOOKBACK)
-GC_recent_low = ta.lowest(low[1], GC_LOOKBACK)
-GC_range = GC_recent_high - GC_recent_low
-GC_position = (open - GC_recent_low) / GC_range
+// exit back to neutral
+if macroPersistentState == 1 and macroNeutralCount > MACRO_EXIT_PERSISTENCE_BARS
+    macroPersistentState := 0
+if macroPersistentState == -1 and macroNeutralCount > MACRO_EXIT_PERSISTENCE_BARS
+    macroPersistentState := 0
+
+// convenience booleans
+isMacroSupportivePersistent = macroPersistentState == 1
+isMacroHostilePersistent = macroPersistentState == -1
+isMacroNuetralPersistent = macroPersistentState == 0
+
+// GC_recent_high = ta.highest(high[1], GC_LOOKBACK)
+// GC_recent_low = ta.lowest(low[1], GC_LOOKBACK)
+// GC_range = GC_recent_high - GC_recent_low
+// GC_position = (open - GC_recent_low) / GC_range
 
 isGCPositionValidForLong = true // GC_position > GC_POSITION_THRESHOLD
 isGCPositionValidForShort = true // GC_position < (1 - GC_POSITION_THRESHOLD)
@@ -105,7 +123,6 @@ isLongSignal =
      and not isLongTradeActive
      and not isShortTradeActive
      and isMacroSupportivePersistent
-     and not isMacroSupportivePersistent[1]
      and isInSession
 
 isShortSignal =
@@ -113,27 +130,20 @@ isShortSignal =
      and not isLongTradeActive
      and not isShortTradeActive
      and isMacroHostilePersistent
-     and not isMacroHostilePersistent[1]
      and isInSession
 
 isLongExit =
      isLongTradeActive
      and (
           not isInSession
-          or (
-               isMacroNotSupportivePersistent
-               and not isMacroNotSupportivePersistent[1]
-          )
+          or isMacroNuetralPersistent
      )
 
 isShortExit =
      isShortTradeActive
      and (
           not isInSession
-          or (
-               isMacroNotHostilePersistent
-               and not isMacroNotHostilePersistent[1]
-          )
+          or isMacroNuetralPersistent
      )
 
 // update state
