@@ -14,8 +14,17 @@ indicator(
 // SESSION CONTROL
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-sessionTimes = "1810-1659" // 10 minute warmup
-isInSession = not na(time(timeframe.period, sessionTimes))
+newSessionTime = "1800-1801" // official market open for new futures session
+isNewSession = not na(time(timeframe.period, newSessionTime, "America/New_York"))
+
+marketClosingTime = "1659-1700"
+isMarketClosing = not na(time(timeframe.period, marketClosingTime, "America/New_York"))
+
+inSessionTimes = "1810-1659" // no trades allowed during 10 min market warmup, close open positions 1 min before market close
+isInSession = not na(time(timeframe.period, inSessionTimes, "America/New_York"))
+
+isBlendedVwapTimes = "1800-1903" // blend vwap from previous to new on session start for 60 minutes, prevents discontinuity at session start
+isBlendedVwap = not na(time(timeframe.period, isBlendedVwapTimes, "America/New_York"))
 
 // MACRO REGIME
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -25,11 +34,23 @@ isInSession = not na(time(timeframe.period, sessionTimes))
 ZN_SYMBOL = "CBOT:ZN1!"
 E6_SYMBOL = "CME:6E1!"
 
-isNewSession = not na(time("1", "1800-1801:1234567", "America/New_York"))
+ZN_open = request.security(
+     ZN_SYMBOL,
+     timeframe.period,
+     open,
+     gaps = barmerge.gaps_on,
+     lookahead = barmerge.lookahead_off)
+
+E6_open = request.security(
+     E6_SYMBOL,
+     timeframe.period,
+     open,
+     gaps = barmerge.gaps_on,
+     lookahead = barmerge.lookahead_off)
 
 calc_blended_vwap() =>
     current_vwap = ta.vwap(open)
-    prev_vwap = ta.valuewhen(isNewSession, current_vwap[1], 0)
+    prev_vwap = ta.valuewhen(isMarketClosing, current_vwap, 0)
     bars_since_open = ta.barssince(isNewSession)
     interpolation_progress = math.min(1.0, bars_since_open / 60.0)
     prev_vwap + interpolation_progress * (current_vwap - prev_vwap)
@@ -45,20 +66,6 @@ E6_blended_vwap = request.security(
      E6_SYMBOL,
      timeframe.period,
      calc_blended_vwap(),
-     gaps = barmerge.gaps_on,
-     lookahead = barmerge.lookahead_off)
-
-ZN_open = request.security(
-     ZN_SYMBOL,
-     timeframe.period,
-     open,
-     gaps = barmerge.gaps_on,
-     lookahead = barmerge.lookahead_off)
-
-E6_open = request.security(
-     E6_SYMBOL,
-     timeframe.period,
-     open,
      gaps = barmerge.gaps_on,
      lookahead = barmerge.lookahead_off)
 
@@ -168,8 +175,8 @@ barColor =
      isE6 and isE6hostile ? short_color :
      isE6 ? color.new(E6_color, 70) :
 
-     isGC and isMacroSupportive ? color.new(long_color, 50) :
-     isGC and isMacroHostile ? color.new(short_color, 50) :
+     isGC and isMacroSupportive ? long_color :
+     isGC and isMacroHostile ? short_color :
      isGC ? color.new(GC_color, 70) : na
 
 barcolor(barColor)
@@ -204,14 +211,14 @@ plotshape(
 
 // vwap
 ZN_vwap = request.security(
-     "CBOT:ZN1!",
+     ZN_SYMBOL,
      timeframe.period,
      ta.vwap(open),
      gaps = barmerge.gaps_on,
      lookahead = barmerge.lookahead_off)
 
 E6_vwap = request.security(
-     "CME:6E1!",
+     E6_SYMBOL,
      timeframe.period,
      ta.vwap(open),
      gaps = barmerge.gaps_on,
@@ -219,8 +226,8 @@ E6_vwap = request.security(
 
 GC_vwap = ta.vwap(open)
 
-plot(isZN ? ZN_blended_vwap : na, color = color.new(color.aqua, 70), linewidth = 1)
-plot(isE6 ? E6_blended_vwap : na, color = color.new(color.aqua, 70), linewidth = 1)
+plot(isZN and isBlendedVwap ? ZN_blended_vwap : na, color = color.new(color.aqua, 70), linewidth = 1)
+plot(isE6 and isBlendedVwap ? E6_blended_vwap : na, color = color.new(color.aqua, 70), linewidth = 1)
 
 plot(isZN ? ZN_vwap : na, color = color.new(color.white, 70), linewidth = 1)
 plot(isE6 ? E6_vwap : na, color = color.new(color.white, 70), linewidth = 1)
