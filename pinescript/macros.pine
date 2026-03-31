@@ -105,28 +105,29 @@ if macroPersistentState == 1 and macroNeutralCount > MACRO_EXIT_PERSISTENCE_BARS
 if macroPersistentState == -1 and macroNeutralCount > MACRO_EXIT_PERSISTENCE_BARS
     macroPersistentState := 0
 
-// convenience booleans
+// persistence in regime
 isMacroSupportivePersistent = macroPersistentState == 1
 isMacroHostilePersistent = macroPersistentState == -1
 isMacroNuetralPersistent = macroPersistentState == 0
 
-// GC_recent_high = ta.highest(high[1], GC_LOOKBACK)
-// GC_recent_low = ta.lowest(low[1], GC_LOOKBACK)
-// GC_range = GC_recent_high - GC_recent_low
-// GC_position = (open - GC_recent_low) / GC_range
-
-isGCPositionValidForLong = true // GC_position > GC_POSITION_THRESHOLD
-isGCPositionValidForShort = true // GC_position < (1 - GC_POSITION_THRESHOLD)
+// 6E must be trending up over the lookback period
+E6_LOOKBACK = 10
+E6_recent_high = request.security(E6_SYMBOL, timeframe.period, ta.highest(high[1], E6_LOOKBACK))
+E6_recent_low = request.security(E6_SYMBOL, timeframe.period, ta.lowest(low[1], E6_LOOKBACK))
+E6_range = E6_recent_high - E6_recent_low
+E6_position = (E6_open - E6_recent_low) / E6_range
+isE6PositionValidForLong = E6_position > 0.50
+isE6PositionValidForShort = E6_position < 0.50
 
 isLongSignal =
-     isGCPositionValidForLong
+     isE6PositionValidForLong
      and not isLongTradeActive
      and not isShortTradeActive
      and isMacroSupportivePersistent
      and isInSession
 
 isShortSignal =
-     isGCPositionValidForShort
+     isE6PositionValidForShort
      and not isLongTradeActive
      and not isShortTradeActive
      and isMacroHostilePersistent
@@ -134,17 +135,11 @@ isShortSignal =
 
 isLongExit =
      isLongTradeActive
-     and (
-          not isInSession
-          or isMacroNuetralPersistent
-     )
+     and (not isInSession or isMacroNuetralPersistent)
 
 isShortExit =
      isShortTradeActive
-     and (
-          not isInSession
-          or isMacroNuetralPersistent
-     )
+     and (not isInSession or isMacroNuetralPersistent)
 
 // update state
 if isLongSignal
