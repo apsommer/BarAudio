@@ -22,33 +22,51 @@ isInSession = not na(time(timeframe.period, sessionTimes))
 
 // 1 = supportive, 0 = neutral, -1 = hostile
 
-isZNsupportive = request.security(
-     "CBOT:ZN1!",
+ZN_SYMBOL = "CBOT:ZN1!"
+E6_SYMBOL = "CME:6E1!"
+
+isNewSession = not na(time("1", "1800-1801:1234567", "America/New_York"))
+
+calc_blended_vwap() =>
+    current_vwap = ta.vwap(open)
+    prev_vwap = ta.valuewhen(isNewSession, current_vwap[1], 0)
+    bars_since_open = ta.barssince(isNewSession)
+    interpolation_progress = math.min(1.0, bars_since_open / 60.0)
+    prev_vwap + interpolation_progress * (current_vwap - prev_vwap)
+
+ZN_blended_vwap = request.security(
+     ZN_SYMBOL,
      timeframe.period,
-     open > ta.vwap(open),
+     calc_blended_vwap(),
      gaps = barmerge.gaps_on,
      lookahead = barmerge.lookahead_off)
 
-isZNhostile = request.security(
-     "CBOT:ZN1!",
+E6_blended_vwap = request.security(
+     E6_SYMBOL,
      timeframe.period,
-     open < ta.vwap(open),
+     calc_blended_vwap(),
      gaps = barmerge.gaps_on,
      lookahead = barmerge.lookahead_off)
 
-isE6supportive = request.security(
-     "CME:6E1!",
+ZN_open = request.security(
+     ZN_SYMBOL,
      timeframe.period,
-     open > ta.vwap(open),
+     open,
      gaps = barmerge.gaps_on,
      lookahead = barmerge.lookahead_off)
 
-isE6hostile = request.security(
-     "CME:6E1!",
+E6_open = request.security(
+     E6_SYMBOL,
      timeframe.period,
-     open < ta.vwap(open),
+     open,
      gaps = barmerge.gaps_on,
      lookahead = barmerge.lookahead_off)
+
+isZNsupportive = ZN_open > ZN_blended_vwap
+isZNhostile = ZN_open < ZN_blended_vwap
+
+isE6supportive = E6_open > E6_blended_vwap
+isE6hostile = E6_open < E6_blended_vwap
 
 isMacroSupportive = isZNsupportive and isE6supportive
 isMacroHostile = isZNhostile and isE6hostile
@@ -200,6 +218,9 @@ E6_vwap = request.security(
      lookahead = barmerge.lookahead_off)
 
 GC_vwap = ta.vwap(open)
+
+plot(isZN ? ZN_blended_vwap : na, color = color.new(color.aqua, 70), linewidth = 1)
+plot(isE6 ? E6_blended_vwap : na, color = color.new(color.aqua, 70), linewidth = 1)
 
 plot(isZN ? ZN_vwap : na, color = color.new(color.white, 70), linewidth = 1)
 plot(isE6 ? E6_vwap : na, color = color.new(color.white, 70), linewidth = 1)
