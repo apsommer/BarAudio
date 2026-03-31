@@ -28,6 +28,13 @@ isInSession = not na(time(timeframe.period, inSessionTimes, "America/New_York"))
 blendedVwapMinutes = 120
 isBlendedVwapTimes = "1800-2000"
 isBlendedVwap = not na(time(timeframe.period, isBlendedVwapTimes, "America/New_York"))
+calc_blended_vwap() =>
+    current = ta.vwap(open)
+    prev = ta.valuewhen(isMarketClosing, current, 0)
+    sessionStartTime = ta.valuewhen(isNewSession, time, 0)
+    elapsedMinutes = (time - sessionStartTime) / 60000.0
+    c = math.min(1.0, elapsedMinutes / float(blendedVwapMinutes))
+    prev + c * (current - prev)
 
 // MACRO REGIME
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -36,6 +43,7 @@ isBlendedVwap = not na(time(timeframe.period, isBlendedVwapTimes, "America/New_Y
 
 ZN_SYMBOL = "CBOT:ZN1!"
 E6_SYMBOL = "CME:6E1!"
+MGC_SYMBOL = "COMEX:MGC1!"
 
 ZN_open = request.security(
      ZN_SYMBOL,
@@ -46,14 +54,6 @@ E6_open = request.security(
      E6_SYMBOL,
      timeframe.period,
      open)
-
-calc_blended_vwap() =>
-    current = ta.vwap(open)
-    prev = ta.valuewhen(isMarketClosing, current, 0)
-    sessionStartTime = ta.valuewhen(isNewSession, time, 0)
-    elapsedMinutes = (time - sessionStartTime) / 60000.0
-    c = math.min(1.0, elapsedMinutes / float(blendedVwapMinutes))
-    prev + c * (current - prev)
 
 ZN_blended_vwap = request.security(
      ZN_SYMBOL,
@@ -136,7 +136,7 @@ isShortExit =
           )
      )
 
-// update stae
+// update state
 if isLongSignal
     isLongTradeActive := true
     isShortTradeActive := false
@@ -159,46 +159,41 @@ short_color = color.red
 
 isZN = syminfo.root == "ZN"
 isE6 = syminfo.root == "6E"
-isGC = syminfo.root == "MGC"
+isMGC = syminfo.root == "MGC"
 
-// bar colors (ZN + E6 only)
+// bar color
 barColor =
      isZN and isZNsupportive ? long_color :
      isZN and isZNhostile ? short_color :
      isZN ? color.new(ZN_color, 70) :
-
      isE6 and isE6supportive ? long_color :
      isE6 and isE6hostile ? short_color :
      isE6 ? color.new(E6_color, 70) :
-
-     isGC and isMacroSupportive ? long_color :
-     isGC and isMacroHostile ? short_color :
-     isGC ? color.new(GC_color, 70) : na
-
+     isMGC and isMacroSupportive ? long_color :
+     isMGC and isMacroHostile ? short_color :
+     isMGC ? color.new(GC_color, 70) : na
 barcolor(barColor)
 
+// signals
 plot(
-     isGC and isLongSignal ? open : na,
+     isMGC and isLongSignal ? open : na,
      style = plot.style_circles,
      color = long_color,
      linewidth = 6)
-
 plot(
-     isGC and isShortSignal ? open : na,
+     isMGC and isShortSignal ? open : na,
      style = plot.style_circles,
      color = short_color,
      linewidth = 6)
-
 plotshape(
-     isGC and isLongExit ? open : na,
+     isMGC and isLongExit ? open : na,
      title = "Long Exit",
      style = shape.xcross,
      location = location.absolute,
      color = long_color,
      size = size.tiny)
-
 plotshape(
-     isGC and isShortExit ? open : na,
+     isMGC and isShortExit ? open : na,
      title = "Short Exit",
      style = shape.xcross,
      location = location.absolute,
@@ -216,8 +211,8 @@ E6_vwap = request.security(
      ta.vwap(open))
 GC_vwap = ta.vwap(open)
 
-plot(isZN and isBlendedVwap ? ZN_vwap : na, color = color.new(color.white, 90), linewidth = 1)
-plot(isE6 and isBlendedVwap ? E6_vwap : na, color = color.new(color.white, 90), linewidth = 1)
+plot(isZN and isBlendedVwap ? ZN_vwap : na, color = color.new(color.white, 90), linewidth = 1, style = plot.style_linebr)
+plot(isE6 and isBlendedVwap ? E6_vwap : na, color = color.new(color.white, 90), linewidth = 1, style = plot.style_linebr)
 plot(isZN ? ZN_blended_vwap : na, color = color.new(color.white, 70), linewidth = 1)
 plot(isE6 ? E6_blended_vwap : na, color = color.new(color.white, 70), linewidth = 1)
-plot(isGC ? GC_vwap : na, color = color.new(color.white, 70), linewidth = 1)
+// plot(isMGC ? GC_vwap : na, color = color.new(color.white, 70), linewidth = 1)
