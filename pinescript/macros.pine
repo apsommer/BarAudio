@@ -124,6 +124,13 @@ E6_position = (E6_open - E6_recent_low) / E6_range
 isE6PositionValidForLong = E6_position > E6_POSITION_RATIO
 isE6PositionValidForShort = E6_position < E6_POSITION_RATIO
 
+// MGC TRADE
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+var float entryPrice = open
+var float exitPrice = open
+var float profit = 0.0
+
 isLongSignal =
      isE6PositionValidForLong
      and not isLongTradeActive
@@ -157,6 +164,13 @@ if isLongExit
     isLongTradeActive := false
 if isShortExit
     isShortTradeActive := false
+
+// calculate p&l
+if isLongSignal or isShortSignal
+    entryPrice := open
+if isLongExit or isShortExit
+    exitPrice := open
+    profit := isLongExit ? exitPrice - entryPrice : entryPrice - exitPrice
 
 // PLOT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -241,47 +255,44 @@ var string alertMessage = na
 alertMessage := na
 
 formattedPrice = str.tostring(math.round_to_mintick(open), "#.00")
+formattedProfit = str.tostring(math.round(math.abs(profit / syminfo.mintick)))
 
-// MACRO ALIGNED SUPPORTIVE
+// macro supportive
 triggerMacroSupportive =
      isMGC
      and isMacroSupportivePersistent
      and not isMacroSupportivePersistent[1]
 
 if triggerMacroSupportive and not barstate.isconfirmed
-    if na(alertMessage)
-        alertMessage := "Macro • Aligned Supportive • ZN and 6E"
+    alertMessage := "Macro • Aligned Supportive • ZN and 6E"
 
-// MACRO ALIGNED HOSTILE
+// macro hostile
 triggerMacroHostile =
      isMGC
      and isMacroHostilePersistent
      and not isMacroHostilePersistent[1]
 
 if triggerMacroHostile and not barstate.isconfirmed
-    if na(alertMessage)
-        alertMessage := "Macro • Aligned Hostile • ZN and 6E"
+    alertMessage := "Macro • Aligned Hostile • ZN and 6E"
 
-// ENTRY LONG
+// entry long
 if isMGC and isLongSignal and not barstate.isconfirmed
-    if na(alertMessage)
-        alertMessage := "Entry • Long • " + formattedPrice
+    alertMessage := "Entry • Long • " + formattedPrice
 
-// ENTRY SHORT
+// entry short
 if isMGC and isShortSignal and not barstate.isconfirmed
-    if na(alertMessage)
-        alertMessage := "Entry • Short • " + formattedPrice
+    alertMessage := "Entry • Short • " + formattedPrice
 
-// EXIT LONG
+// exit long
 if isMGC and isLongExit and not barstate.isconfirmed
-    if na(alertMessage)
-        alertMessage := "Exit • Long • Macro lost"
+    profitMessage = (profit > 0 ? "Profit " : "Loss ") + formattedProfit + " ticks"
+    alertMessage := "Exit • Long • " + profitMessage
 
-// EXIT SHORT
+// exit short
 if isMGC and isShortExit and not barstate.isconfirmed
-    if na(alertMessage)
-        alertMessage := "Exit • Short • Macro lost"
+    profitMessage = (profit > 0 ? "Profit " : "Loss ") + formattedProfit + " ticks"
+    alertMessage := "Exit • Short • " + profitMessage
 
-// FIRE ALERT
+// alert
 if not na(alertMessage)
     alert(alertMessage, alert.freq_once_per_bar)
