@@ -81,7 +81,7 @@ isMacroNuetral = not isMacroSupportive and not isMacroHostile
 MGC_SYMBOL = "COMEX_MINI:MGC1!"
 
 MACRO_ENTRY_PERSISTENCE_BARS = 2
-MACRO_EXIT_PERSISTENCE_BARS = 1
+MACRO_EXIT_PERSISTENCE_BARS = 2
 E6_LOOKBACK = 10 // lookback for recent range, position consideration
 E6_POSITION_RATIO = 0.5 // above -> long, below -> short
 
@@ -96,8 +96,8 @@ var bool isShortTradeActive = false
 // count consecutive regime bars
 macroSupportiveCount := isMacroSupportive ? macroSupportiveCount[1] + 1 : 0
 macroHostileCount := isMacroHostile ? macroHostileCount[1] + 1 : 0
-macroNotSupportiveCount := isMacroNuetral or isMacroHostile ? macroNotSupportiveCount + 1 : 0
-macroNotHostileCount := isMacroNuetral or isMacroSupportive ? macroNotHostileCount + 1 : 0
+macroNotSupportiveCount := isMacroNuetral or isMacroHostile ? macroNotSupportiveCount[1] + 1 : 0
+macroNotHostileCount := isMacroNuetral or isMacroSupportive ? macroNotHostileCount[1] + 1 : 0
 
 // entry into supportive / hostile
 if macroPersistentState == 0 and macroSupportiveCount > MACRO_ENTRY_PERSISTENCE_BARS
@@ -231,3 +231,57 @@ plot(isMGC and isBlendedVwap ? MGC_vwap : na, color = color.new(color.white, 90)
 plot(isZN ? ZN_blended_vwap : na, color = color.new(color.white, 70), linewidth = 1)
 plot(isE6 ? E6_blended_vwap : na, color = color.new(color.white, 70), linewidth = 1)
 plot(isMGC ? MGC_blended_vwap : na, color = color.new(color.white, 70), linewidth = 1)
+
+// ALERT
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Event • Context • Value
+
+var string alertMessage = na
+alertMessage := na
+
+formattedPrice = str.tostring(math.round_to_mintick(open), "#.00")
+
+// MACRO ALIGNED SUPPORTIVE
+triggerMacroSupportive =
+     isMGC
+     and isMacroSupportivePersistent
+     and not isMacroSupportivePersistent[1]
+
+if triggerMacroSupportive and not barstate.isconfirmed
+    if na(alertMessage)
+        alertMessage := "Macro • Aligned Supportive • ZN and 6E"
+
+// MACRO ALIGNED HOSTILE
+triggerMacroHostile =
+     isMGC
+     and isMacroHostilePersistent
+     and not isMacroHostilePersistent[1]
+
+if triggerMacroHostile and not barstate.isconfirmed
+    if na(alertMessage)
+        alertMessage := "Macro • Aligned Hostile • ZN and 6E"
+
+// ENTRY LONG
+if isMGC and isLongSignal and not barstate.isconfirmed
+    if na(alertMessage)
+        alertMessage := "Entry • Long • " + formattedPrice
+
+// ENTRY SHORT
+if isMGC and isShortSignal and not barstate.isconfirmed
+    if na(alertMessage)
+        alertMessage := "Entry • Short • " + formattedPrice
+
+// EXIT LONG
+if isMGC and isLongExit and not barstate.isconfirmed
+    if na(alertMessage)
+        alertMessage := "Exit • Long • Macro lost"
+
+// EXIT SHORT
+if isMGC and isShortExit and not barstate.isconfirmed
+    if na(alertMessage)
+        alertMessage := "Exit • Short • Macro lost"
+
+// FIRE ALERT
+if not na(alertMessage)
+    alert(alertMessage, alert.freq_once_per_bar)
