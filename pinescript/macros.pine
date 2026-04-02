@@ -1,6 +1,6 @@
 //@version=6
 indicator(
-    "ZN • 6E • GC",
+    "ZN • 6E • MGC",
     overlay = true,
     max_bars_back = 2000)
 
@@ -25,8 +25,8 @@ inSessionTimes = "1810-1659"
 isInSession = not na(time(timeframe.period, inSessionTimes, "America/New_York"))
 
 // blend vwap from previous to new on session start for 60 minutes, prevents discontinuity at session start
-blendedVwapMinutes = 120
-isBlendedVwapTimes = "1800-2000"
+blendedVwapMinutes = 90
+isBlendedVwapTimes = "1800-1930"
 isBlendedVwap = not na(time(timeframe.period, isBlendedVwapTimes, "America/New_York"))
 calc_blended_vwap() =>
     current = ta.vwap(open)
@@ -75,8 +75,10 @@ isMacroSupportive = isZNsupportive and isE6supportive
 isMacroHostile = isZNhostile and isE6hostile
 isMacroNuetral = not isMacroSupportive and not isMacroHostile
 
-// GC LOGIC
+// MGC LOGIC
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+MGC_SYMBOL = "COMEX_MINI:MGC1!"
 
 MACRO_ENTRY_PERSISTENCE_BARS = 3
 MACRO_EXIT_PERSISTENCE_BARS = 3
@@ -158,7 +160,7 @@ if isShortExit
 
 ZN_color = color.blue
 E6_color = color.purple
-GC_color = color.yellow
+MGC_color = color.yellow
 long_color = color.blue
 short_color = color.red
 
@@ -176,7 +178,7 @@ barColor =
      isE6 ? color.new(E6_color, 70) :
      isMGC and isMacroSupportive ? long_color :
      isMGC and isMacroHostile ? short_color :
-     isMGC ? color.new(GC_color, 70) : na
+     isMGC ? color.new(MGC_color, 70) : na
 barcolor(barColor)
 
 // signals
@@ -214,10 +216,15 @@ E6_vwap = request.security(
      E6_SYMBOL,
      timeframe.period,
      ta.vwap(open))
-GC_vwap = ta.vwap(open)
+MGC_blended_vwap = request.security(
+     MGC_SYMBOL,
+     timeframe.period,
+     calc_blended_vwap())
+MGC_vwap = ta.vwap(open)
 
 plot(isZN and isBlendedVwap ? ZN_vwap : na, color = color.new(color.white, 90), linewidth = 1, style = plot.style_linebr)
 plot(isE6 and isBlendedVwap ? E6_vwap : na, color = color.new(color.white, 90), linewidth = 1, style = plot.style_linebr)
+plot(isMGC and isBlendedVwap ? MGC_vwap : na, color = color.new(color.white, 90), linewidth = 1, style = plot.style_linebr)
 plot(isZN ? ZN_blended_vwap : na, color = color.new(color.white, 70), linewidth = 1)
 plot(isE6 ? E6_blended_vwap : na, color = color.new(color.white, 70), linewidth = 1)
-// plot(isMGC ? GC_vwap : na, color = color.new(color.white, 70), linewidth = 1)
+plot(isMGC ? MGC_blended_vwap : na, color = color.new(color.white, 70), linewidth = 1)
