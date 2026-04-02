@@ -20,7 +20,7 @@ marketCloseTime = "1659-1700"
 isNewSession = not na(time(timeframe.period, marketOpenTime, "America/New_York"))
 isMarketClosing = not na(time(timeframe.period, marketCloseTime, "America/New_York"))
 
-// no trades allowed during 10 min market warmup, close open positions 1 min before market close
+// no trades allowed during 10 min market reopen warmup, close open positions 1 min before market close
 inSessionTimes = "1810-1659"
 isInSession = not na(time(timeframe.period, inSessionTimes, "America/New_York"))
 
@@ -264,7 +264,7 @@ triggerMacroSupportive =
      and not isMacroSupportivePersistent[1]
 
 if triggerMacroSupportive and not barstate.isconfirmed
-    alertMessage := "Macro • Aligned Supportive • ZN and 6E"
+    alertMessage := "Macro • Rates and Dollar • Bullish"
 
 // macro hostile
 triggerMacroHostile =
@@ -273,7 +273,7 @@ triggerMacroHostile =
      and not isMacroHostilePersistent[1]
 
 if triggerMacroHostile and not barstate.isconfirmed
-    alertMessage := "Macro • Aligned Hostile • ZN and 6E"
+    alertMessage := "Macro • Rates and Dollar • Bearish"
 
 // entry long
 if isMGC and isLongSignal and not barstate.isconfirmed
