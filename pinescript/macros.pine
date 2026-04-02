@@ -180,6 +180,7 @@ E6_color = color.purple
 MGC_color = color.yellow
 long_color = color.blue
 short_color = color.red
+vwap_color = color.new(color.white, 70)
 
 isZN = syminfo.root == "ZN"
 isE6 = syminfo.root == "6E"
@@ -239,12 +240,12 @@ MGC_blended_vwap = request.security(
      calc_blended_vwap())
 MGC_vwap = ta.vwap(open)
 
-plot(isZN and isBlendedVwap ? ZN_vwap : na, color = color.new(color.white, 90), linewidth = 1, style = plot.style_linebr)
-plot(isE6 and isBlendedVwap ? E6_vwap : na, color = color.new(color.white, 90), linewidth = 1, style = plot.style_linebr)
-plot(isMGC and isBlendedVwap ? MGC_vwap : na, color = color.new(color.white, 90), linewidth = 1, style = plot.style_linebr)
-plot(isZN ? ZN_blended_vwap : na, color = color.new(color.white, 70), linewidth = 1)
-plot(isE6 ? E6_blended_vwap : na, color = color.new(color.white, 70), linewidth = 1)
-plot(isMGC ? MGC_blended_vwap : na, color = color.new(color.white, 70), linewidth = 1)
+plot(isZN and isBlendedVwap ? ZN_vwap : na, color = vwap_color, style = plot.style_linebr)
+plot(isE6 and isBlendedVwap ? E6_vwap : na, color = vwap_color, style = plot.style_linebr)
+plot(isMGC and isBlendedVwap ? MGC_vwap : na, color = vwap_color, style = plot.style_linebr)
+plot(isZN ? ZN_blended_vwap : na, color = vwap_color)
+plot(isE6 ? E6_blended_vwap : na, color = vwap_color)
+plot(isMGC ? MGC_blended_vwap : na, color = vwap_color)
 
 // ALERT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
