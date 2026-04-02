@@ -82,6 +82,8 @@ MGC_SYMBOL = "COMEX_MINI:MGC1!"
 
 MACRO_ENTRY_PERSISTENCE_BARS = 2
 MACRO_EXIT_PERSISTENCE_BARS = 1
+E6_LOOKBACK = 10 // lookback for recent range, position consideration
+E6_POSITION_RATIO = 0.5 // above -> long, below -> short
 
 var int macroPersistentState = 0
 var int macroSupportiveCount = 0
@@ -115,13 +117,12 @@ isMacroHostilePersistent = macroPersistentState == -1
 isMacroNuetralPersistent = macroPersistentState == 0
 
 // 6E must be trending up over the lookback period
-E6_LOOKBACK = 10
 E6_recent_high = request.security(E6_SYMBOL, timeframe.period, ta.highest(high[1], E6_LOOKBACK))
 E6_recent_low = request.security(E6_SYMBOL, timeframe.period, ta.lowest(low[1], E6_LOOKBACK))
 E6_range = E6_recent_high - E6_recent_low
 E6_position = (E6_open - E6_recent_low) / E6_range
-isE6PositionValidForLong = E6_position > 0.50
-isE6PositionValidForShort = E6_position < 0.50
+isE6PositionValidForLong = E6_position > E6_POSITION_RATIO
+isE6PositionValidForShort = E6_position < E6_POSITION_RATIO
 
 isLongSignal =
      isE6PositionValidForLong
