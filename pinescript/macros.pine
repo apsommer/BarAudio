@@ -80,20 +80,22 @@ isMacroNuetral = not isMacroSupportive and not isMacroHostile
 
 MGC_SYMBOL = "COMEX_MINI:MGC1!"
 
-MACRO_ENTRY_PERSISTENCE_BARS = 3
-MACRO_EXIT_PERSISTENCE_BARS = 3
+MACRO_ENTRY_PERSISTENCE_BARS = 2
+MACRO_EXIT_PERSISTENCE_BARS = 1
 
 var int macroPersistentState = 0
 var int macroSupportiveCount = 0
 var int macroHostileCount = 0
-var int macroNeutralCount = 0
+var int macroNotSupportiveCount = 0
+var int macroNotHostileCount = 0
 var bool isLongTradeActive = false
 var bool isShortTradeActive = false
 
 // count consecutive regime bars
 macroSupportiveCount := isMacroSupportive ? macroSupportiveCount[1] + 1 : 0
 macroHostileCount := isMacroHostile ? macroHostileCount[1] + 1 : 0
-macroNeutralCount := isMacroNuetral ? macroNeutralCount[1] + 1 : 0
+macroNotSupportiveCount := isMacroNuetral or isMacroHostile ? macroNotSupportiveCount + 1 : 0
+macroNotHostileCount := isMacroNuetral or isMacroSupportive ? macroNotHostileCount + 1 : 0
 
 // entry into supportive / hostile
 if macroPersistentState == 0 and macroSupportiveCount > MACRO_ENTRY_PERSISTENCE_BARS
@@ -102,9 +104,9 @@ if macroPersistentState == 0 and macroHostileCount > MACRO_ENTRY_PERSISTENCE_BAR
     macroPersistentState := -1
 
 // exit back to neutral
-if macroPersistentState == 1 and macroNeutralCount > MACRO_EXIT_PERSISTENCE_BARS
+if macroPersistentState == 1 and macroNotSupportiveCount > MACRO_EXIT_PERSISTENCE_BARS
     macroPersistentState := 0
-if macroPersistentState == -1 and macroNeutralCount > MACRO_EXIT_PERSISTENCE_BARS
+if macroPersistentState == -1 and macroNotHostileCount > MACRO_EXIT_PERSISTENCE_BARS
     macroPersistentState := 0
 
 // persistence in regime
