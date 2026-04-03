@@ -109,85 +109,88 @@ isMacroNuetral = not isMacroSupportive and not isMacroHostile
 // GC LOGIC
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-MACRO_ENTRY_PERSISTENCE_BARS = 2
-MACRO_EXIT_PERSISTENCE_BARS = 2
+GC_LOOKBACK = 20
+GC_POSITION_RATIO = 0.65
 
-var int macroPersistentState = 0
-var int macroSupportiveCount = 0
-var int macroHostileCount = 0
-var int macroNotSupportiveCount = 0
-var int macroNotHostileCount = 0
-var bool isLongTradeActive = false
-var bool isShortTradeActive = false
+gcRecentHigh = ta.highest(high[1], GC_LOOKBACK)
+gcRecentLow = ta.lowest(low[1], GC_LOOKBACK)
+gcRange = gcRecentHigh - gcRecentLow
+gcPosition = (open - gcRecentLow) / gcRange
 
-// count consecutive regime bars
-macroSupportiveCount := isMacroSupportive ? macroSupportiveCount[1] + 1 : 0
-macroHostileCount := isMacroHostile ? macroHostileCount[1] + 1 : 0
-macroNotSupportiveCount := isMacroNuetral or isMacroHostile ? macroNotSupportiveCount[1] + 1 : 0
-macroNotHostileCount := isMacroNuetral or isMacroSupportive ? macroNotHostileCount[1] + 1 : 0
+isGCTrendingUp = gcPosition > GC_POSITION_RATIO
+isGCTrendingDown = gcPosition < (1 - GC_POSITION_RATIO)
 
-// entry into supportive / hostile
-if macroPersistentState == 0 and macroSupportiveCount > MACRO_ENTRY_PERSISTENCE_BARS
-    macroPersistentState := 1
-if macroPersistentState == 0 and macroHostileCount > MACRO_ENTRY_PERSISTENCE_BARS
-    macroPersistentState := -1
+isGCAboveVwap = open > gcBlendedVwap
+isGCBelowVwap = open < gcBlendedVwap
 
-// exit back to neutral
-if macroPersistentState == 1 and macroNotSupportiveCount > MACRO_EXIT_PERSISTENCE_BARS
-    macroPersistentState := 0
-if macroPersistentState == -1 and macroNotHostileCount > MACRO_EXIT_PERSISTENCE_BARS
-    macroPersistentState := 0
+isGCAcceptedBull = isGCTrendingUp and isGCAboveVwap
+isGCAcceptedBear = isGCTrendingDown and isGCBelowVwap
 
-// persistence in regime
-isMacroSupportivePersistent = macroPersistentState == 1
-isMacroHostilePersistent = macroPersistentState == -1
-isMacroNuetralPersistent = macroPersistentState == 0
+isGCDamagedBull = isGCTrendingUp and isGCBelowVwap
+isGCDamagedBear = isGCTrendingDown and isGCAboveVwap
 
 // GC TRADE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-var float entryPrice = open
-var float exitPrice = open
-var float profit = 0.0
+var bool isLongTradeActive = false
+var bool isShortTradeActive = false
+var float entryPrice = na
+var float exitPrice = na
+var float profit = na
 
-isLongSignal =
-     not isLongTradeActive
+// entry
+isLongEntry =
+     isInSession
+     and not isLongTradeActive
      and not isShortTradeActive
-     and isMacroSupportivePersistent
-     and isInSession
-
-isShortSignal =
-     not isLongTradeActive
+     and isMacroSupportive
+     and isGCAcceptedBull
+isShortEntry =
+     isInSession
+     and not isLongTradeActive
      and not isShortTradeActive
-     and isMacroHostilePersistent
-     and isInSession
-
-isLongExit =
-     isLongTradeActive
-     and (not isInSession or isMacroNuetralPersistent)
-
-isShortExit =
-     isShortTradeActive
-     and (not isInSession or isMacroNuetralPersistent)
-
-// update state
-if isLongSignal
+     and isMacroHostile
+     and isGCAcceptedBear
+if isLongEntry
     isLongTradeActive := true
     isShortTradeActive := false
-if isShortSignal
+    entryPrice := open
+if isShortEntry
     isLongTradeActive := false
     isShortTradeActive := true
+    entryPrice := open
+
+// take profit
+isLongTakeProfit =
+     isLongTradeActive
+     and open > entryPrice + 40
+isShortTakeProfit =
+     isShortTradeActive
+     and entryPrice - 40 > open
+
+// stop loss
+isLongStopLoss =
+     isLongTradeActive
+     and entryPrice - 40 > open
+isShortStopLoss =
+     isShortTradeActive
+     and open > entryPrice + 40
+
+// exit
+isLongExit =
+     isLongTradeActive
+     and (not isInSession or isLongTakeProfit or isLongStopLoss)
+isShortExit =
+     isShortTradeActive
+     and (not isInSession or isShortTakeProfit or isShortStopLoss)
 if isLongExit
     isLongTradeActive := false
+    exitPrice := open
+    profit := exitPrice - entryPrice
 if isShortExit
     isShortTradeActive := false
-
-// calculate p&l
-if isLongSignal or isShortSignal
-    entryPrice := open
-if isLongExit or isShortExit
     exitPrice := open
-    profit := isLongExit ? exitPrice - entryPrice : entryPrice - exitPrice
+    profit := entryPrice - exitPrice
 
 // PLOT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -201,7 +204,6 @@ vwap_color = color.new(color.white, 70)
 
 isZN = syminfo.root == "ZN"
 isE6 = syminfo.root == "6E"
-// isGC = syminfo.root == "GC"
 isGC = syminfo.root == "MGC"
 
 // bar color
@@ -217,35 +219,39 @@ barColor =
      isGC ? color.new(GC_color, 70) : na
 barcolor(barColor)
 
-// signals
-// plot(
-//      isGC and isLongSignal ? open : na,
-//      style = plot.style_circles,
-//      color = long_color,
-//      linewidth = 6)
-// plot(
-//      isGC and isShortSignal ? open : na,
-//      style = plot.style_circles,
-//      color = short_color,
-//      linewidth = 6)
-// plotshape(
-//      isGC and isLongExit ? open : na,
-//      title = "Long Exit",
-//      style = shape.xcross,
-//      location = location.absolute,
-//      color = long_color,
-//      size = size.tiny)
-// plotshape(
-//      isGC and isShortExit ? open : na,
-//      title = "Short Exit",
-//      style = shape.xcross,
-//      location = location.absolute,
-//      color = short_color,
-//      size = size.tiny)
+// entry
+plot(
+     isGC and isLongEntry ? open : na,
+     style = plot.style_circles,
+     color = long_color,
+     linewidth = 6)
+plot(
+     isGC and isShortEntry ? open : na,
+     style = plot.style_circles,
+     color = short_color,
+     linewidth = 6)
+
+// exit
+exitColor =
+     isLongTakeProfit or isShortTakeProfit ? color.green :
+     isLongStopLoss or isShortStopLoss ? color.red :
+     color.yellow
+plotshape(
+     isGC and isLongExit ? open : na,
+     title = "Long Exit",
+     style = shape.xcross,
+     location = location.absolute,
+     color = exitColor,
+     size = size.tiny)
+plotshape(
+     isGC and isShortExit ? open : na,
+     title = "Short Exit",
+     style = shape.xcross,
+     location = location.absolute,
+     color = exitColor,
+     size = size.tiny)
 
 // vwap
-
-
 plot(isZN and isBlendedVwap ? znVwap : na, color = vwap_color, style = plot.style_linebr)
 plot(isE6 and isBlendedVwap ? e6Vwap : na, color = vwap_color, style = plot.style_linebr)
 plot(isGC and isBlendedVwap ? gcVwap : na, color = vwap_color, style = plot.style_linebr)
@@ -258,48 +264,48 @@ plot(isGC ? gcBlendedVwap : na, color = vwap_color)
 
 // Event • Context • Value
 
-var string alertMessage = na
-alertMessage := na
+// var string alertMessage = na
+// alertMessage := na
 
-formattedPrice = str.tostring(math.round_to_mintick(open), "#.00")
-formattedProfit = str.tostring(math.round(math.abs(profit / syminfo.mintick)))
+// formattedPrice = str.tostring(math.round_to_mintick(open), "#.00")
+// formattedProfit = str.tostring(math.round(math.abs(profit / syminfo.mintick)))
 
-// macro supportive
-triggerMacroSupportive =
-     isGC
-     and isMacroSupportivePersistent
-     and not isMacroSupportivePersistent[1]
+// // macro supportive
+// triggerMacroSupportive =
+//      isGC
+//      and isMacroSupportivePersistent
+//      and not isMacroSupportivePersistent[1]
 
-if triggerMacroSupportive and not barstate.isconfirmed
-    alertMessage := "Macro • Rates and Dollar • Bullish"
+// if triggerMacroSupportive and not barstate.isconfirmed
+//     alertMessage := "Macro • Rates and Dollar • Bullish"
 
-// macro hostile
-triggerMacroHostile =
-     isGC
-     and isMacroHostilePersistent
-     and not isMacroHostilePersistent[1]
+// // macro hostile
+// triggerMacroHostile =
+//      isGC
+//      and isMacroHostilePersistent
+//      and not isMacroHostilePersistent[1]
 
-if triggerMacroHostile and not barstate.isconfirmed
-    alertMessage := "Macro • Rates and Dollar • Bearish"
+// if triggerMacroHostile and not barstate.isconfirmed
+//     alertMessage := "Macro • Rates and Dollar • Bearish"
 
-// entry long
-if isGC and isLongSignal and not barstate.isconfirmed
-    alertMessage := "Entry • Long • " + formattedPrice
+// // entry long
+// if isGC and isLongEntry and not barstate.isconfirmed
+//     alertMessage := "Entry • Long • " + formattedPrice
 
-// entry short
-if isGC and isShortSignal and not barstate.isconfirmed
-    alertMessage := "Entry • Short • " + formattedPrice
+// // entry short
+// if isGC and isShortEntry and not barstate.isconfirmed
+//     alertMessage := "Entry • Short • " + formattedPrice
 
-// exit long
-if isGC and isLongExit and not barstate.isconfirmed
-    profitMessage = (profit > 0 ? "Profit " : "Loss ") + formattedProfit + " ticks"
-    alertMessage := "Exit • Long • " + profitMessage
+// // exit long
+// if isGC and isLongExit and not barstate.isconfirmed
+//     profitMessage = (profit > 0 ? "Profit " : "Loss ") + formattedProfit + " ticks"
+//     alertMessage := "Exit • Long • " + profitMessage
 
-// exit short
-if isGC and isShortExit and not barstate.isconfirmed
-    profitMessage = (profit > 0 ? "Profit " : "Loss ") + formattedProfit + " ticks"
-    alertMessage := "Exit • Short • " + profitMessage
+// // exit short
+// if isGC and isShortExit and not barstate.isconfirmed
+//     profitMessage = (profit > 0 ? "Profit " : "Loss ") + formattedProfit + " ticks"
+//     alertMessage := "Exit • Short • " + profitMessage
 
-// alert
-if not na(alertMessage)
-    alert(alertMessage, alert.freq_once_per_bar)
+// // alert
+// if not na(alertMessage)
+//     alert(alertMessage, alert.freq_once_per_bar)
