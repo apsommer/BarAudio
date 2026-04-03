@@ -1,14 +1,16 @@
 //@version=6
 indicator(
-    "ZN • 6E • MGC",
+    "ZN • 6E • GC",
     overlay = true,
     max_bars_back = 2000)
 
 // INPUT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-
+ZN_SYMBOL = "CBOT:ZN1!"
+E6_SYMBOL = "CME:6E1!"
+// GC_SYMBOL = "COMEX_MINI:GC1!"
+GC_SYMBOL = "COMEX_MINI:MGC1!"
 
 
 // SESSION CONTROL
@@ -40,9 +42,6 @@ calc_blended_vwap() =>
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // 1 = supportive, 0 = neutral, -1 = hostile
-
-ZN_SYMBOL = "CBOT:ZN1!"
-E6_SYMBOL = "CME:6E1!"
 
 // ZN
 znOpen = request.security(ZN_SYMBOL, timeframe.period, open)
@@ -113,30 +112,16 @@ isE6TrendingDown =
 isE6supportive = isE6TrendingUp
 isE6hostile = isE6TrendingDown
 
-
-
-
-
-
-
-
-
-
-
 // 1 = supportive, 0 = neutral, -1 = hostile
 isMacroSupportive = isZNsupportive and isE6supportive
 isMacroHostile = isZNhostile and isE6hostile
 isMacroNuetral = not isMacroSupportive and not isMacroHostile
 
-// MGC LOGIC
+// GC LOGIC
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// MGC_SYMBOL = "COMEX_MINI:MGC1!"
-MGC_SYMBOL = "COMEX:GC1!"
 
 MACRO_ENTRY_PERSISTENCE_BARS = 2
 MACRO_EXIT_PERSISTENCE_BARS = 2
-
 
 var int macroPersistentState = 0
 var int macroSupportiveCount = 0
@@ -169,7 +154,7 @@ isMacroSupportivePersistent = macroPersistentState == 1
 isMacroHostilePersistent = macroPersistentState == -1
 isMacroNuetralPersistent = macroPersistentState == 0
 
-// MGC TRADE
+// GC TRADE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 var float entryPrice = open
@@ -220,15 +205,15 @@ if isLongExit or isShortExit
 
 ZN_color = color.blue
 E6_color = color.purple
-MGC_color = color.yellow
+GC_color = color.yellow
 long_color = color.blue
 short_color = color.red
 vwap_color = color.new(color.white, 70)
 
 isZN = syminfo.root == "ZN"
 isE6 = syminfo.root == "6E"
-// isMGC = syminfo.root == "MGC"
-isMGC = syminfo.root == "GC"
+// isGC = syminfo.root == "GC"
+isGC = syminfo.root == "MGC"
 
 // bar color
 barColor =
@@ -238,31 +223,31 @@ barColor =
      isE6 and isE6supportive ? long_color :
      isE6 and isE6hostile ? short_color :
      isE6 ? color.new(E6_color, 70) :
-     isMGC and isMacroSupportive ? long_color :
-     isMGC and isMacroHostile ? short_color :
-     isMGC ? color.new(MGC_color, 70) : na
+     isGC and isMacroSupportive ? long_color :
+     isGC and isMacroHostile ? short_color :
+     isGC ? color.new(GC_color, 70) : na
 barcolor(barColor)
 
 // signals
 // plot(
-//      isMGC and isLongSignal ? open : na,
+//      isGC and isLongSignal ? open : na,
 //      style = plot.style_circles,
 //      color = long_color,
 //      linewidth = 6)
 // plot(
-//      isMGC and isShortSignal ? open : na,
+//      isGC and isShortSignal ? open : na,
 //      style = plot.style_circles,
 //      color = short_color,
 //      linewidth = 6)
 // plotshape(
-//      isMGC and isLongExit ? open : na,
+//      isGC and isLongExit ? open : na,
 //      title = "Long Exit",
 //      style = shape.xcross,
 //      location = location.absolute,
 //      color = long_color,
 //      size = size.tiny)
 // plotshape(
-//      isMGC and isShortExit ? open : na,
+//      isGC and isShortExit ? open : na,
 //      title = "Short Exit",
 //      style = shape.xcross,
 //      location = location.absolute,
@@ -278,18 +263,18 @@ E6_vwap = request.security(
      E6_SYMBOL,
      timeframe.period,
      ta.vwap(open))
-MGC_blended_vwap = request.security(
-     MGC_SYMBOL,
+GC_blended_vwap = request.security(
+     GC_SYMBOL,
      timeframe.period,
      calc_blended_vwap())
-MGC_vwap = ta.vwap(open)
+GC_vwap = ta.vwap(open)
 
 plot(isZN and isBlendedVwap ? ZN_vwap : na, color = vwap_color, style = plot.style_linebr)
 plot(isE6 and isBlendedVwap ? E6_vwap : na, color = vwap_color, style = plot.style_linebr)
-plot(isMGC and isBlendedVwap ? MGC_vwap : na, color = vwap_color, style = plot.style_linebr)
+plot(isGC and isBlendedVwap ? GC_vwap : na, color = vwap_color, style = plot.style_linebr)
 plot(isZN ? znBlendedVwap : na, color = vwap_color)
 plot(isE6 ? e6BlendedVwap : na, color = vwap_color)
-plot(isMGC ? MGC_blended_vwap : na, color = vwap_color)
+plot(isGC ? GC_blended_vwap : na, color = vwap_color)
 
 // ALERT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -304,7 +289,7 @@ formattedProfit = str.tostring(math.round(math.abs(profit / syminfo.mintick)))
 
 // macro supportive
 triggerMacroSupportive =
-     isMGC
+     isGC
      and isMacroSupportivePersistent
      and not isMacroSupportivePersistent[1]
 
@@ -313,7 +298,7 @@ if triggerMacroSupportive and not barstate.isconfirmed
 
 // macro hostile
 triggerMacroHostile =
-     isMGC
+     isGC
      and isMacroHostilePersistent
      and not isMacroHostilePersistent[1]
 
@@ -321,20 +306,20 @@ if triggerMacroHostile and not barstate.isconfirmed
     alertMessage := "Macro • Rates and Dollar • Bearish"
 
 // entry long
-if isMGC and isLongSignal and not barstate.isconfirmed
+if isGC and isLongSignal and not barstate.isconfirmed
     alertMessage := "Entry • Long • " + formattedPrice
 
 // entry short
-if isMGC and isShortSignal and not barstate.isconfirmed
+if isGC and isShortSignal and not barstate.isconfirmed
     alertMessage := "Entry • Short • " + formattedPrice
 
 // exit long
-if isMGC and isLongExit and not barstate.isconfirmed
+if isGC and isLongExit and not barstate.isconfirmed
     profitMessage = (profit > 0 ? "Profit " : "Loss ") + formattedProfit + " ticks"
     alertMessage := "Exit • Long • " + profitMessage
 
 // exit short
-if isMGC and isShortExit and not barstate.isconfirmed
+if isGC and isShortExit and not barstate.isconfirmed
     profitMessage = (profit > 0 ? "Profit " : "Loss ") + formattedProfit + " ticks"
     alertMessage := "Exit • Short • " + profitMessage
 
