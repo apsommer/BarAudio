@@ -44,31 +44,84 @@ calc_blended_vwap() =>
 ZN_SYMBOL = "CBOT:ZN1!"
 E6_SYMBOL = "CME:6E1!"
 
-ZN_open = request.security(
-     ZN_SYMBOL,
-     timeframe.period,
-     open)
+// ZN
+znOpen = request.security(ZN_SYMBOL, timeframe.period, open)
+znBlendedVwap = request.security(ZN_SYMBOL, timeframe.period, calc_blended_vwap())
 
-E6_open = request.security(
-     E6_SYMBOL,
-     timeframe.period,
-     open)
+isZNsupportive = znOpen > znBlendedVwap
+isZNhostile = znOpen < znBlendedVwap
 
-ZN_blended_vwap = request.security(
-     ZN_SYMBOL,
-     timeframe.period,
-     calc_blended_vwap())
 
-E6_blended_vwap = request.security(
-     E6_SYMBOL,
-     timeframe.period,
-     calc_blended_vwap())
 
-isZNsupportive = ZN_open > ZN_blended_vwap
-isZNhostile = ZN_open < ZN_blended_vwap
 
-isE6supportive = E6_open > E6_blended_vwap
-isE6hostile = E6_open < E6_blended_vwap
+
+
+
+
+
+
+// 6E
+E6_LOOKBACK = 6 // lookback for recent range, position consideration
+E6_POSITION_RATIO = 0.1 // above -> long, below -> short
+E6_TRENDING_BARS = 0 // bars that must be bullish/bearish
+E6_MIN_TICK_DISPLACEMENT = 0
+
+// data
+e6Tick = request.security(E6_SYMBOL, timeframe.period, syminfo.mintick)
+e6Open = request.security(E6_SYMBOL, timeframe.period, open)
+e6High = request.security(E6_SYMBOL, timeframe.period, high)
+e6Low = request.security(E6_SYMBOL, timeframe.period, low)
+e6Close = request.security(E6_SYMBOL, timeframe.period, close)
+e6BlendedVwap = request.security(E6_SYMBOL, timeframe.period, calc_blended_vwap())
+
+// 6E must be trending bullish/bearish
+e6RecentHigh = request.security(E6_SYMBOL, timeframe.period, ta.highest(high[1], E6_LOOKBACK))
+e6RecentLow = request.security(E6_SYMBOL, timeframe.period, ta.lowest(low[1], E6_LOOKBACK))
+e6Range = e6RecentHigh - e6RecentLow
+e6Position = (e6Open - e6RecentLow) / e6Range
+
+// count bullish/bearish bars
+e6BullCount = 100 // math.sum(e6Close[1] > e6Open[1] ? 1 : 0, E6_LOOKBACK)
+e6BearCount = 100 // math.sum(e6Open[1] > e6Close[1] ? 1 : 0, E6_LOOKBACK)
+
+// require absolute tick displacement
+e6MinNetMove = E6_MIN_TICK_DISPLACEMENT * e6Tick
+e6NetMove = e6Close[1] - e6Open[E6_LOOKBACK]
+
+isE6TrendingUp =
+     // e6Position[1] >= E6_POSITION_RATIO and
+     e6BullCount > E6_TRENDING_BARS and
+     e6NetMove > e6MinNetMove
+
+isE6TrendingDown =
+     // e6Position[1] < (1.0 - E6_POSITION_RATIO) and
+     e6BearCount > E6_TRENDING_BARS and
+     -e6NetMove > e6MinNetMove
+
+
+
+
+
+
+
+
+
+
+
+
+
+isE6supportive = isE6TrendingUp
+isE6hostile = isE6TrendingDown
+
+
+
+
+
+
+
+
+
+
 
 // 1 = supportive, 0 = neutral, -1 = hostile
 isMacroSupportive = isZNsupportive and isE6supportive
@@ -78,12 +131,12 @@ isMacroNuetral = not isMacroSupportive and not isMacroHostile
 // MGC LOGIC
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-MGC_SYMBOL = "COMEX_MINI:MGC1!"
+// MGC_SYMBOL = "COMEX_MINI:MGC1!"
+MGC_SYMBOL = "COMEX:GC1!"
 
 MACRO_ENTRY_PERSISTENCE_BARS = 2
 MACRO_EXIT_PERSISTENCE_BARS = 2
-E6_LOOKBACK = 10 // lookback for recent range, position consideration
-E6_POSITION_RATIO = 0.5 // above -> long, below -> short
+
 
 var int macroPersistentState = 0
 var int macroSupportiveCount = 0
@@ -116,14 +169,6 @@ isMacroSupportivePersistent = macroPersistentState == 1
 isMacroHostilePersistent = macroPersistentState == -1
 isMacroNuetralPersistent = macroPersistentState == 0
 
-// 6E must be trending up over the lookback period
-E6_recent_high = request.security(E6_SYMBOL, timeframe.period, ta.highest(high[1], E6_LOOKBACK))
-E6_recent_low = request.security(E6_SYMBOL, timeframe.period, ta.lowest(low[1], E6_LOOKBACK))
-E6_range = E6_recent_high - E6_recent_low
-E6_position = (E6_open - E6_recent_low) / E6_range
-isE6PositionValidForLong = E6_position > E6_POSITION_RATIO
-isE6PositionValidForShort = E6_position < E6_POSITION_RATIO
-
 // MGC TRADE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -132,15 +177,13 @@ var float exitPrice = open
 var float profit = 0.0
 
 isLongSignal =
-     isE6PositionValidForLong
-     and not isLongTradeActive
+     not isLongTradeActive
      and not isShortTradeActive
      and isMacroSupportivePersistent
      and isInSession
 
 isShortSignal =
-     isE6PositionValidForShort
-     and not isLongTradeActive
+     not isLongTradeActive
      and not isShortTradeActive
      and isMacroHostilePersistent
      and isInSession
@@ -184,7 +227,8 @@ vwap_color = color.new(color.white, 70)
 
 isZN = syminfo.root == "ZN"
 isE6 = syminfo.root == "6E"
-isMGC = syminfo.root == "MGC"
+// isMGC = syminfo.root == "MGC"
+isMGC = syminfo.root == "GC"
 
 // bar color
 barColor =
@@ -200,30 +244,30 @@ barColor =
 barcolor(barColor)
 
 // signals
-plot(
-     isMGC and isLongSignal ? open : na,
-     style = plot.style_circles,
-     color = long_color,
-     linewidth = 6)
-plot(
-     isMGC and isShortSignal ? open : na,
-     style = plot.style_circles,
-     color = short_color,
-     linewidth = 6)
-plotshape(
-     isMGC and isLongExit ? open : na,
-     title = "Long Exit",
-     style = shape.xcross,
-     location = location.absolute,
-     color = long_color,
-     size = size.tiny)
-plotshape(
-     isMGC and isShortExit ? open : na,
-     title = "Short Exit",
-     style = shape.xcross,
-     location = location.absolute,
-     color = short_color,
-     size = size.tiny)
+// plot(
+//      isMGC and isLongSignal ? open : na,
+//      style = plot.style_circles,
+//      color = long_color,
+//      linewidth = 6)
+// plot(
+//      isMGC and isShortSignal ? open : na,
+//      style = plot.style_circles,
+//      color = short_color,
+//      linewidth = 6)
+// plotshape(
+//      isMGC and isLongExit ? open : na,
+//      title = "Long Exit",
+//      style = shape.xcross,
+//      location = location.absolute,
+//      color = long_color,
+//      size = size.tiny)
+// plotshape(
+//      isMGC and isShortExit ? open : na,
+//      title = "Short Exit",
+//      style = shape.xcross,
+//      location = location.absolute,
+//      color = short_color,
+//      size = size.tiny)
 
 // vwap
 ZN_vwap = request.security(
@@ -243,8 +287,8 @@ MGC_vwap = ta.vwap(open)
 plot(isZN and isBlendedVwap ? ZN_vwap : na, color = vwap_color, style = plot.style_linebr)
 plot(isE6 and isBlendedVwap ? E6_vwap : na, color = vwap_color, style = plot.style_linebr)
 plot(isMGC and isBlendedVwap ? MGC_vwap : na, color = vwap_color, style = plot.style_linebr)
-plot(isZN ? ZN_blended_vwap : na, color = vwap_color)
-plot(isE6 ? E6_blended_vwap : na, color = vwap_color)
+plot(isZN ? znBlendedVwap : na, color = vwap_color)
+plot(isE6 ? e6BlendedVwap : na, color = vwap_color)
 plot(isMGC ? MGC_blended_vwap : na, color = vwap_color)
 
 // ALERT
