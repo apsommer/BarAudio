@@ -56,71 +56,50 @@ znBlendedVwap = request.security(ZN_SYMBOL, timeframe.period, calc_blended_vwap(
 e6BlendedVwap = request.security(E6_SYMBOL, timeframe.period, calc_blended_vwap())
 gcBlendedVwap = request.security( GC_SYMBOL, timeframe.period, calc_blended_vwap())
 
-// MACRO REGIME
+// ZN
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // 1 = supportive, 0 = neutral, -1 = hostile
 
-// ZN
-isZNsupportive = znOpen > znBlendedVwap
-isZNhostile = znOpen < znBlendedVwap
+ZN_LOOKBACK = 25 // lookback for recent range, position consideration
+ZN_POSITION_RATIO = 0.62 // above -> bullish, below -> bearish
 
+// range and position within range
+znRecentHigh = request.security(ZN_SYMBOL, timeframe.period, ta.highest(high[1], ZN_LOOKBACK))
+znRecentLow = request.security(ZN_SYMBOL, timeframe.period, ta.lowest(low[1], ZN_LOOKBACK))
+znRange = znRecentHigh - znRecentLow
+znPosition = (znOpen - znRecentLow) / znRange
 
+// trend
+isZNTrendingUp = znPosition > ZN_POSITION_RATIO
+isZNTrendingDown = znPosition < (1 - ZN_POSITION_RATIO)
 
-
-
-
-
-
-
+// trend and vwap
+isZNsupportive = isZNTrendingUp and znOpen > znBlendedVwap
+isZNhostile = isZNTrendingDown and znOpen < znBlendedVwap
 
 // 6E
-E6_LOOKBACK = 6 // lookback for recent range, position consideration
-E6_POSITION_RATIO = 0.5 // above -> long, below -> short
-E6_TRENDING_BARS = 3 // bars that must be bullish/bearish
-E6_MIN_TICK_DISPLACEMENT = 3
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// data
+E6_LOOKBACK = 20 // lookback for recent range, position consideration
+E6_POSITION_RATIO = 0.65 // above -> bullish, below -> bearish
 
-
-// 6E must be trending bullish/bearish
+// range and position within range
 e6RecentHigh = request.security(E6_SYMBOL, timeframe.period, ta.highest(high[1], E6_LOOKBACK))
 e6RecentLow = request.security(E6_SYMBOL, timeframe.period, ta.lowest(low[1], E6_LOOKBACK))
 e6Range = e6RecentHigh - e6RecentLow
 e6Position = (e6Open - e6RecentLow) / e6Range
 
-// count bullish/bearish bars
-e6BullCount = math.sum(e6Close[1] > e6Open[1] ? 1 : 0, E6_LOOKBACK)
-e6BearCount = math.sum(e6Open[1] > e6Close[1] ? 1 : 0, E6_LOOKBACK)
+// trend
+isE6TrendingUp = e6Position > E6_POSITION_RATIO
+isE6TrendingDown = e6Position < (1 - E6_POSITION_RATIO)
 
-// require absolute tick displacement
-e6MinNetMove = E6_MIN_TICK_DISPLACEMENT * e6Tick
-e6NetMove = e6Close[1] - e6Open[E6_LOOKBACK]
+// trend and vwap
+isE6supportive = isE6TrendingUp and e6Open > e6BlendedVwap
+isE6hostile = isE6TrendingDown and e6Open < e6BlendedVwap
 
-isE6TrendingUp =
-     // e6Position[1] >= E6_POSITION_RATIO and
-     e6BullCount > E6_TRENDING_BARS and
-     e6NetMove > e6MinNetMove
-
-isE6TrendingDown =
-     // e6Position[1] < (1.0 - E6_POSITION_RATIO) and
-     e6BearCount > E6_TRENDING_BARS and
-     -e6NetMove > e6MinNetMove
-
-
-
-
-
-
-
-
-
-
-
-
-
-isE6supportive = isE6TrendingUp
-isE6hostile = isE6TrendingDown
+// MACRO REGIME
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // 1 = supportive, 0 = neutral, -1 = hostile
 isMacroSupportive = isZNsupportive and isE6supportive
@@ -232,7 +211,7 @@ barColor =
      isZN ? color.new(ZN_color, 70) :
      isE6 and isE6supportive ? long_color :
      isE6 and isE6hostile ? short_color :
-     isE6 ? color.new(E6_color, 70) :
+     isE6 ? color.new(E6_color, 50) :
      isGC and isMacroSupportive ? long_color :
      isGC and isMacroHostile ? short_color :
      isGC ? color.new(GC_color, 70) : na
