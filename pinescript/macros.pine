@@ -7,11 +7,6 @@ indicator(
 // INPUT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ZN_SYMBOL = "CBOT:ZN1!"
-E6_SYMBOL = "CME:6E1!"
-// GC_SYMBOL = "COMEX_MINI:GC1!"
-GC_SYMBOL = "COMEX_MINI:MGC1!"
-
 
 // SESSION CONTROL
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -26,7 +21,26 @@ isMarketClosing = not na(time(timeframe.period, marketCloseTime, "America/New_Yo
 inSessionTimes = "1810-1659"
 isInSession = not na(time(timeframe.period, inSessionTimes, "America/New_York"))
 
-// blend vwap from previous to new on session start for 60 minutes, prevents discontinuity at session start
+// DATA
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+ZN_SYMBOL = "CBOT:ZN1!"
+E6_SYMBOL = "CME:6E1!"
+GC_SYMBOL = "COMEX_MINI:MGC1!"
+
+znOpen = request.security(ZN_SYMBOL, timeframe.period, open)
+
+e6Tick = request.security(E6_SYMBOL, timeframe.period, syminfo.mintick)
+e6Open = request.security(E6_SYMBOL, timeframe.period, open)
+e6High = request.security(E6_SYMBOL, timeframe.period, high)
+e6Low = request.security(E6_SYMBOL, timeframe.period, low)
+e6Close = request.security(E6_SYMBOL, timeframe.period, close)
+
+znVwap = request.security(ZN_SYMBOL, timeframe.period, ta.vwap(open))
+e6Vwap = request.security(E6_SYMBOL, timeframe.period, ta.vwap(open))
+gcVwap = request.security(GC_SYMBOL, timeframe.period, ta.vwap(open))
+
+// blend vwap from previous to new on session start for N minutes, prevents discontinuity at session start
 blendedVwapMinutes = 90
 isBlendedVwapTimes = "1800-1930"
 isBlendedVwap = not na(time(timeframe.period, isBlendedVwapTimes, "America/New_York"))
@@ -38,15 +52,16 @@ calc_blended_vwap() =>
     c = math.min(1.0, elapsedMinutes / float(blendedVwapMinutes))
     prev + c * (current - prev)
 
+znBlendedVwap = request.security(ZN_SYMBOL, timeframe.period, calc_blended_vwap())
+e6BlendedVwap = request.security(E6_SYMBOL, timeframe.period, calc_blended_vwap())
+gcBlendedVwap = request.security( GC_SYMBOL, timeframe.period, calc_blended_vwap())
+
 // MACRO REGIME
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // 1 = supportive, 0 = neutral, -1 = hostile
 
 // ZN
-znOpen = request.security(ZN_SYMBOL, timeframe.period, open)
-znBlendedVwap = request.security(ZN_SYMBOL, timeframe.period, calc_blended_vwap())
-
 isZNsupportive = znOpen > znBlendedVwap
 isZNhostile = znOpen < znBlendedVwap
 
@@ -61,17 +76,12 @@ isZNhostile = znOpen < znBlendedVwap
 
 // 6E
 E6_LOOKBACK = 6 // lookback for recent range, position consideration
-E6_POSITION_RATIO = 0.1 // above -> long, below -> short
-E6_TRENDING_BARS = 0 // bars that must be bullish/bearish
-E6_MIN_TICK_DISPLACEMENT = 0
+E6_POSITION_RATIO = 0.5 // above -> long, below -> short
+E6_TRENDING_BARS = 3 // bars that must be bullish/bearish
+E6_MIN_TICK_DISPLACEMENT = 3
 
 // data
-e6Tick = request.security(E6_SYMBOL, timeframe.period, syminfo.mintick)
-e6Open = request.security(E6_SYMBOL, timeframe.period, open)
-e6High = request.security(E6_SYMBOL, timeframe.period, high)
-e6Low = request.security(E6_SYMBOL, timeframe.period, low)
-e6Close = request.security(E6_SYMBOL, timeframe.period, close)
-e6BlendedVwap = request.security(E6_SYMBOL, timeframe.period, calc_blended_vwap())
+
 
 // 6E must be trending bullish/bearish
 e6RecentHigh = request.security(E6_SYMBOL, timeframe.period, ta.highest(high[1], E6_LOOKBACK))
@@ -80,8 +90,8 @@ e6Range = e6RecentHigh - e6RecentLow
 e6Position = (e6Open - e6RecentLow) / e6Range
 
 // count bullish/bearish bars
-e6BullCount = 100 // math.sum(e6Close[1] > e6Open[1] ? 1 : 0, E6_LOOKBACK)
-e6BearCount = 100 // math.sum(e6Open[1] > e6Close[1] ? 1 : 0, E6_LOOKBACK)
+e6BullCount = math.sum(e6Close[1] > e6Open[1] ? 1 : 0, E6_LOOKBACK)
+e6BearCount = math.sum(e6Open[1] > e6Close[1] ? 1 : 0, E6_LOOKBACK)
 
 // require absolute tick displacement
 e6MinNetMove = E6_MIN_TICK_DISPLACEMENT * e6Tick
@@ -255,26 +265,14 @@ barcolor(barColor)
 //      size = size.tiny)
 
 // vwap
-ZN_vwap = request.security(
-     ZN_SYMBOL,
-     timeframe.period,
-     ta.vwap(open))
-E6_vwap = request.security(
-     E6_SYMBOL,
-     timeframe.period,
-     ta.vwap(open))
-GC_blended_vwap = request.security(
-     GC_SYMBOL,
-     timeframe.period,
-     calc_blended_vwap())
-GC_vwap = ta.vwap(open)
 
-plot(isZN and isBlendedVwap ? ZN_vwap : na, color = vwap_color, style = plot.style_linebr)
-plot(isE6 and isBlendedVwap ? E6_vwap : na, color = vwap_color, style = plot.style_linebr)
-plot(isGC and isBlendedVwap ? GC_vwap : na, color = vwap_color, style = plot.style_linebr)
+
+plot(isZN and isBlendedVwap ? znVwap : na, color = vwap_color, style = plot.style_linebr)
+plot(isE6 and isBlendedVwap ? e6Vwap : na, color = vwap_color, style = plot.style_linebr)
+plot(isGC and isBlendedVwap ? gcVwap : na, color = vwap_color, style = plot.style_linebr)
 plot(isZN ? znBlendedVwap : na, color = vwap_color)
 plot(isE6 ? e6BlendedVwap : na, color = vwap_color)
-plot(isGC ? GC_blended_vwap : na, color = vwap_color)
+plot(isGC ? gcBlendedVwap : na, color = vwap_color)
 
 // ALERT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
