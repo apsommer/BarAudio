@@ -24,6 +24,10 @@ isInSession = not na(time(timeframe.period, inSessionTimes, "America/New_York"))
 // DATA
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+isZN = syminfo.root == "ZN"
+isE6 = syminfo.root == "6E"
+isGC = syminfo.root == "MGC"
+
 ZN_SYMBOL = "CBOT:ZN1!"
 E6_SYMBOL = "CME:6E1!"
 GC_SYMBOL = "COMEX_MINI:MGC1!"
@@ -75,8 +79,8 @@ isZNTrendingUp = znPosition > ZN_POSITION_RATIO
 isZNTrendingDown = znPosition < (1 - ZN_POSITION_RATIO)
 
 // trend and vwap
-isZNsupportive = isZNTrendingUp and znOpen > znBlendedVwap
-isZNhostile = isZNTrendingDown and znOpen < znBlendedVwap
+isZNsupportive = znOpen > znBlendedVwap // and isZNTrendingUp
+isZNhostile = znOpen < znBlendedVwap // and isZNTrendingDown
 
 // 6E
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -95,8 +99,9 @@ isE6TrendingUp = e6Position > E6_POSITION_RATIO
 isE6TrendingDown = e6Position < (1 - E6_POSITION_RATIO)
 
 // trend and vwap
-isE6supportive = isE6TrendingUp and e6Open > e6BlendedVwap
-isE6hostile = isE6TrendingDown and e6Open < e6BlendedVwap
+isE6supportive = isE6TrendingUp // and e6Open < e6BlendedVwap
+isE6hostile = isE6TrendingDown // and e6Open > e6BlendedVwap
+
 
 // MACRO REGIME
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -109,8 +114,8 @@ isMacroNuetral = not isMacroSupportive and not isMacroHostile
 // GC LOGIC
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-GC_LOOKBACK = 20
-GC_POSITION_RATIO = 0.65
+GC_LOOKBACK = 10
+GC_POSITION_RATIO = 0.5
 
 gcRecentHigh = ta.highest(high[1], GC_LOOKBACK)
 gcRecentLow = ta.lowest(low[1], GC_LOOKBACK)
@@ -118,16 +123,37 @@ gcRange = gcRecentHigh - gcRecentLow
 gcPosition = (open - gcRecentLow) / gcRange
 
 isGCTrendingUp = gcPosition > GC_POSITION_RATIO
-isGCTrendingDown = gcPosition < (1 - GC_POSITION_RATIO)
+isGCTrendingDown = (1 - GC_POSITION_RATIO) > gcPosition
 
 isGCAboveVwap = open > gcBlendedVwap
-isGCBelowVwap = open < gcBlendedVwap
+isGCBelowVwap = gcBlendedVwap > open
 
 isGCAcceptedBull = isGCTrendingUp and isGCAboveVwap
 isGCAcceptedBear = isGCTrendingDown and isGCBelowVwap
 
 isGCDamagedBull = isGCTrendingUp and isGCBelowVwap
 isGCDamagedBear = isGCTrendingDown and isGCAboveVwap
+
+// GC VWAP EXTENSION
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+GC_VWAP_PERCENT = 0.03 // 0.02
+
+gcUpperExtension = gcBlendedVwap * (1 + GC_VWAP_PERCENT)
+gcLowerExtension = gcBlendedVwap * (1 - GC_VWAP_PERCENT)
+
+isGCOverExtendedUp = open > gcUpperExtension
+isGCOverExtendedDown = gcLowerExtension > open
+
+plot(
+     isGC ? gcUpperExtension : na,
+     color = color.new(color.red, 60),
+     linewidth = 1)
+
+plot(
+     isGC ? gcLowerExtension : na,
+     color = color.new(color.green, 60),
+     linewidth = 1)
 
 // GC TRADE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -138,19 +164,26 @@ var float entryPrice = na
 var float exitPrice = na
 var float profit = na
 
+// temp
+tp = 10
+sl = 20
+
 // entry
 isLongEntry =
      isInSession
      and not isLongTradeActive
      and not isShortTradeActive
      and isMacroSupportive
-     and isGCAcceptedBull
+     and isGCTrendingUp
+     and not isGCOverExtendedUp
 isShortEntry =
      isInSession
      and not isLongTradeActive
      and not isShortTradeActive
      and isMacroHostile
-     and isGCAcceptedBear
+     and isGCTrendingDown
+     and not isGCOverExtendedDown
+
 if isLongEntry
     isLongTradeActive := true
     isShortTradeActive := false
@@ -163,18 +196,18 @@ if isShortEntry
 // take profit
 isLongTakeProfit =
      isLongTradeActive
-     and open > entryPrice + 40
+     and open > entryPrice + tp
 isShortTakeProfit =
      isShortTradeActive
-     and entryPrice - 40 > open
+     and entryPrice - tp > open
 
 // stop loss
 isLongStopLoss =
      isLongTradeActive
-     and entryPrice - 40 > open
+     and entryPrice - sl > open
 isShortStopLoss =
      isShortTradeActive
-     and open > entryPrice + 40
+     and open > entryPrice + sl
 
 // exit
 isLongExit =
@@ -183,6 +216,7 @@ isLongExit =
 isShortExit =
      isShortTradeActive
      and (not isInSession or isShortTakeProfit or isShortStopLoss)
+
 if isLongExit
     isLongTradeActive := false
     exitPrice := open
@@ -202,10 +236,6 @@ long_color = color.blue
 short_color = color.red
 vwap_color = color.new(color.white, 70)
 
-isZN = syminfo.root == "ZN"
-isE6 = syminfo.root == "6E"
-isGC = syminfo.root == "MGC"
-
 // bar color
 barColor =
      isZN and isZNsupportive ? long_color :
@@ -214,8 +244,8 @@ barColor =
      isE6 and isE6supportive ? long_color :
      isE6 and isE6hostile ? short_color :
      isE6 ? color.new(E6_color, 50) :
-     isGC and isMacroSupportive ? long_color :
-     isGC and isMacroHostile ? short_color :
+     isGC and isMacroSupportive ? color.new(long_color, 70) :
+     isGC and isMacroHostile ? color.new(short_color, 70) :
      isGC ? color.new(GC_color, 70) : na
 barcolor(barColor)
 
