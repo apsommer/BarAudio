@@ -4,10 +4,6 @@ indicator(
     overlay = true,
     max_bars_back = 2000)
 
-// INPUT
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
 // SESSION CONTROL
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -45,8 +41,8 @@ e6Vwap = request.security(E6_SYMBOL, timeframe.period, ta.vwap(open))
 gcVwap = request.security(GC_SYMBOL, timeframe.period, ta.vwap(open))
 
 // blend vwap from previous to new on session start for N minutes, prevents discontinuity at session start
-blendedVwapMinutes = 90
-isBlendedVwapTimes = "1800-1930"
+blendedVwapMinutes = 120
+isBlendedVwapTimes = "1800-2000"
 isBlendedVwap = not na(time(timeframe.period, isBlendedVwapTimes, "America/New_York"))
 calc_blended_vwap() =>
     current = ta.vwap(open)
@@ -63,10 +59,9 @@ gcBlendedVwap = request.security( GC_SYMBOL, timeframe.period, calc_blended_vwap
 // ZN
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// 1 = supportive, 0 = neutral, -1 = hostile
-
-ZN_LOOKBACK = 25 // lookback for recent range, position consideration
-ZN_POSITION_RATIO = 0.62 // above -> bullish, below -> bearish
+ZN_LOOKBACK = 24 // lookback for recent range, position consideration
+// ZN_POSITION_RATIO = 0.5 // above -> bullish, below -> bearish
+ZN_VWAP_DISTANCE_PERCENT = 0.0005
 
 // range and position within range
 znRecentHigh = request.security(ZN_SYMBOL, timeframe.period, ta.highest(high[1], ZN_LOOKBACK))
@@ -75,18 +70,34 @@ znRange = znRecentHigh - znRecentLow
 znPosition = (znOpen - znRecentLow) / znRange
 
 // trend
-isZNTrendingUp = znPosition > ZN_POSITION_RATIO
-isZNTrendingDown = znPosition < (1 - ZN_POSITION_RATIO)
+// isZNTrendingUp = znPosition >= ZN_POSITION_RATIO
+// isZNTrendingDown = znPosition < (1 - ZN_POSITION_RATIO)
 
-// trend and vwap
-isZNsupportive = znOpen > znBlendedVwap // and isZNTrendingUp
-isZNhostile = znOpen < znBlendedVwap // and isZNTrendingDown
+// distance from vwap
+znUpperExtension = znBlendedVwap * (1 + ZN_VWAP_DISTANCE_PERCENT)
+znLowerExtension = znBlendedVwap * (1 - ZN_VWAP_DISTANCE_PERCENT)
+
+isZNAboveUpperExtension = znOpen > znUpperExtension
+isZNBelowLowerExtension = znLowerExtension > znOpen
+
+isZNsupportive = isZNAboveUpperExtension // and isZNTrendingUp
+isZNhostile = isZNBelowLowerExtension // and isZNTrendingDown
+
+plot(
+     isZN ? znUpperExtension : na,
+     color = color.new(color.blue, 60),
+     linewidth = 1)
+
+plot(
+     isZN ? znLowerExtension : na,
+     color = color.new(color.red, 60),
+     linewidth = 1)
 
 // 6E
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-E6_LOOKBACK = 20 // lookback for recent range, position consideration
-E6_POSITION_RATIO = 0.65 // above -> bullish, below -> bearish
+E6_LOOKBACK = 18 // lookback for recent range, position consideration
+E6_POSITION_RATIO = 0.5 // above -> bullish, below -> bearish
 
 // range and position within range
 e6RecentHigh = request.security(E6_SYMBOL, timeframe.period, ta.highest(high[1], E6_LOOKBACK))
@@ -98,15 +109,17 @@ e6Position = (e6Open - e6RecentLow) / e6Range
 isE6TrendingUp = e6Position > E6_POSITION_RATIO
 isE6TrendingDown = e6Position < (1 - E6_POSITION_RATIO)
 
-// trend and vwap
-isE6supportive = isE6TrendingUp // and e6Open < e6BlendedVwap
-isE6hostile = isE6TrendingDown // and e6Open > e6BlendedVwap
+// vwap
+// isE6AboveVwap = e6Open > e6BlendedVwap
+// isE6BelowVwap = e6BlendedVwap > e6Open
 
+// trend and vwap
+isE6supportive = isE6TrendingUp // and isE6BelowVwap
+isE6hostile = isE6TrendingDown // and isE6AboveVwap
 
 // MACRO REGIME
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// 1 = supportive, 0 = neutral, -1 = hostile
 isMacroSupportive = isZNsupportive and isE6supportive
 isMacroHostile = isZNhostile and isE6hostile
 isMacroNuetral = not isMacroSupportive and not isMacroHostile
@@ -134,10 +147,9 @@ isGCAcceptedBear = isGCTrendingDown and isGCBelowVwap
 isGCDamagedBull = isGCTrendingUp and isGCBelowVwap
 isGCDamagedBear = isGCTrendingDown and isGCAboveVwap
 
-// GC VWAP EXTENSION
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// vwap extension
 
-GC_VWAP_PERCENT = 0.03 // 0.02
+GC_VWAP_PERCENT = 0.028 // 0.02
 
 gcUpperExtension = gcBlendedVwap * (1 + GC_VWAP_PERCENT)
 gcLowerExtension = gcBlendedVwap * (1 - GC_VWAP_PERCENT)
@@ -152,7 +164,7 @@ plot(
 
 plot(
      isGC ? gcLowerExtension : na,
-     color = color.new(color.green, 60),
+     color = color.new(color.blue, 60),
      linewidth = 1)
 
 // GC TRADE
@@ -166,7 +178,7 @@ var float profit = na
 
 // temp
 tp = 10
-sl = 20
+sl = 10
 
 // entry
 isLongEntry =
