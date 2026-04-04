@@ -29,12 +29,12 @@ E6_SYMBOL = "CME:6E1!"
 GC_SYMBOL = "COMEX_MINI:MGC1!"
 
 znOpen = request.security(ZN_SYMBOL, timeframe.period, open)
-
 e6Tick = request.security(E6_SYMBOL, timeframe.period, syminfo.mintick)
 e6Open = request.security(E6_SYMBOL, timeframe.period, open)
 e6High = request.security(E6_SYMBOL, timeframe.period, high)
 e6Low = request.security(E6_SYMBOL, timeframe.period, low)
 e6Close = request.security(E6_SYMBOL, timeframe.period, close)
+gcOpen = request.security(GC_SYMBOL, timeframe.period, open)
 
 znVwap = request.security(ZN_SYMBOL, timeframe.period, ta.vwap(open))
 e6Vwap = request.security(E6_SYMBOL, timeframe.period, ta.vwap(open))
@@ -127,33 +127,29 @@ isMacroNuetral = not isMacroSupportive and not isMacroHostile
 // GC LOGIC
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-GC_LOOKBACK = 10
-GC_POSITION_RATIO = 0.5
+GC_LOOKBACK = 14
+GC_POSITION_RATIO = 0.54
+GC_VWAP_PERCENT = 0.028
 
+// range and position within range
 gcRecentHigh = ta.highest(high[1], GC_LOOKBACK)
 gcRecentLow = ta.lowest(low[1], GC_LOOKBACK)
 gcRange = gcRecentHigh - gcRecentLow
-gcPosition = (open - gcRecentLow) / gcRange
+gcPosition = (gcOpen - gcRecentLow) / gcRange
 
+// trend
 isGCTrendingUp = gcPosition > GC_POSITION_RATIO
 isGCTrendingDown = (1 - GC_POSITION_RATIO) > gcPosition
 
-isGCAboveVwap = open > gcBlendedVwap
-isGCBelowVwap = gcBlendedVwap > open
+// vwap
+isGCAboveVwap = gcOpen > gcBlendedVwap
+isGCBelowVwap = gcBlendedVwap > gcOpen
+isGCCrossedAboveVwap = isGCAboveVwap and not isGCAboveVwap[1]
+isGCCrossedBelowVwap = isGCBelowVwap and not isGCBelowVwap[1]
 
-isGCAcceptedBull = isGCTrendingUp and isGCAboveVwap
-isGCAcceptedBear = isGCTrendingDown and isGCBelowVwap
-
-isGCDamagedBull = isGCTrendingUp and isGCBelowVwap
-isGCDamagedBear = isGCTrendingDown and isGCAboveVwap
-
-// vwap extension
-
-GC_VWAP_PERCENT = 0.028 // 0.02
-
+// over extended
 gcUpperExtension = gcBlendedVwap * (1 + GC_VWAP_PERCENT)
 gcLowerExtension = gcBlendedVwap * (1 - GC_VWAP_PERCENT)
-
 isGCOverExtendedUp = open > gcUpperExtension
 isGCOverExtendedDown = gcLowerExtension > open
 
@@ -172,13 +168,19 @@ plot(
 
 var bool isLongTradeActive = false
 var bool isShortTradeActive = false
+var bool isLongEnabled = false
+var bool isShortEnabled = false
 var float entryPrice = na
 var float exitPrice = na
 var float profit = na
 
-// temp
-tp = 10
-sl = 10
+// vwap crossed
+if isGCCrossedAboveVwap
+    isLongEnabled := true
+    isShortEnabled := false
+if isGCCrossedBelowVwap
+    isLongEnabled := false
+    isShortEnabled := true
 
 // entry
 isLongEntry =
@@ -186,53 +188,45 @@ isLongEntry =
      and not isLongTradeActive
      and not isShortTradeActive
      and isMacroSupportive
+     and isLongEnabled
      and isGCTrendingUp
      and not isGCOverExtendedUp
+
 isShortEntry =
      isInSession
      and not isLongTradeActive
      and not isShortTradeActive
      and isMacroHostile
+     and isShortEnabled
      and isGCTrendingDown
      and not isGCOverExtendedDown
 
 if isLongEntry
     isLongTradeActive := true
     isShortTradeActive := false
+    isLongEnabled := false
     entryPrice := open
+
 if isShortEntry
     isLongTradeActive := false
     isShortTradeActive := true
+    isShortEnabled := false
     entryPrice := open
-
-// take profit
-isLongTakeProfit =
-     isLongTradeActive
-     and open > entryPrice + tp
-isShortTakeProfit =
-     isShortTradeActive
-     and entryPrice - tp > open
-
-// stop loss
-isLongStopLoss =
-     isLongTradeActive
-     and entryPrice - sl > open
-isShortStopLoss =
-     isShortTradeActive
-     and open > entryPrice + sl
 
 // exit
 isLongExit =
      isLongTradeActive
-     and (not isInSession or isLongTakeProfit or isLongStopLoss)
+     and (not isInSession or isGCOverExtendedUp or isGCBelowVwap)
+
 isShortExit =
      isShortTradeActive
-     and (not isInSession or isShortTakeProfit or isShortStopLoss)
+     and (not isInSession or isGCOverExtendedDown or isGCAboveVwap)
 
 if isLongExit
     isLongTradeActive := false
     exitPrice := open
     profit := exitPrice - entryPrice
+
 if isShortExit
     isShortTradeActive := false
     exitPrice := open
@@ -275,9 +269,8 @@ plot(
 
 // exit
 exitColor =
-     isLongTakeProfit or isShortTakeProfit ? color.green :
-     isLongStopLoss or isShortStopLoss ? color.red :
-     color.yellow
+     not isInSession ? color.yellow :
+     profit > 0 ? color.green : color.red
 plotshape(
      isGC and isLongExit ? open : na,
      title = "Long Exit",
