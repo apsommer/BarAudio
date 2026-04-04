@@ -41,8 +41,8 @@ e6Vwap = request.security(E6_SYMBOL, timeframe.period, ta.vwap(open))
 gcVwap = request.security(GC_SYMBOL, timeframe.period, ta.vwap(open))
 
 // blend vwap from previous to new on session start for N minutes, prevents discontinuity at session start
-blendedVwapMinutes = 120
-isBlendedVwapTimes = "1800-2000"
+blendedVwapMinutes = 6 * 60
+isBlendedVwapTimes = "1800-2400"
 isBlendedVwap = not na(time(timeframe.period, isBlendedVwapTimes, "America/New_York"))
 calc_blended_vwap() =>
     current = ta.vwap(open)
@@ -59,44 +59,13 @@ gcBlendedVwap = request.security( GC_SYMBOL, timeframe.period, calc_blended_vwap
 // ZN
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ZN_LOOKBACK = 24 // lookback for recent range, position consideration
-// ZN_POSITION_RATIO = 0.5 // above -> bullish, below -> bearish
-ZN_VWAP_DISTANCE_PERCENT = 0.0005
-
-// range and position within range
-znRecentHigh = request.security(ZN_SYMBOL, timeframe.period, ta.highest(high[1], ZN_LOOKBACK))
-znRecentLow = request.security(ZN_SYMBOL, timeframe.period, ta.lowest(low[1], ZN_LOOKBACK))
-znRange = znRecentHigh - znRecentLow
-znPosition = (znOpen - znRecentLow) / znRange
-
-// trend
-// isZNTrendingUp = znPosition >= ZN_POSITION_RATIO
-// isZNTrendingDown = znPosition < (1 - ZN_POSITION_RATIO)
-
-// distance from vwap
-znUpperExtension = znBlendedVwap * (1 + ZN_VWAP_DISTANCE_PERCENT)
-znLowerExtension = znBlendedVwap * (1 - ZN_VWAP_DISTANCE_PERCENT)
-
-isZNAboveUpperExtension = znOpen > znUpperExtension
-isZNBelowLowerExtension = znLowerExtension > znOpen
-
-isZNsupportive = isZNAboveUpperExtension // and isZNTrendingUp
-isZNhostile = isZNBelowLowerExtension // and isZNTrendingDown
-
-plot(
-     isZN ? znUpperExtension : na,
-     color = color.new(color.blue, 60),
-     linewidth = 1)
-
-plot(
-     isZN ? znLowerExtension : na,
-     color = color.new(color.red, 60),
-     linewidth = 1)
+isZNsupportive = znOpen > znBlendedVwap
+isZNhostile = znBlendedVwap > znOpen
 
 // 6E
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-E6_LOOKBACK = 18 // lookback for recent range, position consideration
+E6_LOOKBACK = 20 // lookback for recent range, position consideration
 E6_POSITION_RATIO = 0.5 // above -> bullish, below -> bearish
 
 // range and position within range
@@ -106,16 +75,8 @@ e6Range = e6RecentHigh - e6RecentLow
 e6Position = (e6Open - e6RecentLow) / e6Range
 
 // trend
-isE6TrendingUp = e6Position > E6_POSITION_RATIO
-isE6TrendingDown = e6Position < (1 - E6_POSITION_RATIO)
-
-// vwap
-// isE6AboveVwap = e6Open > e6BlendedVwap
-// isE6BelowVwap = e6BlendedVwap > e6Open
-
-// trend and vwap
-isE6supportive = isE6TrendingUp // and isE6BelowVwap
-isE6hostile = isE6TrendingDown // and isE6AboveVwap
+isE6supportive = e6Position > E6_POSITION_RATIO
+isE6hostile = (1 - E6_POSITION_RATIO) > e6Position
 
 // MACRO REGIME
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -127,13 +88,12 @@ isMacroNuetral = not isMacroSupportive and not isMacroHostile
 // GC LOGIC
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-GC_LOOKBACK = 14
-GC_POSITION_RATIO = 0.54
-GC_VWAP_PERCENT = 0.028
+GC_LOOKBACK = 18
+GC_POSITION_RATIO = 0.50
 
 // range and position within range
-gcRecentHigh = ta.highest(high[1], GC_LOOKBACK)
-gcRecentLow = ta.lowest(low[1], GC_LOOKBACK)
+gcRecentHigh = request.security(GC_SYMBOL, timeframe.period, ta.highest(high[1], GC_LOOKBACK))
+gcRecentLow = request.security(GC_SYMBOL, timeframe.period, ta.lowest(low[1], GC_LOOKBACK))
 gcRange = gcRecentHigh - gcRecentLow
 gcPosition = (gcOpen - gcRecentLow) / gcRange
 
@@ -141,46 +101,17 @@ gcPosition = (gcOpen - gcRecentLow) / gcRange
 isGCTrendingUp = gcPosition > GC_POSITION_RATIO
 isGCTrendingDown = (1 - GC_POSITION_RATIO) > gcPosition
 
-// vwap
-isGCAboveVwap = gcOpen > gcBlendedVwap
-isGCBelowVwap = gcBlendedVwap > gcOpen
-isGCCrossedAboveVwap = isGCAboveVwap and not isGCAboveVwap[1]
-isGCCrossedBelowVwap = isGCBelowVwap and not isGCBelowVwap[1]
-
-// over extended
-gcUpperExtension = gcBlendedVwap * (1 + GC_VWAP_PERCENT)
-gcLowerExtension = gcBlendedVwap * (1 - GC_VWAP_PERCENT)
-isGCOverExtendedUp = open > gcUpperExtension
-isGCOverExtendedDown = gcLowerExtension > open
-
-plot(
-     isGC ? gcUpperExtension : na,
-     color = color.new(color.red, 60),
-     linewidth = 1)
-
-plot(
-     isGC ? gcLowerExtension : na,
-     color = color.new(color.blue, 60),
-     linewidth = 1)
-
 // GC TRADE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+TAKE_PROFIT_TICKS = 40
+STOP_LOSS_TICKS = 40
+
 var bool isLongTradeActive = false
 var bool isShortTradeActive = false
-var bool isLongEnabled = false
-var bool isShortEnabled = false
 var float entryPrice = na
 var float exitPrice = na
 var float profit = na
-
-// vwap crossed
-if isGCCrossedAboveVwap
-    isLongEnabled := true
-    isShortEnabled := false
-if isGCCrossedBelowVwap
-    isLongEnabled := false
-    isShortEnabled := true
 
 // entry
 isLongEntry =
@@ -188,45 +119,50 @@ isLongEntry =
      and not isLongTradeActive
      and not isShortTradeActive
      and isMacroSupportive
-     and isLongEnabled
      and isGCTrendingUp
-     and not isGCOverExtendedUp
-
 isShortEntry =
      isInSession
      and not isLongTradeActive
      and not isShortTradeActive
      and isMacroHostile
-     and isShortEnabled
      and isGCTrendingDown
-     and not isGCOverExtendedDown
 
 if isLongEntry
     isLongTradeActive := true
     isShortTradeActive := false
-    isLongEnabled := false
     entryPrice := open
-
 if isShortEntry
     isLongTradeActive := false
     isShortTradeActive := true
-    isShortEnabled := false
     entryPrice := open
+
+// take profit
+isLongTakeProfit =
+     isLongTradeActive
+     and open > entryPrice + TAKE_PROFIT_TICKS
+isShortTakeProfit =
+     isShortTradeActive
+     and entryPrice - TAKE_PROFIT_TICKS > open
+
+// stop loss
+isLongStopLoss =
+     isLongTradeActive
+     and entryPrice - STOP_LOSS_TICKS > open
+isShortStopLoss =
+     isShortTradeActive
+     and open > entryPrice + STOP_LOSS_TICKS
 
 // exit
 isLongExit =
      isLongTradeActive
-     and (not isInSession or isGCOverExtendedUp or isGCBelowVwap)
-
+     and (not isInSession or isLongTakeProfit or isLongStopLoss)
 isShortExit =
      isShortTradeActive
-     and (not isInSession or isGCOverExtendedDown or isGCAboveVwap)
-
+     and (not isInSession or isShortTakeProfit or isShortStopLoss)
 if isLongExit
     isLongTradeActive := false
     exitPrice := open
     profit := exitPrice - entryPrice
-
 if isShortExit
     isShortTradeActive := false
     exitPrice := open
@@ -235,112 +171,73 @@ if isShortExit
 // PLOT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// colors
 ZN_color = color.blue
 E6_color = color.purple
 GC_color = color.yellow
+
 long_color = color.blue
 short_color = color.red
-vwap_color = color.new(color.white, 70)
+win_color = color.green
+loss_color = color.red
+session_color = color.yellow
+
+vwap_color = color.white
+
+bar_transparency = 80
+signal_tranparency = 0
+vwap_transparency = 80
 
 // bar color
 barColor =
-     isZN and isZNsupportive ? long_color :
-     isZN and isZNhostile ? short_color :
-     isZN ? color.new(ZN_color, 70) :
-     isE6 and isE6supportive ? long_color :
-     isE6 and isE6hostile ? short_color :
-     isE6 ? color.new(E6_color, 50) :
-     isGC and isMacroSupportive ? color.new(long_color, 70) :
-     isGC and isMacroHostile ? color.new(short_color, 70) :
-     isGC ? color.new(GC_color, 70) : na
+     isZN and isZNsupportive ? color.new(long_color, bar_transparency) :
+     isZN and isZNhostile ? color.new(short_color, bar_transparency) :
+     isZN ? color.new(ZN_color, bar_transparency) :
+     isE6 and isE6supportive ? color.new(long_color, bar_transparency) :
+     isE6 and isE6hostile ? color.new(short_color, bar_transparency) :
+     isE6 ? color.new(E6_color, bar_transparency) :
+     isGC and isMacroSupportive ? color.new(long_color, bar_transparency) :
+     isGC and isMacroHostile ? color.new(short_color, bar_transparency) :
+     isGC ? color.new(GC_color, bar_transparency) : na
 barcolor(barColor)
 
 // entry
 plot(
      isGC and isLongEntry ? open : na,
      style = plot.style_circles,
-     color = long_color,
+     color = color.new(long_color, signal_tranparency),
      linewidth = 6)
 plot(
      isGC and isShortEntry ? open : na,
      style = plot.style_circles,
-     color = short_color,
+     color = color.new(short_color, signal_tranparency),
      linewidth = 6)
 
 // exit
-exitColor =
-     not isInSession ? color.yellow :
-     profit > 0 ? color.green : color.red
+exit_color =
+     isLongTakeProfit or isShortTakeProfit ? color.new(win_color, signal_tranparency) :
+     isLongStopLoss or isShortStopLoss ? color.new(loss_color, signal_tranparency) :
+     color.new(session_color, signal_tranparency)
 plotshape(
      isGC and isLongExit ? open : na,
      title = "Long Exit",
      style = shape.xcross,
      location = location.absolute,
-     color = exitColor,
+     color = exit_color,
      size = size.tiny)
 plotshape(
      isGC and isShortExit ? open : na,
      title = "Short Exit",
      style = shape.xcross,
      location = location.absolute,
-     color = exitColor,
+     color = exit_color,
      size = size.tiny)
 
 // vwap
-plot(isZN and isBlendedVwap ? znVwap : na, color = vwap_color, style = plot.style_linebr)
-plot(isE6 and isBlendedVwap ? e6Vwap : na, color = vwap_color, style = plot.style_linebr)
-plot(isGC and isBlendedVwap ? gcVwap : na, color = vwap_color, style = plot.style_linebr)
-plot(isZN ? znBlendedVwap : na, color = vwap_color)
-plot(isE6 ? e6BlendedVwap : na, color = vwap_color)
-plot(isGC ? gcBlendedVwap : na, color = vwap_color)
+plot(isZN and isBlendedVwap ? znVwap : na, color = color.new(vwap_color, vwap_transparency), style = plot.style_linebr)
+plot(isE6 and isBlendedVwap ? e6Vwap : na, color = color.new(vwap_color, vwap_transparency), style = plot.style_linebr)
+plot(isGC and isBlendedVwap ? gcVwap : na, color = color.new(vwap_color, vwap_transparency), style = plot.style_linebr)
+plot(isZN ? znBlendedVwap : na, color = color.new(vwap_color, vwap_transparency))
+plot(isE6 ? e6BlendedVwap : na, color = color.new(vwap_color, vwap_transparency))
+plot(isGC ? gcBlendedVwap : na, color = color.new(vwap_color, vwap_transparency))
 
-// ALERT
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// Event • Context • Value
-
-// var string alertMessage = na
-// alertMessage := na
-
-// formattedPrice = str.tostring(math.round_to_mintick(open), "#.00")
-// formattedProfit = str.tostring(math.round(math.abs(profit / syminfo.mintick)))
-
-// // macro supportive
-// triggerMacroSupportive =
-//      isGC
-//      and isMacroSupportivePersistent
-//      and not isMacroSupportivePersistent[1]
-
-// if triggerMacroSupportive and not barstate.isconfirmed
-//     alertMessage := "Macro • Rates and Dollar • Bullish"
-
-// // macro hostile
-// triggerMacroHostile =
-//      isGC
-//      and isMacroHostilePersistent
-//      and not isMacroHostilePersistent[1]
-
-// if triggerMacroHostile and not barstate.isconfirmed
-//     alertMessage := "Macro • Rates and Dollar • Bearish"
-
-// // entry long
-// if isGC and isLongEntry and not barstate.isconfirmed
-//     alertMessage := "Entry • Long • " + formattedPrice
-
-// // entry short
-// if isGC and isShortEntry and not barstate.isconfirmed
-//     alertMessage := "Entry • Short • " + formattedPrice
-
-// // exit long
-// if isGC and isLongExit and not barstate.isconfirmed
-//     profitMessage = (profit > 0 ? "Profit " : "Loss ") + formattedProfit + " ticks"
-//     alertMessage := "Exit • Long • " + profitMessage
-
-// // exit short
-// if isGC and isShortExit and not barstate.isconfirmed
-//     profitMessage = (profit > 0 ? "Profit " : "Loss ") + formattedProfit + " ticks"
-//     alertMessage := "Exit • Short • " + profitMessage
-
-// // alert
-// if not na(alertMessage)
-//     alert(alertMessage, alert.freq_once_per_bar)
