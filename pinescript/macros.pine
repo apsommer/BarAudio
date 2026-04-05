@@ -112,43 +112,47 @@ isGCsupportive = gcPosition > GC_POSITION_RATIO
 isGChostile = (1 - GC_POSITION_RATIO) > gcPosition
 isGCneutral = not isGCsupportive and not isGChostile
 
-// 6E ↔ GC STATE ALIGNMENT
+// 6E → GC DIRECTIONAL ALIGNMENT ACCUMULATION
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-E6_GC_ALIGNMENT_LOOKBACK = 30
-ALIGNMENT_TOLERANCE = 22
+E6_DIRECTION_LOOKBACK = 30
+E6_DIRECTION_ACCUMULATION_THRESHOLD = 18
 
-isStateAligned =
-     (isE6supportive and isGCsupportive)
-     or (isE6hostile and isGChostile)
-     or (isE6neutral and isGCneutral) ? 1 : 0
+// rolling accumulation
+e6Direction = isE6supportive ? 1 : isE6hostile ? -1 : 0
+e6DirectionSum = math.sum(e6Direction, E6_DIRECTION_LOOKBACK)
 
-alignmentCount = math.sum(isStateAligned, E6_GC_ALIGNMENT_LOOKBACK)
+// dominant direction
+isE6BullishDominant = e6DirectionSum > E6_DIRECTION_ACCUMULATION_THRESHOLD
+isE6BearishDominant = -E6_DIRECTION_ACCUMULATION_THRESHOLD > e6DirectionSum
 
-isGCAlignedToE6 = alignmentCount > ALIGNMENT_TOLERANCE
+// GC confirmation (trigger only on first matching bar)
+isGCConfirmingLong = isE6BullishDominant and isGCsupportive
+isGCConfirmingShort = isE6BearishDominant and isGChostile
+isGCAlignedToE6 = isGCConfirmingLong or isGCConfirmingShort
 
-plotshape(
-    //  isGC and isGCAlignedToE6 and (isLongEntry or isShortEntry),
-     isGC and isGCAlignedToE6,
-     title = "GC Aligned To 6E",
-     style = shape.diamond,
-     location = location.abovebar,
-     color = color.blue,
-     size = size.small)
+// plotshape(
+//     //  isGC and isGCAlignedToE6 and (isLongEntry or isShortEntry),
+//      isGC and isGCConfirmingLong,
+//      style = shape.diamond,
+//      location = location.belowbar,
+//      color = color.blue,
+//      size = size.small)
+// plotshape(
+//     //  isGC and isGCAlignedToE6 and (isLongEntry or isShortEntry),
+//      isGC and isGCConfirmingShort,
+//      style = shape.diamond,
+//      location = location.abovebar,
+//      color = color.red,
+//      size = size.small)
 
 // GC TRADE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-TAKE_PROFIT_TICKS = 55
-STOP_LOSS_TICKS = 35
-GC_TP_RATIO = 0.85
-STOP_LOOKBACK = 8
 
 var bool isLongTradeActive = false
 var bool isShortTradeActive = false
 var float entryPrice = na
 var float exitPrice = na
-var float stopPrice = na
 var float profit = na
 
 // entry
@@ -157,59 +161,41 @@ isLongEntry =
      and not isLongTradeActive
      and not isShortTradeActive
      and isMacroSupportive
-     and isGCAlignedToE6
+     and isGCConfirmingLong
 
 isShortEntry =
      isInSession
      and not isLongTradeActive
      and not isShortTradeActive
      and isMacroHostile
-     and isGCAlignedToE6
+     and isGCConfirmingShort
 
 if isLongEntry
     isLongTradeActive := true
     isShortTradeActive := false
     entryPrice := open
-    stopPrice := ta.lowest(low, STOP_LOOKBACK)
 if isShortEntry
     isLongTradeActive := false
     isShortTradeActive := true
     entryPrice := open
-    stopPrice := ta.highest(high, STOP_LOOKBACK)
 
-// take profit
-isLongTakeProfit =
-     isLongTradeActive
-     and open > entryPrice + TAKE_PROFIT_TICKS
-isShortTakeProfit =
-     isShortTradeActive
-     and entryPrice - TAKE_PROFIT_TICKS > open
-
-// stop loss
-isLongStopLoss =
-     isLongTradeActive
-     and entryPrice - STOP_LOSS_TICKS > open
-isShortStopLoss =
-     isShortTradeActive
-     and open > entryPrice + STOP_LOSS_TICKS
-
-// exit
+// exit = GC loses state
 isLongExit =
      isLongTradeActive
-     and (not isInSession or isLongTakeProfit or isLongStopLoss)
+     and (not isInSession or not isGCsupportive)
+
 isShortExit =
      isShortTradeActive
-     and (not isInSession or isShortTakeProfit or isShortStopLoss)
+     and (not isInSession or not isGChostile)
+
 if isLongExit
     isLongTradeActive := false
     exitPrice := open
     profit := exitPrice - entryPrice
-    stopPrice := na
 if isShortExit
     isShortTradeActive := false
     exitPrice := open
     profit := entryPrice - exitPrice
-    stopPrice := na
 
 // PLOT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
