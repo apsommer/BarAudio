@@ -31,9 +31,7 @@ gcVwap = ta.vwap(open)
 
 // official market open for new futures session
 marketOpenTime = "1800-1801"
-marketCloseTime = "1659-1700"
 isNewSession = not na(time(timeframe.period, marketOpenTime, "America/New_York"))
-isMarketClosing = not na(time(timeframe.period, marketCloseTime, "America/New_York"))
 
 // no trades allowed during 10 min market reopen warmup, close open positions 1 min before market close
 inSessionTimes = "1810-1659"
@@ -52,7 +50,7 @@ calc_blended_vwap_times(blendedVwapMinutes) =>
 
 calc_blended_vwap() =>
     current = ta.vwap(open)
-    prev = ta.valuewhen(isMarketClosing, current, 0)
+    prev = ta.valuewhen(isNewSession, current[1], 0)
     sessionStartTime = ta.valuewhen(isNewSession, time, 0)
     elapsedMinutes = (time - sessionStartTime) / 60000.0
     c = math.min(1.0, elapsedMinutes / float(BLENDED_VWAP_MINUTES))
