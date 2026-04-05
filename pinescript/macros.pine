@@ -4,20 +4,6 @@ indicator(
     overlay = true,
     max_bars_back = 2000)
 
-// INPUTS
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-BLENDED_VWAP_MINUTES = 360
-
-E6_LOOKBACK = 24
-E6_POSITION_RATIO = 0.58
-
-GC_LOOKBACK = 22
-GC_POSITION_RATIO = 0.57
-
-TAKE_PROFIT_TICKS = 55
-STOP_LOSS_TICKS = 35
-
 // DATA
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -35,11 +21,10 @@ e6Open = request.security(E6_SYMBOL, timeframe.period, open)
 e6High = request.security(E6_SYMBOL, timeframe.period, high)
 e6Low = request.security(E6_SYMBOL, timeframe.period, low)
 e6Close = request.security(E6_SYMBOL, timeframe.period, close)
-gcOpen = request.security(GC_SYMBOL, timeframe.period, open)
 
 znVwap = request.security(ZN_SYMBOL, timeframe.period, ta.vwap(open))
 e6Vwap = request.security(E6_SYMBOL, timeframe.period, ta.vwap(open))
-gcVwap = request.security(GC_SYMBOL, timeframe.period, ta.vwap(open))
+gcVwap = ta.vwap(open)
 
 // SESSION CONTROL
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -56,6 +41,8 @@ isInSession = not na(time(timeframe.period, inSessionTimes, "America/New_York"))
 
 // BLEND VWAP
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+BLENDED_VWAP_MINUTES = 360
 
 calc_blended_vwap_times(blendedVwapMinutes) =>
     totalMinutes = (18 * 60 + blendedVwapMinutes) % 1440
@@ -87,6 +74,9 @@ isZNhostile = znBlendedVwap > znOpen
 // 6E
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+E6_LOOKBACK = 24
+E6_POSITION_RATIO = 0.55
+
 // range and position within range
 e6RecentHigh = request.security(E6_SYMBOL, timeframe.period, ta.highest(high[1], E6_LOOKBACK))
 e6RecentLow = request.security(E6_SYMBOL, timeframe.period, ta.lowest(low[1], E6_LOOKBACK))
@@ -96,6 +86,7 @@ e6Position = (e6Open - e6RecentLow) / e6Range
 // trend
 isE6supportive = e6Position > E6_POSITION_RATIO
 isE6hostile = (1 - E6_POSITION_RATIO) > e6Position
+isE6neutral = not isE6supportive and not isE6hostile
 
 // MACRO REGIME
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -107,23 +98,57 @@ isMacroNuetral = not isMacroSupportive and not isMacroHostile
 // GC LOGIC
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+GC_LOOKBACK = 45
+GC_POSITION_RATIO = 0.55
+
 // range and position within range
-gcRecentHigh = request.security(GC_SYMBOL, timeframe.period, ta.highest(high[1], GC_LOOKBACK))
-gcRecentLow = request.security(GC_SYMBOL, timeframe.period, ta.lowest(low[1], GC_LOOKBACK))
+gcRecentHigh = ta.highest(high[1], GC_LOOKBACK)
+gcRecentLow = ta.lowest(low[1], GC_LOOKBACK)
 gcRange = gcRecentHigh - gcRecentLow
-gcPosition = (gcOpen - gcRecentLow) / gcRange
+gcPosition = (open - gcRecentLow) / gcRange
 
 // trend
-isGCTrendingUp = gcPosition > GC_POSITION_RATIO
-isGCTrendingDown = (1 - GC_POSITION_RATIO) > gcPosition
+isGCsupportive = gcPosition > GC_POSITION_RATIO
+isGChostile = (1 - GC_POSITION_RATIO) > gcPosition
+isGCneutral = not isGCsupportive and not isGChostile
+
+// 6E ↔ GC STATE ALIGNMENT
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+E6_GC_ALIGNMENT_LOOKBACK = 30
+ALIGNMENT_TOLERANCE = 22
+
+isStateAligned =
+     (isE6supportive and isGCsupportive)
+     or (isE6hostile and isGChostile)
+     or (isE6neutral and isGCneutral) ? 1 : 0
+
+alignmentCount = math.sum(isStateAligned, E6_GC_ALIGNMENT_LOOKBACK)
+
+isGCAlignedToE6 = alignmentCount > ALIGNMENT_TOLERANCE
+
+plotshape(
+    //  isGC and isGCAlignedToE6 and (isLongEntry or isShortEntry),
+     isGC and isGCAlignedToE6,
+     title = "GC Aligned To 6E",
+     style = shape.diamond,
+     location = location.abovebar,
+     color = color.blue,
+     size = size.small)
 
 // GC TRADE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+TAKE_PROFIT_TICKS = 55
+STOP_LOSS_TICKS = 35
+GC_TP_RATIO = 0.85
+STOP_LOOKBACK = 8
 
 var bool isLongTradeActive = false
 var bool isShortTradeActive = false
 var float entryPrice = na
 var float exitPrice = na
+var float stopPrice = na
 var float profit = na
 
 // entry
@@ -132,22 +157,25 @@ isLongEntry =
      and not isLongTradeActive
      and not isShortTradeActive
      and isMacroSupportive
-     and isGCTrendingUp
+     and isGCAlignedToE6
+
 isShortEntry =
      isInSession
      and not isLongTradeActive
      and not isShortTradeActive
      and isMacroHostile
-     and isGCTrendingDown
+     and isGCAlignedToE6
 
 if isLongEntry
     isLongTradeActive := true
     isShortTradeActive := false
     entryPrice := open
+    stopPrice := ta.lowest(low, STOP_LOOKBACK)
 if isShortEntry
     isLongTradeActive := false
     isShortTradeActive := true
     entryPrice := open
+    stopPrice := ta.highest(high, STOP_LOOKBACK)
 
 // take profit
 isLongTakeProfit =
@@ -176,10 +204,12 @@ if isLongExit
     isLongTradeActive := false
     exitPrice := open
     profit := exitPrice - entryPrice
+    stopPrice := na
 if isShortExit
     isShortTradeActive := false
     exitPrice := open
     profit := entryPrice - exitPrice
+    stopPrice := na
 
 // PLOT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -197,7 +227,7 @@ session_color = color.yellow
 
 vwap_color = color.white
 
-bar_transparency = 80
+bar_transparency = 60
 signal_tranparency = 0
 vwap_transparency = 80
 
@@ -209,8 +239,10 @@ barColor =
      isE6 and isE6supportive ? color.new(long_color, bar_transparency) :
      isE6 and isE6hostile ? color.new(short_color, bar_transparency) :
      isE6 ? color.new(E6_color, bar_transparency) :
-     isGC and isMacroSupportive ? color.new(long_color, bar_transparency) :
-     isGC and isMacroHostile ? color.new(short_color, bar_transparency) :
+    //  isGC and isMacroSupportive ? color.new(long_color, bar_transparency) :
+    //  isGC and isMacroHostile ? color.new(short_color, bar_transparency) :
+     isGC and isGCsupportive ? color.new(long_color, bar_transparency) :
+     isGC and isGChostile ? color.new(short_color, bar_transparency) :
      isGC ? color.new(GC_color, bar_transparency) : na
 barcolor(barColor)
 
@@ -228,19 +260,13 @@ plot(
 
 // exit
 exit_color =
-     isLongTakeProfit or isShortTakeProfit ? color.new(win_color, signal_tranparency) :
-     isLongStopLoss or isShortStopLoss ? color.new(loss_color, signal_tranparency) :
-     color.new(session_color, signal_tranparency)
+     not isInSession ? color.new(session_color, signal_tranparency) :
+     profit >= 0 ? color.new(win_color, signal_tranparency) :
+     color.new(loss_color, signal_tranparency)
+
 plotshape(
-     isGC and isLongExit ? open : na,
+     isGC and (isLongExit or isShortExit) ? open : na,
      title = "Long Exit",
-     style = shape.xcross,
-     location = location.absolute,
-     color = exit_color,
-     size = size.tiny)
-plotshape(
-     isGC and isShortExit ? open : na,
-     title = "Short Exit",
      style = shape.xcross,
      location = location.absolute,
      color = exit_color,
