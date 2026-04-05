@@ -69,7 +69,7 @@ gcBlendedVwap = request.security( GC_SYMBOL, timeframe.period, calc_blended_vwap
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ZN_LOOKBACK = 30
-ZN_POSITION_RATIO = 0.58
+ZN_POSITION_RATIO = 0.50
 
 // range and position within range
 znRecentHigh = request.security(ZN_SYMBOL, timeframe.period, ta.highest(high[1], ZN_LOOKBACK))
@@ -78,7 +78,7 @@ znRange = znRecentHigh - znRecentLow
 znPosition = (znOpen - znRecentLow) / znRange
 
 // trend
-isZNsupportive = znPosition > ZN_POSITION_RATIO
+isZNsupportive = znPosition >= ZN_POSITION_RATIO
 isZNhostile = (1 - ZN_POSITION_RATIO) > znPosition
 isZNneutral = not isZNsupportive and not isZNhostile
 
@@ -86,7 +86,7 @@ isZNneutral = not isZNsupportive and not isZNhostile
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 E6_LOOKBACK = 24
-E6_POSITION_RATIO = 0.55
+E6_POSITION_RATIO = 0.50
 
 // range and position within range
 e6RecentHigh = request.security(E6_SYMBOL, timeframe.period, ta.highest(high[1], E6_LOOKBACK))
@@ -95,7 +95,7 @@ e6Range = e6RecentHigh - e6RecentLow
 e6Position = (e6Open - e6RecentLow) / e6Range
 
 // trend
-isE6supportive = e6Position > E6_POSITION_RATIO
+isE6supportive = e6Position >= E6_POSITION_RATIO
 isE6hostile = (1 - E6_POSITION_RATIO) > e6Position
 isE6neutral = not isE6supportive and not isE6hostile
 
@@ -110,7 +110,7 @@ isMacroNuetral = not isMacroSupportive and not isMacroHostile
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 GC_LOOKBACK = 45
-GC_POSITION_RATIO = 0.55
+GC_POSITION_RATIO = 0.50
 
 // range and position within range
 gcRecentHigh = ta.highest(high[1], GC_LOOKBACK)
@@ -119,51 +119,15 @@ gcRange = gcRecentHigh - gcRecentLow
 gcPosition = (open - gcRecentLow) / gcRange
 
 // trend
-isGCsupportive = gcPosition > GC_POSITION_RATIO
+isGCsupportive = gcPosition >= GC_POSITION_RATIO
 isGChostile = (1 - GC_POSITION_RATIO) > gcPosition
 isGCneutral = not isGCsupportive and not isGChostile
-
-// 6E → GC DIRECTIONAL ALIGNMENT ACCUMULATION
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-E6_DIRECTION_LOOKBACK = 20
-E6_DIRECTION_ACCUMULATION_THRESHOLD = 9
-
-// rolling accumulation
-e6Direction = isE6supportive ? 1 : isE6hostile ? -1 : 0
-e6DirectionSum = math.sum(e6Direction, E6_DIRECTION_LOOKBACK)
-
-// dominant direction
-isE6BullishDominant = e6DirectionSum > E6_DIRECTION_ACCUMULATION_THRESHOLD
-isE6BearishDominant = -E6_DIRECTION_ACCUMULATION_THRESHOLD > e6DirectionSum
-
-// GC confirmation
-isGCConfirmingLong = isE6BullishDominant and isGCsupportive
-isGCConfirmingShort = isE6BearishDominant and isGChostile
-isGCAlignedToE6 = isGCConfirmingLong or isGCConfirmingShort
-
-// plotshape(
-//     //  isGC and isGCAlignedToE6 and (isLongEntry or isShortEntry),
-//      isGC and isGCConfirmingLong,
-//      style = shape.diamond,
-//      location = location.belowbar,
-//      color = color.blue,
-//      size = size.small)
-// plotshape(
-//     //  isGC and isGCAlignedToE6 and (isLongEntry or isShortEntry),
-//      isGC and isGCConfirmingShort,
-//      style = shape.diamond,
-//      location = location.abovebar,
-//      color = color.red,
-//      size = size.small)
 
 // GC TRADE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 var bool isLongTradeActive = false
 var bool isShortTradeActive = false
-var bool isLongLocked = false
-var bool isShortLocked = false
 var float entryPrice = na
 var float exitPrice = na
 var float profit = na
@@ -173,28 +137,24 @@ isLongEntry =
      isInSession
      and not isLongTradeActive
      and not isShortTradeActive
-     and not isLongLocked
      and isMacroSupportive
-     and isGCConfirmingLong
+     and isGCsupportive
 
 isShortEntry =
      isInSession
      and not isLongTradeActive
      and not isShortTradeActive
-     and not isShortLocked
      and isMacroHostile
-     and isGCConfirmingShort
+     and isGChostile
 
 if isLongEntry
     isLongTradeActive := true
     isShortTradeActive := false
-    isShortLocked := false
     entryPrice := open
 
 if isShortEntry
     isLongTradeActive := false
     isShortTradeActive := true
-    isLongLocked := false
     entryPrice := open
 
 // exit = GC loses state
@@ -210,15 +170,11 @@ if isLongExit
     isLongTradeActive := false
     exitPrice := open
     profit := exitPrice - entryPrice
-    if 0 > profit
-        isLongLocked := true
 
 if isShortExit
     isShortTradeActive := false
     exitPrice := open
     profit := entryPrice - exitPrice
-    if 0 > profit
-        isShortLocked := true
 
 // PLOT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
