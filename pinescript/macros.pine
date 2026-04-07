@@ -271,3 +271,75 @@ plot(isZN ? znBlendedVwap : na, color = color.new(vwap_color, vwap_transparency)
 plot(isE6 ? e6BlendedVwap : na, color = color.new(vwap_color, vwap_transparency), linewidth = 2)
 plot(isGC ? gcBlendedVwap : na, color = color.new(vwap_color, vwap_transparency), linewidth = 2)
 
+// ALERT
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Event • Context • Value
+
+var string alertMessage = na
+alertMessage := na
+
+formattedPrice = str.tostring(math.round_to_mintick(open), "#.00")
+
+// ticks
+tickSize = syminfo.mintick
+longTicks = math.round((open - entryPrice) / tickSize)
+shortTicks = math.round((entryPrice - open) / tickSize)
+
+// macro supportive
+triggerMacroSupportive =
+     isGC
+     and isMacroSupportive
+     and not isMacroSupportive[1]
+if triggerMacroSupportive and not barstate.isconfirmed
+    if na(alertMessage)
+        alertMessage := "Macro • Supportive"
+
+// macro hostile
+triggerMacroHostile =
+     isGC
+     and isMacroHostile
+     and not isMacroHostile[1]
+if triggerMacroHostile and not barstate.isconfirmed
+    if na(alertMessage)
+        alertMessage := "Macro • Hostile"
+
+// entry
+if isGC and isLongEntry and not barstate.isconfirmed
+    if na(alertMessage)
+        alertMessage := "Entry • Long • " + formattedPrice
+if isGC and isShortEntry and not barstate.isconfirmed
+    if na(alertMessage)
+        alertMessage := "Entry • Short • " + formattedPrice
+
+// exit - long
+if isGC and isLongExit and not barstate.isconfirmed
+    if na(alertMessage)
+        isTreasuriesReversed = not isZNsupportive
+        isDollarReversed = not isE6supportive
+        exitReason =
+             isTreasuriesReversed and not isDollarReversed ? "Treasuries reversed" :
+             isDollarReversed and not isTreasuriesReversed ? "Dollar reversed" :
+             "Macro reversed"
+        exitPnL =
+             longTicks >= 0 ? "Plus " + str.tostring(longTicks) + " ticks" :
+             "Minus " + str.tostring(math.abs(longTicks)) + " ticks"
+        alertMessage := "Exit • Long • " + exitReason + " • " + exitPnL
+
+// exit - short
+if isGC and isShortExit and not barstate.isconfirmed
+    if na(alertMessage)
+        isTreasuriesReversed = not isZNhostile
+        isDollarReversed = not isE6hostile
+        exitReason =
+             isTreasuriesReversed and not isDollarReversed ? "Treasuries reversed" :
+             isDollarReversed and not isTreasuriesReversed ? "Dollar reversed" :
+             "Macro reversed"
+        exitPnL =
+             shortTicks >= 0 ? "Plus " + str.tostring(shortTicks) + " ticks" :
+             "Minus " + str.tostring(math.abs(shortTicks)) + " ticks"
+        alertMessage := "Exit • Short • " + exitReason + " • " + exitPnL
+
+// alert
+if not na(alertMessage)
+    alert(alertMessage, alert.freq_once_per_bar)
