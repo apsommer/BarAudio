@@ -1,8 +1,11 @@
 //@version=6
-indicator(
+strategy(
     "ZN • 6E • GC",
     overlay = true,
-    max_bars_back = 2000)
+    max_bars_back = 2000,
+    pyramiding = 0,
+    process_orders_on_close = true,
+    calc_on_every_tick = true)
 
 // DATA
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -16,6 +19,8 @@ E6_SYMBOL = "CME:6E1!"
 GC_SYMBOL = "COMEX_MINI:MGC1!"
 
 znOpen = request.security(ZN_SYMBOL, timeframe.period, open)
+znHigh = request.security(ZN_SYMBOL, timeframe.period, high)
+
 e6Tick = request.security(E6_SYMBOL, timeframe.period, syminfo.mintick)
 e6Open = request.security(E6_SYMBOL, timeframe.period, open)
 e6High = request.security(E6_SYMBOL, timeframe.period, high)
@@ -33,14 +38,14 @@ gcVwap = ta.vwap(open)
 marketOpenTime = "1800-1801"
 isNewSession = not na(time(timeframe.period, marketOpenTime, "America/New_York"))
 
-// no trades allowed during 10 min market reopen warmup, close open positions 1 min before market close
-inSessionTimes = "1810-1659"
+// valid trading windows
+inSessionTimes = "1810-0859,0910-1659"
 isInSession = not na(time(timeframe.period, inSessionTimes, "America/New_York"))
 
 // BLEND VWAP
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-BLENDED_VWAP_MINUTES = 360
+BLENDED_VWAP_MINUTES = 240
 
 calc_blended_vwap_times(blendedVwapMinutes) =>
     totalMinutes = (18 * 60 + blendedVwapMinutes) % 1440
@@ -66,36 +71,26 @@ gcBlendedVwap = request.security( GC_SYMBOL, timeframe.period, calc_blended_vwap
 // ZN
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ZN_LOOKBACK = 30
-ZN_POSITION_RATIO = 0.50
+ZN_LOOKBACK = 45
 
-// range and position within range
-znRecentHigh = request.security(ZN_SYMBOL, timeframe.period, ta.highest(high[1], ZN_LOOKBACK))
-znRecentLow = request.security(ZN_SYMBOL, timeframe.period, ta.lowest(low[1], ZN_LOOKBACK))
-znRange = znRecentHigh - znRecentLow
-znPosition = (znOpen - znRecentLow) / znRange
+znAvg = ta.sma(ta.ema(znOpen, ZN_LOOKBACK), 5)
+znSlope = znAvg - znAvg[1]
 
 // trend
-isZNsupportive = znPosition >= ZN_POSITION_RATIO
-isZNhostile = (1 - ZN_POSITION_RATIO) > znPosition
-isZNneutral = not isZNsupportive and not isZNhostile
+isZNsupportive = znOpen > znAvg // and znSlope > 0
+isZNhostile = not isZNsupportive
 
 // 6E
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-E6_LOOKBACK = 24
-E6_POSITION_RATIO = 0.50
+E6_LOOKBACK = 45
 
-// range and position within range
-e6RecentHigh = request.security(E6_SYMBOL, timeframe.period, ta.highest(high[1], E6_LOOKBACK))
-e6RecentLow = request.security(E6_SYMBOL, timeframe.period, ta.lowest(low[1], E6_LOOKBACK))
-e6Range = e6RecentHigh - e6RecentLow
-e6Position = (e6Open - e6RecentLow) / e6Range
+e6Avg = ta.sma(ta.ema(e6Open, E6_LOOKBACK), 5)
+e6Slope = e6Avg - e6Avg[1]
 
 // trend
-isE6supportive = e6Position >= E6_POSITION_RATIO
-isE6hostile = (1 - E6_POSITION_RATIO) > e6Position
-isE6neutral = not isE6supportive and not isE6hostile
+isE6supportive = e6Open > e6Avg
+isE6hostile = not isE6supportive
 
 // MACRO REGIME
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -107,19 +102,27 @@ isMacroNuetral = not isMacroSupportive and not isMacroHostile
 // GC LOGIC
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-GC_LOOKBACK = 45
-GC_POSITION_RATIO = 0.50
+GC_LOOKBACK = 11
+GC_EARLY_ALIGNMENT_MIN_BARS  = 2
+GC_EARLY_ALIGNMENT_MAX_BARS = 7
 
-// range and position within range
-gcRecentHigh = ta.highest(high[1], GC_LOOKBACK)
-gcRecentLow = ta.lowest(low[1], GC_LOOKBACK)
-gcRange = gcRecentHigh - gcRecentLow
-gcPosition = (open - gcRecentLow) / gcRange
+var int gcSupportiveBars = 0
+var int gcHostileBars = 0
+
+gcAvg = ta.sma(ta.ema(open, GC_LOOKBACK), 5)
+gcSlope = gcAvg - gcAvg[1]
 
 // trend
-isGCsupportive = gcPosition >= GC_POSITION_RATIO
-isGChostile = (1 - GC_POSITION_RATIO) > gcPosition
-isGCneutral = not isGCsupportive and not isGChostile
+isGCsupportive = open > gcAvg
+isGChostile = not isGCsupportive
+
+// count trend bars
+gcSupportiveBars := isGCsupportive ? gcSupportiveBars[1] + 1 : 0
+gcHostileBars := isGChostile ? gcHostileBars[1] + 1 : 0
+
+//
+isGCsupportiveEarly = isGCsupportive and gcSupportiveBars > GC_EARLY_ALIGNMENT_MIN_BARS and GC_EARLY_ALIGNMENT_MAX_BARS >= gcSupportiveBars
+isGChostileEarly = isGChostile and gcHostileBars > GC_EARLY_ALIGNMENT_MIN_BARS and GC_EARLY_ALIGNMENT_MAX_BARS >= gcHostileBars
 
 // GC TRADE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -135,15 +138,16 @@ isLongEntry =
      isInSession
      and not isLongTradeActive
      and not isShortTradeActive
-     and isMacroSupportive
-     and isGCsupportive
+     and isMacroSupportive and isMacroSupportive[1]
+     and isGCsupportiveEarly
 
 isShortEntry =
+    //  false
      isInSession
      and not isLongTradeActive
      and not isShortTradeActive
-     and isMacroHostile
-     and isGChostile
+     and isMacroHostile and isMacroHostile[1]
+     and isGChostileEarly
 
 if isLongEntry
     isLongTradeActive := true
@@ -158,11 +162,19 @@ if isShortEntry
 // exit = GC loses state
 isLongExit =
      isLongTradeActive
-     and (not isInSession or not isGCsupportive)
+     and (
+        not isInSession
+        or not isMacroSupportive
+        // or not isGCsupportive
+     )
 
 isShortExit =
      isShortTradeActive
-     and (not isInSession or not isGChostile)
+     and (
+        not isInSession
+        or not isMacroHostile
+        // or not isGChostile
+     )
 
 if isLongExit
     isLongTradeActive := false
@@ -173,6 +185,16 @@ if isShortExit
     isShortTradeActive := false
     exitPrice := open
     profit := entryPrice - exitPrice
+
+// strategy
+if isGC and isLongEntry
+    strategy.entry("long", strategy.long)
+if isGC and isShortEntry
+    strategy.entry("short", strategy.short)
+if isGC and isLongExit
+    strategy.close("long")
+if isGC and isShortExit
+    strategy.close("short")
 
 // PLOT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -186,16 +208,17 @@ long_color = color.blue
 short_color = color.red
 win_color = color.green
 loss_color = color.red
-session_color = color.yellow
+session_color = color.aqua
 
 vwap_color = color.white
 
-bar_transparency = 60
+bar_transparency = 30
 signal_tranparency = 0
 vwap_transparency = 80
 
 // bar color
 barColor =
+     not isInSession ? color.new(session_color, bar_transparency) :
      isZN and isZNsupportive ? color.new(long_color, bar_transparency) :
      isZN and isZNhostile ? color.new(short_color, bar_transparency) :
      isZN ? color.new(ZN_color, bar_transparency) :
@@ -235,11 +258,16 @@ plotshape(
      color = exit_color,
      size = size.tiny)
 
+// averages
+plot(isZN ? znAvg : na, color = color.new(vwap_color, vwap_transparency))
+plot(isE6 ? e6Avg : na, color = color.new(vwap_color, vwap_transparency))
+plot(isGC ? gcAvg : na, color = color.new(vwap_color, vwap_transparency))
+
 // vwap
 plot(isZN and isBlendedVwap ? znVwap : na, color = color.new(vwap_color, vwap_transparency), style = plot.style_linebr)
 plot(isE6 and isBlendedVwap ? e6Vwap : na, color = color.new(vwap_color, vwap_transparency), style = plot.style_linebr)
 plot(isGC and isBlendedVwap ? gcVwap : na, color = color.new(vwap_color, vwap_transparency), style = plot.style_linebr)
-plot(isZN ? znBlendedVwap : na, color = color.new(vwap_color, vwap_transparency))
-plot(isE6 ? e6BlendedVwap : na, color = color.new(vwap_color, vwap_transparency))
-plot(isGC ? gcBlendedVwap : na, color = color.new(vwap_color, vwap_transparency))
+plot(isZN ? znBlendedVwap : na, color = color.new(vwap_color, vwap_transparency), linewidth =  2)
+plot(isE6 ? e6BlendedVwap : na, color = color.new(vwap_color, vwap_transparency), linewidth = 2)
+plot(isGC ? gcBlendedVwap : na, color = color.new(vwap_color, vwap_transparency), linewidth = 2)
 
