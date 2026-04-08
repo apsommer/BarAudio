@@ -4,7 +4,7 @@ strategy(
     overlay = true,
     max_bars_back = 2000,
     pyramiding = 0,
-    process_orders_on_close = true,
+    process_orders_on_close = false,
     calc_on_every_tick = true)
 
 // DATA
@@ -307,7 +307,7 @@ triggerMacroSupportive =
      and isMacroCooldownPassed
 if triggerMacroSupportive and not barstate.isconfirmed
     if na(alertMessage)
-        alertMessage := "Macro • Supportive • Treasuries " + formattedZnSessionPercent + " • Dollar weaker"
+        alertMessage := "Macro • Supportive • Treasuries " + formattedZnSessionPercent + " • Dollar weakening"
         lastMacroAlertTime := time
 
 // macro hostile
@@ -318,7 +318,7 @@ triggerMacroHostile =
      and isMacroCooldownPassed
 if triggerMacroHostile and not barstate.isconfirmed
     if na(alertMessage)
-        alertMessage := "Macro • Hostile • Treasuries " + formattedZnSessionPercent + " • Dollar stronger"
+        alertMessage := "Macro • Hostile • Treasuries " + formattedZnSessionPercent + " • Dollar strengthening"
         lastMacroAlertTime := time
 
 // entry
@@ -335,8 +335,8 @@ if isGC and isLongExit and not barstate.isconfirmed
         isTreasuriesWeaker = not isZNsupportive
         isDollarStronger = not isE6supportive
         exitReason =
-             isTreasuriesWeaker and not isDollarStronger ? "Treasuries weaker" :
-             isDollarStronger and not isTreasuriesWeaker ? "Dollar stronger" : "Macro lost"
+             isTreasuriesWeaker and not isDollarStronger ? "Treasuries weakening" :
+             isDollarStronger and not isTreasuriesWeaker ? "Dollar strengtheningr" : "Macro lost"
         exitPnL =
              longTicks >= 0 ? "Plus " + str.tostring(longTicks) + " ticks" :
              "Minus " + str.tostring(math.abs(longTicks)) + " ticks"
@@ -348,8 +348,8 @@ if isGC and isShortExit and not barstate.isconfirmed
         isTreasuriesStronger = not isZNhostile
         isDollarWeaker = not isE6hostile
         exitReason =
-             isTreasuriesStronger and not isDollarWeaker ? "Treasuries stronger" :
-             isDollarWeaker and not isTreasuriesStronger ? "Dollar weaker" : "Macro lost"
+             isTreasuriesStronger and not isDollarWeaker ? "Treasuries strengthening" :
+             isDollarWeaker and not isTreasuriesStronger ? "Dollar weakening" : "Macro lost"
         exitPnL =
              shortTicks >= 0 ? "Plus " + str.tostring(shortTicks) + " ticks" :
              "Minus " + str.tostring(math.abs(shortTicks)) + " ticks"
