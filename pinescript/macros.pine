@@ -4,7 +4,7 @@ strategy(
     overlay = true,
     max_bars_back = 2000,
     pyramiding = 0,
-    process_orders_on_close = false,
+    process_orders_on_close = true,
     calc_on_every_tick = true)
 
 // DATA
@@ -127,23 +127,31 @@ isGChostileEarly = isGChostile and gcHostileBars > GC_EARLY_ALIGNMENT_MIN_BARS a
 // GC TRADE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+varip bool isBarStable = false
 var bool isLongTradeActive = false
 var bool isShortTradeActive = false
 var float entryPrice = na
 var float exitPrice = na
 var float profit = na
 
+// calc_on_every_tick has ridiculous problem of pulling previous bar values into this bar just for the very first tick
+// creates ghost signals that are not accurate, bar is stable on second tick and later
+znTime = request.security(ZN_SYMBOL, timeframe.period, time)
+e6Time = request.security(E6_SYMBOL, timeframe.period, time)
+isBarStable := barstate.isrealtime ? not barstate.isnew and time == znTime and time == e6Time : true
+
 // entry
 isLongEntry =
-     isInSession
+     isBarStable
+     and isInSession
      and not isLongTradeActive
      and not isShortTradeActive
      and isMacroSupportive and isMacroSupportive[1]
      and isGCsupportiveEarly
 
 isShortEntry =
-    //  false
-     isInSession
+     isBarStable
+     and isInSession
      and not isLongTradeActive
      and not isShortTradeActive
      and isMacroHostile and isMacroHostile[1]
@@ -161,7 +169,8 @@ if isShortEntry
 
 // exit = GC loses state
 isLongExit =
-     isLongTradeActive
+     isBarStable
+     and isLongTradeActive
      and (
         not isInSession
         or not isMacroSupportive
@@ -169,7 +178,8 @@ isLongExit =
      )
 
 isShortExit =
-     isShortTradeActive
+     isBarStable
+     and isShortTradeActive
      and (
         not isInSession
         or not isMacroHostile
@@ -280,9 +290,9 @@ var string alertMessage = na
 alertMessage := na
 
 // macro alert can only fire once every 10 minutes
-var int lastMacroAlertTime = na
+var int lastMacroAlertTime = 0
 macroCooldownMs = 10 * 60 * 1000
-isMacroCooldownPassed = na(lastMacroAlertTime) or (time - lastMacroAlertTime >= macroCooldownMs)
+isMacroCooldownPassed = time - lastMacroAlertTime >= macroCooldownMs
 
 formattedPrice = str.tostring(math.round_to_mintick(open), "#.00")
 
@@ -305,9 +315,9 @@ triggerMacroSupportive =
      and isMacroSupportive
      and not isMacroSupportive[1]
      and isMacroCooldownPassed
-if triggerMacroSupportive and not barstate.isconfirmed
+if triggerMacroSupportive
     if na(alertMessage)
-        alertMessage := "Macro • Supportive • Treasuries " + formattedZnSessionPercent + " • Dollar weakening"
+        alertMessage := "Macro • Supportive • Treasuries " + formattedZnSessionPercent + " • Dollar weaker"
         lastMacroAlertTime := time
 
 // macro hostile
@@ -316,40 +326,40 @@ triggerMacroHostile =
      and isMacroHostile
      and not isMacroHostile[1]
      and isMacroCooldownPassed
-if triggerMacroHostile and not barstate.isconfirmed
+if triggerMacroHostile
     if na(alertMessage)
-        alertMessage := "Macro • Hostile • Treasuries " + formattedZnSessionPercent + " • Dollar strengthening"
+        alertMessage := "Macro • Hostile • Treasuries " + formattedZnSessionPercent + " • Dollar stronger"
         lastMacroAlertTime := time
 
 // entry
-if isGC and isLongEntry and not barstate.isconfirmed
+if isGC and isLongEntry
     if na(alertMessage)
         alertMessage := "Entry • Long • " + formattedPrice
-if isGC and isShortEntry and not barstate.isconfirmed
+if isGC and isShortEntry
     if na(alertMessage)
         alertMessage := "Entry • Short • " + formattedPrice
 
 // exit long
-if isGC and isLongExit and not barstate.isconfirmed
+if isGC and isLongExit
     if na(alertMessage)
         isTreasuriesWeaker = not isZNsupportive
         isDollarStronger = not isE6supportive
         exitReason =
-             isTreasuriesWeaker and not isDollarStronger ? "Treasuries weakening" :
-             isDollarStronger and not isTreasuriesWeaker ? "Dollar strengtheningr" : "Macro lost"
+             isTreasuriesWeaker and not isDollarStronger ? "Treasuries weaker" :
+             isDollarStronger and not isTreasuriesWeaker ? "Dollar stronger" : "Macro lost"
         exitPnL =
              longTicks >= 0 ? "Plus " + str.tostring(longTicks) + " ticks" :
              "Minus " + str.tostring(math.abs(longTicks)) + " ticks"
         alertMessage := "Exit • Long • " + exitReason + " • " + exitPnL
 
 // exit short
-if isGC and isShortExit and not barstate.isconfirmed
+if isGC and isShortExit
     if na(alertMessage)
         isTreasuriesStronger = not isZNhostile
         isDollarWeaker = not isE6hostile
         exitReason =
-             isTreasuriesStronger and not isDollarWeaker ? "Treasuries strengthening" :
-             isDollarWeaker and not isTreasuriesStronger ? "Dollar weakening" : "Macro lost"
+             isTreasuriesStronger and not isDollarWeaker ? "Treasuries stronger" :
+             isDollarWeaker and not isTreasuriesStronger ? "Dollar weaker" : "Macro lost"
         exitPnL =
              shortTicks >= 0 ? "Plus " + str.tostring(shortTicks) + " ticks" :
              "Minus " + str.tostring(math.abs(shortTicks)) + " ticks"
