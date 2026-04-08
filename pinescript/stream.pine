@@ -135,33 +135,33 @@ if triggerExhaustion
 // CASCADE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-VELOCITY_SPIKE_RATIO = 3.6
-RANGE_EXPANSION_RATIO = 3.0
-BAR_STRENGTH_RATIO = 0.80
-STOP_CASCADE_LOOKBACK = 22
+CASCADE_STRUCTURE_BARS = 6
+CASCADE_LARGE_BAR_RATIO = 4.0
+CASCADE_SWEEP_RATIO = 0.35
+CASCADE_CONTINUATION_BARS = 15
 
 barRange = high - low
 rangeAvg = ta.sma(barRange, 20)
 rangeSafe = math.max(rangeAvg, syminfo.mintick)
 
 // accepted local structure (ignore wick noise)
-acceptedHigh = ta.highest(math.max(open[1], close[1]), 6)
-acceptedLow = ta.lowest(math.min(open[1], close[1]), 6)
+acceptedHigh = ta.highest(math.max(open[1], close[1]), CASCADE_STRUCTURE_BARS)
+acceptedLow = ta.lowest(math.min(open[1], close[1]), CASCADE_STRUCTURE_BARS)
 
 upSweep = math.max(high - acceptedHigh, 0.0)
 downSweep = math.max(acceptedLow - low, 0.0)
 
 isLargeBar =
-     barRange > rangeSafe * 2.0
+     barRange > rangeSafe * CASCADE_LARGE_BAR_RATIO
 
 hasUpCascadeCandidate =
      high > acceptedHigh
-     and upSweep > rangeSafe * 0.35
+     and upSweep > rangeSafe * CASCADE_SWEEP_RATIO
      and isLargeBar
 
 hasDownCascadeCandidate =
      acceptedLow > low
-     and downSweep > rangeSafe * 0.35
+     and downSweep > rangeSafe * CASCADE_SWEEP_RATIO
      and isLargeBar
 
 isDualCascade =
@@ -180,7 +180,7 @@ triggerStopCascade =
      isStopCascadeUp
      or isStopCascadeDown
 
-// CONTINUATION CASCADE
+// cCONTINUATION CASCADE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 hasPreviousCascade =
@@ -188,7 +188,7 @@ hasPreviousCascade =
 
 isRecentCascade =
      hasPreviousCascade
-     and bar_index - cascadeBarIndex <= 15
+     and bar_index - cascadeBarIndex <= CASCADE_CONTINUATION_BARS
 
 currentCascadeDirection =
      isStopCascadeUp
@@ -211,7 +211,6 @@ isContinuationCascadeDown =
 triggerContinuationCascade =
      isContinuationCascadeUp
      or isContinuationCascadeDown
-
 
 if triggerStopCascade
     hasActiveCascade := true
