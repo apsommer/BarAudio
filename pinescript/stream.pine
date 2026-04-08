@@ -5,36 +5,14 @@ indicator(
     max_boxes_count = 500,
     max_bars_back = 2000)
 
-// INPUT
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// expansion/exhaustion
-VELOCITY_BARS = 20
-VELOCITY_BASELINE_BARS = 120
-SMOOTH_BARS = 6
-ACCELERATION_BARS = 5
-ACCELERATION_PERCENT = 12.0
-EXPANSION_LEVEL_PERCENT = 85
-EXHAUSTION_LEVEL_PERCENT = 45
-TREND_MATURE_BARS = 20
-EXHAUSTION_REVERSAL_BARS = 6
-
-// stop cascade
-VELOCITY_SPIKE_RATIO = 3.6
-RANGE_EXPANSION_RATIO = 3.0
-BAR_STRENGTH_RATIO = 0.80
-STOP_CASCADE_LOOKBACK = 22
-
-// range breakout
-RANGE_PERCENT = 0.16
-RANGE_BARS = 120
-RANGE_MOMENTUM = 25
-RANGE_TOLERANCE_PERCENT = 0.03
-
 // INIT
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// lifecycle
+VELOCITY_BARS = 20
+VELOCITY_BASELINE_BARS = 120
+SMOOTH_BARS = 6
+
+// state
 var int expansionStartBar = bar_index
 var bool isExpansionActive = false
 var bool isExpansionUp = false
@@ -46,6 +24,9 @@ var bool expansionDirection = false
 var box expansionBox = na
 var int cascadeBarIndex = na
 var bool hasActiveCascade = false
+var float cascadeHigh = na
+var float cascadeLow = na
+var bool cascadeDirection = false
 var bool isRangeActive = false
 var int rangeStartBar = bar_index
 var float rangeHigh = high
@@ -64,6 +45,11 @@ isDown = close < close[VELOCITY_BARS]
 
 // EXPANSION
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+ACCELERATION_BARS = 5
+ACCELERATION_PERCENT = 12.0
+EXPANSION_LEVEL_PERCENT = 85
+
 
 acceleration = momentum - momentum[ACCELERATION_BARS]
 isAccelerating = acceleration > ACCELERATION_PERCENT
@@ -101,6 +87,10 @@ if isExpansionActive
 // EXHAUSTION
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+EXHAUSTION_LEVEL_PERCENT = 45
+TREND_MATURE_BARS = 20
+EXHAUSTION_REVERSAL_BARS = 6
+
 peakSafe = math.max(expansionPeakMomentum, 0.000001)
 momentumDropPercent = (peakSafe - momentum) / peakSafe * 100.0
 isMomentumDrop = momentumDropPercent > EXHAUSTION_LEVEL_PERCENT
@@ -112,12 +102,29 @@ for i = 0 to EXHAUSTION_REVERSAL_BARS
 isMomentumReversing = declineCount > EXHAUSTION_REVERSAL_BARS * 0.7
 isTrendMature = bar_index - expansionStartBar > TREND_MATURE_BARS
 
+recentSwingLow = ta.lowest(low[1], 6)
+recentSwingHigh = ta.highest(high[1], 6)
+
+isUpExhaustionDamage =
+     expansionDirection
+     and recentSwingLow > low
+     and open > close
+
+isDownExhaustionDamage =
+     not expansionDirection
+     and high > recentSwingHigh
+     and close > open
+
+isExhaustionDamage =
+     isUpExhaustionDamage
+     or isDownExhaustionDamage
+
 triggerExhaustion =
      isExpansionActive
      and isTrendMature
      and isMomentumDrop
      and isMomentumReversing
-     and not isExpansion
+     and isExhaustionDamage
      and expansionPeakMomentum > EXPANSION_LEVEL_PERCENT
 
 if triggerExhaustion
@@ -128,26 +135,83 @@ if triggerExhaustion
 // CASCADE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-velocityCurrent = math.abs(close - close[1])
-velocityAverage = ta.sma(velocityCurrent, 20)
-isVelocitySpike = velocityCurrent > velocityAverage * VELOCITY_SPIKE_RATIO
+VELOCITY_SPIKE_RATIO = 3.6
+RANGE_EXPANSION_RATIO = 3.0
+BAR_STRENGTH_RATIO = 0.80
+STOP_CASCADE_LOOKBACK = 22
 
 barRange = high - low
 rangeAvg = ta.sma(barRange, 20)
-isRangeExpansion = barRange > rangeAvg * RANGE_EXPANSION_RATIO
+rangeSafe = math.max(rangeAvg, syminfo.mintick)
 
-isStrongUpBar = close > open and (close - open) / barRange > BAR_STRENGTH_RATIO
-isStrongDownBar = open > close and (open - close) / barRange > BAR_STRENGTH_RATIO
+// accepted local structure (ignore wick noise)
+acceptedHigh = ta.highest(math.max(open[1], close[1]), 6)
+acceptedLow = ta.lowest(math.min(open[1], close[1]), 6)
 
-highestHigh = ta.highest(high[2], STOP_CASCADE_LOOKBACK)
-lowestLow = ta.lowest(low[2], STOP_CASCADE_LOOKBACK)
-isBreakUp = high > highestHigh
-isBreakDown = lowestLow > low
+upSweep = math.max(high - acceptedHigh, 0.0)
+downSweep = math.max(acceptedLow - low, 0.0)
 
-isStopCascadeUp = isVelocitySpike and isRangeExpansion and isStrongUpBar and isBreakUp
-isStopCascadeDown = isVelocitySpike and isRangeExpansion and isStrongDownBar and isBreakDown
+isLargeBar =
+     barRange > rangeSafe * 2.0
 
-triggerStopCascade = isStopCascadeUp or isStopCascadeDown
+hasUpCascadeCandidate =
+     high > acceptedHigh
+     and upSweep > rangeSafe * 0.35
+     and isLargeBar
+
+hasDownCascadeCandidate =
+     acceptedLow > low
+     and downSweep > rangeSafe * 0.35
+     and isLargeBar
+
+isDualCascade =
+     hasUpCascadeCandidate
+     and hasDownCascadeCandidate
+
+isStopCascadeUp =
+     hasUpCascadeCandidate
+     and (not hasDownCascadeCandidate or upSweep > downSweep)
+
+isStopCascadeDown =
+     hasDownCascadeCandidate
+     and (not hasUpCascadeCandidate or downSweep > upSweep)
+
+triggerStopCascade =
+     isStopCascadeUp
+     or isStopCascadeDown
+
+// CONTINUATION CASCADE
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+hasPreviousCascade =
+     not na(cascadeBarIndex)
+
+isRecentCascade =
+     hasPreviousCascade
+     and bar_index - cascadeBarIndex <= 15
+
+currentCascadeDirection =
+     isStopCascadeUp
+
+isSameDirectionCascade =
+     triggerStopCascade
+     and hasPreviousCascade
+     and currentCascadeDirection == cascadeDirection
+
+isContinuationCascadeUp =
+     isStopCascadeUp
+     and isRecentCascade
+     and isSameDirectionCascade
+
+isContinuationCascadeDown =
+     isStopCascadeDown
+     and isRecentCascade
+     and isSameDirectionCascade
+
+triggerContinuationCascade =
+     isContinuationCascadeUp
+     or isContinuationCascadeDown
+
 
 if triggerStopCascade
     hasActiveCascade := true
@@ -155,39 +219,17 @@ if triggerStopCascade
     expansionPeakMomentum := 0.0
     isRangeActive := false
     cascadeBarIndex := bar_index
-
-// CONTINUATION CASCADE
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-isRecentCascade =
-     not na(cascadeBarIndex)
-     and bar_index - cascadeBarIndex <= 30
-
-isContinuationCascadeDown =
-     isRecentCascade
-     and isStrongDownBar
-     and isBreakDown
-     and acceleration > ACCELERATION_PERCENT
-     and momentum[1] > EXPANSION_LEVEL_PERCENT
-     and momentum > EXPANSION_LEVEL_PERCENT
-
-isContinuationCascadeUp =
-     isRecentCascade
-     and isStrongUpBar
-     and isBreakUp
-     and acceleration > ACCELERATION_PERCENT
-     and momentum[1] > EXPANSION_LEVEL_PERCENT
-     and momentum > EXPANSION_LEVEL_PERCENT
-
-triggerContinuationCascade =
-     (isContinuationCascadeUp or isContinuationCascadeDown)
-     and not triggerStopCascade
-
-if hasActiveCascade and not isRecentCascade
-    hasActiveCascade := false
+    cascadeHigh := high
+    cascadeLow := low
+    cascadeDirection := currentCascadeDirection
 
 // RANGE BREAKOUT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+RANGE_PERCENT = 0.16
+RANGE_BARS = 120
+RANGE_MOMENTUM = 25
+RANGE_TOLERANCE_PERCENT = 0.03
 
 rollingHigh = ta.highest(high, RANGE_BARS)
 rollingLow = ta.lowest(low, RANGE_BARS)
@@ -261,12 +303,35 @@ if isExpansionActive
 barcolor(triggerExpansion ? (isUp ? color.blue : color.red) : na)
 
 // cascade
-plotshape(isStopCascadeUp, title="up cascade", location=location.belowbar, style=shape.triangleup, color=color.blue, size=size.small)
-plotshape(isStopCascadeDown, title="down cascade", location=location.abovebar, style=shape.triangledown, color=color.red, size=size.small)
+plotshape(
+    isStopCascadeUp,
+    title="up cascade",
+    location=location.belowbar,
+    style=shape.triangleup,
+    color=color.blue,
+    size=size.small)
+plotshape(
+    isStopCascadeDown,
+    title="down cascade",
+    location=location.abovebar,
+    style=shape.triangledown,
+    color=color.red,
+    size=size.small)
 
 // continuation cascade
-plotshape(triggerContinuationCascade and isContinuationCascadeUp, title="up continuation cascade", location=location.belowbar, style=shape.diamond, color=color.blue, size=size.small)
-plotshape(triggerContinuationCascade and isContinuationCascadeDown, title="down continuation cascade", location=location.abovebar, style=shape.diamond, color=color.red, size=size.small)
+plotshape(
+    triggerContinuationCascade and isContinuationCascadeUp,
+    title="up continuation cascade",
+    location=location.belowbar,
+    style=shape.diamond,
+    color=color.blue, size=size.small)
+plotshape(
+    triggerContinuationCascade and isContinuationCascadeDown,
+    title="down continuation cascade",
+    location=location.abovebar,
+    style=shape.diamond,
+    color=color.red,
+    size=size.small)
 
 // range breakout
 if triggerRangeBreakout
@@ -287,8 +352,20 @@ if triggerRangeBreakout
         border_color = color.new(color.teal, 88),
         bgcolor = color.new(color.teal, 88))
 
-plotshape(isRangeBreakoutUp, title="range exit up", location=location.abovebar, style=shape.circle, color=color.blue, size=size.tiny)
-plotshape(isRangeBreakoutDown, title="range exit down", location=location.belowbar, style=shape.circle, color=color.red, size=size.tiny)
+plotshape(
+    isRangeBreakoutUp,
+    title="range exit up",
+    location=location.abovebar,
+    style=shape.circle,
+    color=color.blue,
+    size=size.tiny)
+plotshape(
+    isRangeBreakoutDown,
+    title="range exit down",
+    location=location.belowbar,
+    style=shape.circle,
+    color=color.red,
+    size=size.tiny)
 
 // asset name (top right)
 isNQ = str.contains(syminfo.ticker, "NQ")
