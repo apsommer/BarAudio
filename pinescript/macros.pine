@@ -210,11 +210,11 @@ win_color = color.green
 loss_color = color.red
 session_color = color.aqua
 
-vwap_color = color.white
+line_color = color.white
 
 bar_transparency = 30
 signal_tranparency = 0
-vwap_transparency = 80
+line_transparency = 80
 
 // bar color
 barColor =
@@ -259,17 +259,17 @@ plotshape(
      size = size.tiny)
 
 // averages
-plot(isZN ? znAvg : na, color = color.new(vwap_color, vwap_transparency))
-plot(isE6 ? e6Avg : na, color = color.new(vwap_color, vwap_transparency))
-plot(isGC ? gcAvg : na, color = color.new(vwap_color, vwap_transparency))
+plot(isZN ? znAvg : na, color = color.new(line_color, line_transparency))
+plot(isE6 ? e6Avg : na, color = color.new(line_color, line_transparency))
+plot(isGC ? gcAvg : na, color = color.new(line_color, line_transparency))
 
 // vwap
-plot(isZN and isBlendedVwap ? znVwap : na, color = color.new(vwap_color, vwap_transparency), style = plot.style_linebr)
-plot(isE6 and isBlendedVwap ? e6Vwap : na, color = color.new(vwap_color, vwap_transparency), style = plot.style_linebr)
-plot(isGC and isBlendedVwap ? gcVwap : na, color = color.new(vwap_color, vwap_transparency), style = plot.style_linebr)
-plot(isZN ? znBlendedVwap : na, color = color.new(vwap_color, vwap_transparency), linewidth =  2)
-plot(isE6 ? e6BlendedVwap : na, color = color.new(vwap_color, vwap_transparency), linewidth = 2)
-plot(isGC ? gcBlendedVwap : na, color = color.new(vwap_color, vwap_transparency), linewidth = 2)
+// plot(isZN and isBlendedVwap ? znVwap : na, color = color.new(line_color, line_transparency), style = plot.style_linebr, linewidth = 2)
+// plot(isE6 and isBlendedVwap ? e6Vwap : na, color = color.new(line_color, line_transparency), style = plot.style_linebr, linewidth = 2)
+// plot(isGC and isBlendedVwap ? gcVwap : na, color = color.new(line_color, line_transparency), style = plot.style_linebr, linewidth = 2)
+// plot(isZN ? znBlendedVwap : na, color = color.new(line_color, line_transparency), linewidth = 2)
+// plot(isE6 ? e6BlendedVwap : na, color = color.new(line_color, line_transparency), linewidth = 2)
+// plot(isGC ? gcBlendedVwap : na, color = color.new(line_color, line_transparency), linewidth = 2)
 
 // ALERT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -291,6 +291,10 @@ tickSize = syminfo.mintick
 longTicks = math.round((open - entryPrice) / tickSize)
 shortTicks = math.round((entryPrice - open) / tickSize)
 
+znSessionOpen = request.security(ZN_SYMBOL, "D", open)
+znSessionPercent = (znOpen - znSessionOpen) / znSessionOpen * 100.0
+formattedZnSessionPercent = str.tostring(znSessionPercent, "#.00") + "%"
+
 // macro supportive
 triggerMacroSupportive =
      isGC
@@ -299,7 +303,7 @@ triggerMacroSupportive =
      and isMacroCooldownPassed
 if triggerMacroSupportive and not barstate.isconfirmed
     if na(alertMessage)
-        alertMessage := "Macro • Supportive"
+        alertMessage := "Macro • Supportive • Treasuries " + formattedZnSessionPercent + " • Dollar pressure easing"
         lastMacroAlertTime := time
 
 // macro hostile
@@ -310,7 +314,7 @@ triggerMacroHostile =
      and isMacroCooldownPassed
 if triggerMacroHostile and not barstate.isconfirmed
     if na(alertMessage)
-        alertMessage := "Macro • Hostile"
+        alertMessage := "Macro • Hostile • Treasuries " + formattedZnSessionPercent + " • Dollar pressure building"
         lastMacroAlertTime := time
 
 // entry
@@ -321,29 +325,27 @@ if isGC and isShortEntry and not barstate.isconfirmed
     if na(alertMessage)
         alertMessage := "Entry • Short • " + formattedPrice
 
-// exit - long
+// exit long
 if isGC and isLongExit and not barstate.isconfirmed
     if na(alertMessage)
-        isTreasuriesReversed = not isZNsupportive
-        isDollarReversed = not isE6supportive
+        isTreasuriesWeakened = not isZNsupportive
+        isDollarStrengthened = not isE6supportive
         exitReason =
-             isTreasuriesReversed and not isDollarReversed ? "Treasuries reversed" :
-             isDollarReversed and not isTreasuriesReversed ? "Dollar reversed" :
-             "Macro reversed"
+             isTreasuriesWeakened and not isDollarStrengthened ? "Treasuries weakening" :
+             isDollarStrengthened and not isTreasuriesWeakened ? "Dollar strengthening" : ""
         exitPnL =
              longTicks >= 0 ? "Plus " + str.tostring(longTicks) + " ticks" :
              "Minus " + str.tostring(math.abs(longTicks)) + " ticks"
         alertMessage := "Exit • Long • " + exitReason + " • " + exitPnL
 
-// exit - short
+// exit short
 if isGC and isShortExit and not barstate.isconfirmed
     if na(alertMessage)
-        isTreasuriesReversed = not isZNhostile
-        isDollarReversed = not isE6hostile
+        isTreasuriesStrengthened = not isZNhostile
+        isDollarWeakened = not isE6hostile
         exitReason =
-             isTreasuriesReversed and not isDollarReversed ? "Treasuries reversed" :
-             isDollarReversed and not isTreasuriesReversed ? "Dollar reversed" :
-             "Macro reversed"
+             isTreasuriesStrengthened and not isDollarWeakened ? "Treasuries strengthening" :
+             isDollarWeakened and not isTreasuriesStrengthened ? "Dollar weakening" : ""
         exitPnL =
              shortTicks >= 0 ? "Plus " + str.tostring(shortTicks) + " ticks" :
              "Minus " + str.tostring(math.abs(shortTicks)) + " ticks"
