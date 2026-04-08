@@ -274,7 +274,7 @@ plot(isGC ? gcAvg : na, color = color.new(line_color, line_transparency))
 // ALERT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Event • Context • Value
+// Event • Direction/State • Context • Value
 
 var string alertMessage = na
 alertMessage := na
@@ -291,9 +291,13 @@ tickSize = syminfo.mintick
 longTicks = math.round((open - entryPrice) / tickSize)
 shortTicks = math.round((entryPrice - open) / tickSize)
 
-znSessionOpen = request.security(ZN_SYMBOL, "D", open)
-znSessionPercent = (znOpen - znSessionOpen) / znSessionOpen * 100.0
-formattedZnSessionPercent = str.tostring(znSessionPercent, "#.00") + "%"
+// calculate percent change on ZN to match tradingview watchlist
+znPrevClose = request.security(ZN_SYMBOL, "D", close[1])
+znSessionPercent = (znOpen - znPrevClose) / znPrevClose * 100.0
+formattedZnSessionPercent =
+     znSessionPercent == 0 ? "0.00%" :
+     znSessionPercent > 0 ? "+" + str.tostring(math.abs(znSessionPercent), "0.00") + "%" :
+     "-" + str.tostring(math.abs(znSessionPercent), "0.00") + "%"
 
 // macro supportive
 triggerMacroSupportive =
@@ -303,7 +307,7 @@ triggerMacroSupportive =
      and isMacroCooldownPassed
 if triggerMacroSupportive and not barstate.isconfirmed
     if na(alertMessage)
-        alertMessage := "Macro • Supportive • Treasuries " + formattedZnSessionPercent + " • Dollar pressure easing"
+        alertMessage := "Macro • Supportive • Treasuries " + formattedZnSessionPercent + " • Dollar weaker"
         lastMacroAlertTime := time
 
 // macro hostile
@@ -314,7 +318,7 @@ triggerMacroHostile =
      and isMacroCooldownPassed
 if triggerMacroHostile and not barstate.isconfirmed
     if na(alertMessage)
-        alertMessage := "Macro • Hostile • Treasuries " + formattedZnSessionPercent + " • Dollar pressure building"
+        alertMessage := "Macro • Hostile • Treasuries " + formattedZnSessionPercent + " • Dollar stronger"
         lastMacroAlertTime := time
 
 // entry
@@ -328,11 +332,11 @@ if isGC and isShortEntry and not barstate.isconfirmed
 // exit long
 if isGC and isLongExit and not barstate.isconfirmed
     if na(alertMessage)
-        isTreasuriesWeakened = not isZNsupportive
-        isDollarStrengthened = not isE6supportive
+        isTreasuriesWeaker = not isZNsupportive
+        isDollarStronger = not isE6supportive
         exitReason =
-             isTreasuriesWeakened and not isDollarStrengthened ? "Treasuries weakening" :
-             isDollarStrengthened and not isTreasuriesWeakened ? "Dollar strengthening" : ""
+             isTreasuriesWeaker and not isDollarStronger ? "Treasuries weaker" :
+             isDollarStronger and not isTreasuriesWeaker ? "Dollar stronger" : "Macro lost"
         exitPnL =
              longTicks >= 0 ? "Plus " + str.tostring(longTicks) + " ticks" :
              "Minus " + str.tostring(math.abs(longTicks)) + " ticks"
@@ -341,11 +345,11 @@ if isGC and isLongExit and not barstate.isconfirmed
 // exit short
 if isGC and isShortExit and not barstate.isconfirmed
     if na(alertMessage)
-        isTreasuriesStrengthened = not isZNhostile
-        isDollarWeakened = not isE6hostile
+        isTreasuriesStronger = not isZNhostile
+        isDollarWeaker = not isE6hostile
         exitReason =
-             isTreasuriesStrengthened and not isDollarWeakened ? "Treasuries strengthening" :
-             isDollarWeakened and not isTreasuriesStrengthened ? "Dollar weakening" : ""
+             isTreasuriesStronger and not isDollarWeaker ? "Treasuries stronger" :
+             isDollarWeaker and not isTreasuriesStronger ? "Dollar weaker" : "Macro lost"
         exitPnL =
              shortTicks >= 0 ? "Plus " + str.tostring(shortTicks) + " ticks" :
              "Minus " + str.tostring(math.abs(shortTicks)) + " ticks"
