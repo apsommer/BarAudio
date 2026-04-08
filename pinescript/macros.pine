@@ -279,9 +279,14 @@ plot(isGC ? gcBlendedVwap : na, color = color.new(vwap_color, vwap_transparency)
 var string alertMessage = na
 alertMessage := na
 
+// macro alert can only fire once every 10 minutes
+var int lastMacroAlertTime = na
+macroCooldownMs = 10 * 60 * 1000
+isMacroCooldownPassed = na(lastMacroAlertTime) or (time - lastMacroAlertTime >= macroCooldownMs)
+
 formattedPrice = str.tostring(math.round_to_mintick(open), "#.00")
 
-// ticks
+// calculate p&l in ticks to protect user financial implications spoken aloud
 tickSize = syminfo.mintick
 longTicks = math.round((open - entryPrice) / tickSize)
 shortTicks = math.round((entryPrice - open) / tickSize)
@@ -291,18 +296,22 @@ triggerMacroSupportive =
      isGC
      and isMacroSupportive
      and not isMacroSupportive[1]
+     and isMacroCooldownPassed
 if triggerMacroSupportive and not barstate.isconfirmed
     if na(alertMessage)
         alertMessage := "Macro • Supportive"
+        lastMacroAlertTime := time
 
 // macro hostile
 triggerMacroHostile =
      isGC
      and isMacroHostile
      and not isMacroHostile[1]
+     and isMacroCooldownPassed
 if triggerMacroHostile and not barstate.isconfirmed
     if na(alertMessage)
         alertMessage := "Macro • Hostile"
+        lastMacroAlertTime := time
 
 // entry
 if isGC and isLongEntry and not barstate.isconfirmed
