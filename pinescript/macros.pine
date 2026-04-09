@@ -30,6 +30,11 @@ e6Open = request.security(E6_SYMBOL, timeframe.period, open)
 marketOpenTime = "1800-1801"
 isNewSession = not na(time(timeframe.period, marketOpenTime, "America/New_York"))
 
+// asia: 1810-0200
+// london: 0300-1130
+// TRANSITION: 0400-0900 end of london, pre-US
+// us: 0930-1600
+
 // valid trading windows
 inSessionTimes = "1810-0359,0910-1659"
 isInSession = not na(time(timeframe.period, inSessionTimes, "America/New_York"))
@@ -61,14 +66,27 @@ isE6hostile = not isE6supportive // e6Avg > e6Open and 0 > e6Slope
 // MACRO REGIME
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+MACRO_CHOP_LOOKBACK_LONG = 10
+MACRO_CHOP_LOOKBACK_SHORT = 3
+
 isMacroSupportive = isZNsupportive and isE6supportive
 isMacroHostile = isZNhostile and isE6hostile
 isMacroNuetral = not isMacroSupportive and not isMacroHostile
 
+znFlip = isZNsupportive != isZNsupportive[1]
+e6Flip = isE6supportive != isE6supportive[1]
+
+macroFlip = znFlip or e6Flip
+macroFlipCountLong = math.sum(macroFlip ? 1 : 0, MACRO_CHOP_LOOKBACK_LONG)
+macroFlipCountShort = math.sum(macroFlip ? 1 : 0, MACRO_CHOP_LOOKBACK_SHORT)
+
+isMacroCleanLong = macroFlipCountLong <= 1
+isMacroCleanShort = macroFlipCountShort <= 1
+
 // GC LOGIC
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-GC_LOOKBACK = 13
+GC_LOOKBACK = 14
 GC_EARLY_ALIGNMENT_MIN_BARS  = 2
 GC_EARLY_ALIGNMENT_MAX_BARS = 5
 
@@ -114,6 +132,7 @@ isLongEntry =
      and not isShortTradeActive
      and isMacroSupportive and isMacroSupportive[1]
      and isGCsupportiveEarly
+     and isMacroCleanLong
 
 isShortEntry =
      isBarStable
@@ -122,6 +141,7 @@ isShortEntry =
      and not isShortTradeActive
      and isMacroHostile and isMacroHostile[1]
      and isGChostileEarly
+     and isMacroCleanShort
 
 if isLongEntry
     isLongTradeActive := true
@@ -197,13 +217,13 @@ line_transparency = 80
 
 // bar color
 barColor =
-     not isInSession ? color.new(session_color, bar_transparency) :
      isZN and isZNsupportive ? color.new(long_color, bar_transparency) :
      isZN and isZNhostile ? color.new(short_color, bar_transparency) :
      isZN ? color.new(ZN_color, bar_transparency) :
      isE6 and isE6supportive ? color.new(long_color, bar_transparency) :
      isE6 and isE6hostile ? color.new(short_color, bar_transparency) :
      isE6 ? color.new(E6_color, bar_transparency) :
+     not isInSession ? color.new(session_color, bar_transparency) :
      isGC and isGCsupportive ? color.new(long_color, bar_transparency) :
      isGC and isGChostile ? color.new(short_color, bar_transparency) :
      isGC ? color.new(GC_color, bar_transparency) : na
