@@ -21,17 +21,7 @@ E6_SYMBOL = "CME:6E1!"
 GC_SYMBOL = "COMEX_MINI:MGC1!"
 
 znOpen = request.security(ZN_SYMBOL, timeframe.period, open)
-znHigh = request.security(ZN_SYMBOL, timeframe.period, high)
-
-e6Tick = request.security(E6_SYMBOL, timeframe.period, syminfo.mintick)
 e6Open = request.security(E6_SYMBOL, timeframe.period, open)
-e6High = request.security(E6_SYMBOL, timeframe.period, high)
-e6Low = request.security(E6_SYMBOL, timeframe.period, low)
-e6Close = request.security(E6_SYMBOL, timeframe.period, close)
-
-znVwap = request.security(ZN_SYMBOL, timeframe.period, ta.vwap(open))
-e6Vwap = request.security(E6_SYMBOL, timeframe.period, ta.vwap(open))
-gcVwap = ta.vwap(open)
 
 // SESSION CONTROL
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -43,32 +33,6 @@ isNewSession = not na(time(timeframe.period, marketOpenTime, "America/New_York")
 // valid trading windows
 inSessionTimes = "1810-0359,0910-1659"
 isInSession = not na(time(timeframe.period, inSessionTimes, "America/New_York"))
-
-// BLEND VWAP
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-BLENDED_VWAP_MINUTES = 240
-
-calc_blended_vwap_times(blendedVwapMinutes) =>
-    totalMinutes = (18 * 60 + blendedVwapMinutes) % 1440
-    endHour = int(math.floor(totalMinutes / 60))
-    endMinute = totalMinutes % 60
-    "1800-" + str.tostring(endHour, "00") + str.tostring(endMinute, "00")
-
-calc_blended_vwap() =>
-    current = ta.vwap(open)
-    prev = ta.valuewhen(isNewSession, current[1], 0)
-    sessionStartTime = ta.valuewhen(isNewSession, time, 0)
-    elapsedMinutes = (time - sessionStartTime) / 60000.0
-    c = math.min(1.0, elapsedMinutes / float(BLENDED_VWAP_MINUTES))
-    prev + c * (current - prev)
-
-isBlendedVwapTimes = calc_blended_vwap_times(BLENDED_VWAP_MINUTES)
-isBlendedVwap = not na(time(timeframe.period, isBlendedVwapTimes, "America/New_York"))
-
-znBlendedVwap = request.security(ZN_SYMBOL, timeframe.period, calc_blended_vwap())
-e6BlendedVwap = request.security(E6_SYMBOL, timeframe.period, calc_blended_vwap())
-gcBlendedVwap = request.security( GC_SYMBOL, timeframe.period, calc_blended_vwap())
 
 // ZN
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -175,7 +139,6 @@ isLongExit =
      and isLongTradeActive
      and (
         not isInSession
-        // or not isMacroSupportive
         or (not isMacroSupportive and not isMacroSupportive[1])
      )
 
@@ -184,7 +147,6 @@ isShortExit =
      and isShortTradeActive
      and (
         not isInSession
-        // or not isMacroHostile
         or (not isMacroHostile and not isMacroHostile[1])
      )
 
@@ -242,8 +204,6 @@ barColor =
      isE6 and isE6supportive ? color.new(long_color, bar_transparency) :
      isE6 and isE6hostile ? color.new(short_color, bar_transparency) :
      isE6 ? color.new(E6_color, bar_transparency) :
-    //  isGC and isMacroSupportive ? color.new(long_color, bar_transparency) :
-    //  isGC and isMacroHostile ? color.new(short_color, bar_transparency) :
      isGC and isGCsupportive ? color.new(long_color, bar_transparency) :
      isGC and isGChostile ? color.new(short_color, bar_transparency) :
      isGC ? color.new(GC_color, bar_transparency) : na
@@ -279,14 +239,6 @@ plotshape(
 plot(isZN ? znAvg : na, color = color.new(line_color, line_transparency))
 plot(isE6 ? e6Avg : na, color = color.new(line_color, line_transparency))
 plot(isGC ? gcAvg : na, color = color.new(line_color, line_transparency))
-
-// vwap
-// plot(isZN and isBlendedVwap ? znVwap : na, color = color.new(line_color, line_transparency), style = plot.style_linebr, linewidth = 2)
-// plot(isE6 and isBlendedVwap ? e6Vwap : na, color = color.new(line_color, line_transparency), style = plot.style_linebr, linewidth = 2)
-// plot(isGC and isBlendedVwap ? gcVwap : na, color = color.new(line_color, line_transparency), style = plot.style_linebr, linewidth = 2)
-// plot(isZN ? znBlendedVwap : na, color = color.new(line_color, line_transparency), linewidth = 2)
-// plot(isE6 ? e6BlendedVwap : na, color = color.new(line_color, line_transparency), linewidth = 2)
-// plot(isGC ? gcBlendedVwap : na, color = color.new(line_color, line_transparency), linewidth = 2)
 
 // ALERT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
