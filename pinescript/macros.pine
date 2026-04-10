@@ -73,6 +73,7 @@ isMacroSupportive = isZNsupportive and isE6supportive
 isMacroHostile = isZNhostile and isE6hostile
 isMacroNuetral = not isMacroSupportive and not isMacroHostile
 
+// stability of macro regime (entry)
 znFlip = isZNsupportive != isZNsupportive[1]
 e6Flip = isE6supportive != isE6supportive[1]
 
@@ -86,7 +87,7 @@ isMacroCleanShort = macroFlipCountShort <= 1
 // GC LOGIC
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-GC_LOOKBACK = 14
+GC_LOOKBACK = 13
 GC_EARLY_ALIGNMENT_MIN_BARS  = 2
 GC_EARLY_ALIGNMENT_MAX_BARS = 5
 
@@ -104,9 +105,16 @@ isGChostile = not isGCsupportive
 gcSupportiveBars := isGCsupportive ? gcSupportiveBars[1] + 1 : 0
 gcHostileBars := isGChostile ? gcHostileBars[1] + 1 : 0
 
-//
-isGCsupportiveEarly = isGCsupportive and gcSupportiveBars > GC_EARLY_ALIGNMENT_MIN_BARS and GC_EARLY_ALIGNMENT_MAX_BARS >= gcSupportiveBars
-isGChostileEarly = isGChostile and gcHostileBars > GC_EARLY_ALIGNMENT_MIN_BARS and GC_EARLY_ALIGNMENT_MAX_BARS >= gcHostileBars
+// alignment to macros is early
+isGCsupportiveEarly =
+     isGCsupportive
+     and gcSupportiveBars > GC_EARLY_ALIGNMENT_MIN_BARS
+     and GC_EARLY_ALIGNMENT_MAX_BARS >= gcSupportiveBars
+
+isGChostileEarly =
+     isGChostile
+     and gcHostileBars > GC_EARLY_ALIGNMENT_MIN_BARS
+     and GC_EARLY_ALIGNMENT_MAX_BARS >= gcHostileBars
 
 // GC TRADE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -153,13 +161,59 @@ if isShortEntry
     isShortTradeActive := true
     entryPrice := open
 
-// exit = GC loses state
+// MACRO FLATTENING (E6 • TIME SINCE EXTREME + TRADE MATURITY)
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+FLATTEN_LOOKBACK = 15
+TRADE_MATURITY_BARS = 100
+
+var int lastE6LowBar = na
+var int lastE6HighBar = na
+var int tradeStartBar = na
+
+if isLongEntry or isShortEntry
+    tradeStartBar := bar_index
+    lastE6LowBar := bar_index
+    lastE6HighBar := bar_index
+
+// detect new extremes (E6 drives exit)
+isNewLow = e6Open <= ta.lowest(e6Open, FLATTEN_LOOKBACK)
+isNewHigh = ta.highest(e6Open, FLATTEN_LOOKBACK) <= e6Open
+
+// update extreme timestamps
+if isNewLow
+    lastE6LowBar := bar_index
+
+if isNewHigh
+    lastE6HighBar := bar_index
+
+// bars since extremes
+barsSinceLow = bar_index - lastE6LowBar
+barsSinceHigh = bar_index - lastE6HighBar
+barsInTrade = bar_index - tradeStartBar
+
+// maturity gate
+isTradeMature = barsInTrade >= TRADE_MATURITY_BARS
+
+// flattening
+isMacroFlatteningShort =
+     isTradeMature
+     and barsSinceLow >= FLATTEN_LOOKBACK
+
+isMacroFlatteningLong =
+     isTradeMature
+     and barsSinceHigh >= FLATTEN_LOOKBACK
+
+////////////////////////
+
+// exit
 isLongExit =
      isBarStable
      and isLongTradeActive
      and (
         not isInSession
         or (not isMacroSupportive and not isMacroSupportive[1])
+        or (isTradeMature and isMacroFlatteningLong)
      )
 
 isShortExit =
@@ -168,6 +222,7 @@ isShortExit =
      and (
         not isInSession
         or (not isMacroHostile and not isMacroHostile[1])
+        or (isTradeMature and isMacroFlatteningShort)
      )
 
 if isLongExit
