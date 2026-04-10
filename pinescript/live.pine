@@ -7,13 +7,9 @@ indicator(
 // QUANTITY
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// quantity relative to day trade margin rates (TradeStation)
+// quantity relative to day trade margin rates: tradestation
 DAY_QUANTITY = 3
 OVERNIGHT_QUANTITY = 1
-
-dayTradeMarginTimes = "0900-1558"
-isDayTradeMargin = not na(time(timeframe.period, dayTradeMarginTimes, "America/New_York"))
-quantity = isDayTradeMargin ? DAY_QUANTITY : OVERNIGHT_QUANTITY
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -218,8 +214,13 @@ short = "short"
 flat = "flat"
 stop = "stop"
 
-// adjust price with buffer ticks
+// price
 limitPrice = str.tostring(open)
+
+// quantity
+dayTradeMarginTimes = "0900-1558"
+isDayTradeMargin = not na(time(timeframe.period, dayTradeMarginTimes, "America/New_York"))
+quantity = isDayTradeMargin ? DAY_QUANTITY : OVERNIGHT_QUANTITY
 
 // build json alert message https://docs.traderspost.io/docs/tradingview
 commonEntryAttributes = '{ ' + '"ticker": "' + ticker + '", "quantity": ' + str.tostring(quantity) + ', '
@@ -229,20 +230,21 @@ shortEntryLimitAttributes = '"action": "' + sell + '", "sentiment": "' + short +
 longExitLimitAttributes = '"action": "' + sell + '", "sentiment": "' + flat + '", "price": ' + limitPrice + ' }'
 shortExitLimitAttributes = '"action": "' + buy + '", "sentiment": "' + flat + '", "price": ' + limitPrice + ' }'
 
-// entries, realtime limit, close market
+// entry
 if isLongEntry
     alert(commonEntryAttributes + longEntryLimitAttributes, alert.freq_once_per_bar)
 
 if isShortEntry
     alert(commonEntryAttributes + shortEntryLimitAttributes, alert.freq_once_per_bar)
 
+// exit
 if isLongExit
     alert(commonExitAttributes + longExitLimitAttributes, alert.freq_once_per_bar)
 
 if isShortExit
     alert(commonExitAttributes + shortExitLimitAttributes, alert.freq_once_per_bar)
 
-// special reduction in quantity due to overnight margin requirements (tradestation)
+// partial exit, reduce quantity due to overnight margin requirement: tradestation
 overnightTransitionTime = "1559-1600"
 isOvernightTransition = not na(time(timeframe.period, overnightTransitionTime, "America/New_York"))
 if isOvernightTransition and isBarStable
