@@ -10,10 +10,15 @@ object TimestampFormatter {
     private const val hour = 60 * minute
     private const val day = 24 * hour
     private const val week = 7 * day
+
+    private val timeFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault()) // 14:32
     private val clockFormat = SimpleDateFormat("HH:mm", Locale.getDefault()) // 14:32
     private val weekdayFormat = SimpleDateFormat("EEE", Locale.getDefault()) // Mon
     private val dateFormat = SimpleDateFormat("MMM d", Locale.getDefault()) // Oct 30
-    private val fullFormat = SimpleDateFormat("EEEE, MMMM d, yyyy • HH:mm:ss", Locale.getDefault())
+    private val fullFormat = SimpleDateFormat("HH:mm:ss • MMMM d, yyyy", Locale.getDefault())
+
+    fun beautifyTime(timestamp: String): String =
+        timeFormat.format(Date(timestamp.toLong()))
 
     fun beautifyCompact(timestamp: String): String {
 
