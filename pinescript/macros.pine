@@ -26,18 +26,18 @@ e6Open = request.security(E6_SYMBOL, timeframe.period, open)
 // SESSION CONTROL
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// official market open for new futures session
-marketOpenTime = "1800-1801"
-isNewSession = not na(time(timeframe.period, marketOpenTime, "America/New_York"))
-
 // asia: 1810-0200
 // london: 0300-1130
 // TRANSITION: 0400-0900 end of london, pre-US
 // us: 0930-1600
 
-// valid trading windows
-inSessionTimes = "1810-0359,0910-1659"
+// session windows (entry allowed)
+inSessionTimes = "1810-0359,0910-1658"
 isInSession = not na(time(timeframe.period, inSessionTimes, "America/New_York"))
+
+// session closing (exit)
+marketCloseTime = "1659-1700"
+isSessionClosing = not na(time(timeframe.period, marketCloseTime, "America/New_York"))
 
 // ZN
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -165,16 +165,16 @@ isLongExit =
      isBarStable
      and isLongTradeActive
      and (
-        not isInSession
-        or (not isMacroSupportive and not isMacroSupportive[1])
+        (not isMacroSupportive and not isMacroSupportive[1])
+        or isSessionClosing
      )
 
 isShortExit =
      isBarStable
      and isShortTradeActive
      and (
-        not isInSession
-        or (not isMacroHostile and not isMacroHostile[1])
+        (not isMacroHostile and not isMacroHostile[1])
+        or isSessionClosing
      )
 
 if isLongExit
@@ -250,7 +250,7 @@ plot(
 
 // exit
 exit_color =
-     not isInSession ? color.new(session_color, signal_tranparency) :
+     isSessionClosing ? color.new(session_color, signal_tranparency) :
      profit >= 0 ? color.new(win_color, signal_tranparency) :
      color.new(loss_color, signal_tranparency)
 
