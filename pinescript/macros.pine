@@ -36,8 +36,8 @@ inSessionTimes = "1810-0359,0910-1658"
 isInSession = not na(time(timeframe.period, inSessionTimes, "America/New_York"))
 
 // session closing (exit)
-marketCloseTime = "1659-1700"
-isSessionClosing = not na(time(timeframe.period, marketCloseTime, "America/New_York"))
+marketClosingTime = "1659-1700"
+isSessionClosing = not na(time(timeframe.period, marketClosingTime, "America/New_York"))
 
 // ZN
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -69,9 +69,9 @@ isE6hostile = not isE6supportive // e6Avg > e6Open and 0 > e6Slope
 MACRO_CHOP_LOOKBACK_LONG = 10
 MACRO_CHOP_LOOKBACK_SHORT = 3
 
+// alignment
 isMacroSupportive = isZNsupportive and isE6supportive
 isMacroHostile = isZNhostile and isE6hostile
-isMacroNuetral = not isMacroSupportive and not isMacroHostile
 
 znFlip = isZNsupportive != isZNsupportive[1]
 e6Flip = isE6supportive != isE6supportive[1]
@@ -80,6 +80,7 @@ macroFlip = znFlip or e6Flip
 macroFlipCountLong = math.sum(macroFlip ? 1 : 0, MACRO_CHOP_LOOKBACK_LONG)
 macroFlipCountShort = math.sum(macroFlip ? 1 : 0, MACRO_CHOP_LOOKBACK_SHORT)
 
+// stability
 isMacroCleanLong = macroFlipCountLong <= 1
 isMacroCleanShort = macroFlipCountShort <= 1
 
@@ -87,8 +88,8 @@ isMacroCleanShort = macroFlipCountShort <= 1
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 GC_LOOKBACK = 14
-GC_EARLY_ALIGNMENT_MIN_BARS  = 2
-GC_EARLY_ALIGNMENT_MAX_BARS = 5
+GC_EARLY_ALIGNMENT_MIN_BARS  = 2 // wait for stability
+GC_EARLY_ALIGNMENT_MAX_BARS = 5 // ensure move is early
 
 var int gcSupportiveBars = 0
 var int gcHostileBars = 0
@@ -104,7 +105,7 @@ isGChostile = not isGCsupportive
 gcSupportiveBars := isGCsupportive ? gcSupportiveBars[1] + 1 : 0
 gcHostileBars := isGChostile ? gcHostileBars[1] + 1 : 0
 
-// early alignment to macros
+// early in new, stable trend
 isGCsupportiveEarly =
      isGCsupportive
      and gcSupportiveBars > GC_EARLY_ALIGNMENT_MIN_BARS
