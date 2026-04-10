@@ -1,11 +1,23 @@
 //@version=6
-strategy(
+indicator(
     "live (TP)",
     overlay = true,
-    max_bars_back = 2000,
-    pyramiding = 0,
-    process_orders_on_close = true,
-    calc_on_every_tick = true)
+    max_bars_back = 2000)
+
+// QUANTITY
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// quantity relative to day trade margin rates (TradeStation)
+DAY_QUANTITY = 3
+OVERNIGHT_QUANTITY = 1
+
+dayTradeMarginTimes = "0900-1558"
+isDayTradeMargin = not na(time(timeframe.period, dayTradeMarginTimes, "America/New_York"))
+quantity = isDayTradeMargin ? DAY_QUANTITY : OVERNIGHT_QUANTITY
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -29,6 +41,11 @@ e6Open = request.security(E6_SYMBOL, timeframe.period, open)
 // official market open for new futures session
 marketOpenTime = "1800-1801"
 isNewSession = not na(time(timeframe.period, marketOpenTime, "America/New_York"))
+
+// asia: 1810-0200
+// london: 0300-1130
+// TRANSITION: 0400-0900 end of london, pre-US
+// us: 0930-1600
 
 // valid trading windows
 inSessionTimes = "1810-0359,0910-1659"
@@ -61,14 +78,27 @@ isE6hostile = not isE6supportive // e6Avg > e6Open and 0 > e6Slope
 // MACRO REGIME
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+MACRO_CHOP_LOOKBACK_LONG = 10
+MACRO_CHOP_LOOKBACK_SHORT = 3
+
 isMacroSupportive = isZNsupportive and isE6supportive
 isMacroHostile = isZNhostile and isE6hostile
 isMacroNuetral = not isMacroSupportive and not isMacroHostile
 
+znFlip = isZNsupportive != isZNsupportive[1]
+e6Flip = isE6supportive != isE6supportive[1]
+
+macroFlip = znFlip or e6Flip
+macroFlipCountLong = math.sum(macroFlip ? 1 : 0, MACRO_CHOP_LOOKBACK_LONG)
+macroFlipCountShort = math.sum(macroFlip ? 1 : 0, MACRO_CHOP_LOOKBACK_SHORT)
+
+isMacroCleanLong = macroFlipCountLong <= 1
+isMacroCleanShort = macroFlipCountShort <= 1
+
 // GC LOGIC
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-GC_LOOKBACK = 13
+GC_LOOKBACK = 14
 GC_EARLY_ALIGNMENT_MIN_BARS  = 2
 GC_EARLY_ALIGNMENT_MAX_BARS = 5
 
@@ -87,8 +117,14 @@ gcSupportiveBars := isGCsupportive ? gcSupportiveBars[1] + 1 : 0
 gcHostileBars := isGChostile ? gcHostileBars[1] + 1 : 0
 
 //
-isGCsupportiveEarly = isGCsupportive and gcSupportiveBars > GC_EARLY_ALIGNMENT_MIN_BARS and GC_EARLY_ALIGNMENT_MAX_BARS >= gcSupportiveBars
-isGChostileEarly = isGChostile and gcHostileBars > GC_EARLY_ALIGNMENT_MIN_BARS and GC_EARLY_ALIGNMENT_MAX_BARS >= gcHostileBars
+isGCsupportiveEarly =
+     isGCsupportive
+     and gcSupportiveBars > GC_EARLY_ALIGNMENT_MIN_BARS
+     and GC_EARLY_ALIGNMENT_MAX_BARS >= gcSupportiveBars
+isGChostileEarly =
+     isGChostile
+     and gcHostileBars > GC_EARLY_ALIGNMENT_MIN_BARS
+     and GC_EARLY_ALIGNMENT_MAX_BARS >= gcHostileBars
 
 // GC TRADE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -102,6 +138,7 @@ var float profit = na
 
 // calc_on_every_tick has ridiculous problem of pulling previous bar values into this bar just for the very first tick
 // creates ghost signals that are not accurate, bar is stable on second tick and later
+// additional related problem: first tick arrives on different ticks when assets pulled from .security()
 znTime = request.security(ZN_SYMBOL, timeframe.period, time)
 e6Time = request.security(E6_SYMBOL, timeframe.period, time)
 isBarStable := barstate.isrealtime ? not barstate.isnew and time == znTime and time == e6Time : true
@@ -114,6 +151,7 @@ isLongEntry =
      and not isShortTradeActive
      and isMacroSupportive and isMacroSupportive[1]
      and isGCsupportiveEarly
+     and isMacroCleanLong
 
 isShortEntry =
      isBarStable
@@ -122,6 +160,7 @@ isShortEntry =
      and not isShortTradeActive
      and isMacroHostile and isMacroHostile[1]
      and isGChostileEarly
+     and isMacroCleanShort
 
 if isLongEntry
     isLongTradeActive := true
@@ -162,13 +201,9 @@ if isShortExit
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// QUANTITY
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// TradeStation day trade margin rates
-dayTradeMarginTimes = "0900-1600"
-isDayTradeMargin = not na(time(timeframe.period, dayTradeMarginTimes, "America/New_York"))
-quantity = isDayTradeMargin ? 3 : 1
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // ALERT (live trading to traderspost)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -207,3 +242,20 @@ if isLongExit
 if isShortExit
     alert(commonExitAttributes + shortExitLimitAttributes, alert.freq_once_per_bar)
 
+// special reduction in quantity due to overnight margin requirements (tradestation)
+overnightTransitionTime = "1559-1600"
+isOvernightTransition = not na(time(timeframe.period, overnightTransitionTime, "America/New_York"))
+if isOvernightTransition and isBarStable
+
+    reductionQuantity = str.tostring(DAY_QUANTITY - OVERNIGHT_QUANTITY)
+    reductionAttributes = '{ ' + '"ticker": "' + ticker + '", "quantity": ' + str.tostring(reductionQuantity) + ', '
+
+    if isLongTradeActive
+        marketSellPrice = str.tostring(open - 5 * syminfo.mintick)
+        longReductionMarketAttributes = '"action": "' + sell + '", "sentiment": "' + long + '", "price": ' + marketSellPrice + ' }'
+        alert(reductionAttributes + longReductionMarketAttributes, alert.freq_once_per_bar)
+
+    if isShortTradeActive
+        marketBuyPrice = str.tostring(open + 5 * syminfo.mintick)
+        shortReductionMarketAttributes = '"action": "' + buy + '", "sentiment": "' + short + '", "price": ' + marketBuyPrice + ' }'
+        alert(reductionAttributes + shortReductionMarketAttributes, alert.freq_once_per_bar)
