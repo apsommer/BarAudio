@@ -12,13 +12,13 @@ strategy(
 // DATA
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-isZN = syminfo.root == "ZN"
-isE6 = syminfo.root == "6E"
-isGC = syminfo.root == "MGC"
-
 ZN_SYMBOL = "CBOT:ZN1!"
 E6_SYMBOL = "CME:6E1!"
 GC_SYMBOL = "COMEX_MINI:MGC1!"
+
+isZN = syminfo.root == "ZN"
+isE6 = syminfo.root == "6E"
+isGC = syminfo.root == "MGC"
 
 znOpen = request.security(ZN_SYMBOL, timeframe.period, open)
 e6Open = request.security(E6_SYMBOL, timeframe.period, open)
@@ -104,7 +104,7 @@ isGChostile = not isGCsupportive
 gcSupportiveBars := isGCsupportive ? gcSupportiveBars[1] + 1 : 0
 gcHostileBars := isGChostile ? gcHostileBars[1] + 1 : 0
 
-//
+// early alignment to macros
 isGCsupportiveEarly =
      isGCsupportive
      and gcSupportiveBars > GC_EARLY_ALIGNMENT_MIN_BARS
@@ -126,7 +126,7 @@ var float profit = na
 
 // calc_on_every_tick has ridiculous problem of pulling previous bar values into this bar just for the very first tick
 // creates ghost signals that are not accurate, bar is stable on second tick and later
-// additional related problem: first tick arrives on different ticks when assets pulled from .security()
+// additional related problem: first tick arrives at different time when assets pulled from security()
 znTime = request.security(ZN_SYMBOL, timeframe.period, time)
 e6Time = request.security(E6_SYMBOL, timeframe.period, time)
 isBarStable := barstate.isrealtime ? not barstate.isnew and time == znTime and time == e6Time : true
@@ -160,7 +160,7 @@ if isShortEntry
     isShortTradeActive := true
     entryPrice := open
 
-// exit = GC loses state
+// exit
 isLongExit =
      isBarStable
      and isLongTradeActive
@@ -192,7 +192,6 @@ if isShortExit
 // STRATEGY
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// strategy
 if isGC and isLongEntry
     strategy.entry("long", strategy.long)
 if isGC and isShortEntry
@@ -209,15 +208,14 @@ if isGC and isShortExit
 ZN_color = color.blue
 E6_color = color.purple
 GC_color = color.yellow
-
 long_color = color.blue
 short_color = color.red
 win_color = color.green
 loss_color = color.red
 session_color = color.gray
-
 line_color = color.white
 
+// transparency
 bar_transparency = 30
 signal_tranparency = 0
 line_transparency = 80
@@ -253,7 +251,6 @@ exit_color =
      isSessionClosing ? color.new(session_color, signal_tranparency) :
      profit >= 0 ? color.new(win_color, signal_tranparency) :
      color.new(loss_color, signal_tranparency)
-
 plotshape(
      isGC and (isLongExit or isShortExit) ? open : na,
      title = "Long Exit",
