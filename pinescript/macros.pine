@@ -7,104 +7,88 @@ strategy(
     process_orders_on_close = true,
     calc_on_every_tick = true)
 
-// DATA
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-isZN = syminfo.root == "ZN"
-isE6 = syminfo.root == "6E"
-isGC = syminfo.root == "MGC"
+// DATA
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ZN_SYMBOL = "CBOT:ZN1!"
 E6_SYMBOL = "CME:6E1!"
 GC_SYMBOL = "COMEX_MINI:MGC1!"
 
+isZN = syminfo.root == "ZN"
+isE6 = syminfo.root == "6E"
+isGC = syminfo.root == "MGC"
+
 znOpen = request.security(ZN_SYMBOL, timeframe.period, open)
-znHigh = request.security(ZN_SYMBOL, timeframe.period, high)
-
-e6Tick = request.security(E6_SYMBOL, timeframe.period, syminfo.mintick)
 e6Open = request.security(E6_SYMBOL, timeframe.period, open)
-e6High = request.security(E6_SYMBOL, timeframe.period, high)
-e6Low = request.security(E6_SYMBOL, timeframe.period, low)
-e6Close = request.security(E6_SYMBOL, timeframe.period, close)
-
-znVwap = request.security(ZN_SYMBOL, timeframe.period, ta.vwap(open))
-e6Vwap = request.security(E6_SYMBOL, timeframe.period, ta.vwap(open))
-gcVwap = ta.vwap(open)
 
 // SESSION CONTROL
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// official market open for new futures session
-marketOpenTime = "1800-1801"
-isNewSession = not na(time(timeframe.period, marketOpenTime, "America/New_York"))
+// asia: 1810-0200
+// london: 0300-1130
+// TRANSITION: 0400-0900 end of london, pre-US
+// us: 0930-1600
 
-// valid trading windows
-inSessionTimes = "1810-0859,0910-1659"
+// session windows (entry allowed)
+inSessionTimes = "1810-0359,0910-1658"
 isInSession = not na(time(timeframe.period, inSessionTimes, "America/New_York"))
 
-// BLEND VWAP
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-BLENDED_VWAP_MINUTES = 240
-
-calc_blended_vwap_times(blendedVwapMinutes) =>
-    totalMinutes = (18 * 60 + blendedVwapMinutes) % 1440
-    endHour = int(math.floor(totalMinutes / 60))
-    endMinute = totalMinutes % 60
-    "1800-" + str.tostring(endHour, "00") + str.tostring(endMinute, "00")
-
-calc_blended_vwap() =>
-    current = ta.vwap(open)
-    prev = ta.valuewhen(isNewSession, current[1], 0)
-    sessionStartTime = ta.valuewhen(isNewSession, time, 0)
-    elapsedMinutes = (time - sessionStartTime) / 60000.0
-    c = math.min(1.0, elapsedMinutes / float(BLENDED_VWAP_MINUTES))
-    prev + c * (current - prev)
-
-isBlendedVwapTimes = calc_blended_vwap_times(BLENDED_VWAP_MINUTES)
-isBlendedVwap = not na(time(timeframe.period, isBlendedVwapTimes, "America/New_York"))
-
-znBlendedVwap = request.security(ZN_SYMBOL, timeframe.period, calc_blended_vwap())
-e6BlendedVwap = request.security(E6_SYMBOL, timeframe.period, calc_blended_vwap())
-gcBlendedVwap = request.security( GC_SYMBOL, timeframe.period, calc_blended_vwap())
+// session closing (exit)
+marketCloseTime = "1659-1700"
+isSessionClosing = not na(time(timeframe.period, marketCloseTime, "America/New_York"))
 
 // ZN
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ZN_LOOKBACK = 45
+ZN_LOOKBACK = 90
 
 znAvg = ta.sma(ta.ema(znOpen, ZN_LOOKBACK), 5)
 znSlope = znAvg - znAvg[1]
 
 // trend
 isZNsupportive = znOpen > znAvg // and znSlope > 0
-isZNhostile = not isZNsupportive
+isZNhostile = not isZNsupportive // znAvg > znOpen and 0 > znSlope
 
 // 6E
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-E6_LOOKBACK = 45
+E6_LOOKBACK = 75
 
 e6Avg = ta.sma(ta.ema(e6Open, E6_LOOKBACK), 5)
 e6Slope = e6Avg - e6Avg[1]
 
 // trend
-isE6supportive = e6Open > e6Avg
-isE6hostile = not isE6supportive
+isE6supportive = e6Open > e6Avg // and e6Slope > 0
+isE6hostile = not isE6supportive // e6Avg > e6Open and 0 > e6Slope
 
 // MACRO REGIME
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+MACRO_CHOP_LOOKBACK_LONG = 10
+MACRO_CHOP_LOOKBACK_SHORT = 3
 
 isMacroSupportive = isZNsupportive and isE6supportive
 isMacroHostile = isZNhostile and isE6hostile
 isMacroNuetral = not isMacroSupportive and not isMacroHostile
 
+znFlip = isZNsupportive != isZNsupportive[1]
+e6Flip = isE6supportive != isE6supportive[1]
+
+macroFlip = znFlip or e6Flip
+macroFlipCountLong = math.sum(macroFlip ? 1 : 0, MACRO_CHOP_LOOKBACK_LONG)
+macroFlipCountShort = math.sum(macroFlip ? 1 : 0, MACRO_CHOP_LOOKBACK_SHORT)
+
+isMacroCleanLong = macroFlipCountLong <= 1
+isMacroCleanShort = macroFlipCountShort <= 1
+
 // GC LOGIC
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-GC_LOOKBACK = 11
+GC_LOOKBACK = 14
 GC_EARLY_ALIGNMENT_MIN_BARS  = 2
-GC_EARLY_ALIGNMENT_MAX_BARS = 7
+GC_EARLY_ALIGNMENT_MAX_BARS = 5
 
 var int gcSupportiveBars = 0
 var int gcHostileBars = 0
@@ -120,34 +104,51 @@ isGChostile = not isGCsupportive
 gcSupportiveBars := isGCsupportive ? gcSupportiveBars[1] + 1 : 0
 gcHostileBars := isGChostile ? gcHostileBars[1] + 1 : 0
 
-//
-isGCsupportiveEarly = isGCsupportive and gcSupportiveBars > GC_EARLY_ALIGNMENT_MIN_BARS and GC_EARLY_ALIGNMENT_MAX_BARS >= gcSupportiveBars
-isGChostileEarly = isGChostile and gcHostileBars > GC_EARLY_ALIGNMENT_MIN_BARS and GC_EARLY_ALIGNMENT_MAX_BARS >= gcHostileBars
+// early alignment to macros
+isGCsupportiveEarly =
+     isGCsupportive
+     and gcSupportiveBars > GC_EARLY_ALIGNMENT_MIN_BARS
+     and GC_EARLY_ALIGNMENT_MAX_BARS >= gcSupportiveBars
+isGChostileEarly =
+     isGChostile
+     and gcHostileBars > GC_EARLY_ALIGNMENT_MIN_BARS
+     and GC_EARLY_ALIGNMENT_MAX_BARS >= gcHostileBars
 
 // GC TRADE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+varip bool isBarStable = false
 var bool isLongTradeActive = false
 var bool isShortTradeActive = false
 var float entryPrice = na
 var float exitPrice = na
 var float profit = na
 
+// calc_on_every_tick has ridiculous problem of pulling previous bar values into this bar just for the very first tick
+// creates ghost signals that are not accurate, bar is stable on second tick and later
+// additional related problem: first tick arrives at different time when assets pulled from security()
+znTime = request.security(ZN_SYMBOL, timeframe.period, time)
+e6Time = request.security(E6_SYMBOL, timeframe.period, time)
+isBarStable := barstate.isrealtime ? not barstate.isnew and time == znTime and time == e6Time : true
+
 // entry
 isLongEntry =
-     isInSession
+     isBarStable
+     and isInSession
      and not isLongTradeActive
      and not isShortTradeActive
      and isMacroSupportive and isMacroSupportive[1]
      and isGCsupportiveEarly
+     and isMacroCleanLong
 
 isShortEntry =
-    //  false
-     isInSession
+     isBarStable
+     and isInSession
      and not isLongTradeActive
      and not isShortTradeActive
      and isMacroHostile and isMacroHostile[1]
      and isGChostileEarly
+     and isMacroCleanShort
 
 if isLongEntry
     isLongTradeActive := true
@@ -159,21 +160,21 @@ if isShortEntry
     isShortTradeActive := true
     entryPrice := open
 
-// exit = GC loses state
+// exit
 isLongExit =
-     isLongTradeActive
+     isBarStable
+     and isLongTradeActive
      and (
-        not isInSession
-        or not isMacroSupportive
-        // or not isGCsupportive
+        (not isMacroSupportive and not isMacroSupportive[1])
+        or isSessionClosing
      )
 
 isShortExit =
-     isShortTradeActive
+     isBarStable
+     and isShortTradeActive
      and (
-        not isInSession
-        or not isMacroHostile
-        // or not isGChostile
+        (not isMacroHostile and not isMacroHostile[1])
+        or isSessionClosing
      )
 
 if isLongExit
@@ -186,7 +187,11 @@ if isShortExit
     exitPrice := open
     profit := entryPrice - exitPrice
 
-// strategy
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// STRATEGY
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 if isGC and isLongEntry
     strategy.entry("long", strategy.long)
 if isGC and isShortEntry
@@ -203,30 +208,27 @@ if isGC and isShortExit
 ZN_color = color.blue
 E6_color = color.purple
 GC_color = color.yellow
-
 long_color = color.blue
 short_color = color.red
 win_color = color.green
 loss_color = color.red
-session_color = color.aqua
+session_color = color.gray
+line_color = color.white
 
-vwap_color = color.white
-
+// transparency
 bar_transparency = 30
 signal_tranparency = 0
-vwap_transparency = 80
+line_transparency = 80
 
 // bar color
 barColor =
-     not isInSession ? color.new(session_color, bar_transparency) :
      isZN and isZNsupportive ? color.new(long_color, bar_transparency) :
      isZN and isZNhostile ? color.new(short_color, bar_transparency) :
      isZN ? color.new(ZN_color, bar_transparency) :
      isE6 and isE6supportive ? color.new(long_color, bar_transparency) :
      isE6 and isE6hostile ? color.new(short_color, bar_transparency) :
      isE6 ? color.new(E6_color, bar_transparency) :
-    //  isGC and isMacroSupportive ? color.new(long_color, bar_transparency) :
-    //  isGC and isMacroHostile ? color.new(short_color, bar_transparency) :
+     not isInSession ? color.new(session_color, bar_transparency) :
      isGC and isGCsupportive ? color.new(long_color, bar_transparency) :
      isGC and isGChostile ? color.new(short_color, bar_transparency) :
      isGC ? color.new(GC_color, bar_transparency) : na
@@ -246,10 +248,9 @@ plot(
 
 // exit
 exit_color =
-     not isInSession ? color.new(session_color, signal_tranparency) :
+     isSessionClosing ? color.new(session_color, signal_tranparency) :
      profit >= 0 ? color.new(win_color, signal_tranparency) :
      color.new(loss_color, signal_tranparency)
-
 plotshape(
      isGC and (isLongExit or isShortExit) ? open : na,
      title = "Long Exit",
@@ -259,82 +260,89 @@ plotshape(
      size = size.tiny)
 
 // averages
-plot(isZN ? znAvg : na, color = color.new(vwap_color, vwap_transparency))
-plot(isE6 ? e6Avg : na, color = color.new(vwap_color, vwap_transparency))
-plot(isGC ? gcAvg : na, color = color.new(vwap_color, vwap_transparency))
-
-// vwap
-plot(isZN and isBlendedVwap ? znVwap : na, color = color.new(vwap_color, vwap_transparency), style = plot.style_linebr)
-plot(isE6 and isBlendedVwap ? e6Vwap : na, color = color.new(vwap_color, vwap_transparency), style = plot.style_linebr)
-plot(isGC and isBlendedVwap ? gcVwap : na, color = color.new(vwap_color, vwap_transparency), style = plot.style_linebr)
-plot(isZN ? znBlendedVwap : na, color = color.new(vwap_color, vwap_transparency), linewidth =  2)
-plot(isE6 ? e6BlendedVwap : na, color = color.new(vwap_color, vwap_transparency), linewidth = 2)
-plot(isGC ? gcBlendedVwap : na, color = color.new(vwap_color, vwap_transparency), linewidth = 2)
+plot(isZN ? znAvg : na, color = color.new(line_color, line_transparency))
+plot(isE6 ? e6Avg : na, color = color.new(line_color, line_transparency))
+plot(isGC ? gcAvg : na, color = color.new(line_color, line_transparency))
 
 // ALERT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Event • Context • Value
+// Event • Direction/State • Context • Value
 
 var string alertMessage = na
 alertMessage := na
 
+// macro alert can only fire once every 10 minutes
+var int lastMacroAlertTime = 0
+macroCooldownMs = 10 * 60 * 1000
+isMacroCooldownPassed = time - lastMacroAlertTime >= macroCooldownMs
+
 formattedPrice = str.tostring(math.round_to_mintick(open), "#.00")
 
-// ticks
+// calculate p&l in ticks to protect user financial implications spoken aloud
 tickSize = syminfo.mintick
 longTicks = math.round((open - entryPrice) / tickSize)
 shortTicks = math.round((entryPrice - open) / tickSize)
+
+// calculate percent change on ZN to match tradingview watchlist
+znPrevClose = request.security(ZN_SYMBOL, "D", close[1])
+znSessionPercent = (znOpen - znPrevClose) / znPrevClose * 100.0
+formattedZnSessionPercent =
+     znSessionPercent == 0 ? "0.00%" :
+     znSessionPercent > 0 ? "+" + str.tostring(math.abs(znSessionPercent), "0.00") + "%" :
+     "-" + str.tostring(math.abs(znSessionPercent), "0.00") + "%"
 
 // macro supportive
 triggerMacroSupportive =
      isGC
      and isMacroSupportive
      and not isMacroSupportive[1]
-if triggerMacroSupportive and not barstate.isconfirmed
+     and isMacroCooldownPassed
+if triggerMacroSupportive
     if na(alertMessage)
-        alertMessage := "Macro • Supportive"
+        alertMessage := "Macro • Supportive • Treasuries " + formattedZnSessionPercent + " • Dollar falling"
+        lastMacroAlertTime := time
 
 // macro hostile
 triggerMacroHostile =
      isGC
      and isMacroHostile
      and not isMacroHostile[1]
-if triggerMacroHostile and not barstate.isconfirmed
+     and isMacroCooldownPassed
+if triggerMacroHostile
     if na(alertMessage)
-        alertMessage := "Macro • Hostile"
+        alertMessage := "Macro • Hostile • Treasuries " + formattedZnSessionPercent + " • Dollar rising"
+        lastMacroAlertTime := time
 
 // entry
-if isGC and isLongEntry and not barstate.isconfirmed
+if isGC and isLongEntry
     if na(alertMessage)
         alertMessage := "Entry • Long • " + formattedPrice
-if isGC and isShortEntry and not barstate.isconfirmed
+if isGC and isShortEntry
     if na(alertMessage)
         alertMessage := "Entry • Short • " + formattedPrice
 
-// exit - long
-if isGC and isLongExit and not barstate.isconfirmed
+// exit long
+if isGC and isLongExit
     if na(alertMessage)
-        isTreasuriesReversed = not isZNsupportive
-        isDollarReversed = not isE6supportive
+        isTreasuriesWeaker = not isZNsupportive
+        isDollarStronger = not isE6supportive
         exitReason =
-             isTreasuriesReversed and not isDollarReversed ? "Treasuries reversed" :
-             isDollarReversed and not isTreasuriesReversed ? "Dollar reversed" :
-             "Macro reversed"
+             isTreasuriesWeaker and not isDollarStronger ? "Treasuries falling" :
+             isDollarStronger and not isTreasuriesWeaker ? "Dollar rising" : "Macro lost"
         exitPnL =
              longTicks >= 0 ? "Plus " + str.tostring(longTicks) + " ticks" :
              "Minus " + str.tostring(math.abs(longTicks)) + " ticks"
         alertMessage := "Exit • Long • " + exitReason + " • " + exitPnL
 
-// exit - short
-if isGC and isShortExit and not barstate.isconfirmed
+// exit short
+if isGC and isShortExit
     if na(alertMessage)
-        isTreasuriesReversed = not isZNhostile
-        isDollarReversed = not isE6hostile
+        isTreasuriesStronger = not isZNhostile
+        isDollarWeaker = not isE6hostile
         exitReason =
-             isTreasuriesReversed and not isDollarReversed ? "Treasuries reversed" :
-             isDollarReversed and not isTreasuriesReversed ? "Dollar reversed" :
-             "Macro reversed"
+             isTreasuriesStronger and not isDollarWeaker ? "Treasuries rising" :
+             isDollarWeaker and not isTreasuriesStronger ? "Dollar falling" : "Macro lost"
         exitPnL =
              shortTicks >= 0 ? "Plus " + str.tostring(shortTicks) + " ticks" :
              "Minus " + str.tostring(math.abs(shortTicks)) + " ticks"
