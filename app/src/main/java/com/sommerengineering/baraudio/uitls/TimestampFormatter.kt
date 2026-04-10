@@ -24,7 +24,7 @@ object TimestampFormatter {
 
         return when {
             minute > diff -> "just now"
-            hour > diff -> "${diff / minute}m ago"
+            100 * minute > diff -> "${diff / minute}m ago"
             day > diff -> "${diff / hour}h ago"
             day * 2 > diff -> "Yesterday ${clockFormat.format(date)}"
             day * 4 > diff -> "${weekdayFormat.format(date)} ${clockFormat.format(date)}"
