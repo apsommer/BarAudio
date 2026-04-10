@@ -1,5 +1,6 @@
 package com.sommerengineering.baraudio.messages
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -13,11 +14,13 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.times
@@ -34,6 +37,7 @@ import com.sommerengineering.baraudio.uitls.backgroundDarkAlpha
 import com.sommerengineering.baraudio.uitls.backgroundLightAlpha
 import com.sommerengineering.baraudio.uitls.edgePadding
 import com.sommerengineering.baraudio.uitls.logMessage
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 @Composable
@@ -63,6 +67,13 @@ fun MessagesScreen(
     val backgroundRes =
         if (isDarkMode) R.drawable.background_dark
         else R.drawable.background
+
+    // scroll to latest when user at top of list
+    LaunchedEffect(messages.size) {
+        if (listState.firstVisibleItemIndex > 1) return@LaunchedEffect
+        snapshotFlow { listState.isScrollInProgress }.first { !it } // wait for compose internal scroll
+        listState.scrollToItem(0)
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
