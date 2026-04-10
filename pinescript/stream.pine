@@ -5,12 +5,52 @@ indicator(
     max_boxes_count = 500,
     max_bars_back = 2000)
 
-// INIT
-////////////////////////////////////////////////////////////////////////////////////////////////////
+// DATA
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+NQ_SYMBOL = "CME_MINI:NQ1!"
+ES_SYMBOL = "CME_MINI:ES1!"
+BTC_SYMBOL = "BINANCE:BTCUSDT"
+
+// asset detection
+isNQ = syminfo.root == "NQ"
+isES = syminfo.root == "ES"
+isBTC = str.contains(syminfo.ticker, "BTC")
+
+// CONSTANTS
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 VELOCITY_BARS = 8
 VELOCITY_BASELINE_BARS = 120
 SMOOTH_BARS = 6
+
+CASCADE_STRUCTURE_BARS = 6
+CASCADE_LARGE_BAR_RATIO = 4.0
+CASCADE_SWEEP_RATIO = 0.35
+CASCADE_CONTINUATION_BARS = 15
+
+ACCELERATION_BARS = 5
+ACCELERATION_PERCENT = 18.0
+EXPANSION_LEVEL_PERCENT = 115
+
+EXHAUSTION_LEVEL_PERCENT = 48
+TREND_MATURE_BARS = 18
+EXHAUSTION_REVERSAL_BARS = 6
+
+RANGE_BARS = 60
+RANGE_MAGNITUDE_TICKS = 80
+
+ACCEPTANCE_BARS = 5
+
+SLOW_TREND_BARS = 120
+SLOW_TREND_COOLDOWN_BARS = 60
+SMA_BARS = 90
+SLOPE_LOOKBACK = 10
+STRUCTURE_BARS = 20
+DISTANCE_THRESHOLD = 0.0015
+
+// INIT
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // state
 var int expansionStartBar = bar_index
@@ -45,11 +85,6 @@ isDown = close < close[VELOCITY_BARS]
 
 // CASCADE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-CASCADE_STRUCTURE_BARS = 6
-CASCADE_LARGE_BAR_RATIO = 4.0
-CASCADE_SWEEP_RATIO = 0.35
-CASCADE_CONTINUATION_BARS = 15
 
 barRange = high - low
 rangeAvg = ta.sma(barRange, 20)
@@ -136,10 +171,6 @@ if triggerStopCascade
 // EXPANSION
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ACCELERATION_BARS = 5
-ACCELERATION_PERCENT = 18.0
-EXPANSION_LEVEL_PERCENT = 115
-
 acceleration = momentum - momentum[ACCELERATION_BARS]
 isAccelerating = acceleration > ACCELERATION_PERCENT
 
@@ -189,10 +220,6 @@ if isExpansionActive
 
 // EXHAUSTION
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-EXHAUSTION_LEVEL_PERCENT = 48
-TREND_MATURE_BARS = 18
-EXHAUSTION_REVERSAL_BARS = 6
 
 peakSafe = math.max(expansionPeakMomentum, 0.000001)
 momentumDropPercent = (peakSafe - momentum) / peakSafe * 100.0
@@ -245,9 +272,6 @@ if triggerExhaustion
 // RANGE BREAKOUT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-RANGE_BARS = 60
-RANGE_MAGNITUDE_TICKS = 80
-
 rangeMagnitude = RANGE_MAGNITUDE_TICKS * syminfo.mintick
 
 rollingHigh = ta.highest(high, RANGE_BARS)
@@ -296,8 +320,6 @@ if triggerRangeBreakout or triggerStopCascade or triggerExpansion
 
 // ACCEPTANCE / REJECTION
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-ACCEPTANCE_BARS = 5
 
 var int eventBarIndex = na
 var float eventReferenceHigh = na
@@ -375,14 +397,6 @@ if isEvaluationDone
 
 // SLOW TREND
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-SLOW_TREND_BARS = 120
-SLOW_TREND_COOLDOWN_BARS = 60
-
-SMA_BARS = 90
-SLOPE_LOOKBACK = 10
-STRUCTURE_BARS = 20
-DISTANCE_THRESHOLD = 0.0015
 
 // state
 var int lastEventBar = na
@@ -609,10 +623,6 @@ plot(sma, title = "sma", color = color.new(color.white, 50), linewidth = 1)
 /////////////////////////////////////////////////
 
 // asset name (top right)
-isNQ = str.contains(syminfo.ticker, "NQ")
-isES = str.contains(syminfo.ticker, "ES")
-isBTC = str.contains(syminfo.ticker, "BTC")
-
 assetName =
      isNQ ? "Nasdaq (NQ)" :
      isES ? "S&P 500 (ES)" :
@@ -659,9 +669,7 @@ formattedPoints =
      str.tostring(cascadeMove) + " points"
 
 // CASCADE
-if triggerStopCascade
-     and not (isContinuationCascadeUp or isContinuationCascadeDown)
-     and not barstate.isconfirmed
+if triggerStopCascade and not (isContinuationCascadeUp or isContinuationCascadeDown)
     if na(alertMessage)
         if isDualCascade
             alertMessage :=
@@ -673,7 +681,7 @@ if triggerStopCascade
                  " • " + formattedPoints
 
 // CONTINUATION CASCADE
-if triggerContinuationCascade and not barstate.isconfirmed
+if triggerContinuationCascade
     if na(alertMessage)
         alertMessage :=
              "Cascade • " +
@@ -681,7 +689,7 @@ if triggerContinuationCascade and not barstate.isconfirmed
              " • " + formattedPoints
 
 // EXPANSION
-if triggerExpansion and not barstate.isconfirmed
+if triggerExpansion
     if na(alertMessage)
         alertMessage :=
              "Expansion • " +
@@ -690,14 +698,14 @@ if triggerExpansion and not barstate.isconfirmed
              " • " + formattedPercent
 
 // EXHAUSTION
-if triggerExhaustion and not barstate.isconfirmed
+if triggerExhaustion
     if na(alertMessage)
         alertMessage :=
              "Exhaustion • " +
              (expansionDirection ? "Bullish expansion collapsing" : "Bearish expansion collapsing")
 
 // RANGE BREAKOUT
-if triggerRangeBreakout and not barstate.isconfirmed
+if triggerRangeBreakout
     if na(alertMessage)
         alertMessage :=
              "Range • " +
@@ -705,33 +713,33 @@ if triggerRangeBreakout and not barstate.isconfirmed
              (isRangeBreakoutUp ? "Bullish breakout" : "Bearish breakout")
 
 // ACCEPTANCE
-if isAcceptanceTriggerUp and not barstate.isconfirmed
+if isAcceptanceTriggerUp
     if na(alertMessage)
         alertMessage :=
              "Acceptance • Bullish " +
              (eventType == 1 ? "range breakout holding" : "cascade holding")
 
-if isAcceptanceTriggerDown and not barstate.isconfirmed
+if isAcceptanceTriggerDown
     if na(alertMessage)
         alertMessage :=
              "Acceptance • Bearish " +
              (eventType == 1 ? "range breakout holding" : "cascade holding")
 
 // REJECTION
-if isRejectionTriggerUp and not barstate.isconfirmed
+if isRejectionTriggerUp
     if na(alertMessage)
         alertMessage :=
              "Rejection • Bullish " +
              (eventType == 1 ? "range breakout failed" : "cascade failed")
 
-if isRejectionTriggerDown and not barstate.isconfirmed
+if isRejectionTriggerDown
     if na(alertMessage)
         alertMessage :=
              "Rejection • Bearish " +
              (eventType == 1 ? "range breakout failed" : "cascade failed")
 
 // SLOW TREND
-if (triggerSlowTrendUp or triggerSlowTrendDown) and not barstate.isconfirmed
+if (triggerSlowTrendUp or triggerSlowTrendDown)
     if na(alertMessage)
         alertMessage :=
              "Trend • " +
