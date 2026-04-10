@@ -52,7 +52,7 @@ class ForegroundSpeechService : Service() {
             }
 
         // extract attributes
-        val beautifulTimestamp = TimestampFormatter.beautifyCompact(message.timestamp)
+        val beautifulTimestamp = TimestampFormatter.beautifyFull(message.timestamp)
         val title = message.message
 
         // create notification
