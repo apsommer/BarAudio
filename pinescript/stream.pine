@@ -17,11 +17,6 @@ isNQ = syminfo.root == "NQ"
 isES = syminfo.root == "ES"
 isBTC = str.contains(syminfo.ticker, "BTC")
 
-// FEATURES
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-IS_PERSISTENT_RANGE = isES or isBTC
-
 // CONSTANTS
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -32,7 +27,7 @@ SMOOTH_BARS = 6
 
 // cascade
 CASCADE_STRUCTURE_BARS = isNQ ? 6 : isES ? 6 : isBTC ? 8 : 6
-CASCADE_LARGE_BAR_RATIO = isNQ ? 4.0 : isES ? 4.5 : isBTC ? 3.0 : 4.0
+CASCADE_LARGE_BAR_RATIO = isNQ ? 4.0 : isES ? 4.5 : isBTC ? 5.0 : 4.0
 CASCADE_SWEEP_RATIO = 0.35
 CASCADE_CONTINUATION_BARS = isNQ ? 15 : isES ? 15 : isBTC ? 20 : 15
 
@@ -47,8 +42,8 @@ TREND_MATURE_BARS = isNQ ? 18 : isES ? 18 : isBTC ? 22 : 18
 EXHAUSTION_REVERSAL_BARS = 6
 
 // range
-RANGE_BARS = isNQ ? 60 : isES ? 120 : isBTC ? 60 : 60
-RANGE_MAGNITUDE_TICKS = isNQ ? 80 : isES ? 50  : isBTC ? 250 : 80
+RANGE_BARS = isNQ ? 60 : isES ? 120 : isBTC ? 90 : 60
+RANGE_MAGNITUDE_POINTS = isNQ ? 20 : isES ? 12 : isBTC ? 200 : 80
 
 // acceptance
 ACCEPTANCE_BARS = 5
@@ -60,6 +55,11 @@ SMA_BARS = isNQ ? 90 : isES ? 90 : isBTC ? 70 : 90
 SLOPE_LOOKBACK = isNQ ? 10 : isES ? 20 : isBTC ? 10 : 10
 STRUCTURE_BARS = isNQ ? 20 : isES ? 14 : isBTC ? 25 : 20
 DISTANCE_THRESHOLD = isNQ ? 0.0015 : isES ? 0.0008 : isBTC ? 0.0025 : 0.0015
+
+// FEATURES
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+IS_PERSISTENT_RANGE = isES or isBTC
 
 // INIT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -289,23 +289,23 @@ if triggerExhaustion
 // RANGE BREAKOUT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-rangeMagnitude = RANGE_MAGNITUDE_TICKS * syminfo.mintick
+rangeMagnitude = RANGE_MAGNITUDE_POINTS
 
+// highest and lowest in range lookback
 rollingHigh = ta.highest(high, RANGE_BARS)
 rollingLow = ta.lowest(low, RANGE_BARS)
 rollingRange = rollingHigh - rollingLow
 
-isRange = rollingRange <= rangeMagnitude
+isRange =
+     rollingRange <= rangeMagnitude
 
-isRangeValid =
-     not isExpansionActive
-
+// cooldown since last range exit
 barsSinceLastRangeEnd = bar_index - lastRangeEndBar
 isRangeCooledDown = barsSinceLastRangeEnd > RANGE_BARS
 
 triggerRangeStart =
      isRange
-     and isRangeValid
+     and not isExpansionActive
      and not isRangeActive
      and isRangeCooledDown
 
@@ -671,99 +671,169 @@ if barstate.islast
 var string alertMessage = na
 alertMessage := na
 
-// percent vs previous close (for expansion only)
+// price
+formattedPrice = str.tostring(close, format.mintick)
+
+// percent vs previous close (match tradingview watchlist)
 prevClose = request.security(syminfo.tickerid, "D", close[1])
 percentChange = (open - prevClose) / prevClose * 100.0
-
 formattedPercent =
      percentChange == 0 ? "0.00%" :
      percentChange > 0 ? "+" + str.tostring(math.abs(percentChange), "0.00") + "%" :
      "-" + str.tostring(math.abs(percentChange), "0.00") + "%"
 
 // cascade move (points)
-cascadeMove =
-     math.round(math.abs(high - low))
+cascadeMove = math.round(math.abs(high - low))
+formattedPoints = str.tostring(cascadeMove) + " points"
 
-formattedPoints =
-     str.tostring(cascadeMove) + " points"
+// MESSAGE
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// CASCADE
-if triggerStopCascade and not (isContinuationCascadeUp or isContinuationCascadeDown)
-    if na(alertMessage)
-        if isDualCascade
-            alertMessage :=
-                 "Cascade • Neutral two-sided"
-        else
-            alertMessage :=
-                 "Cascade • " +
-                 (isStopCascadeUp ? "Bullish short liquidation" : "Bearish long liquidation") +
-                 " • " + formattedPoints
+getNQmessage() =>
+    string message = na
 
-// CONTINUATION CASCADE
-if triggerContinuationCascade
-    if na(alertMessage)
-        alertMessage :=
+    if triggerStopCascade and not (isContinuationCascadeUp or isContinuationCascadeDown)
+        message :=
              "Cascade • " +
-             (isContinuationCascadeUp ? "Bullish continuation" : "Bearish continuation") +
-             " • " + formattedPoints
+             (isStopCascadeUp ? "Bullish short liquidation • " : "Bearish long liquidation • ") +
+             str.tostring(math.round(math.abs(high - low)))
 
-// EXPANSION
-if triggerExpansion
-    if na(alertMessage)
-        alertMessage :=
+    if triggerContinuationCascade
+        message :=
+             "Cascade • " +
+             (isContinuationCascadeUp ? "Bullish continuation • " : "Bearish continuation • ") +
+             str.tostring(math.round(math.abs(high - low)))
+
+    if triggerExpansion
+        message :=
              "Expansion • " +
              (isUp ? "Bullish " : "Bearish ") +
-             (isContinuationExpansionTrigger ? "continuation" : "initiative") +
-             " • " + formattedPercent
+             (isContinuationExpansionTrigger ? "continuation • " : "initiative • ") +
+             formattedPercent
 
-// EXHAUSTION
-if triggerExhaustion
-    if na(alertMessage)
-        alertMessage :=
+    if triggerExhaustion
+        message :=
              "Exhaustion • " +
-             (expansionDirection ? "Bullish expansion collapsing" : "Bearish expansion collapsing")
+             (expansionDirection ? "Bullish expansion weakening" : "Bearish expansion weakening")
 
-// RANGE BREAKOUT
-if triggerRangeBreakout
-    if na(alertMessage)
-        alertMessage :=
+    if triggerRangeBreakout
+        message :=
              "Range • " +
-             str.tostring(rangeDuration) + " minutes • " +
-             (isRangeBreakoutUp ? "Bullish breakout" : "Bearish breakout")
+             (isRangeBreakoutUp ? "Bullish breakout • " : "Bearish breakout • ") +
+             str.tostring(rangeDuration) + " minutes"
 
-// ACCEPTANCE
-if isAcceptanceTriggerUp
-    if na(alertMessage)
-        alertMessage :=
-             "Acceptance • Bullish " +
-             (eventType == 1 ? "range breakout holding" : "cascade holding")
+    if isAcceptanceTriggerUp
+        message := "Acceptance • Bullish breakout holding • " + formattedPrice
 
-if isAcceptanceTriggerDown
-    if na(alertMessage)
-        alertMessage :=
-             "Acceptance • Bearish " +
-             (eventType == 1 ? "range breakout holding" : "cascade holding")
+    if isAcceptanceTriggerDown
+        message := "Acceptance • Bearish breakout holding • " + formattedPrice
 
-// REJECTION
-if isRejectionTriggerUp
-    if na(alertMessage)
-        alertMessage :=
-             "Rejection • Bullish " +
-             (eventType == 1 ? "range breakout failed" : "cascade failed")
+    if isRejectionTriggerUp
+        message := "Rejection • Bullish breakout failed"
 
-if isRejectionTriggerDown
-    if na(alertMessage)
-        alertMessage :=
-             "Rejection • Bearish " +
-             (eventType == 1 ? "range breakout failed" : "cascade failed")
+    if isRejectionTriggerDown
+        message := "Rejection • Bearish breakout failed"
 
-// SLOW TREND
-if (triggerSlowTrendUp or triggerSlowTrendDown)
-    if na(alertMessage)
-        alertMessage :=
-             "Trend • " +
-             (triggerSlowTrendUp ? "Bullish slow drift" : "Bearish slow drift")
+    if triggerSlowTrendUp
+        message := "Trend • Bullish drift"
+
+    if triggerSlowTrendDown
+        message := "Trend • Bearish drift"
+
+    message
+
+getESmessage() =>
+    string message = na
+
+    if triggerStopCascade
+        message :=
+             "Sweep • " +
+             (isStopCascadeUp ? "Highside • " : "Lowside • ") +
+             str.tostring(math.round(math.abs(high - low)))
+
+    if triggerExpansion
+        message :=
+             "Move • " +
+             (isUp ? "Upside momentum • " : "Downside momentum • ") +
+             formattedPercent
+
+    if triggerExhaustion
+        message :=
+             "Fade • " +
+             (expansionDirection ? "Upside weakening" : "Downside weakening")
+
+    if triggerRangeBreakout
+        message :=
+             "Structure • " +
+             (isRangeBreakoutUp ? "Upside push • " : "Downside push • ") +
+             str.tostring(rangeDuration) + " minutes"
+
+    if isAcceptanceTriggerUp
+        message := "Stable • Above range • " + formattedPrice
+
+    if isAcceptanceTriggerDown
+        message := "Stable • Below range • " + formattedPrice
+
+    if isRejectionTriggerUp or isRejectionTriggerDown
+        message := "Failure • Revert to range"
+
+    if triggerSlowTrendUp
+        message := "Bias • Upside"
+
+    if triggerSlowTrendDown
+        message := "Bias • Downside"
+
+    message
+
+getBTCmessage() =>
+    string message = na
+
+    if triggerStopCascade
+        message :=
+             "Liquidation • " +
+             (isStopCascadeUp ? "Shorts squeezed • " : "Longs flushed • ") +
+             str.tostring(math.round(math.abs(high - low)))
+
+    if triggerExpansion
+        message :=
+             "Impulse • " +
+             (isUp ? "Upside momentum increasing • " : "Downside momentum increasing • ") +
+             formattedPercent
+
+    if triggerExhaustion
+        message := "Cooldown • Momentum decreasing"
+
+    if triggerRangeBreakout
+        message :=
+             "Compression • " +
+             (isRangeBreakoutUp ? "Break higher • " : "Break lower • ") +
+             str.tostring(rangeDuration) + " minutes"
+
+    if isAcceptanceTriggerUp
+        message := "Holding • Above • " + formattedPrice
+
+    if isAcceptanceTriggerDown
+        message := "Holding • Below • " + formattedPrice
+
+    if isRejectionTriggerUp
+        message := "Failure • Bearish reversal"
+
+    if isRejectionTriggerDown
+        message := "Failure • Bullish reversal"
+
+    if triggerSlowTrendUp
+        message := "Drift • Climbing"
+
+    if triggerSlowTrendDown
+        message := "Drift • Falling"
+
+    message
 
 // FIRE ALERT
+alertMessage :=
+     isNQ ? getNQmessage() :
+     isES ? getESmessage() :
+     isBTC ? getBTCmessage() : na
+
 if not na(alertMessage)
     alert(alertMessage, alert.freq_once_per_bar)
