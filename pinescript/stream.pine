@@ -47,8 +47,8 @@ TREND_MATURE_BARS = isNQ ? 18 : isES ? 18 : isBTC ? 22 : 18
 EXHAUSTION_REVERSAL_BARS = 6
 
 // range
-RANGE_BARS = 60
-RANGE_MAGNITUDE_TICKS = isNQ ? 80 : isES ? 40 : isBTC ? 250 : 80
+RANGE_BARS = isNQ ? 60 : isES ? 120 : isBTC ? 60 : 60
+RANGE_MAGNITUDE_TICKS = isNQ ? 80 : isES ? 50  : isBTC ? 250 : 80
 
 // acceptance
 ACCEPTANCE_BARS = 5
@@ -83,6 +83,8 @@ var bool isRangeActive = false
 var int rangeStartBar = bar_index
 var float rangeHigh = high
 var float rangeLow = low
+var int lastExhaustionBar = 0
+var int lastRangeEndBar = 0
 
 // momentum
 velocity = math.abs(close - close[VELOCITY_BARS]) / VELOCITY_BARS
@@ -276,10 +278,13 @@ triggerExhaustion =
      and isExhaustionDamage
      and expansionPeakMomentum > EXPANSION_LEVEL_PERCENT
 
+
+
 if triggerExhaustion
     isExpansionActive := false
     expansionPeakMomentum := 0.0
     hasActiveCascade := false
+    lastExhaustionBar := bar_index
 
 // RANGE BREAKOUT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -290,27 +295,25 @@ rollingHigh = ta.highest(high, RANGE_BARS)
 rollingLow = ta.lowest(low, RANGE_BARS)
 rollingRange = rollingHigh - rollingLow
 
-isRange =
-     rollingRange <= rangeMagnitude
+isRange = rollingRange <= rangeMagnitude
 
 isRangeValid =
      not isExpansionActive
-     and not triggerStopCascade
+
+barsSinceLastRangeEnd = bar_index - lastRangeEndBar
+isRangeCooledDown = barsSinceLastRangeEnd > RANGE_BARS
 
 triggerRangeStart =
      isRange
      and isRangeValid
      and not isRangeActive
+     and isRangeCooledDown
 
 if triggerRangeStart
     isRangeActive := true
     rangeStartBar := bar_index - RANGE_BARS + 1
     rangeHigh := rollingHigh
     rangeLow := rollingLow
-
-if isRangeActive
-    rangeHigh := rangeHigh
-    rangeLow := rangeLow
 
 isRangeBreakoutUp =
      isRangeActive
@@ -328,9 +331,10 @@ rangeDuration = bar_index - rangeStartBar + 1
 
 if triggerRangeBreakout
     isRangeActive := false
+    lastRangeEndBar := bar_index
 
 // only non-persistent assets kill range on internal activity (NQ, but not ES or BTC)
-if not IS_PERSISTENT_RANGE and (triggerStopCascade or triggerExpansion)
+if (triggerStopCascade or triggerExpansion) and not IS_PERSISTENT_RANGE
     isRangeActive := false
 
 // ACCEPTANCE / REJECTION
