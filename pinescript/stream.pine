@@ -676,15 +676,15 @@ formattedPrice = str.tostring(close, format.mintick)
 
 // percent vs previous close (match tradingview watchlist)
 prevClose = request.security(syminfo.tickerid, "D", close[1])
-percentChange = (open - prevClose) / prevClose * 100.0
+percentChange = (close - prevClose) / prevClose * 100.0
 formattedPercent =
      percentChange == 0 ? "0.00%" :
      percentChange > 0 ? "+" + str.tostring(math.abs(percentChange), "0.00") + "%" :
      "-" + str.tostring(math.abs(percentChange), "0.00") + "%"
 
 // cascade move (points)
-cascadeMove = math.round(math.abs(high - low))
-formattedPoints = str.tostring(cascadeMove) + " points"
+cascadeMove = math.round(math.abs(high - low) / syminfo.mintick) * syminfo.mintick
+formattedPoints = str.tostring(cascadeMove, format.mintick) + " points"
 
 // MESSAGE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -696,13 +696,13 @@ getNQmessage() =>
         message :=
              "Cascade • " +
              (isStopCascadeUp ? "Bullish short liquidation • " : "Bearish long liquidation • ") +
-             str.tostring(math.round(math.abs(high - low)))
+             formattedPoints
 
     if triggerContinuationCascade
         message :=
              "Cascade • " +
              (isContinuationCascadeUp ? "Bullish continuation • " : "Bearish continuation • ") +
-             str.tostring(math.round(math.abs(high - low)))
+             formattedPoints
 
     if triggerExpansion
         message :=
@@ -749,7 +749,7 @@ getESmessage() =>
         message :=
              "Sweep • " +
              (isStopCascadeUp ? "Highside • " : "Lowside • ") +
-             str.tostring(math.round(math.abs(high - low)))
+             formattedPoints
 
     if triggerExpansion
         message :=
@@ -792,7 +792,7 @@ getBTCmessage() =>
         message :=
              "Liquidation • " +
              (isStopCascadeUp ? "Shorts squeezed • " : "Longs flushed • ") +
-             str.tostring(math.round(math.abs(high - low)))
+             formattedPoints
 
     if triggerExpansion
         message :=
@@ -801,7 +801,9 @@ getBTCmessage() =>
              formattedPercent
 
     if triggerExhaustion
-        message := "Cooldown • Momentum decreasing"
+        message :=
+             "Cooldown • " +
+             (expansionDirection ? "Upside momentum fading" : "Downside momentum fading")
 
     if triggerRangeBreakout
         message :=
