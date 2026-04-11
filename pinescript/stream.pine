@@ -17,6 +17,11 @@ isNQ = syminfo.root == "NQ"
 isES = syminfo.root == "ES"
 isBTC = str.contains(syminfo.ticker, "BTC")
 
+// FEATURES
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+IS_PERSISTENT_RANGE = isES or isBTC
+
 // CONSTANTS
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -43,7 +48,7 @@ EXHAUSTION_REVERSAL_BARS = 6
 
 // range
 RANGE_BARS = 60
-RANGE_MAGNITUDE_TICKS = isNQ ? 80 : isES ? 20 : isBTC ? 250 : 80
+RANGE_MAGNITUDE_TICKS = isNQ ? 80 : isES ? 40 : isBTC ? 250 : 80
 
 // acceptance
 ACCEPTANCE_BARS = 5
@@ -52,9 +57,9 @@ ACCEPTANCE_BARS = 5
 SLOW_TREND_BARS = isNQ ? 120 : isES ? 120 : isBTC ? 90 : 120
 SLOW_TREND_COOLDOWN_BARS = 60
 SMA_BARS = isNQ ? 90 : isES ? 90 : isBTC ? 70 : 90
-SLOPE_LOOKBACK = 10
-STRUCTURE_BARS = isNQ ? 20 : isES ? 20 : isBTC ? 25 : 20
-DISTANCE_THRESHOLD = isNQ ? 0.0015 : isES ? 0.0012 : isBTC ? 0.0025 : 0.0015
+SLOPE_LOOKBACK = isNQ ? 10 : isES ? 20 : isBTC ? 10 : 10
+STRUCTURE_BARS = isNQ ? 20 : isES ? 14 : isBTC ? 25 : 20
+DISTANCE_THRESHOLD = isNQ ? 0.0015 : isES ? 0.0008 : isBTC ? 0.0025 : 0.0015
 
 // INIT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -295,8 +300,7 @@ isRangeValid =
 triggerRangeStart =
      isRange
      and isRangeValid
-     and not isRange[1]
-     and not isRangeActive[1]
+     and not isRangeActive
 
 if triggerRangeStart
     isRangeActive := true
@@ -322,7 +326,11 @@ triggerRangeBreakout =
 
 rangeDuration = bar_index - rangeStartBar + 1
 
-if triggerRangeBreakout or triggerStopCascade or triggerExpansion
+if triggerRangeBreakout
+    isRangeActive := false
+
+// only non-persistent assets kill range on internal activity (NQ, but not ES or BTC)
+if not IS_PERSISTENT_RANGE and (triggerStopCascade or triggerExpansion)
     isRangeActive := false
 
 // ACCEPTANCE / REJECTION
@@ -637,9 +645,9 @@ assetName =
      "Untagged signal\n" + syminfo.description + " (" + syminfo.ticker + ")"
 
 assetNameColor =
-     isNQ ? color.blue :
-     isES ? color.orange :
-     isBTC ? color.purple :
+     isNQ ? color.rgb(105, 39, 176) :
+     isES ? color.green :
+     isBTC ? color.orange :
      color.red
 
 var table assetTable = table.new(position.top_right, 1, 1)
