@@ -10,7 +10,7 @@ sealed interface MessageOrigin {
     val signalDescription: String // settings description
     val order: Int
     fun settingsTitle(): String
-    fun style(isDark: Boolean): MessageItemStyle
+    fun style(isDark: Boolean): MessageItemStyle // todo remove isDark, no more tinting
 
     data class BroadcastStream(val asset: Asset) : MessageOrigin {
         override val key = asset.origin

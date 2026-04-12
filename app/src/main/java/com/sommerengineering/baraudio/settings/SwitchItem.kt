@@ -60,7 +60,7 @@ fun SwitchItem(
                     modifier = Modifier.weight(1f),
                     verticalAlignment = Alignment.CenterVertically) {
 
-                    // icon
+                    // icon todo extract as SettingsIcon?
                     Box(
                         Modifier
                             .size(iconSize)

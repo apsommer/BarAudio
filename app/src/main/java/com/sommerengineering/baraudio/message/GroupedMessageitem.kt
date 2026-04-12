@@ -30,6 +30,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.messages.EllipsisText
+import com.sommerengineering.baraudio.source.OriginIcon
 import com.sommerengineering.baraudio.theme.timestampTextStyle
 import com.sommerengineering.baraudio.uitls.TimestampFormatter
 import com.sommerengineering.baraudio.uitls.assetIconSize
@@ -119,17 +120,7 @@ fun GroupedMessageItem(
 
                 // origin image
                 Spacer(Modifier.width(rowIconPadding))
-                Box(
-                    Modifier
-                        .size(assetIconSize)
-                        .clip(CircleShape)
-                        .background(Color.Transparent)) {
-                    Icon(
-                        painter = painterResource(state.style.iconRes),
-                        contentDescription = null,
-                        tint = null,
-                        modifier = Modifier.fillMaxSize())
-                }
+                OriginIcon(state.style.iconRes)
             }
         }
 
