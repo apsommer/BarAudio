@@ -127,7 +127,7 @@ fun GroupedMessageItem(
                     Icon(
                         painter = painterResource(state.style.iconRes),
                         contentDescription = null,
-                        tint = state.style.primary,
+                        tint = null,
                         modifier = Modifier.fillMaxSize())
                 }
             }
