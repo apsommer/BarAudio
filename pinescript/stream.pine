@@ -62,7 +62,6 @@ IS_PERSISTENT_RANGE = isES or isBTC
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // state
-var bool triggerExpansionLatched = false
 var int expansionStartBar = bar_index
 var bool isExpansionActive = false
 var bool isExpansionUp = false
@@ -83,10 +82,6 @@ var float rangeHigh = high
 var float rangeLow = low
 var int lastExhaustionBar = 0
 var int lastRangeEndBar = 0
-var bool isAcceptanceTriggerUp = false
-var bool isAcceptanceTriggerDown = false
-var bool isRejectionTriggerUp = false
-var bool isRejectionTriggerDown = false
 var int eventBarIndex = na
 var float eventReferenceHigh = na
 var float eventReferenceLow = na
@@ -380,7 +375,7 @@ if triggerStopCascade
     eventType := 2
 
 // range breakout event
-else if triggerRangeBreakout
+else if triggerRangeBreakout and not triggerRangeBreakout[1]
     eventBarIndex := bar_index
     eventReferenceHigh := rollingHigh
     eventReferenceLow := rollingLow
@@ -395,45 +390,29 @@ isEvaluationDone =
      isEvaluatingEvent
      and barsSinceBreakoutOrCascade == ACCEPTANCE_BARS
 
-isAcceptanceTriggerUpRaw =
+isAcceptanceTriggerUp =
      isEvaluationDone
      and not isExpansionActive
      and ((eventType == 1 and eventDirectionUp and high > eventReferenceHigh) or
           (eventType == 2 and eventDirectionUp and high > eventReferenceMid))
 
-isAcceptanceTriggerUp :=
-     barstate.isnew ? isAcceptanceTriggerUpRaw :
-     (isAcceptanceTriggerUp or isAcceptanceTriggerUpRaw)
-
-isAcceptanceTriggerDownRaw =
+isAcceptanceTriggerDown =
      isEvaluationDone
      and not isExpansionActive
      and ((eventType == 1 and not eventDirectionUp and eventReferenceLow > low) or
           (eventType == 2 and not eventDirectionUp and eventReferenceMid > low))
 
-isAcceptanceTriggerDown :=
-     barstate.isnew ? isAcceptanceTriggerDownRaw :
-     (isAcceptanceTriggerDown or isAcceptanceTriggerDownRaw)
-
-isRejectionTriggerUpRaw =
+isRejectionTriggerUp =
      isEvaluationDone
      and not isExpansionActive
      and ((eventType == 1 and eventDirectionUp and eventReferenceHigh > low) or
           (eventType == 2 and eventDirectionUp and eventReferenceMid > low))
 
-isRejectionTriggerUp :=
-     barstate.isnew ? isRejectionTriggerUpRaw :
-     (isRejectionTriggerUp or isRejectionTriggerUpRaw)
-
-isRejectionTriggerDownRaw =
+isRejectionTriggerDown =
      isEvaluationDone
      and not isExpansionActive
      and ((eventType == 1 and not eventDirectionUp and high > eventReferenceLow) or
           (eventType == 2 and not eventDirectionUp and high > eventReferenceMid))
-
-isRejectionTriggerDown :=
-     barstate.isnew ? isRejectionTriggerDownRaw :
-     (isRejectionTriggerDown or isRejectionTriggerDownRaw)
 
 if isEvaluationDone
     isEvaluatingEvent := false
