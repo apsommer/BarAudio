@@ -393,26 +393,26 @@ isEvaluationDone =
 isAcceptanceTriggerUp =
      isEvaluationDone
      and not isExpansionActive
-     and ((eventType == 1 and eventDirectionUp and high > eventReferenceHigh) or
-          (eventType == 2 and eventDirectionUp and high > eventReferenceMid))
+     and ((eventType == 1 and eventDirectionUp and open > eventReferenceHigh) or
+          (eventType == 2 and eventDirectionUp and open > eventReferenceMid))
 
 isAcceptanceTriggerDown =
      isEvaluationDone
      and not isExpansionActive
-     and ((eventType == 1 and not eventDirectionUp and eventReferenceLow > low) or
-          (eventType == 2 and not eventDirectionUp and eventReferenceMid > low))
+     and ((eventType == 1 and not eventDirectionUp and eventReferenceLow > open) or
+          (eventType == 2 and not eventDirectionUp and eventReferenceMid > open))
 
 isRejectionTriggerUp =
      isEvaluationDone
      and not isExpansionActive
-     and ((eventType == 1 and eventDirectionUp and eventReferenceHigh > low) or
-          (eventType == 2 and eventDirectionUp and eventReferenceMid > low))
+     and ((eventType == 1 and eventDirectionUp and eventReferenceHigh > open) or
+          (eventType == 2 and eventDirectionUp and eventReferenceMid > open))
 
 isRejectionTriggerDown =
      isEvaluationDone
      and not isExpansionActive
-     and ((eventType == 1 and not eventDirectionUp and high > eventReferenceLow) or
-          (eventType == 2 and not eventDirectionUp and high > eventReferenceMid))
+     and ((eventType == 1 and not eventDirectionUp and open > eventReferenceLow) or
+          (eventType == 2 and not eventDirectionUp and open > eventReferenceMid))
 
 if isEvaluationDone
     isEvaluatingEvent := false
