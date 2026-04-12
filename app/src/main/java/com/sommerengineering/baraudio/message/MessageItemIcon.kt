@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.source
+package com.sommerengineering.baraudio.message
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -14,7 +14,7 @@ import androidx.compose.ui.res.painterResource
 import com.sommerengineering.baraudio.uitls.assetIconSize
 
 @Composable
-fun OriginIcon(iconRes: Int) {
+fun MessageItemIcon(iconRes: Int) {
 
     Box(
         Modifier
