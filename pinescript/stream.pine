@@ -27,19 +27,21 @@ SMOOTH_BARS = 6
 
 // cascade
 CASCADE_STRUCTURE_BARS = isNQ ? 6 : isES ? 6 : isBTC ? 8 : 6
-CASCADE_LARGE_BAR_RATIO = isNQ ? 4.0 : isES ? 4.5 : isBTC ? 5.0 : 4.0
+CASCADE_LARGE_BAR_RATIO = isNQ ? 4.0 : isES ? 4.5 : isBTC ? 4.5 : 4.0
 CASCADE_SWEEP_RATIO = 0.35
 CASCADE_CONTINUATION_BARS = isNQ ? 15 : isES ? 15 : isBTC ? 20 : 15
 
 // expansion
-ACCELERATION_BARS = 5
+ACCELERATION_BARS = isNQ ? 5 : isES ? 7 : isBTC ? 8 : 5
+EXPANSION_STRUCTURE_LOOKBACK = isNQ ? 18 : isES ? 16 : isBTC ? 22 : 18
 ACCELERATION_PERCENT = isNQ ? 18.0 : isES ? 20.0 : isBTC ? 14.0 : 18.0
 EXPANSION_LEVEL_PERCENT = isNQ ? 115 : isES ? 125 : isBTC ? 100 : 115
 
 // exhaustion
-EXHAUSTION_LEVEL_PERCENT = 48
+EXHAUSTION_LEVEL_PERCENT = isNQ ? 48 : isES ? 52 : isBTC ? 55 : 48
 TREND_MATURE_BARS = isNQ ? 18 : isES ? 18 : isBTC ? 22 : 18
-EXHAUSTION_REVERSAL_BARS = 6
+EXHAUSTION_LOOKBACK = isNQ ? 20 : isES ? 18 : isBTC ? 24 : 20
+EXHAUSTION_REVERSAL_BARS = isNQ ? 6 : isES ? 7 : isBTC ? 8 : 6
 
 // range
 RANGE_BARS = isNQ ? 60 : isES ? 120 : isBTC ? 90 : 60
@@ -85,21 +87,41 @@ var float rangeHigh = high
 var float rangeLow = low
 var int lastExhaustionBar = 0
 var int lastRangeEndBar = 0
+var int eventBarIndex = na
+var float eventReferenceHigh = na
+var float eventReferenceLow = na
+var float eventReferenceMid = na
+var bool eventDirectionUp = false
+var bool isEvaluatingEvent = false
+var int eventType = 0  // 1 range, 2 cascade
+var int lastEventBar = na
+var int slowTrendDirection = 0  // 1 up, -1 down, 0 none
+var int lastSlowTrendBar = na
 
-// momentum
-velocity = math.abs(close - close[VELOCITY_BARS]) / VELOCITY_BARS
+// current bar
+currentPriceUp = high
+currentPriceDown = low
+referencePrice = close[VELOCITY_BARS]
+
+// directional velocity (prevents mixing high/low incorrectly)
+velocityUp = (currentPriceUp - referencePrice) / VELOCITY_BARS
+velocityDown = (referencePrice - currentPriceDown) / VELOCITY_BARS
+velocity = math.max(velocityUp, velocityDown)
 velocitySma = nz(ta.sma(velocity, VELOCITY_BASELINE_BARS), 1)
 velocitySmaSafe = math.max(velocitySma, 0.000001)
+
+// momentum
 rawMomentumPercent = (velocity / velocitySmaSafe - 1.0) * 100.0
 momentum = ta.sma(rawMomentumPercent, SMOOTH_BARS)
 
 // direction
-isUp = close > close[VELOCITY_BARS]
-isDown = close < close[VELOCITY_BARS]
+isUp = high > close[VELOCITY_BARS]
+isDown = close[VELOCITY_BARS] > low
 
 // CASCADE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// range
 barRange = high - low
 rangeAvg = ta.sma(barRange, 20)
 rangeSafe = math.max(rangeAvg, syminfo.mintick)
@@ -108,33 +130,33 @@ rangeSafe = math.max(rangeAvg, syminfo.mintick)
 acceptedHigh = ta.highest(math.max(open[1], close[1]), CASCADE_STRUCTURE_BARS)
 acceptedLow = ta.lowest(math.min(open[1], close[1]), CASCADE_STRUCTURE_BARS)
 
+// sweep
 upSweep = math.max(high - acceptedHigh, 0.0)
 downSweep = math.max(acceptedLow - low, 0.0)
 
-isLargeBar =
-     barRange > rangeSafe * CASCADE_LARGE_BAR_RATIO
+isLargeBar = barRange > rangeSafe * CASCADE_LARGE_BAR_RATIO
 
-hasUpCascadeCandidate =
+isUpCascadeCandidate =
      high > acceptedHigh
      and upSweep > rangeSafe * CASCADE_SWEEP_RATIO
      and isLargeBar
 
-hasDownCascadeCandidate =
+isDownCascadeCandidate =
      acceptedLow > low
      and downSweep > rangeSafe * CASCADE_SWEEP_RATIO
      and isLargeBar
 
 isDualCascade =
-     hasUpCascadeCandidate
-     and hasDownCascadeCandidate
+     isUpCascadeCandidate
+     and isDownCascadeCandidate
 
 isStopCascadeUp =
-     hasUpCascadeCandidate
-     and (not hasDownCascadeCandidate or upSweep > downSweep)
+     isUpCascadeCandidate
+     and (not isDownCascadeCandidate or upSweep > downSweep)
 
 isStopCascadeDown =
-     hasDownCascadeCandidate
-     and (not hasUpCascadeCandidate or downSweep > upSweep)
+     isDownCascadeCandidate
+     and (not isUpCascadeCandidate or downSweep > upSweep)
 
 triggerStopCascade =
      isStopCascadeUp
@@ -143,29 +165,22 @@ triggerStopCascade =
 // CONTINUATION CASCADE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-hasPreviousCascade =
-     not na(cascadeBarIndex)
-
-isRecentCascade =
-     hasPreviousCascade
-     and bar_index - cascadeBarIndex <= CASCADE_CONTINUATION_BARS
-
 currentCascadeDirection =
-     isStopCascadeUp
+     isStopCascadeUp ? true : isStopCascadeDown ? false : cascadeDirection
 
 isSameDirectionCascade =
      triggerStopCascade
-     and hasPreviousCascade
+     and hasActiveCascade
      and currentCascadeDirection == cascadeDirection
 
 isContinuationCascadeUp =
      isStopCascadeUp
-     and isRecentCascade
+     and hasActiveCascade
      and isSameDirectionCascade
 
 isContinuationCascadeDown =
      isStopCascadeDown
-     and isRecentCascade
+     and hasActiveCascade
      and isSameDirectionCascade
 
 triggerContinuationCascade =
@@ -182,15 +197,22 @@ if triggerStopCascade
     cascadeLow := low
     cascadeDirection := currentCascadeDirection
 
+hasActiveCascade :=
+     not na(cascadeBarIndex)
+     and bar_index - cascadeBarIndex <= CASCADE_CONTINUATION_BARS
+
 // EXPANSION
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// acceleration
 acceleration = momentum - momentum[ACCELERATION_BARS]
 isAccelerating = acceleration > ACCELERATION_PERCENT
 
-isStructureBreakUp = high > ta.highest(high[1], 18)
-isStructureBreakDown = ta.lowest(low[1], 18) > low
+// structure
+isStructureBreakUp = high > ta.highest(high[1], EXPANSION_STRUCTURE_LOOKBACK)
+isStructureBreakDown = ta.lowest(low[1], EXPANSION_STRUCTURE_LOOKBACK) > low
 
+// continuation, expansion in same direction as previous expansion
 isContinuationExpansion =
      momentum > EXPANSION_LEVEL_PERCENT
      and isUp == isUp[1]
@@ -198,11 +220,9 @@ isContinuationExpansion =
 
 isExpansion =
      momentum > EXPANSION_LEVEL_PERCENT
-     and (
-          (isUp ? isStructureBreakUp : isStructureBreakDown)
-          or isContinuationExpansion
-     )
+     and (isContinuationExpansion or (isUp ? isStructureBreakUp : isStructureBreakDown))
 
+// new expansion direction
 isNewTrend =
      not isExpansionActive
      or isExpansionUp != isUp
@@ -224,7 +244,6 @@ isContinuationExpansionTrigger =
 if triggerExpansion
     isExpansionActive := true
     isExpansionUp := isUp
-    hasActiveCascade := false
     expansionPeakMomentum := momentum
     expansionDirection := isUp
     expansionStartBar := bar_index
@@ -235,36 +254,38 @@ if isExpansionActive
 // EXHAUSTION
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// momentum drop
 peakSafe = math.max(expansionPeakMomentum, 0.000001)
 momentumDropPercent = (peakSafe - momentum) / peakSafe * 100.0
 isMomentumDrop = momentumDropPercent > EXHAUSTION_LEVEL_PERCENT
 
+// count bars of reversing momentum
 declineCount = 0
 for i = 0 to EXHAUSTION_REVERSAL_BARS
     declineCount += momentum[i + 1] > momentum[i] ? 1 : 0
-
 isMomentumReversing = declineCount > EXHAUSTION_REVERSAL_BARS * 0.7
+
+// expansion has existed for reasonable number of bars
 isTrendMature = bar_index - expansionStartBar > TREND_MATURE_BARS
 
+// recent high/low
 recentSwingLow = ta.lowest(low[1], 6)
 recentSwingHigh = ta.highest(high[1], 6)
 
 isUpExhaustionDamage =
      expansionDirection
      and recentSwingLow > low
-     and open > close
 
 isDownExhaustionDamage =
      not expansionDirection
      and high > recentSwingHigh
-     and close > open
 
 isExhaustionDamage =
      isUpExhaustionDamage
      or isDownExhaustionDamage
 
 exhaustionBarRange = high - low
-exhaustionBarRangeAverage = ta.sma(exhaustionBarRange, 20)
+exhaustionBarRangeAverage = ta.sma(exhaustionBarRange, EXHAUSTION_LOOKBACK)
 exhaustionBarRangeSafe = math.max(exhaustionBarRangeAverage, syminfo.mintick)
 
 isExhaustionDamageLargeEnough =
@@ -278,28 +299,22 @@ triggerExhaustion =
      and isExhaustionDamage
      and expansionPeakMomentum > EXPANSION_LEVEL_PERCENT
 
-
-
 if triggerExhaustion
     isExpansionActive := false
     expansionPeakMomentum := 0.0
-    hasActiveCascade := false
     lastExhaustionBar := bar_index
 
 // RANGE BREAKOUT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-rangeMagnitude = RANGE_MAGNITUDE_POINTS
 
 // highest and lowest in range lookback
 rollingHigh = ta.highest(high, RANGE_BARS)
 rollingLow = ta.lowest(low, RANGE_BARS)
 rollingRange = rollingHigh - rollingLow
 
-isRange =
-     rollingRange <= rangeMagnitude
+isRange = rollingRange <= RANGE_MAGNITUDE_POINTS
 
-// cooldown since last range exit
+// cooldown since last range
 barsSinceLastRangeEnd = bar_index - lastRangeEndBar
 isRangeCooledDown = barsSinceLastRangeEnd > RANGE_BARS
 
@@ -317,11 +332,11 @@ if triggerRangeStart
 
 isRangeBreakoutUp =
      isRangeActive
-     and close > rangeHigh
+     and high > rangeHigh
 
 isRangeBreakoutDown =
      isRangeActive
-     and rangeLow > close
+     and rangeLow > low
 
 triggerRangeBreakout =
      isRangeBreakoutUp
@@ -340,26 +355,7 @@ if (triggerStopCascade or triggerExpansion) and not IS_PERSISTENT_RANGE
 // ACCEPTANCE / REJECTION
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-var int eventBarIndex = na
-var float eventReferenceHigh = na
-var float eventReferenceLow = na
-var float eventReferenceMid = na
-var bool eventDirectionUp = false
-var bool isEvaluatingEvent = false
-var int eventType = 0  // 1 range, 2 cascade
-
-var bool isAcceptanceTriggerUp = false
-var bool isAcceptanceTriggerDown = false
-var bool isRejectionTriggerUp = false
-var bool isRejectionTriggerDown = false
-
-// reset one-shot triggers every bar
-isAcceptanceTriggerUp := false
-isAcceptanceTriggerDown := false
-isRejectionTriggerUp := false
-isRejectionTriggerDown := false
-
-// register range breakout event
+// range breakout event
 if triggerRangeBreakout
     eventBarIndex := bar_index
     eventReferenceHigh := rangeHigh
@@ -369,7 +365,7 @@ if triggerRangeBreakout
     isEvaluatingEvent := true
     eventType := 1
 
-// register cascade event
+// cascade event
 if triggerStopCascade
     eventBarIndex := bar_index
     eventReferenceHigh := high
@@ -385,133 +381,90 @@ isEvaluationDone =
      isEvaluatingEvent
      and barsSinceBreakoutOrCascade == ACCEPTANCE_BARS
 
+isAcceptanceTriggerUp =
+     isEvaluationDone
+     and not isExpansionActive
+     and ((eventType == 1 and eventDirectionUp and close > eventReferenceHigh) or
+          (eventType == 2 and eventDirectionUp and close > eventReferenceMid))
+
+isRejectionTriggerUp =
+     isEvaluationDone
+     and not isExpansionActive
+     and ((eventType == 1 and eventDirectionUp and eventReferenceHigh > close) or
+          (eventType == 2 and eventDirectionUp and eventReferenceMid > close))
+
+isAcceptanceTriggerDown =
+     isEvaluationDone
+     and not isExpansionActive
+     and ((eventType == 1 and not eventDirectionUp and eventReferenceLow > close) or
+          (eventType == 2 and not eventDirectionUp and eventReferenceMid > close))
+
+isRejectionTriggerDown =
+     isEvaluationDone
+     and not isExpansionActive
+     and ((eventType == 1 and not eventDirectionUp and close > eventReferenceLow) or
+          (eventType == 2 and not eventDirectionUp and close > eventReferenceMid))
+
 if isEvaluationDone
-    finalClose = close
-
-    // skip classification if currently inside active expansion
-    if not isExpansionActive
-
-        // RANGE BREAKOUT
-        if eventType == 1
-            if eventDirectionUp
-                isAcceptanceTriggerUp := finalClose > eventReferenceHigh
-                isRejectionTriggerUp := eventReferenceHigh > finalClose
-
-            if not eventDirectionUp
-                isAcceptanceTriggerDown := eventReferenceLow > finalClose
-                isRejectionTriggerDown := finalClose > eventReferenceLow
-
-        // CASCADE
-        if eventType == 2
-            if eventDirectionUp
-                isAcceptanceTriggerUp := finalClose > eventReferenceMid
-                isRejectionTriggerUp := eventReferenceMid > finalClose
-
-            if not eventDirectionUp
-                isAcceptanceTriggerDown := eventReferenceMid > finalClose
-                isRejectionTriggerDown := finalClose > eventReferenceMid
-
     isEvaluatingEvent := false
     eventType := 0
 
 // SLOW TREND
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// state
-var int lastEventBar = na
-var int slowTrendDirection = 0  // 1 up, -1 down, 0 none
-
-var int lastSlowTrendUpBar = na
-var int lastSlowTrendDownBar = na
-
 // track last major event
 if triggerExpansion or triggerExhaustion or triggerStopCascade or triggerRangeBreakout
     lastEventBar := bar_index
-    slowTrendDirection := 0
 
 barsSinceEvent = bar_index - lastEventBar
 
+// significant time has passed since last event
 isSlowEnvironment =
      not na(lastEventBar)
      and not isRange
      and barsSinceEvent > SLOW_TREND_BARS
 
-// SMA + slope
-sma = ta.sma(ta.sma(close, SMA_BARS), 10)
+// SMA
+sma = ta.sma(ta.sma(close[1], SMA_BARS), 10)
 slope = sma - sma[SLOPE_LOOKBACK]
-
 isSlopeUp = slope > 0
 isSlopeDown = slope < 0
 
 // distance from SMA
-distance = (close - sma) / sma
+distanceUp = (high - sma) / sma
+distanceDown = (sma - low) / sma
+isAboveSma = distanceUp > DISTANCE_THRESHOLD
+isBelowSma = distanceDown > DISTANCE_THRESHOLD
 
-isAboveSma =
-     distance > DISTANCE_THRESHOLD
-
-isBelowSma =
-     -distance > DISTANCE_THRESHOLD
-
-// structure
-isStructureUp =
-     low > ta.lowest(low[1], STRUCTURE_BARS)
-
-isStructureDown =
-     ta.highest(high[1], STRUCTURE_BARS) > high
+// structure (entry filter only)
+isStructureUp = low > ta.lowest(low[1], STRUCTURE_BARS)
+isStructureDown = ta.highest(high[1], STRUCTURE_BARS) > high
 
 // cooldown
-barsSinceSlowTrendUp = bar_index - lastSlowTrendUpBar
-barsSinceSlowTrendDown = bar_index - lastSlowTrendDownBar
+barsSinceSlowTrend = bar_index - lastSlowTrendBar
 
-isSlowTrendUpCooledDown =
-     na(lastSlowTrendUpBar)
-     or barsSinceSlowTrendUp > SLOW_TREND_COOLDOWN_BARS
+isSlowTrendCooledDown =
+     na(lastSlowTrendBar)
+     or barsSinceSlowTrend > SLOW_TREND_COOLDOWN_BARS
 
-isSlowTrendDownCooledDown =
-     na(lastSlowTrendDownBar)
-     or barsSinceSlowTrendDown > SLOW_TREND_COOLDOWN_BARS
-
-// entry conditions
-enterSlowTrendUp =
+// triggers (event-based)
+triggerSlowTrendUp =
      isSlowEnvironment
      and isSlopeUp
      and isAboveSma
      and isStructureUp
-     and slowTrendDirection == 0
-     and isSlowTrendUpCooledDown
+     and isSlowTrendCooledDown
 
-enterSlowTrendDown =
+triggerSlowTrendDown =
      isSlowEnvironment
      and isSlopeDown
      and isBelowSma
      and isStructureDown
-     and slowTrendDirection == 0
-     and isSlowTrendDownCooledDown
+     and isSlowTrendCooledDown
 
-// exit conditions
-exitSlowTrend =
-     slowTrendDirection == 1 and (not isStructureUp or isBelowSma)
-     or
-     slowTrendDirection == -1 and (not isStructureDown or isAboveSma)
-
-// state transitions
-if enterSlowTrendUp
-    slowTrendDirection := 1
-    lastSlowTrendUpBar := bar_index
-
-if enterSlowTrendDown
-    slowTrendDirection := -1
-    lastSlowTrendDownBar := bar_index
-
-if exitSlowTrend
-    slowTrendDirection := 0
-
-// triggers (one-shot)
-triggerSlowTrendUp =
-     enterSlowTrendUp
-
-triggerSlowTrendDown =
-     enterSlowTrendDown
+// update cooldown anchor
+if triggerSlowTrendUp or triggerSlowTrendDown
+    lastSlowTrendBar := bar_index
 
 // PLOT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -672,7 +625,7 @@ var string alertMessage = na
 alertMessage := na
 
 // price
-formattedPrice = str.tostring(close, format.mintick)
+formattedPrice = str.tostring(math.round(close)) // round to nearest integer
 
 // percent vs previous close (match tradingview watchlist)
 prevClose = request.security(syminfo.tickerid, "D", close[1])
@@ -683,8 +636,8 @@ formattedPercent =
      "-" + str.tostring(math.abs(percentChange), "0.00") + "%"
 
 // cascade move (points)
-cascadeMove = math.round(math.abs(high - low) / syminfo.mintick) * syminfo.mintick
-formattedPoints = str.tostring(cascadeMove, format.mintick) + " points"
+cascadeMove = math.round(math.abs(high - low)) // round to nearest point
+formattedPoints = str.tostring(cascadeMove) + " points"
 
 // MESSAGE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -791,7 +744,7 @@ getBTCmessage() =>
     if triggerStopCascade
         message :=
              "Liquidation • " +
-             (isStopCascadeUp ? "Shorts squeezed • " : "Longs flushed • ") +
+             (isStopCascadeUp ? "Short squeeze • " : "Long flush • ") +
              formattedPoints
 
     if triggerExpansion
@@ -824,10 +777,10 @@ getBTCmessage() =>
         message := "Failure • Bullish reversal"
 
     if triggerSlowTrendUp
-        message := "Drift • Climbing"
+        message := "Drift • Price cimbing • " + formattedPrice
 
     if triggerSlowTrendDown
-        message := "Drift • Falling"
+        message := "Drift • Price falling • " + formattedPrice
 
     message
 
