@@ -20,13 +20,13 @@ OVERNIGHT_QUANTITY = 1
 // DATA
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-isZN = syminfo.root == "ZN"
-isE6 = syminfo.root == "6E"
-isGC = syminfo.root == "MGC"
-
 ZN_SYMBOL = "CBOT:ZN1!"
 E6_SYMBOL = "CME:6E1!"
 GC_SYMBOL = "COMEX_MINI:MGC1!"
+
+isZN = syminfo.root == "ZN"
+isE6 = syminfo.root == "6E"
+isGC = syminfo.root == "MGC"
 
 znOpen = request.security(ZN_SYMBOL, timeframe.period, open)
 e6Open = request.security(E6_SYMBOL, timeframe.period, open)
@@ -44,8 +44,8 @@ inSessionTimes = "1810-0359,0910-1658"
 isInSession = not na(time(timeframe.period, inSessionTimes, "America/New_York"))
 
 // session closing (exit)
-marketCloseTime = "1659-1700"
-isSessionClosing = not na(time(timeframe.period, marketCloseTime, "America/New_York"))
+marketClosingTime = "1659-1700"
+isSessionClosing = not na(time(timeframe.period, marketClosingTime, "America/New_York"))
 
 // ZN
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -77,9 +77,9 @@ isE6hostile = not isE6supportive // e6Avg > e6Open and 0 > e6Slope
 MACRO_CHOP_LOOKBACK_LONG = 10
 MACRO_CHOP_LOOKBACK_SHORT = 3
 
+// alignment
 isMacroSupportive = isZNsupportive and isE6supportive
 isMacroHostile = isZNhostile and isE6hostile
-isMacroNuetral = not isMacroSupportive and not isMacroHostile
 
 znFlip = isZNsupportive != isZNsupportive[1]
 e6Flip = isE6supportive != isE6supportive[1]
@@ -88,6 +88,7 @@ macroFlip = znFlip or e6Flip
 macroFlipCountLong = math.sum(macroFlip ? 1 : 0, MACRO_CHOP_LOOKBACK_LONG)
 macroFlipCountShort = math.sum(macroFlip ? 1 : 0, MACRO_CHOP_LOOKBACK_SHORT)
 
+// stability
 isMacroCleanLong = macroFlipCountLong <= 1
 isMacroCleanShort = macroFlipCountShort <= 1
 
@@ -95,8 +96,8 @@ isMacroCleanShort = macroFlipCountShort <= 1
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 GC_LOOKBACK = 14
-GC_EARLY_ALIGNMENT_MIN_BARS  = 2
-GC_EARLY_ALIGNMENT_MAX_BARS = 5
+GC_EARLY_ALIGNMENT_MIN_BARS  = 2 // wait for stability
+GC_EARLY_ALIGNMENT_MAX_BARS = 5 // ensure move is early
 
 var int gcSupportiveBars = 0
 var int gcHostileBars = 0
@@ -112,7 +113,7 @@ isGChostile = not isGCsupportive
 gcSupportiveBars := isGCsupportive ? gcSupportiveBars[1] + 1 : 0
 gcHostileBars := isGChostile ? gcHostileBars[1] + 1 : 0
 
-//
+// early in new, stable trend
 isGCsupportiveEarly =
      isGCsupportive
      and gcSupportiveBars > GC_EARLY_ALIGNMENT_MIN_BARS
@@ -134,7 +135,7 @@ var float profit = na
 
 // calc_on_every_tick has ridiculous problem of pulling previous bar values into this bar just for the very first tick
 // creates ghost signals that are not accurate, bar is stable on second tick and later
-// additional related problem: first tick arrives on different ticks when assets pulled from .security()
+// additional related problem: first tick arrives at different time when assets pulled from security()
 znTime = request.security(ZN_SYMBOL, timeframe.period, time)
 e6Time = request.security(E6_SYMBOL, timeframe.period, time)
 isBarStable := barstate.isrealtime ? not barstate.isnew and time == znTime and time == e6Time : true
@@ -168,7 +169,7 @@ if isShortEntry
     isShortTradeActive := true
     entryPrice := open
 
-// exit = GC loses state
+// exit
 isLongExit =
      isBarStable
      and isLongTradeActive
