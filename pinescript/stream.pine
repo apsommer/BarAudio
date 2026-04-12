@@ -8,11 +8,6 @@ indicator(
 // DATA
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-NQ_SYMBOL = "CME_MINI:NQ1!"
-ES_SYMBOL = "CME_MINI:ES1!"
-BTC_SYMBOL = "BINANCE:BTCUSDT"
-
-// asset detection
 isNQ = syminfo.root == "NQ"
 isES = syminfo.root == "ES"
 isBTC = str.contains(syminfo.ticker, "BTC")
@@ -67,6 +62,7 @@ IS_PERSISTENT_RANGE = isES or isBTC
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // state
+var bool triggerExpansionLatched = false
 var int expansionStartBar = bar_index
 var bool isExpansionActive = false
 var bool isExpansionUp = false
@@ -87,6 +83,10 @@ var float rangeHigh = high
 var float rangeLow = low
 var int lastExhaustionBar = 0
 var int lastRangeEndBar = 0
+var bool isAcceptanceTriggerUp = false
+var bool isAcceptanceTriggerDown = false
+var bool isRejectionTriggerUp = false
+var bool isRejectionTriggerDown = false
 var int eventBarIndex = na
 var float eventReferenceHigh = na
 var float eventReferenceLow = na
@@ -103,6 +103,10 @@ currentPriceUp = high
 currentPriceDown = low
 referencePrice = close[VELOCITY_BARS]
 
+// direction from lookback
+isUp = high > close[VELOCITY_BARS]
+isDown = close[VELOCITY_BARS] > low
+
 // directional velocity (prevents mixing high/low incorrectly)
 velocityUp = (currentPriceUp - referencePrice) / VELOCITY_BARS
 velocityDown = (referencePrice - currentPriceDown) / VELOCITY_BARS
@@ -113,10 +117,6 @@ velocitySmaSafe = math.max(velocitySma, 0.000001)
 // momentum
 rawMomentumPercent = (velocity / velocitySmaSafe - 1.0) * 100.0
 momentum = ta.sma(rawMomentumPercent, SMOOTH_BARS)
-
-// direction
-isUp = high > close[VELOCITY_BARS]
-isDown = close[VELOCITY_BARS] > low
 
 // CASCADE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -171,7 +171,7 @@ currentCascadeDirection =
 isSameDirectionCascade =
      triggerStopCascade
      and hasActiveCascade
-     and currentCascadeDirection == cascadeDirection
+     and ((isStopCascadeUp and cascadeDirection) or (isStopCascadeDown and not cascadeDirection))
 
 isContinuationCascadeUp =
      isStopCascadeUp
@@ -227,13 +227,19 @@ isNewTrend =
      not isExpansionActive
      or isExpansionUp != isUp
 
-triggerExpansion =
+var bool triggerExpansion = false
+
+triggerExpansionRaw =
      isExpansion
      and not triggerStopCascade
      and isNewTrend
      and not isExpansion[1]
      and isNewTrend[1]
-     and momentum[1] < EXPANSION_LEVEL_PERCENT
+     and EXPANSION_LEVEL_PERCENT > momentum[1]
+
+triggerExpansion :=
+     barstate.isnew ? triggerExpansionRaw :
+     (triggerExpansion or triggerExpansionRaw)
 
 isContinuationExpansionTrigger =
      triggerExpansion
@@ -241,7 +247,7 @@ isContinuationExpansionTrigger =
      and isContinuationExpansion
      and not (isUp ? isStructureBreakUp : isStructureBreakDown)
 
-if triggerExpansion
+if triggerExpansion and not triggerExpansion[1]
     isExpansionActive := true
     isExpansionUp := isUp
     expansionPeakMomentum := momentum
@@ -326,7 +332,7 @@ triggerRangeStart =
 
 if triggerRangeStart
     isRangeActive := true
-    rangeStartBar := bar_index - RANGE_BARS + 1
+    rangeStartBar := bar_index - RANGE_BARS
     rangeHigh := rollingHigh
     rangeLow := rollingLow
 
@@ -338,15 +344,23 @@ isRangeBreakoutDown =
      isRangeActive
      and rangeLow > low
 
-triggerRangeBreakout =
+var bool rangeBreakoutDirectionUp = false
+var bool triggerRangeBreakout = false
+
+triggerRangeBreakoutRaw =
      isRangeBreakoutUp
      or isRangeBreakoutDown
 
-rangeDuration = bar_index - rangeStartBar + 1
+triggerRangeBreakout :=
+     barstate.isnew ? triggerRangeBreakoutRaw :
+     (triggerRangeBreakout or triggerRangeBreakoutRaw)
 
-if triggerRangeBreakout
+if triggerRangeBreakout and not triggerRangeBreakout[1]
+    rangeBreakoutDirectionUp := isRangeBreakoutUp
     isRangeActive := false
     lastRangeEndBar := bar_index
+
+rangeDuration = bar_index - rangeStartBar
 
 // only non-persistent assets kill range on internal activity (NQ, but not ES or BTC)
 if (triggerStopCascade or triggerExpansion) and not IS_PERSISTENT_RANGE
@@ -354,16 +368,6 @@ if (triggerStopCascade or triggerExpansion) and not IS_PERSISTENT_RANGE
 
 // ACCEPTANCE / REJECTION
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// range breakout event
-if triggerRangeBreakout
-    eventBarIndex := bar_index
-    eventReferenceHigh := rangeHigh
-    eventReferenceLow := rangeLow
-    eventReferenceMid := (rangeHigh + rangeLow) * 0.5
-    eventDirectionUp := isRangeBreakoutUp
-    isEvaluatingEvent := true
-    eventType := 1
 
 // cascade event
 if triggerStopCascade
@@ -375,35 +379,61 @@ if triggerStopCascade
     isEvaluatingEvent := true
     eventType := 2
 
+// range breakout event
+else if triggerRangeBreakout
+    eventBarIndex := bar_index
+    eventReferenceHigh := rollingHigh
+    eventReferenceLow := rollingLow
+    eventReferenceMid := (rollingHigh + rollingLow) * 0.5
+    eventDirectionUp := rangeBreakoutDirectionUp
+    isEvaluatingEvent := true
+    eventType := 1
+
 barsSinceBreakoutOrCascade = bar_index - eventBarIndex
 
 isEvaluationDone =
      isEvaluatingEvent
      and barsSinceBreakoutOrCascade == ACCEPTANCE_BARS
 
-isAcceptanceTriggerUp =
+isAcceptanceTriggerUpRaw =
      isEvaluationDone
      and not isExpansionActive
-     and ((eventType == 1 and eventDirectionUp and close > eventReferenceHigh) or
-          (eventType == 2 and eventDirectionUp and close > eventReferenceMid))
+     and ((eventType == 1 and eventDirectionUp and high > eventReferenceHigh) or
+          (eventType == 2 and eventDirectionUp and high > eventReferenceMid))
 
-isRejectionTriggerUp =
-     isEvaluationDone
-     and not isExpansionActive
-     and ((eventType == 1 and eventDirectionUp and eventReferenceHigh > close) or
-          (eventType == 2 and eventDirectionUp and eventReferenceMid > close))
+isAcceptanceTriggerUp :=
+     barstate.isnew ? isAcceptanceTriggerUpRaw :
+     (isAcceptanceTriggerUp or isAcceptanceTriggerUpRaw)
 
-isAcceptanceTriggerDown =
+isAcceptanceTriggerDownRaw =
      isEvaluationDone
      and not isExpansionActive
-     and ((eventType == 1 and not eventDirectionUp and eventReferenceLow > close) or
-          (eventType == 2 and not eventDirectionUp and eventReferenceMid > close))
+     and ((eventType == 1 and not eventDirectionUp and eventReferenceLow > low) or
+          (eventType == 2 and not eventDirectionUp and eventReferenceMid > low))
 
-isRejectionTriggerDown =
+isAcceptanceTriggerDown :=
+     barstate.isnew ? isAcceptanceTriggerDownRaw :
+     (isAcceptanceTriggerDown or isAcceptanceTriggerDownRaw)
+
+isRejectionTriggerUpRaw =
      isEvaluationDone
      and not isExpansionActive
-     and ((eventType == 1 and not eventDirectionUp and close > eventReferenceLow) or
-          (eventType == 2 and not eventDirectionUp and close > eventReferenceMid))
+     and ((eventType == 1 and eventDirectionUp and eventReferenceHigh > low) or
+          (eventType == 2 and eventDirectionUp and eventReferenceMid > low))
+
+isRejectionTriggerUp :=
+     barstate.isnew ? isRejectionTriggerUpRaw :
+     (isRejectionTriggerUp or isRejectionTriggerUpRaw)
+
+isRejectionTriggerDownRaw =
+     isEvaluationDone
+     and not isExpansionActive
+     and ((eventType == 1 and not eventDirectionUp and high > eventReferenceLow) or
+          (eventType == 2 and not eventDirectionUp and high > eventReferenceMid))
+
+isRejectionTriggerDown :=
+     barstate.isnew ? isRejectionTriggerDownRaw :
+     (isRejectionTriggerDown or isRejectionTriggerDownRaw)
 
 if isEvaluationDone
     isEvaluatingEvent := false
@@ -455,12 +485,20 @@ triggerSlowTrendUp =
      and isStructureUp
      and isSlowTrendCooledDown
 
+var bool slowTrendUpLatched = false
+slowTrendUpLatched := barstate.isnew ? triggerSlowTrendUp : (slowTrendUpLatched or triggerSlowTrendUp)
+triggerSlowTrendUp := slowTrendUpLatched
+
 triggerSlowTrendDown =
      isSlowEnvironment
      and isSlopeDown
      and isBelowSma
      and isStructureDown
      and isSlowTrendCooledDown
+
+var bool slowTrendDownLatched = false
+slowTrendDownLatched := barstate.isnew ? triggerSlowTrendDown : (slowTrendDownLatched or triggerSlowTrendDown)
+triggerSlowTrendDown := slowTrendDownLatched
 
 // update cooldown anchor
 if triggerSlowTrendUp or triggerSlowTrendDown
@@ -625,7 +663,7 @@ var string alertMessage = na
 alertMessage := na
 
 // price
-formattedPrice = str.tostring(math.round(close)) // round to nearest integer
+formattedPrice = str.tostring(close, format.mintick)
 
 // percent vs previous close (match tradingview watchlist)
 prevClose = request.security(syminfo.tickerid, "D", close[1])
@@ -672,7 +710,7 @@ getNQmessage() =>
     if triggerRangeBreakout
         message :=
              "Range • " +
-             (isRangeBreakoutUp ? "Bullish breakout • " : "Bearish breakout • ") +
+             (eventDirectionUp ? "Bullish breakout • " : "Bearish breakout • ") +
              str.tostring(rangeDuration) + " minutes"
 
     if isAcceptanceTriggerUp
@@ -718,7 +756,7 @@ getESmessage() =>
     if triggerRangeBreakout
         message :=
              "Structure • " +
-             (isRangeBreakoutUp ? "Upside push • " : "Downside push • ") +
+             (eventDirectionUp ? "Upside push • " : "Downside push • ") +
              str.tostring(rangeDuration) + " minutes"
 
     if isAcceptanceTriggerUp
@@ -761,7 +799,7 @@ getBTCmessage() =>
     if triggerRangeBreakout
         message :=
              "Compression • " +
-             (isRangeBreakoutUp ? "Break higher • " : "Break lower • ") +
+             (eventDirectionUp ? "Break higher • " : "Break lower • ") +
              str.tostring(rangeDuration) + " minutes"
 
     if isAcceptanceTriggerUp
@@ -777,18 +815,22 @@ getBTCmessage() =>
         message := "Failure • Bullish reversal"
 
     if triggerSlowTrendUp
-        message := "Drift • Price cimbing • " + formattedPrice
+        message := "Drift • Price climbing • " + formattedPrice
 
     if triggerSlowTrendDown
         message := "Drift • Price falling • " + formattedPrice
 
     message
 
-// FIRE ALERT
+// alert message
 alertMessage :=
      isNQ ? getNQmessage() :
      isES ? getESmessage() :
      isBTC ? getBTCmessage() : na
 
-if not na(alertMessage)
+// cascades fire on bar close, special case
+isCascadeAlert = triggerStopCascade or triggerContinuationCascade
+
+// send alert to webhook
+if not na(alertMessage) and (barstate.isconfirmed or not isCascadeAlert)
     alert(alertMessage, alert.freq_once_per_bar)
