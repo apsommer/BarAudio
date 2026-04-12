@@ -60,8 +60,7 @@ fun SwitchItem(
                     modifier = Modifier.weight(1f),
                     verticalAlignment = Alignment.CenterVertically) {
 
-                    // icon todo extract as SettingsIcon? this round background for assets in
-                    //  todo MessageItemIcon but doesn't clip material icons, maybe ok
+                    // icon todo pass the whole icon composable to accommodate origins and regular switches
                     Box(
                         Modifier
                             .size(iconSize)

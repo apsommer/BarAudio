@@ -437,7 +437,7 @@ isSlowEnvironment =
 sma = ta.sma(ta.sma(close[1], SMA_BARS), 10)
 slope = sma - sma[SLOPE_LOOKBACK]
 isSlopeUp = slope > 0
-isSlopeDown = slope < 0
+isSlopeDown = sma[SLOPE_LOOKBACK] > sma
 
 // distance from SMA
 distanceUp = (high - sma) / sma
@@ -456,28 +456,31 @@ isSlowTrendCooledDown =
      na(lastSlowTrendBar)
      or barsSinceSlowTrend > SLOW_TREND_COOLDOWN_BARS
 
-// triggers (event-based)
-triggerSlowTrendUp =
+// raw triggers
+triggerSlowTrendUpRaw =
      isSlowEnvironment
      and isSlopeUp
      and isAboveSma
      and isStructureUp
      and isSlowTrendCooledDown
 
-var bool slowTrendUpLatched = false
-slowTrendUpLatched := barstate.isnew ? triggerSlowTrendUp : (slowTrendUpLatched or triggerSlowTrendUp)
-triggerSlowTrendUp := slowTrendUpLatched
-
-triggerSlowTrendDown =
+triggerSlowTrendDownRaw =
      isSlowEnvironment
      and isSlopeDown
      and isBelowSma
      and isStructureDown
      and isSlowTrendCooledDown
 
-var bool slowTrendDownLatched = false
-slowTrendDownLatched := barstate.isnew ? triggerSlowTrendDown : (slowTrendDownLatched or triggerSlowTrendDown)
-triggerSlowTrendDown := slowTrendDownLatched
+// intrabar stability (no cross-bar persistence)
+var bool triggerSlowTrendUp = false
+triggerSlowTrendUp :=
+     barstate.isnew ? triggerSlowTrendUpRaw :
+     (triggerSlowTrendUp or triggerSlowTrendUpRaw)
+
+var bool triggerSlowTrendDown = false
+triggerSlowTrendDown :=
+     barstate.isnew ? triggerSlowTrendDownRaw :
+     (triggerSlowTrendDown or triggerSlowTrendDownRaw)
 
 // update cooldown anchor
 if triggerSlowTrendUp or triggerSlowTrendDown
