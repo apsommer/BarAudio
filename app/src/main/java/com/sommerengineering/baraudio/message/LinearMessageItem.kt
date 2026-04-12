@@ -10,12 +10,14 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -120,13 +122,17 @@ fun LinearMessageItem(
 
             // origin image
             Spacer(Modifier.width(rowIconPadding))
-            Icon(
-                painter = painterResource(state.style.iconRes),
-                contentDescription = null,
-                tint = if (state.style.isIconTinted) state.style.primary else Color.Unspecified,
-                modifier = Modifier
-                    .padding(vertical = rowVerticalPadding)
-                    .size(assetIconSize))
+            Box(
+                Modifier
+                    .size(assetIconSize)
+                    .clip(CircleShape)
+                    .background(Color.Transparent)) {
+                Icon(
+                    painter = painterResource(state.style.iconRes),
+                    contentDescription = null,
+                    tint = state.style.primary,
+                    modifier = Modifier.fillMaxSize())
+            }
         }
 
         // divider between rows

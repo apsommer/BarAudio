@@ -14,8 +14,7 @@ val tradingViewSource = Source(
             accent = Color(0xFF82B1FF),
             surface = if (isDark) Color(0xFF0B1A3A) else Color(0xFFE8F0FF),
             text = if (isDark) Color(0xFFEAF1FF) else Color(0xFF0B1A3A),
-            iconRes = if (isDark) R.drawable.tradingview_light else R.drawable.tradingview_dark,
-            isIconTinted = false
+            iconRes = if (isDark) R.drawable.tradingview_light else R.drawable.tradingview_dark
         )
     }
 )
@@ -30,8 +29,7 @@ val trendSpiderSource = Source(
             accent = Color(0xFF69F0AE),
             surface = if (isDark) Color(0xFF002B12) else Color(0xFFE8FBEF),
             text = if (isDark) Color(0xFFE8FBEF) else Color(0xFF002B12),
-            iconRes = R.drawable.trendspider,
-            isIconTinted = false
+            iconRes = R.drawable.trendspider
         )
     }
 )
@@ -46,8 +44,7 @@ val insomniaSource = Source(
             accent = Color(0xFF7C4DFF),
             surface = if (isDark) Color(0xFF1B0D3A) else Color(0xFFF2EDFF),
             text = if (isDark) Color(0xFFF0E9FF) else Color(0xFF1B0D3A),
-            iconRes = R.drawable.insomnia,
-            isIconTinted = false
+            iconRes = R.drawable.insomnia
         )
     })
 

@@ -12,11 +12,11 @@ import com.sommerengineering.baraudio.uitls.siStream
 val nqAsset = Asset(
     origin = nqStream,
     symbol = "NQ",
-    displayName = "Nasdaq-100",
-    spokenName = "Nasdaq",
+    displayName = "Nasdaq 100",
+    spokenName = "Nasdaq one hundred",
     category = "Equity Index",
     exchange = "CME",
-    assetDescription = "CME · Equity Index · E-mini Nasdaq-100 Futures",
+    assetDescription = "CME · Equity Index · E-mini Nasdaq 100 Futures",
     signalDescription = "High velocity momentum",
     order = 0,
     style = { isDark ->
@@ -42,7 +42,7 @@ val esAsset = Asset(
     origin = esStream,
     symbol = "ES",
     displayName = "S&P 500",
-    spokenName = "S and P",
+    spokenName = "S and P five hundred",
     category = "Equity Index",
     exchange = "CME",
     assetDescription = "CME · Equity Index · E-mini S&P 500 Futures",
@@ -115,7 +115,7 @@ val gcAsset = Asset(
                 accent = Color(0xFFF4DE9A),
                 surface = Color(0xFF2B2400),
                 text = Color(0xFFFFF9E6),
-                iconRes = R.drawable.coins
+                iconRes = R.drawable.gc
             )
         } else {
             MessageItemStyle(
@@ -123,7 +123,7 @@ val gcAsset = Asset(
                 accent = Color(0xFFE6C96A),
                 surface = Color(0xFFFFF8E1),
                 text = Color(0xFF2B2400),
-                iconRes = R.drawable.coins
+                iconRes = R.drawable.gc
             )
         }})
 
@@ -144,14 +144,14 @@ val siAsset = Asset(
                 accent = Color(0xFFFFFFFF),
                 surface = Color(0xFF0F1418),
                 text = Color(0xFFF5FAFF),
-                iconRes = R.drawable.coins)
+                iconRes = R.drawable.si)
         } else {
             MessageItemStyle(
                 primary = Color(0xFFDCE6EE),
                 accent = Color(0xFFF8FCFF),
                 surface = Color(0xFFF6F9FC),
                 text = Color(0xFF111417),
-                iconRes = R.drawable.coins) } })
+                iconRes = R.drawable.si) } })
 
 fun Asset.settingsTitle() = "$displayName ($symbol)"
 
