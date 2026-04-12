@@ -16,21 +16,21 @@ isBTC = str.contains(syminfo.ticker, "BTC")
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // momentum
-VELOCITY_BARS = 8
-VELOCITY_BASELINE_BARS = 120
-SMOOTH_BARS = 6
+VELOCITY_BARS = isNQ ? 8 : isES ? 10 : isBTC ? 12 : 8
+VELOCITY_BASELINE_BARS = isNQ ? 120 : isES ? 140 : isBTC ? 160 : 120
+SMOOTH_BARS = isNQ ? 6 : isES ? 8 : isBTC ? 10 : 6
 
 // cascade
 CASCADE_STRUCTURE_BARS = isNQ ? 6 : isES ? 6 : isBTC ? 8 : 6
-CASCADE_LARGE_BAR_RATIO = isNQ ? 4.0 : isES ? 4.5 : isBTC ? 4.5 : 4.0
-CASCADE_SWEEP_RATIO = 0.35
+CASCADE_LARGE_BAR_RATIO = isNQ ? 4.0 : isES ? 4.2 : isBTC ? 4.5 : 4.0
+CASCADE_SWEEP_RATIO = isNQ ? 0.35 : isES ? 0.33 : isBTC ? 0.45 : 0.35
 CASCADE_CONTINUATION_BARS = isNQ ? 15 : isES ? 15 : isBTC ? 20 : 15
 
 // expansion
 ACCELERATION_BARS = isNQ ? 5 : isES ? 7 : isBTC ? 8 : 5
 EXPANSION_STRUCTURE_LOOKBACK = isNQ ? 18 : isES ? 16 : isBTC ? 22 : 18
 ACCELERATION_PERCENT = isNQ ? 18.0 : isES ? 20.0 : isBTC ? 14.0 : 18.0
-EXPANSION_LEVEL_PERCENT = isNQ ? 115 : isES ? 125 : isBTC ? 100 : 115
+EXPANSION_LEVEL_PERCENT = isNQ ? 115 : isES ? 108 : isBTC ? 100 : 115
 
 // exhaustion
 EXHAUSTION_LEVEL_PERCENT = isNQ ? 48 : isES ? 52 : isBTC ? 55 : 48
@@ -40,10 +40,10 @@ EXHAUSTION_REVERSAL_BARS = isNQ ? 6 : isES ? 7 : isBTC ? 8 : 6
 
 // range
 RANGE_BARS = isNQ ? 60 : isES ? 120 : isBTC ? 90 : 60
-RANGE_MAGNITUDE_POINTS = isNQ ? 20 : isES ? 12 : isBTC ? 200 : 80
+RANGE_MAGNITUDE_POINTS = isNQ ? 20 : isES ? 18 : isBTC ? 200 : 80
 
 // acceptance
-ACCEPTANCE_BARS = 5
+ACCEPTANCE_BARS = isNQ ? 5 : isES ? 6 : isBTC ? 7 : 5
 
 // slow trend
 SLOW_TREND_BARS = isNQ ? 120 : isES ? 120 : isBTC ? 90 : 120
