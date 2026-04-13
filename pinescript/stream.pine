@@ -186,13 +186,19 @@ triggerContinuationCascade =
 
 if triggerStopCascade
     hasActiveCascade := true
-    isExpansionActive := false
     expansionPeakMomentum := 0.0
     isRangeActive := false
     cascadeBarIndex := bar_index
     cascadeHigh := high
     cascadeLow := low
     cascadeDirection := currentCascadeDirection
+
+    // kill expansion if direction opposes
+    isExpansionActive :=
+         isExpansionActive
+         and not (
+            (isExpansionUp and not isStopCascadeUp)
+            or (not isExpansionUp and isStopCascadeUp))
 
 hasActiveCascade :=
      hasActiveCascade
@@ -211,9 +217,7 @@ isStructureBreakDown = ta.lowest(low[1], EXPANSION_STRUCTURE_LOOKBACK) > low
 
 // cascade cooldown (safe)
 barsSinceCascade = bar_index - cascadeBarIndex
-isCascadeCooledDown =
-     not hasActiveCascade
-     and barsSinceCascade > EXPANSION_STRUCTURE_LOOKBACK
+isCascadeCooledDown = bar_index - cascadeBarIndex > CASCADE_CONTINUATION_BARS
 
 // continuation, expansion in same direction as previous expansion
 isContinuationExpansion =
@@ -231,26 +235,34 @@ isNewTrend =
      not isExpansionActive
      or isExpansionUp != isUp
 
+// RAW trigger (unchanged logic)
 triggerExpansionRaw =
-     isExpansion and not isExpansion[1]
+     isExpansion
      and not isExpansionActive
      and isCascadeCooledDown
      and isNewTrend
      and EXPANSION_LEVEL_PERCENT > momentum[1]
 
-triggerExpansion :=
-     barstate.isnew ? triggerExpansionRaw :
-     (triggerExpansion or triggerExpansionRaw)
+if barstate.isnew
+    triggerExpansion := false
+
+if triggerExpansionRaw
+    triggerExpansion := true
+
+// ONE-SHOT EVENT (fires once per bar)
+triggerExpansionEvent =
+     triggerExpansion
+     and not triggerExpansion[1]
 
 // continuation classification (message layer)
 isContinuationExpansionTrigger =
-     triggerExpansion and not triggerExpansion[1]
+     triggerExpansionEvent
      and not triggerStopCascade
      and isContinuationExpansion
      and not (isUp ? isStructureBreakUp : isStructureBreakDown)
 
 // state update (ONE-SHOT)
-if triggerExpansion and not triggerExpansion[1]
+if triggerExpansionEvent
     isExpansionActive := true
     isExpansionUp := isUp
     expansionPeakMomentum := momentum
@@ -355,9 +367,13 @@ triggerRangeBreakoutRaw =
      (isRangeBreakoutUp or isRangeBreakoutDown)
      and not hasFiredRangeBreak
 
-triggerRangeBreakout :=
-     barstate.isnew ? triggerRangeBreakoutRaw :
-     (triggerRangeBreakout or triggerRangeBreakoutRaw)
+// hard reset at start of bar
+if barstate.isnew
+    triggerRangeBreakout := false
+
+// latch intrabar
+if triggerRangeBreakoutRaw
+    triggerRangeBreakout := true
 
 if triggerRangeBreakout and not triggerRangeBreakout[1]
     rangeBreakoutDirectionUp := isRangeBreakoutUp
@@ -688,7 +704,7 @@ getNQmessage() =>
              (isContinuationCascadeUp ? "Bullish continuation • " : "Bearish continuation • ") +
              formattedPoints
 
-    else if triggerExpansion
+    else if triggerExpansionEvent
         message :=
              "Expansion • " +
              (isUp ? "Bullish " : "Bearish ") +
@@ -735,7 +751,7 @@ getESmessage() =>
              (isStopCascadeUp ? "Upside • " : "Downside • ") +
              formattedPoints
 
-    else if triggerExpansion
+    else if triggerExpansionEvent
         message :=
              "Drive • " +
              (isUp ? "Upside momentum • " : "Downside momentum • ") +
@@ -778,7 +794,7 @@ getBTCmessage() =>
              (isStopCascadeUp ? "Short squeeze • " : "Long flush • ") +
              formattedPoints
 
-    else if triggerExpansion
+    else if triggerExpansionEvent
         message :=
              "Impulse • " +
              (isUp ? "Bullish momentum • " : "Bearish momentum • ") +
