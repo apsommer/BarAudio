@@ -91,7 +91,7 @@ var bool isEvaluatingEvent = false
 var int eventType = 0  // 1 range, 2 cascade
 var int lastEventBar = na
 var int slowTrendDirection = 0  // 1 up, -1 down, 0 none
-var int lastSlowTrendBar = na
+var int lastSlowTrendBar = 0
 
 // current bar
 currentPriceUp = high
@@ -226,6 +226,7 @@ var bool triggerExpansion = false
 
 triggerExpansionRaw =
      isExpansion
+     and not isExpansionActive
      and not triggerStopCascade
      and isNewTrend
      and not isExpansion[1]
@@ -453,8 +454,7 @@ isStructureDown = ta.highest(high[1], STRUCTURE_BARS) > high
 barsSinceSlowTrend = bar_index - lastSlowTrendBar
 
 isSlowTrendCooledDown =
-     na(lastSlowTrendBar)
-     or barsSinceSlowTrend > SLOW_TREND_COOLDOWN_BARS
+     barsSinceSlowTrend > SLOW_TREND_COOLDOWN_BARS
 
 // raw triggers
 triggerSlowTrendUpRaw =
@@ -692,8 +692,8 @@ getNQmessage() =>
     if triggerRangeBreakout
         message :=
              "Range • " +
-             (eventDirectionUp ? "Bullish breakout • " : "Bearish breakout • ") +
-             str.tostring(rangeDuration) + " minutes"
+             str.tostring(rangeDuration) + " minutes • " +
+             (eventDirectionUp ? "Bullish breakout" : "Bearish breakout")
 
     if isAcceptanceTriggerUp
         message := "Acceptance • Bullish breakout holding • " + formattedPrice
@@ -721,12 +721,12 @@ getESmessage() =>
     if triggerStopCascade
         message :=
              "Sweep • " +
-             (isStopCascadeUp ? "Highside • " : "Lowside • ") +
+             (isStopCascadeUp ? "Upside • " : "Downside • ") +
              formattedPoints
 
     if triggerExpansion
         message :=
-             "Move • " +
+             "Drive • " +
              (isUp ? "Upside momentum • " : "Downside momentum • ") +
              formattedPercent
 
@@ -738,14 +738,15 @@ getESmessage() =>
     if triggerRangeBreakout
         message :=
              "Structure • " +
-             (eventDirectionUp ? "Upside push • " : "Downside push • ") +
-             str.tostring(rangeDuration) + " minutes"
+             str.tostring(rangeDuration) + " minutes • " +
+             (eventDirectionUp ? "Upside push" : "Downside push")
+
 
     if isAcceptanceTriggerUp
-        message := "Stable • Above range • " + formattedPrice
+        message := "Stable • Bullish acceptance • " + formattedPrice
 
     if isAcceptanceTriggerDown
-        message := "Stable • Below range • " + formattedPrice
+        message := "Stable • Bearish acceptance • " + formattedPrice
 
     if isRejectionTriggerUp or isRejectionTriggerDown
         message := "Failure • Revert to range"
@@ -781,8 +782,8 @@ getBTCmessage() =>
     if triggerRangeBreakout
         message :=
              "Compression • " +
-             (eventDirectionUp ? "Break higher • " : "Break lower • ") +
-             str.tostring(rangeDuration) + " minutes"
+             str.tostring(rangeDuration) + " minutes • " +
+             (eventDirectionUp ? "Break higher" : "Break lower")
 
     if isAcceptanceTriggerUp
         message := "Holding • Above • " + formattedPrice
