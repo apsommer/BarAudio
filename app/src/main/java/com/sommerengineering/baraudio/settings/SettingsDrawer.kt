@@ -252,6 +252,7 @@ fun SettingsDrawer(
             item {
                 SwitchItem(
                     iconRes = R.drawable.fullscreen,
+                    iconTint = MaterialTheme.colorScheme.onSurface,
                     title = screenTitle,
                     description = fullScreenDescription) {
 
@@ -265,6 +266,7 @@ fun SettingsDrawer(
             item {
                 SwitchItem(
                     iconRes = R.drawable.contrast,
+                    iconTint = MaterialTheme.colorScheme.onSurface,
                     title = uiModeTitle,
                     description = uiModeDescription) {
 

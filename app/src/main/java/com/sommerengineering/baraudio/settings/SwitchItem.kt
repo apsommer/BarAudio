@@ -38,6 +38,7 @@ fun SwitchItem(
     title: String,
     description: String? = null,
     iconSize: Dp = settingsIconSize,
+    iconTint: Color? = null,
     titleColor: Color? = null,
     descriptionColor: Color? = null,
     content: @Composable () -> Unit) {
@@ -69,7 +70,7 @@ fun SwitchItem(
                         Icon(
                             painter = painterResource(iconRes),
                             contentDescription = null,
-                            tint = null,
+                            tint = iconTint ?: Color.Unspecified,
                             modifier = Modifier.fillMaxSize())
                     }
                     Spacer(Modifier.width(rowIconPadding + 4.dp))
