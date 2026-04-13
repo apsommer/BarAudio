@@ -1,6 +1,6 @@
 //@version=6
 indicator(
-    "stream v1",
+    "stream",
     overlay = true,
     max_boxes_count = 500,
     max_bars_back = 2000)
@@ -46,7 +46,7 @@ RANGE_MAGNITUDE_POINTS = isNQ ? 20 : isES ? 18 : isBTC ? 200 : 80
 ACCEPTANCE_BARS = isNQ ? 5 : isES ? 6 : isBTC ? 7 : 5
 
 // slow trend
-SLOW_TREND_BARS = isNQ ? 120 : isES ? 120 : isBTC ? 90 : 120
+SLOW_TREND_BARS = isNQ ? 90 : isES ? 90 : isBTC ? 90 : 120
 SLOW_TREND_COOLDOWN_BARS = 60
 SMA_BARS = isNQ ? 90 : isES ? 90 : isBTC ? 70 : 90
 SLOPE_LOOKBACK = isNQ ? 10 : isES ? 20 : isBTC ? 10 : 10
@@ -295,6 +295,7 @@ isExhaustionDamageLargeEnough =
 
 triggerExhaustion =
      isExpansionActive
+     and not triggerExpansion // prevent intrabar state instability
      and isTrendMature
      and isMomentumDrop
      and isMomentumReversing
@@ -691,9 +692,9 @@ getNQmessage() =>
 
     if triggerRangeBreakout
         message :=
-             "Range • " +
-             str.tostring(rangeDuration) + " minutes • " +
-             (eventDirectionUp ? "Bullish breakout" : "Bearish breakout")
+             "Range break • " +
+             str.tostring(rangeDuration) + " min • " +
+             (eventDirectionUp ? "Bullish" : "Bearish")
 
     if isAcceptanceTriggerUp
         message := "Acceptance • Bullish breakout holding • " + formattedPrice
@@ -714,6 +715,7 @@ getNQmessage() =>
         message := "Trend • Bearish drift"
 
     message
+
 
 getESmessage() =>
     string message = na
@@ -737,19 +739,18 @@ getESmessage() =>
 
     if triggerRangeBreakout
         message :=
-             "Structure • " +
-             str.tostring(rangeDuration) + " minutes • " +
-             (eventDirectionUp ? "Upside push" : "Downside push")
-
+             "Structure break • " +
+             str.tostring(rangeDuration) + " min • " +
+             (eventDirectionUp ? "Upside" : "Downside")
 
     if isAcceptanceTriggerUp
-        message := "Stable • Bullish acceptance • " + formattedPrice
+        message := "Acceptance • Upside holding • " + formattedPrice
 
     if isAcceptanceTriggerDown
-        message := "Stable • Bearish acceptance • " + formattedPrice
+        message := "Acceptance • Downside holding • " + formattedPrice
 
     if isRejectionTriggerUp or isRejectionTriggerDown
-        message := "Failure • Revert to range"
+        message := "Failure • Return to range"
 
     if triggerSlowTrendUp
         message := "Bias • Upside"
@@ -758,6 +759,7 @@ getESmessage() =>
         message := "Bias • Downside"
 
     message
+
 
 getBTCmessage() =>
     string message = na
@@ -771,25 +773,25 @@ getBTCmessage() =>
     if triggerExpansion
         message :=
              "Impulse • " +
-             (isUp ? "Upside momentum increasing • " : "Downside momentum increasing • ") +
+             (isUp ? "Bullish momentum • " : "Bearish momentum • ") +
              formattedPercent
 
     if triggerExhaustion
         message :=
              "Cooldown • " +
-             (expansionDirection ? "Upside momentum fading" : "Downside momentum fading")
+             (expansionDirection ? "Bullish momentum fading" : "Bearish momentum fading")
 
     if triggerRangeBreakout
         message :=
-             "Compression • " +
-             str.tostring(rangeDuration) + " minutes • " +
-             (eventDirectionUp ? "Bullish break" : "Bearish break")
+             "Compression break • " +
+             str.tostring(rangeDuration) + " min • " +
+             (eventDirectionUp ? "Bullish" : "Bearish")
 
     if isAcceptanceTriggerUp
-        message := "Holding • Above • " + formattedPrice
+        message := "Holding • " + formattedPrice
 
     if isAcceptanceTriggerDown
-        message := "Holding • Below • " + formattedPrice
+        message := "Holding • " + formattedPrice
 
     if isRejectionTriggerUp
         message := "Failure • Bearish reversal"
@@ -798,7 +800,7 @@ getBTCmessage() =>
         message := "Failure • Bullish reversal"
 
     if triggerSlowTrendUp
-        message := "Drift • Price climbing • " + formattedPrice
+        message := "Drift • Price rising • " + formattedPrice
 
     if triggerSlowTrendDown
         message := "Drift • Price falling • " + formattedPrice
