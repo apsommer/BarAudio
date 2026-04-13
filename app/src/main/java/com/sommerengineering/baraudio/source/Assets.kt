@@ -70,36 +70,36 @@ val nqAsset = Asset(
             )
         }})
 
-
-
 val btcAsset = Asset(
     origin = btcStream,
     symbol = "BTC",
     displayName = "Bitcoin",
     spokenName = "Bitcoin",
     category = "Cryptocurrency",
-    exchange = "CME",
-    assetDescription = "CME · Cryptocurrency · Bitcoin Futures",
+    exchange = "Binance",
+    assetDescription = "Binance · Cryptocurrency · Bitcoin USDT (Spot)",
     signalDescription = "Volatility breakouts",
     order = 2,
     style = { isDark ->
         if (isDark) {
             MessageItemStyle(
-                primary = Color(0xFFFFB454),
-                accent = Color(0xFFFFD089),
-                surface = Color(0xFF2A1B00),
-                text = Color(0xFFFFF3E0),
+                primary = Color(0xFFF7931A),
+                accent = Color(0xFFFFB347),
+                surface = Color(0xFF2A1A0A),
+                text = Color(0xFFFFF4E6),
                 iconRes = R.drawable.btc
             )
         } else {
             MessageItemStyle(
                 primary = Color(0xFFF7931A),
-                accent = Color(0xFFFFB454),
-                surface = Color(0xFFFFF4E5),
-                text = Color(0xFF2A1B00),
+                accent = Color(0xFFFFA94D),
+                surface = Color(0xFFFFF4E6),
+                text = Color(0xFF2A1A0A),
                 iconRes = R.drawable.btc
             )
-        }})
+        }
+    }
+)
 
 // premium /////////////////////////////////////////////////////////////////////////////////////////
 
