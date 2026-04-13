@@ -32,6 +32,7 @@ import com.sommerengineering.baraudio.uitls.isGCKey
 import com.sommerengineering.baraudio.uitls.isMuteKey
 import com.sommerengineering.baraudio.uitls.isNQKey
 import com.sommerengineering.baraudio.uitls.isSIKey
+import com.sommerengineering.baraudio.uitls.isZNKey
 import com.sommerengineering.baraudio.uitls.nqStream
 import com.sommerengineering.baraudio.uitls.onboardingKey
 import com.sommerengineering.baraudio.uitls.pitchKey
@@ -39,6 +40,7 @@ import com.sommerengineering.baraudio.uitls.siStream
 import com.sommerengineering.baraudio.uitls.speedKey
 import com.sommerengineering.baraudio.uitls.voiceNameKey
 import com.sommerengineering.baraudio.uitls.webhookBaseUrl
+import com.sommerengineering.baraudio.uitls.znStream
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -75,9 +77,10 @@ class MainRepository @Inject constructor(
         val messages = mutableListOf<Message>()
 
         // streams
+        if (loadZN()) messages.addAll(firebaseDb.fetchStreamMessages(znStream))
         if (loadNQ()) messages.addAll(firebaseDb.fetchStreamMessages(nqStream))
-        if (loadES()) messages.addAll(firebaseDb.fetchStreamMessages(esStream))
         if (loadBTC()) messages.addAll(firebaseDb.fetchStreamMessages(btcStream))
+        if (loadES()) messages.addAll(firebaseDb.fetchStreamMessages(esStream))
         if (loadGC()) messages.addAll(firebaseDb.fetchStreamMessages(gcStream))
         if (loadSI()) messages.addAll(firebaseDb.fetchStreamMessages(siStream))
 
@@ -155,6 +158,14 @@ class MainRepository @Inject constructor(
     fun updateEmptyState(enabled: Boolean) =
         writePreference(booleanPreferencesKey(emptyStateKey), enabled)
 
+    // stream ZN
+    suspend fun loadZN() =
+        readPreference(booleanPreferencesKey(isZNKey)) ?: true
+    fun updateZN(enabled: Boolean) {
+        syncStream(znStream, enabled)
+        writePreference(booleanPreferencesKey(isZNKey), enabled)
+    }
+
     // stream NQ
     suspend fun loadNQ() =
         readPreference(booleanPreferencesKey(isNQKey)) ?: true
@@ -163,20 +174,20 @@ class MainRepository @Inject constructor(
         writePreference(booleanPreferencesKey(isNQKey), enabled)
     }
 
-    // stream ES
-    suspend fun loadES() =
-        readPreference(booleanPreferencesKey(isESKey)) ?: true
-    fun updateES(enabled: Boolean) {
-        syncStream(esStream, enabled)
-        writePreference(booleanPreferencesKey(isESKey), enabled)
-    }
-
     // stream BTC
     suspend fun loadBTC() =
         readPreference(booleanPreferencesKey(isBTCKey)) ?: true
     fun updateBTC(enabled: Boolean) {
         syncStream(btcStream, enabled)
         writePreference(booleanPreferencesKey(isBTCKey), enabled)
+    }
+
+    // stream ES
+    suspend fun loadES() =
+        readPreference(booleanPreferencesKey(isESKey)) ?: true
+    fun updateES(enabled: Boolean) {
+        syncStream(esStream, enabled)
+        writePreference(booleanPreferencesKey(isESKey), enabled)
     }
 
     // stream GC
@@ -304,9 +315,10 @@ class MainRepository @Inject constructor(
     fun writeNewToken(token: String) {
         appScope.launch {
             FirebaseMessaging.getInstance().apply {
+                if (loadZN()) subscribeToTopic(znStream) else unsubscribeFromTopic(znStream)
                 if (loadNQ()) subscribeToTopic(nqStream) else unsubscribeFromTopic(nqStream)
-                if (loadES()) subscribeToTopic(esStream) else unsubscribeFromTopic(esStream)
                 if (loadBTC()) subscribeToTopic(btcStream) else unsubscribeFromTopic(btcStream)
+                if (loadES()) subscribeToTopic(esStream) else unsubscribeFromTopic(esStream)
                 if (loadGC()) subscribeToTopic(gcStream) else unsubscribeFromTopic(gcStream)
                 if (loadSI()) subscribeToTopic(siStream) else unsubscribeFromTopic(siStream)
             }

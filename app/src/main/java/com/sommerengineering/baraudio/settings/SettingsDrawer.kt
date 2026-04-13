@@ -30,6 +30,7 @@ import com.sommerengineering.baraudio.source.esAsset
 import com.sommerengineering.baraudio.source.gcAsset
 import com.sommerengineering.baraudio.source.nqAsset
 import com.sommerengineering.baraudio.source.siAsset
+import com.sommerengineering.baraudio.source.znAsset
 import com.sommerengineering.baraudio.uitls.customDividerTitle
 import com.sommerengineering.baraudio.uitls.streamsDividerTitle
 import com.sommerengineering.baraudio.uitls.edgePadding
@@ -70,9 +71,10 @@ fun SettingsDrawer(
     val speedDescription = viewModel.speedDescription
     val pitchDescription = viewModel.pitchDescription
 
+    val isZN = viewModel.isZN
     val isNQ = viewModel.isNQ
-    val isES = viewModel.isES
     val isBTC = viewModel.isBTC
+    val isES = viewModel.isES
     val isGC = viewModel.isGC
     val isSI = viewModel.isSI
 
@@ -175,6 +177,15 @@ fun SettingsDrawer(
                 DividerItem(streamsDividerTitle)
             }
 
+            // stream ZN
+            item {
+                StreamSwitchItem(
+                    messageOrigin = MessageOrigin.BroadcastStream(znAsset),
+                    isDarkMode = isDarkMode,
+                    isStream = isZN,
+                    updateStream = { viewModel.updateZN(it) })
+            }
+
             // stream NQ
             item {
                 StreamSwitchItem(
@@ -184,16 +195,7 @@ fun SettingsDrawer(
                     updateStream = { viewModel.updateNQ(it) })
             }
 
-            // stream ES
-            item {
-                StreamSwitchItem(
-                    messageOrigin = MessageOrigin.BroadcastStream(esAsset),
-                    isDarkMode = isDarkMode,
-                    isStream = isES,
-                    updateStream = { viewModel.updateES(it) })
-            }
-
-            // bream BTC
+            // stream BTC
             item {
                 StreamSwitchItem(
                     messageOrigin = MessageOrigin.BroadcastStream(btcAsset),
@@ -205,6 +207,15 @@ fun SettingsDrawer(
             // divider
             item {
                 DividerItem(premiumDividerTitle)
+            }
+
+            // stream ES
+            item {
+                StreamSwitchItem(
+                    messageOrigin = MessageOrigin.BroadcastStream(esAsset),
+                    isDarkMode = isDarkMode,
+                    isStream = isES,
+                    updateStream = { viewModel.updateES(it) })
             }
 
             // stream GC

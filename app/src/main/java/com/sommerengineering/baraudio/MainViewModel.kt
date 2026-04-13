@@ -119,6 +119,14 @@ class MainViewModel @Inject constructor(
         repo.updateEmptyState(enabled)
     }
 
+    // stream ZN
+    var isZN by mutableStateOf(true)
+        private set
+    fun updateZN(enabled: Boolean) {
+        isZN = enabled
+        repo.updateZN(enabled)
+    }
+
     // stream NQ
     var isNQ by mutableStateOf(true)
         private set
@@ -299,9 +307,10 @@ class MainViewModel @Inject constructor(
         runBlocking {
             isOnboardingComplete = repo.loadOnboarding()
             isEmptyState = repo.loadEmptyState()
+            isZN = repo.loadZN()
             isNQ = repo.loadNQ()
-            isES = repo.loadES()
             isBTC = repo.loadBTC()
+            isES = repo.loadES()
             isGC = repo.loadGC()
             isSI = repo.loadSI()
             feedMode = repo.loadFeedMode()

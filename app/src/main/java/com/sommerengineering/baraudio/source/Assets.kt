@@ -8,6 +8,7 @@ import com.sommerengineering.baraudio.uitls.esStream
 import com.sommerengineering.baraudio.uitls.gcStream
 import com.sommerengineering.baraudio.uitls.nqStream
 import com.sommerengineering.baraudio.uitls.siStream
+import com.sommerengineering.baraudio.uitls.znStream
 
 val znAsset = Asset(
     origin = znStream,
@@ -188,7 +189,7 @@ val siAsset = Asset(
 
 fun Asset.settingsTitle() = "$displayName ($symbol)"
 
-val allAssets = listOf(nqAsset, esAsset, btcAsset, gcAsset, siAsset)
+val allAssets = listOf(znAsset, nqAsset, btcAsset, esAsset, gcAsset, siAsset)
 val assetMap = allAssets.associateBy { it.origin }
 fun resolveAsset(stream: String) =
     assetMap[stream] ?: error("Unknown asset for stream: $stream")

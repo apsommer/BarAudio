@@ -50,6 +50,7 @@ const val messageKey = "message"
 const val sourceKey = "source"
 
 // streams
+const val znStream = "ZN"
 const val nqStream = "NQ"
 const val esStream = "ES"
 const val btcStream = "BTC"
@@ -83,6 +84,7 @@ const val isDarkModeKey = "isDarkMode"
 const val isFullScreenKey = "isFullScreen"
 const val volumeKey = TextToSpeech.Engine.KEY_PARAM_VOLUME
 const val feedModeKey = "feedMode"
+const val isZNKey = "isZN"
 const val isNQKey = "isNQ"
 const val isESKey = "isES"
 const val isBTCKey = "isBTC"
