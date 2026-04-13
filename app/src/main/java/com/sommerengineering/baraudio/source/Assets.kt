@@ -9,6 +9,37 @@ import com.sommerengineering.baraudio.uitls.gcStream
 import com.sommerengineering.baraudio.uitls.nqStream
 import com.sommerengineering.baraudio.uitls.siStream
 
+val znAsset = Asset(
+    origin = znStream,
+    symbol = "ZN",
+    displayName = "10Y Treasury",
+    spokenName = "ten year treasury",
+    category = "Rates",
+    exchange = "CBOT",
+    assetDescription = "CBOT · Rates · 10-Year U.S. Treasury Note Futures",
+    signalDescription = "Macro rate shifts",
+    order = 0,
+    style = { isDark ->
+        if (isDark) {
+            MessageItemStyle(
+                primary = Color(0xFF2FA38A),
+                accent = Color(0xFF6FC9B5),
+                surface = Color(0xFF0E2A26),
+                text = Color(0xFFE6FFFA),
+                iconRes = R.drawable.zn
+            )
+        } else {
+            MessageItemStyle(
+                primary = Color(0xFF1F7A6B),
+                accent = Color(0xFF2FA38A),
+                surface = Color(0xFFE8F5F2),
+                text = Color(0xFF0F2A26),
+                iconRes = R.drawable.zn
+            )
+        }
+    }
+)
+
 val nqAsset = Asset(
     origin = nqStream,
     symbol = "NQ",
@@ -18,7 +49,7 @@ val nqAsset = Asset(
     exchange = "CME",
     assetDescription = "CME · Equity Index · E-mini Nasdaq 100 Futures",
     signalDescription = "High velocity momentum",
-    order = 0,
+    order = 1,
     style = { isDark ->
         if (isDark) {
             MessageItemStyle(
@@ -38,34 +69,7 @@ val nqAsset = Asset(
             )
         }})
 
-val esAsset = Asset(
-    origin = esStream,
-    symbol = "ES",
-    displayName = "S&P 500",
-    spokenName = "S and P five hundred",
-    category = "Equity Index",
-    exchange = "CME",
-    assetDescription = "CME · Equity Index · E-mini S&P 500 Futures",
-    signalDescription = "Balanced trend structure",
-    order = 1,
-    style = { isDark ->
-        if (isDark) {
-            MessageItemStyle(
-                primary = Color(0xFF69A6FF),
-                accent = Color(0xFF9CC4FF),
-                surface = Color(0xFF0D1A2B),
-                text = Color(0xFFE6F0FF),
-                iconRes = R.drawable.es
-            )
-        } else {
-            MessageItemStyle(
-                primary = Color(0xFF3A86FF),
-                accent = Color(0xFF69A6FF),
-                surface = Color(0xFFEEF4FF),
-                text = Color(0xFF0F1C2E),
-                iconRes = R.drawable.es
-            )
-        }})
+
 
 val btcAsset = Asset(
     origin = btcStream,
@@ -98,6 +102,35 @@ val btcAsset = Asset(
 
 // premium /////////////////////////////////////////////////////////////////////////////////////////
 
+val esAsset = Asset(
+    origin = esStream,
+    symbol = "ES",
+    displayName = "S&P 500",
+    spokenName = "S and P five hundred",
+    category = "Equity Index",
+    exchange = "CME",
+    assetDescription = "CME · Equity Index · E-mini S&P 500 Futures",
+    signalDescription = "Balanced trend structure",
+    order = 3,
+    style = { isDark ->
+        if (isDark) {
+            MessageItemStyle(
+                primary = Color(0xFF69A6FF),
+                accent = Color(0xFF9CC4FF),
+                surface = Color(0xFF0D1A2B),
+                text = Color(0xFFE6F0FF),
+                iconRes = R.drawable.es
+            )
+        } else {
+            MessageItemStyle(
+                primary = Color(0xFF3A86FF),
+                accent = Color(0xFF69A6FF),
+                surface = Color(0xFFEEF4FF),
+                text = Color(0xFF0F1C2E),
+                iconRes = R.drawable.es
+            )
+        }})
+
 val gcAsset = Asset(
     origin = gcStream,
     symbol = "GC",
@@ -107,7 +140,7 @@ val gcAsset = Asset(
     exchange = "COMEX",
     assetDescription = "COMEX · Metals · Gold Futures",
     signalDescription = "Macro impulse swings",
-    order = 3,
+    order = 4,
     style = { isDark ->
         if (isDark) {
             MessageItemStyle(
@@ -136,7 +169,7 @@ val siAsset = Asset(
     exchange = "COMEX",
     assetDescription = "COMEX · Metals · Silver Futures",
     signalDescription = "Cascade repair structure",
-    order = 4,
+    order = 5,
     style = { isDark ->
         if (isDark) {
             MessageItemStyle(
