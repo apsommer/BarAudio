@@ -1,6 +1,6 @@
 //@version=6
 indicator(
-    "stream",
+    "stream v1",
     overlay = true,
     max_boxes_count = 500,
     max_bars_back = 2000)
@@ -783,7 +783,7 @@ getBTCmessage() =>
         message :=
              "Compression • " +
              str.tostring(rangeDuration) + " minutes • " +
-             (eventDirectionUp ? "Break higher" : "Break lower")
+             (eventDirectionUp ? "Bullish break" : "Bearish break")
 
     if isAcceptanceTriggerUp
         message := "Holding • Above • " + formattedPrice
