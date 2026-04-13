@@ -232,7 +232,7 @@ isNewTrend =
      or isExpansionUp != isUp
 
 triggerExpansionRaw =
-     isExpansion
+     isExpansion and not isExpansion[1]
      and not isExpansionActive
      and isCascadeCooledDown
      and isNewTrend
