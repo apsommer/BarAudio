@@ -459,14 +459,14 @@ isSlowTrendCooledDown =
 
 // raw triggers
 triggerSlowTrendUpRaw =
-     isSlowEnvironment
+     isSlowEnvironment and not isSlowEnvironment[1]
      and isSlopeUp
      and isAboveSma
      and isStructureUp
      and isSlowTrendCooledDown
 
 triggerSlowTrendDownRaw =
-     isSlowEnvironment
+     isSlowEnvironment and not isSlowEnvironment[1]
      and isSlopeDown
      and isBelowSma
      and isStructureDown
