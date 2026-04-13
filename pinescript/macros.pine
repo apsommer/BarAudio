@@ -278,7 +278,8 @@ alertMessage := na
 
 // macro alert can only fire once every 10 minutes
 var int lastMacroAlertTime = 0
-macroCooldownMs = 10 * 60 * 1000
+var int lastMacroAlertDirection = 0 // -1 hostile, 0 nuetral, 1 supportive
+macroCooldownMs = 15 * (60 * 1000)
 isMacroCooldownPassed = time - lastMacroAlertTime >= macroCooldownMs
 
 formattedPrice = str.tostring(math.round_to_mintick(open), "#.00")
@@ -300,23 +301,27 @@ formattedZnSessionPercent =
 triggerMacroSupportive =
      isGC
      and isMacroSupportive
-     and not isMacroSupportive[1]
+     and isMacroSupportive[1]
      and isMacroCooldownPassed
+     and lastMacroAlertDirection != 1
 if triggerMacroSupportive
     if na(alertMessage)
         alertMessage := "Macro • Supportive • Treasuries " + formattedZnSessionPercent + " • Dollar falling"
         lastMacroAlertTime := time
+        lastMacroAlertDirection := 1
 
 // macro hostile
 triggerMacroHostile =
      isGC
      and isMacroHostile
-     and not isMacroHostile[1]
+     and isMacroHostile[1]
      and isMacroCooldownPassed
+     and lastMacroAlertDirection != -1
 if triggerMacroHostile
     if na(alertMessage)
         alertMessage := "Macro • Hostile • Treasuries " + formattedZnSessionPercent + " • Dollar rising"
         lastMacroAlertTime := time
+        lastMacroAlertDirection := -1
 
 // entry
 if isGC and isLongEntry
