@@ -8,10 +8,10 @@ indicator(
 // DATA
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-isZN = syminfo.root == "ZN"
-isNQ = syminfo.root == "NQ"
-isBTC = str.contains(syminfo.ticker, "BTC")
-isES = syminfo.root == "ES"
+isZN = str.contains(syminfo.tickerid, "CBOT:ZN1!")
+isNQ = str.contains(syminfo.tickerid, "CME_MINI:NQ1!")
+isES = str.contains(syminfo.tickerid, "CME_MINI:ES1!")
+isBTC = str.contains(syminfo.tickerid, "BINANCE:BTCUSDT")
 
 // CONSTANTS
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
