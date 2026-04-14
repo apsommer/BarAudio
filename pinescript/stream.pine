@@ -8,50 +8,51 @@ indicator(
 // DATA
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+isZN = syminfo.root == "ZN"
 isNQ = syminfo.root == "NQ"
-isES = syminfo.root == "ES"
 isBTC = str.contains(syminfo.ticker, "BTC")
+isES = syminfo.root == "ES"
 
 // CONSTANTS
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // momentum
-VELOCITY_BARS = isNQ ? 8 : isES ? 10 : isBTC ? 12 : 8
-VELOCITY_BASELINE_BARS = isNQ ? 120 : isES ? 140 : isBTC ? 160 : 120
-SMOOTH_BARS = isNQ ? 6 : isES ? 8 : isBTC ? 10 : 6
+VELOCITY_BARS = isZN ? 14 : isNQ ? 8 : isBTC ? 12 : isES ? 10 : na
+VELOCITY_BASELINE_BARS = isZN ? 220 : isNQ ? 120 : isBTC ? 160 : isES ? 140 : na
+SMOOTH_BARS = isZN ? 12 : isNQ ? 6 : isBTC ? 10 : isES ? 8 : na
 
 // cascade
-CASCADE_STRUCTURE_BARS = isNQ ? 6 : isES ? 6 : isBTC ? 8 : 6
-CASCADE_LARGE_BAR_RATIO = isNQ ? 4.0 : isES ? 4.2 : isBTC ? 4.5 : 4.0
-CASCADE_SWEEP_RATIO = isNQ ? 0.35 : isES ? 0.33 : isBTC ? 0.45 : 0.35
-CASCADE_CONTINUATION_BARS = isNQ ? 15 : isES ? 15 : isBTC ? 20 : 15
+CASCADE_STRUCTURE_BARS = isZN ? 8 : isNQ ? 6 : isBTC ? 8 : isES ? 6 : na
+CASCADE_LARGE_BAR_RATIO = isZN ? 5.2 : isNQ ? 4.0 : isBTC ? 4.5 : isES ? 4.2 : na
+CASCADE_SWEEP_RATIO = isZN ? 0.50 : isNQ ? 0.35 : isBTC ? 0.45 : isES ? 0.33 : na
+CASCADE_CONTINUATION_BARS = isZN ? 20 : isNQ ? 15 : isBTC ? 20 : isES ? 15 : na
 
 // expansion
-ACCELERATION_BARS = isNQ ? 5 : isES ? 7 : isBTC ? 8 : 5
-EXPANSION_STRUCTURE_LOOKBACK = isNQ ? 18 : isES ? 16 : isBTC ? 22 : 18
-ACCELERATION_PERCENT = isNQ ? 18.0 : isES ? 20.0 : isBTC ? 14.0 : 18.0
-EXPANSION_LEVEL_PERCENT = isNQ ? 115 : isES ? 108 : isBTC ? 100 : 115
+ACCELERATION_BARS = isZN ? 8 : isNQ ? 5 : isBTC ? 8 : isES ? 7 : na
+EXPANSION_STRUCTURE_LOOKBACK = isZN ? 24 : isNQ ? 18 : isBTC ? 22 : isES ? 16 : na
+ACCELERATION_PERCENT = isZN ? 12.0 : isNQ ? 18.0 : isBTC ? 14.0 : isES ? 20.0 : na
+EXPANSION_LEVEL_PERCENT = isZN ? 85 : isNQ ? 115 : isBTC ? 100 : isES ? 108 : na
 
 // exhaustion
-EXHAUSTION_LEVEL_PERCENT = isNQ ? 48 : isES ? 52 : isBTC ? 55 : 48
-TREND_MATURE_BARS = isNQ ? 18 : isES ? 18 : isBTC ? 22 : 18
-EXHAUSTION_LOOKBACK = isNQ ? 20 : isES ? 18 : isBTC ? 24 : 20
-EXHAUSTION_REVERSAL_BARS = isNQ ? 6 : isES ? 7 : isBTC ? 8 : 6
+EXHAUSTION_LEVEL_PERCENT = isZN ? 60 : isNQ ? 48 : isBTC ? 55 : isES ? 52 : na
+TREND_MATURE_BARS = isZN ? 26 : isNQ ? 18 : isBTC ? 22 : isES ? 18 : na
+EXHAUSTION_LOOKBACK = isZN ? 26 : isNQ ? 20 : isBTC ? 24 : isES ? 18 : na
+EXHAUSTION_REVERSAL_BARS = isZN ? 8 : isNQ ? 6 : isBTC ? 8 : isES ? 7 : na
 
 // range
-RANGE_BARS = isNQ ? 60 : isES ? 120 : isBTC ? 90 : 60
-RANGE_MAGNITUDE_POINTS = isNQ ? 20 : isES ? 18 : isBTC ? 200 : 80
+RANGE_BARS = isZN ? 140 : isNQ ? 60 : isBTC ? 90 : isES ? 120 : na
+RANGE_MAGNITUDE_POINTS = isZN ? 0.25 : isNQ ? 20 : isBTC ? 200 : isES ? 18 : na
 
 // acceptance
-ACCEPTANCE_BARS = isNQ ? 5 : isES ? 6 : isBTC ? 7 : 5
+ACCEPTANCE_BARS = isZN ? 6 : isNQ ? 5 : isBTC ? 7 : isES ? 6 : na
 
 // slow trend
-SLOW_TREND_BARS = isNQ ? 90 : isES ? 90 : isBTC ? 90 : 120
+SLOW_TREND_BARS = isZN ? 120 : isNQ ? 90 : isBTC ? 90 : isES ? 90 : na
 SLOW_TREND_COOLDOWN_BARS = 60
-SMA_BARS = isNQ ? 90 : isES ? 90 : isBTC ? 70 : 90
-SLOPE_LOOKBACK = isNQ ? 10 : isES ? 20 : isBTC ? 10 : 10
-STRUCTURE_BARS = isNQ ? 20 : isES ? 14 : isBTC ? 25 : 20
-DISTANCE_THRESHOLD = isNQ ? 0.0015 : isES ? 0.0008 : isBTC ? 0.0025 : 0.0015
+SMA_BARS = isZN ? 120 : isNQ ? 90 : isBTC ? 70 : isES ? 90 : na
+SLOPE_LOOKBACK = isZN ? 20 : isNQ ? 10 : isBTC ? 10 : isES ? 20 : na
+STRUCTURE_BARS = isZN ? 30 : isNQ ? 20 : isBTC ? 25 : isES ? 14 : na
+DISTANCE_THRESHOLD = isZN ? 0.0006 : isNQ ? 0.0015 : isBTC ? 0.0025 : isES ? 0.0008 : na
 
 // FEATURES
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -68,9 +69,6 @@ var bool isExpansionUp = false
 var float expansionPeakMomentum = 0.0
 var bool hasFiredRangeBreak = false
 var bool triggerExpansion = false
-var float expansionHigh = high
-var float expansionLow = low
-var color expansionColor = color.black
 var bool expansionDirection = false
 var box expansionBox = na
 var int cascadeBarIndex = 0
@@ -78,6 +76,8 @@ var bool hasActiveCascade = false
 var float cascadeHigh = na
 var float cascadeLow = na
 var bool cascadeDirection = false
+var bool rangeBreakoutDirectionUp = false
+var bool triggerRangeBreakout = false
 var bool isRangeActive = false
 var int rangeStartBar = bar_index
 var float rangeHigh = high
@@ -360,9 +360,6 @@ isRangeBreakoutDown =
      isRangeActive
      and rangeLow > low
 
-var bool rangeBreakoutDirectionUp = false
-var bool triggerRangeBreakout = false
-
 triggerRangeBreakoutRaw =
      (isRangeBreakoutUp or isRangeBreakoutDown)
      and not hasFiredRangeBreak
@@ -375,7 +372,10 @@ if barstate.isnew
 if triggerRangeBreakoutRaw
     triggerRangeBreakout := true
 
-if triggerRangeBreakout and not triggerRangeBreakout[1]
+triggerRangeBreakoutEvent =
+     triggerRangeBreakout and not triggerRangeBreakout[1]
+
+if triggerRangeBreakoutEvent
     rangeBreakoutDirectionUp := isRangeBreakoutUp
     isRangeActive := false
     lastRangeEndBar := bar_index
@@ -404,7 +404,7 @@ if triggerStopCascade
     eventType := 2
 
 // range breakout event
-else if triggerRangeBreakout and not triggerRangeBreakout[1]
+else if triggerRangeBreakoutEvent
     eventBarIndex := bar_index
     eventReferenceHigh := rollingHigh
     eventReferenceLow := rollingLow
@@ -516,8 +516,12 @@ if triggerSlowTrendUp or triggerSlowTrendDown
 // PLOT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+var float expansionHigh = high
+var float expansionLow = low
+var color expansionColor = color.black
+
 // expansion
-if triggerExpansion and not triggerExpansion[1]
+if triggerExpansionEvent
     expansionColor := isUp ? color.new(color.blue, 80) : color.new(color.red, 80)
     expansionBox := box.new(
         left = expansionStartBar,
@@ -526,16 +530,17 @@ if triggerExpansion and not triggerExpansion[1]
         bottom = low,
         border_color = expansionColor,
         bgcolor = expansionColor)
+    expansionHigh := high
+    expansionLow := low
 
 if isExpansionActive
-    trendLength = bar_index - expansionStartBar + 1
-    expansionHigh := ta.highest(high, trendLength)
-    expansionLow := ta.lowest(low, trendLength)
+    expansionHigh := math.max(expansionHigh, high)
+    expansionLow := math.min(expansionLow, low)
     box.set_right(expansionBox, bar_index)
     box.set_top(expansionBox, expansionHigh)
     box.set_bottom(expansionBox, expansionLow)
 
-barcolor(triggerExpansion ? (isUp ? color.blue : color.red) : na)
+barcolor(triggerExpansionEvent ? (isUp ? color.blue : color.red) : na)
 
 // cascade
 plotshape(
@@ -569,7 +574,7 @@ plotshape(
     size=size.small)
 
 // range breakout
-if triggerRangeBreakout and not triggerRangeBreakout[1]
+if triggerRangeBreakoutEvent
     line.new(
         x1 = rangeStartBar,
         y1 = (rangeHigh + rangeLow) * 0.5,
@@ -643,9 +648,10 @@ plot(sma, title = "sma", color = color.new(color.white, 50), linewidth = 1)
 
 // asset name (top right)
 assetName =
+     isZN ? "10Y Treasury (ZN)" :
      isNQ ? "Nasdaq (NQ)" :
-     isES ? "S&P 500 (ES)" :
      isBTC ? "Bitcoin (BTC)" :
+     isES ? "S&P 500 (ES)" :
      "Untagged signal\n" + syminfo.description + " (" + syminfo.ticker + ")"
 
 assetNameColor =
