@@ -23,8 +23,8 @@ SMOOTH_BARS = isZN ? 12 : isNQ ? 6 : isBTC ? 10 : isES ? 8 : na
 
 // cascade
 CASCADE_STRUCTURE_BARS = isZN ? 8 : isNQ ? 6 : isBTC ? 8 : isES ? 6 : na
-CASCADE_LARGE_BAR_RATIO = isZN ? 5.2 : isNQ ? 4.0 : isBTC ? 4.5 : isES ? 4.2 : na
-CASCADE_SWEEP_RATIO = isZN ? 0.50 : isNQ ? 0.35 : isBTC ? 0.45 : isES ? 0.33 : na
+CASCADE_LARGE_BAR_RATIO = isZN ? 2.8 : isNQ ? 4.0 : isBTC ? 4.5 : isES ? 4.2 : na
+CASCADE_SWEEP_RATIO = isZN ? 0.30 : isNQ ? 0.35 : isBTC ? 0.45 : isES ? 0.33 : na
 CASCADE_CONTINUATION_BARS = isZN ? 20 : isNQ ? 15 : isBTC ? 20 : isES ? 15 : na
 
 // expansion
@@ -41,7 +41,7 @@ EXHAUSTION_REVERSAL_BARS = isZN ? 8 : isNQ ? 6 : isBTC ? 8 : isES ? 7 : na
 
 // range
 RANGE_BARS = isZN ? 140 : isNQ ? 60 : isBTC ? 90 : isES ? 120 : na
-RANGE_MAGNITUDE_POINTS = isZN ? 0.25 : isNQ ? 20 : isBTC ? 200 : isES ? 18 : na
+RANGE_MAGNITUDE_POINTS = isZN ? 0.12 : isNQ ? 20 : isBTC ? 200 : isES ? 18 : na
 
 // acceptance
 ACCEPTANCE_BARS = isZN ? 6 : isNQ ? 5 : isBTC ? 7 : isES ? 6 : na
@@ -383,9 +383,11 @@ if triggerRangeBreakoutEvent
 
 rangeDuration = bar_index - rangeStartBar
 
-// only non-persistent assets kill range on internal activity (NQ, but not ES or BTC)
+// end range for not-persistent assets
 if (triggerStopCascade or triggerExpansion) and not IS_PERSISTENT_RANGE
     isRangeActive := false
+    lastRangeEndBar := bar_index
+    hasFiredRangeBreak := true
 
 if isRangeActive
     hasFiredRangeBreak := false
@@ -655,9 +657,10 @@ assetName =
      "Untagged signal\n" + syminfo.description + " (" + syminfo.ticker + ")"
 
 assetNameColor =
+     isZN ? color.green :
      isNQ ? color.rgb(105, 39, 176) :
-     isES ? color.green :
      isBTC ? color.orange :
+     isES ? color.blue :
      color.red
 
 var table assetTable = table.new(position.top_right, 1, 1)
@@ -695,6 +698,59 @@ formattedPoints = str.tostring(cascadeMove) + " points"
 // MESSAGE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+getZNmessage() =>
+    string message = na
+
+    // ticks (ZN-native)
+    cascadeTicks = math.round(math.abs(high - low) / syminfo.mintick)
+    formattedTicks = str.tostring(cascadeTicks) + " ticks"
+
+    if triggerStopCascade and not (isContinuationCascadeUp or isContinuationCascadeDown)
+        message :=
+             "Flow • " +
+             (isStopCascadeUp ? "Rapid yield contraction • " : "Rapid yield expansion • ") +
+             formattedTicks
+
+    else if triggerContinuationCascade
+        message :=
+             "Flow • " +
+             (isContinuationCascadeUp ? "Continuation yield contraction • " : "Continuation yield expansion • ") +
+             formattedTicks
+
+    else if triggerExpansionEvent
+        message :=
+             "Repricing • " +
+             (isUp ? "Yields dropping • " : "Yields rising • ") +
+             formattedPercent
+
+    else if triggerExhaustion
+        message :=
+             "Fatigue • " +
+             (expansionDirection ? "Selling pressure fading" : "Buying pressure fading")
+
+    else if triggerRangeBreakoutEvent
+        message :=
+             "Range break • " +
+             str.tostring(rangeDuration) + " min • " +
+             (eventDirectionUp ? "Upside" : "Downside")
+
+    else if isAcceptanceTriggerUp
+        message := "Acceptance • Lower yields holding • " + formattedPrice
+
+    else if isAcceptanceTriggerDown
+        message := "Acceptance • Higher yields holding • " + formattedPrice
+
+    else if isRejectionTriggerUp or isRejectionTriggerDown
+        message := "Failure • Return to range"
+
+    else if triggerSlowTrendUp
+        message := "Drift • Yields easing"
+
+    else if triggerSlowTrendDown
+        message := "Drift • Yields rising"
+
+    message
+
 getNQmessage() =>
     string message = na
 
@@ -722,7 +778,7 @@ getNQmessage() =>
              "Exhaustion • " +
              (expansionDirection ? "Bullish expansion weakening" : "Bearish expansion weakening")
 
-    else if triggerRangeBreakout
+    else if triggerRangeBreakoutEvent
         message :=
              "Range break • " +
              str.tostring(rangeDuration) + " min • " +
@@ -748,49 +804,6 @@ getNQmessage() =>
 
     message
 
-getESmessage() =>
-    string message = na
-
-    if triggerStopCascade
-        message :=
-             "Sweep • " +
-             (isStopCascadeUp ? "Upside • " : "Downside • ") +
-             formattedPoints
-
-    else if triggerExpansionEvent
-        message :=
-             "Drive • " +
-             (isUp ? "Upside momentum • " : "Downside momentum • ") +
-             formattedPercent
-
-    else if triggerExhaustion
-        message :=
-             "Fade • " +
-             (expansionDirection ? "Upside weakening" : "Downside weakening")
-
-    else if triggerRangeBreakout
-        message :=
-             "Structure break • " +
-             str.tostring(rangeDuration) + " min • " +
-             (eventDirectionUp ? "Upside" : "Downside")
-
-    else if isAcceptanceTriggerUp
-        message := "Acceptance • Upside holding • " + formattedPrice
-
-    else if isAcceptanceTriggerDown
-        message := "Acceptance • Downside holding • " + formattedPrice
-
-    else if isRejectionTriggerUp or isRejectionTriggerDown
-        message := "Failure • Return to range"
-
-    else if triggerSlowTrendUp
-        message := "Bias • Upside"
-
-    else if triggerSlowTrendDown
-        message := "Bias • Downside"
-
-    message
-
 getBTCmessage() =>
     string message = na
 
@@ -811,7 +824,7 @@ getBTCmessage() =>
              "Cooldown • " +
              (expansionDirection ? "Bullish momentum fading" : "Bearish momentum fading")
 
-    else if triggerRangeBreakout
+    else if triggerRangeBreakoutEvent
         message :=
              "Compression break • " +
              str.tostring(rangeDuration) + " min • " +
@@ -837,11 +850,55 @@ getBTCmessage() =>
 
     message
 
+getESmessage() =>
+    string message = na
+
+    if triggerStopCascade
+        message :=
+             "Sweep • " +
+             (isStopCascadeUp ? "Upside • " : "Downside • ") +
+             formattedPoints
+
+    else if triggerExpansionEvent
+        message :=
+             "Drive • " +
+             (isUp ? "Upside momentum • " : "Downside momentum • ") +
+             formattedPercent
+
+    else if triggerExhaustion
+        message :=
+             "Fade • " +
+             (expansionDirection ? "Upside weakening" : "Downside weakening")
+
+    else if triggerRangeBreakoutEvent
+        message :=
+             "Structure break • " +
+             str.tostring(rangeDuration) + " min • " +
+             (eventDirectionUp ? "Upside" : "Downside")
+
+    else if isAcceptanceTriggerUp
+        message := "Acceptance • Upside holding • " + formattedPrice
+
+    else if isAcceptanceTriggerDown
+        message := "Acceptance • Downside holding • " + formattedPrice
+
+    else if isRejectionTriggerUp or isRejectionTriggerDown
+        message := "Failure • Return to range"
+
+    else if triggerSlowTrendUp
+        message := "Bias • Upside"
+
+    else if triggerSlowTrendDown
+        message := "Bias • Downside"
+
+    message
+
 // alert message
 alertMessage :=
+     isZN ? getZNmessage() :
      isNQ ? getNQmessage() :
-     isES ? getESmessage() :
-     isBTC ? getBTCmessage() : na
+     isBTC ? getBTCmessage() :
+     isES ? getESmessage() : na
 
 // cascades fire on bar close, special case
 isCascadeAlert = triggerStopCascade or triggerContinuationCascade
