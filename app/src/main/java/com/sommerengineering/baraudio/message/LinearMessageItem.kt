@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.messages.EllipsisText
 import com.sommerengineering.baraudio.source.MessageOrigin
+import com.sommerengineering.baraudio.source.OriginIcon
 import com.sommerengineering.baraudio.theme.timestampTextStyle
 import com.sommerengineering.baraudio.uitls.TimestampFormatter
 import com.sommerengineering.baraudio.uitls.dividerThickness
@@ -109,7 +110,9 @@ fun LinearMessageItem(
 
             // origin image
             Spacer(Modifier.width(rowIconPadding))
-            MessageItemIcon(state.style.iconRes)
+            OriginIcon(
+                messageOrigin = state.origin,
+                isDark = true)
         }
 
         // divider between rows

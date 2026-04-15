@@ -9,7 +9,8 @@ data class MessageItemStyle(
     val accent: Color,
     val surface: Color,
     val text: Color,
-    val iconRes: Int
+    val iconRes: Int?,
+    val iconText: String? = null
 )
 
 @Composable

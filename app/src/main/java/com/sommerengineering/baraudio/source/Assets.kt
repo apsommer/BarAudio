@@ -27,7 +27,8 @@ val znAsset = Asset(
                 accent = Color(0xFF6FC9B5),
                 surface = Color(0xFF0E2A26),
                 text = Color(0xFFE6FFFA),
-                iconRes = R.drawable.zn
+                iconRes = null,
+                iconText = "10Y"
             )
         } else {
             MessageItemStyle(
@@ -35,7 +36,8 @@ val znAsset = Asset(
                 accent = Color(0xFF2FA38A),
                 surface = Color(0xFFE8F5F2),
                 text = Color(0xFF0F2A26),
-                iconRes = R.drawable.zn
+                iconRes = null,
+                iconText = "10Y"
             )
         }
     }
@@ -58,7 +60,8 @@ val nqAsset = Asset(
                 accent = Color(0xFFC2B5FF),
                 surface = Color(0xFF15122A),
                 text = Color(0xFFEAE6FF),
-                iconRes = R.drawable.nq
+                iconRes = null,
+                iconText = "100"
             )
         } else {
             MessageItemStyle(
@@ -66,7 +69,8 @@ val nqAsset = Asset(
                 accent = Color(0xFF9A84FF),
                 surface = Color(0xFFF3F0FF),
                 text = Color(0xFF1F1B2E),
-                iconRes = R.drawable.nq
+                iconRes = null,
+                iconText = "100"
             )
         }})
 
@@ -87,7 +91,8 @@ val btcAsset = Asset(
                 accent = Color(0xFFFFB347),
                 surface = Color(0xFF2A1A0A),
                 text = Color(0xFFFFF4E6),
-                iconRes = R.drawable.btc
+                iconRes = null,
+                iconText = "₿"
             )
         } else {
             MessageItemStyle(
@@ -95,7 +100,8 @@ val btcAsset = Asset(
                 accent = Color(0xFFFFA94D),
                 surface = Color(0xFFFFF4E6),
                 text = Color(0xFF2A1A0A),
-                iconRes = R.drawable.btc
+                iconRes = null,
+                iconText = "₿"
             )
         }
     }
@@ -120,7 +126,8 @@ val esAsset = Asset(
                 accent = Color(0xFF9CC4FF),
                 surface = Color(0xFF0D1A2B),
                 text = Color(0xFFE6F0FF),
-                iconRes = R.drawable.es
+                iconRes = null,
+                iconText = "500"
             )
         } else {
             MessageItemStyle(
@@ -128,7 +135,8 @@ val esAsset = Asset(
                 accent = Color(0xFF69A6FF),
                 surface = Color(0xFFEEF4FF),
                 text = Color(0xFF0F1C2E),
-                iconRes = R.drawable.es
+                iconRes = null,
+                iconText = "500"
             )
         }})
 

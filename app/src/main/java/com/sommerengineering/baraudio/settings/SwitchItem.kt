@@ -26,6 +26,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.uitls.rowHorizontalPadding
 import com.sommerengineering.baraudio.uitls.rowIconPadding
 import com.sommerengineering.baraudio.uitls.rowMinHeight
@@ -34,7 +35,7 @@ import com.sommerengineering.baraudio.uitls.settingsIconSize
 
 @Composable
 fun SwitchItem(
-    iconRes: Int,
+    iconRes: Int?,
     title: String,
     description: String? = null,
     iconSize: Dp = settingsIconSize,
@@ -61,14 +62,14 @@ fun SwitchItem(
                     modifier = Modifier.weight(1f),
                     verticalAlignment = Alignment.CenterVertically) {
 
-                    // icon todo pass the whole icon composable to accommodate origins and regular switches
+                    // icon
                     Box(
                         Modifier
                             .size(iconSize)
                             .clip(CircleShape)
                             .background(Color.Transparent)) {
                         Icon(
-                            painter = painterResource(iconRes),
+                            painter = painterResource(R.drawable.es),
                             contentDescription = null,
                             tint = iconTint ?: Color.Unspecified,
                             modifier = Modifier.fillMaxSize())

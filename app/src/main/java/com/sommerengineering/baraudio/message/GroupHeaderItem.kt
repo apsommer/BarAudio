@@ -64,8 +64,7 @@ fun GroupHeaderItem(
                     .combinedClickable(onClick = { onExpand() })
                     .background(style.surface)
                     .padding(horizontal = rowHorizontalPadding),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+                verticalAlignment = Alignment.CenterVertically) {
 
                 // accent bar
                 Box(
@@ -74,28 +73,24 @@ fun GroupHeaderItem(
                         .fillMaxHeight()
                         .padding(vertical = rowVerticalPadding)
                         .clip(RoundedCornerShape(3.dp))
-                        .background(style.primary)
-                )
+                        .background(style.primary))
                 Spacer(Modifier.width(rowIconPadding))
 
                 // display name and description
                 Column(
                     modifier = Modifier.weight(1f).height(rowMinHeight),
-                    verticalArrangement = Arrangement.Center
-                ) {
+                    verticalArrangement = Arrangement.Center) {
                     Text(
                         text = displayName,
                         style = MaterialTheme.typography.titleMedium,
-                        color = style.text
-                    )
+                        color = style.text)
                     Spacer(Modifier.height(4.dp))
                     Text(
                         text = description,
                         style = MaterialTheme.typography.bodyMedium,
                         color = style.accent,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                        overflow = TextOverflow.Ellipsis)
                 }
 
                 // message count
@@ -103,8 +98,7 @@ fun GroupHeaderItem(
                 Text(
                     text = messageCount.toString(),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = style.accent
-                )
+                    color = style.accent)
 
                 // chevron with rotation
                 val rotation by animateFloatAsState(if (isExpanded) 90f else 0f)
@@ -112,8 +106,7 @@ fun GroupHeaderItem(
                     painter = painterResource(R.drawable.chevron),
                     contentDescription = null,
                     tint = style.primary,
-                    modifier = Modifier.rotate(rotation)
-                )
+                    modifier = Modifier.rotate(rotation))
             }
 
             // rail connector
