@@ -1,9 +1,14 @@
 package com.sommerengineering.baraudio.settings
 
 import android.content.Intent
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -15,7 +20,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
@@ -54,6 +61,7 @@ import com.sommerengineering.baraudio.uitls.voiceTitle
 import com.sommerengineering.baraudio.uitls.customDescription
 import com.sommerengineering.baraudio.uitls.customTitle
 import com.sommerengineering.baraudio.uitls.manageSubscriptionDescription
+import com.sommerengineering.baraudio.uitls.settingsIconSize
 import com.sommerengineering.baraudio.uitls.signOutDescription
 
 @Composable
@@ -263,12 +271,15 @@ fun SettingsDrawer(
             item {
                 SwitchItem(
                     icon = {
-                        Icon(
-                            painter = painterResource(R.drawable.fullscreen),
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.fillMaxSize()
-                        )
+                        Box(
+                            modifier = Modifier.size(settingsIconSize),
+                            contentAlignment = Alignment.Center) {
+                            Icon(
+                                painter = painterResource(R.drawable.fullscreen),
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.fillMaxSize())
+                        }
                     },
                     title = screenTitle,
                     description = fullScreenDescription) {
@@ -283,12 +294,16 @@ fun SettingsDrawer(
             item {
                 SwitchItem(
                     icon = {
-                        Icon(
-                            painter = painterResource(R.drawable.contrast),
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.fillMaxSize()
-                        )
+                        Box(
+                            modifier = Modifier.size(settingsIconSize),
+                            contentAlignment = Alignment.Center) {
+                            Icon(
+                                painter = painterResource(R.drawable.contrast),
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
                     },
                     title = uiModeTitle,
                     description = uiModeDescription) {
