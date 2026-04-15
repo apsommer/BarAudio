@@ -23,7 +23,7 @@ SMOOTH_BARS = isZN ? 12 : isNQ ? 6 : isBTC ? 10 : isES ? 8 : na
 
 // cascade
 CASCADE_STRUCTURE_BARS = isZN ? 8 : isNQ ? 6 : isBTC ? 8 : isES ? 6 : na
-CASCADE_LARGE_BAR_RATIO = isZN ? 2.8 : isNQ ? 4.0 : isBTC ? 4.5 : isES ? 4.2 : na
+CASCADE_LARGE_BAR_RATIO = isZN ? 2.9 : isNQ ? 4.0 : isBTC ? 4.5 : isES ? 4.2 : na
 CASCADE_SWEEP_RATIO = isZN ? 0.30 : isNQ ? 0.35 : isBTC ? 0.45 : isES ? 0.33 : na
 CASCADE_CONTINUATION_BARS = isZN ? 20 : isNQ ? 15 : isBTC ? 20 : isES ? 15 : na
 
@@ -635,7 +635,7 @@ plotshape(
 
 // slow trend
 plotshape(
-    triggerSlowTrendUp,
+    triggerSlowTrendUpEvent,
     title = "slow trend up",
     location = location.belowbar,
     style = shape.triangleup,
@@ -643,7 +643,7 @@ plotshape(
     size = size.tiny)
 
 plotshape(
-    triggerSlowTrendDown,
+    triggerSlowTrendDownEvent,
     title = "slow trend down",
     location = location.abovebar,
     style = shape.triangledown,
@@ -684,7 +684,11 @@ if barstate.islast
 // Event • Direction + Context • Value
 
 var string alertMessage = na
-alertMessage := na
+
+// unbelievable: alerts are not guaranteed per tick, they are sampled by a different looper at "near tick" frequency
+// latch fixes the issue, wow pinescript
+if barstate.isnew
+    alertMessage := na
 
 // price
 formattedPrice = str.tostring(close, format.mintick)
@@ -900,11 +904,14 @@ getESmessage() =>
     message
 
 // alert message
-alertMessage :=
+newMessage =
      isZN ? getZNmessage() :
      isNQ ? getNQmessage() :
      isBTC ? getBTCmessage() :
      isES ? getESmessage() : na
+
+if not na(newMessage)
+    alertMessage := newMessage
 
 // cascades fire on bar close, special case
 isCascadeAlert = triggerStopCascade or triggerContinuationCascade
