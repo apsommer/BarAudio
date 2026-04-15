@@ -55,7 +55,7 @@ fun SwitchItem(
                         bottom = rowVerticalPadding
                     ),
                 verticalAlignment = Alignment.CenterVertically) {
-                
+
                 Row(
                     modifier = Modifier.weight(1f),
                     verticalAlignment = Alignment.CenterVertically) {
