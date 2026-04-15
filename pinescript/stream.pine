@@ -70,7 +70,7 @@ var float expansionPeakMomentum = 0.0
 var bool hasFiredRangeBreak = false
 var bool triggerExpansion = false
 var bool expansionDirection = false
-var box expansionBox = na
+var bool isExhaustionCooledDown = false
 var int cascadeBarIndex = 0
 var bool hasActiveCascade = false
 var float cascadeHigh = na
@@ -243,6 +243,7 @@ triggerExpansionRaw =
      and not isExpansionActive
      and isCascadeCooledDown
      and isNewTrend
+     and isExhaustionCooledDown
      and EXPANSION_LEVEL_PERCENT > momentum[1]
 
 if barstate.isnew
@@ -323,10 +324,17 @@ triggerExhaustion =
      and isExhaustionDamage
      and expansionPeakMomentum > EXPANSION_LEVEL_PERCENT
 
-if triggerExhaustion
+triggerExhaustionEvent =
+     triggerExhaustion
+     and not triggerExhaustion[1]
+
+if triggerExhaustionEvent
     isExpansionActive := false
     expansionPeakMomentum := 0.0
     lastExhaustionBar := bar_index
+
+barsSinceExhaustion = bar_index - lastExhaustionBar
+isExhaustionCooledDown := barsSinceExhaustion > ACCELERATION_BARS
 
 // RANGE BREAKOUT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -455,7 +463,7 @@ if isEvaluationDone
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // track last major event
-if triggerExpansion or triggerExhaustion or triggerStopCascade or triggerRangeBreakout
+if triggerExpansionEvent or triggerExhaustionEvent or triggerStopCascade or triggerRangeBreakoutEvent
     lastEventBar := bar_index
 
 barsSinceEvent = bar_index - lastEventBar
@@ -524,6 +532,7 @@ if triggerSlowTrendUpEvent or triggerSlowTrendDownEvent
 // PLOT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+var box expansionBox = na
 var float expansionHigh = high
 var float expansionLow = low
 var color expansionColor = color.black
@@ -733,7 +742,7 @@ getZNmessage() =>
              (isUp ? "Yields dropping • " : "Yields rising • ") +
              formattedPercent
 
-    else if triggerExhaustion
+    else if triggerExhaustionEvent
         message :=
              "Fatigue • " +
              (expansionDirection ? "Selling pressure fading" : "Buying pressure fading")
@@ -783,7 +792,7 @@ getNQmessage() =>
              (isContinuationExpansionTrigger ? "continuation • " : "initiative • ") +
              formattedPercent
 
-    else if triggerExhaustion
+    else if triggerExhaustionEvent
         message :=
              "Exhaustion • " +
              (expansionDirection ? "Bullish expansion weakening" : "Bearish expansion weakening")
@@ -829,7 +838,7 @@ getBTCmessage() =>
              (isUp ? "Bullish momentum • " : "Bearish momentum • ") +
              formattedPercent
 
-    else if triggerExhaustion
+    else if triggerExhaustionEvent
         message :=
              "Cooldown • " +
              (expansionDirection ? "Bullish momentum fading" : "Bearish momentum fading")
@@ -875,7 +884,7 @@ getESmessage() =>
              (isUp ? "Upside momentum • " : "Downside momentum • ") +
              formattedPercent
 
-    else if triggerExhaustion
+    else if triggerExhaustionEvent
         message :=
              "Fade • " +
              (expansionDirection ? "Upside weakening" : "Downside weakening")
