@@ -110,7 +110,7 @@ fun GroupedMessageItem(
                 Spacer(Modifier.width(rowIconPadding))
                 OriginIcon(
                     messageOrigin = state.origin,
-                    isDark = true)
+                    isDarkMode = true)
             }
         }
 

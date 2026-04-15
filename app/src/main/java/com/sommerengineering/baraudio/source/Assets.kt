@@ -91,8 +91,7 @@ val btcAsset = Asset(
                 accent = Color(0xFFFFB347),
                 surface = Color(0xFF2A1A0A),
                 text = Color(0xFFFFF4E6),
-                iconRes = null,
-                iconText = "₿"
+                iconRes = R.drawable.btc
             )
         } else {
             MessageItemStyle(
@@ -100,8 +99,7 @@ val btcAsset = Asset(
                 accent = Color(0xFFFFA94D),
                 surface = Color(0xFFFFF4E6),
                 text = Color(0xFF2A1A0A),
-                iconRes = null,
-                iconText = "₿"
+                iconRes = R.drawable.btc
             )
         }
     }

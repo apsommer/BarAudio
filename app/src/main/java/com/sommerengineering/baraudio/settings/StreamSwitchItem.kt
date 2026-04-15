@@ -4,7 +4,9 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.runtime.Composable
 import com.sommerengineering.baraudio.source.MessageOrigin
+import com.sommerengineering.baraudio.source.OriginIcon
 import com.sommerengineering.baraudio.uitls.assetIconSize
+import com.sommerengineering.baraudio.uitls.settingsIconSize
 
 @Composable
 fun StreamSwitchItem(
@@ -16,10 +18,14 @@ fun StreamSwitchItem(
     val style = messageOrigin.style(isDarkMode)
 
     SwitchItem(
-        iconRes = style.iconRes,
+        icon = {
+            OriginIcon(
+                messageOrigin = messageOrigin,
+                isSettings = true,
+                isDarkMode = isDarkMode)
+        },
         title = messageOrigin.settingsTitle(),
         description = messageOrigin.signalDescription,
-        iconSize = assetIconSize,
         titleColor = if (isStream) style.primary else null,
         descriptionColor = if (isStream) style.primary.copy(alpha = 0.7f) else null) {
         Switch(

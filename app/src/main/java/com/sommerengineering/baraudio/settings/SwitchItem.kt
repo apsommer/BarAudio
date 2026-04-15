@@ -35,11 +35,9 @@ import com.sommerengineering.baraudio.uitls.settingsIconSize
 
 @Composable
 fun SwitchItem(
-    iconRes: Int?,
+    icon: @Composable () -> Unit,
     title: String,
     description: String? = null,
-    iconSize: Dp = settingsIconSize,
-    iconTint: Color? = null,
     titleColor: Color? = null,
     descriptionColor: Color? = null,
     content: @Composable () -> Unit) {
@@ -54,7 +52,8 @@ fun SwitchItem(
                         start = rowHorizontalPadding + 4.dp,
                         end = rowHorizontalPadding,
                         top = rowVerticalPadding,
-                        bottom = rowVerticalPadding),
+                        bottom = rowVerticalPadding
+                    ),
                 verticalAlignment = Alignment.CenterVertically) {
 
 
@@ -63,17 +62,7 @@ fun SwitchItem(
                     verticalAlignment = Alignment.CenterVertically) {
 
                     // icon
-                    Box(
-                        Modifier
-                            .size(iconSize)
-                            .clip(CircleShape)
-                            .background(Color.Transparent)) {
-                        Icon(
-                            painter = painterResource(R.drawable.es),
-                            contentDescription = null,
-                            tint = iconTint ?: Color.Unspecified,
-                            modifier = Modifier.fillMaxSize())
-                    }
+                    icon()
                     Spacer(Modifier.width(rowIconPadding + 4.dp))
 
                     // title and description

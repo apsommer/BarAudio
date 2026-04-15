@@ -16,31 +16,41 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sommerengineering.baraudio.theme.fontFamily
 import com.sommerengineering.baraudio.uitls.assetIconSize
+import com.sommerengineering.baraudio.uitls.settingsIconSize
 
 @Composable
 fun OriginIcon(
     messageOrigin: MessageOrigin,
-    isDark: Boolean) {
+    isSettings: Boolean = false,
+    isDarkMode: Boolean) {
 
-    val style = messageOrigin.style(isDark)
+    val style = messageOrigin.style(isDarkMode)
+
+    // de-emphasize settings presentation
+    val size =
+        if (isSettings) settingsIconSize
+        else assetIconSize
+    val background =
+        if (isSettings) style.primary.copy(alpha = 0.85f)
+        else style.primary
+    val borderColor =
+        if (isSettings) style.accent.copy(alpha = 0.4f)
+        else style.accent.copy(alpha = 0.6f)
 
     Box(
         modifier = Modifier
-            .size(assetIconSize)
+            .size(size)
             .clip(CircleShape)
-            .background(style.primary)
+            .background(background)
             .border(
                 width = 1.dp,
-                color = style.accent.copy(alpha = 0.6f),
+                color = borderColor,
                 shape = CircleShape),
         contentAlignment = Alignment.Center) {
 
@@ -62,7 +72,7 @@ fun OriginIcon(
                 text = iconText,
                 color = style.text,
                 fontSize =
-                    if (iconText == "₿") 19.sp
+                    if (isSettings) 11.sp
                     else 12.sp,
                 fontWeight = FontWeight.Bold,
                 fontFamily = fontFamily,
@@ -71,11 +81,13 @@ fun OriginIcon(
                     else (-0.5).sp,
                 modifier =
                     when (iconText) {
-                        "₿" -> Modifier.rotate(-12f)
                         "100" -> Modifier.offset(x = (-0.5).dp)
+                        "500" -> Modifier.offset(x = 0.3.dp)
                         else -> Modifier
                     })
         }
     }
 }
+
+
 

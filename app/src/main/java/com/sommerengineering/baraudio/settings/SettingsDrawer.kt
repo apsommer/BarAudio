@@ -262,8 +262,14 @@ fun SettingsDrawer(
             // full screen
             item {
                 SwitchItem(
-                    iconRes = R.drawable.fullscreen,
-                    iconTint = MaterialTheme.colorScheme.onSurface,
+                    icon = {
+                        Icon(
+                            painter = painterResource(R.drawable.fullscreen),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    },
                     title = screenTitle,
                     description = fullScreenDescription) {
 
@@ -276,8 +282,14 @@ fun SettingsDrawer(
             // theme
             item {
                 SwitchItem(
-                    iconRes = R.drawable.contrast,
-                    iconTint = MaterialTheme.colorScheme.onSurface,
+                    icon = {
+                        Icon(
+                            painter = painterResource(R.drawable.contrast),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    },
                     title = uiModeTitle,
                     description = uiModeDescription) {
 
