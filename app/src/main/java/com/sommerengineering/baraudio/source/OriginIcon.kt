@@ -63,28 +63,28 @@ fun OriginIcon(
                 modifier = Modifier.fillMaxSize())
         }
 
-        // text icon
+        // text icon (NQ: "100", ES: "500", ...)
         else {
 
             val iconText = style.iconText ?: return@Box
 
+            // adjust text spacing
+            val fontSize = if (isSettings) 11.sp else 12.sp
+            val letterSpacing = if (iconText == "100") (-0.2).sp else (-0.5).sp
+            val modifier = when (iconText) {
+                "100" -> Modifier.offset(x = (-0.5).dp)
+                "500" -> Modifier.offset(x = 0.3.dp)
+                else -> Modifier
+            }
+
             Text(
                 text = iconText,
                 color = style.text,
-                fontSize =
-                    if (isSettings) 11.sp
-                    else 12.sp,
+                fontSize = fontSize,
                 fontWeight = FontWeight.Bold,
                 fontFamily = fontFamily,
-                letterSpacing =
-                    if (iconText == "100") (-0.2).sp
-                    else (-0.5).sp,
-                modifier =
-                    when (iconText) {
-                        "100" -> Modifier.offset(x = (-0.5).dp)
-                        "500" -> Modifier.offset(x = 0.3.dp)
-                        else -> Modifier
-                    })
+                letterSpacing = letterSpacing,
+                modifier = modifier)
         }
     }
 }
