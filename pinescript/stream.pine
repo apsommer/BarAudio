@@ -94,6 +94,8 @@ var int eventType = 0  // 1 range, 2 cascade
 var int lastEventBar = 0
 var int slowTrendDirection = 0  // 1 up, -1 down, 0 none
 var int lastSlowTrendBar = 0
+var bool triggerSlowTrendUp = false
+var bool triggerSlowTrendDown = false
 
 // current bar
 currentPriceUp = high
@@ -487,32 +489,36 @@ isSlowTrendCooledDown =
 
 // raw triggers
 triggerSlowTrendUpRaw =
-     isSlowEnvironment and not isSlowEnvironment[1] // prevent intrabar instability
+     isSlowEnvironment and not isSlowEnvironment[1]
      and isSlopeUp
      and isAboveSma
      and isStructureUp
      and isSlowTrendCooledDown
 
 triggerSlowTrendDownRaw =
-     isSlowEnvironment and not isSlowEnvironment[1] // prevent intrabar instability
+     isSlowEnvironment and not isSlowEnvironment[1]
      and isSlopeDown
      and isBelowSma
      and isStructureDown
      and isSlowTrendCooledDown
 
-// intrabar stability (no cross-bar persistence)
-var bool triggerSlowTrendUp = false
-triggerSlowTrendUp :=
-     barstate.isnew ? triggerSlowTrendUpRaw :
-     (triggerSlowTrendUp or triggerSlowTrendUpRaw)
+// hard reset with latch
+if barstate.isnew
+    triggerSlowTrendUp := false
+    triggerSlowTrendDown := false
+if triggerSlowTrendUpRaw
+    triggerSlowTrendUp := true
+if triggerSlowTrendDownRaw
+    triggerSlowTrendDown := true
 
-var bool triggerSlowTrendDown = false
-triggerSlowTrendDown :=
-     barstate.isnew ? triggerSlowTrendDownRaw :
-     (triggerSlowTrendDown or triggerSlowTrendDownRaw)
+// event
+triggerSlowTrendUpEvent =
+     triggerSlowTrendUp and not triggerSlowTrendUp[1]
+triggerSlowTrendDownEvent =
+     triggerSlowTrendDown and not triggerSlowTrendDown[1]
 
-// update cooldown anchor
-if triggerSlowTrendUp or triggerSlowTrendDown
+// cooldown anchor
+if triggerSlowTrendUpEvent or triggerSlowTrendDownEvent
     lastSlowTrendBar := bar_index
 
 // PLOT
@@ -743,10 +749,10 @@ getZNmessage() =>
     else if isRejectionTriggerUp or isRejectionTriggerDown
         message := "Failure • Return to range"
 
-    else if triggerSlowTrendUp
+    else if triggerSlowTrendUpEvent
         message := "Drift • Yields easing"
 
-    else if triggerSlowTrendDown
+    else if triggerSlowTrendDownEvent
         message := "Drift • Yields rising"
 
     message
@@ -796,10 +802,10 @@ getNQmessage() =>
     else if isRejectionTriggerDown
         message := "Rejection • Bearish breakout failed"
 
-    else if triggerSlowTrendUp
+    else if triggerSlowTrendUpEvent
         message := "Trend • Bullish drift"
 
-    else if triggerSlowTrendDown
+    else if triggerSlowTrendDownEvent
         message := "Trend • Bearish drift"
 
     message
@@ -842,10 +848,10 @@ getBTCmessage() =>
     else if isRejectionTriggerDown
         message := "Failure • Bullish reversal"
 
-    else if triggerSlowTrendUp
+    else if triggerSlowTrendUpEvent
         message := "Drift • Price rising • " + formattedPrice
 
-    else if triggerSlowTrendDown
+    else if triggerSlowTrendDownEvent
         message := "Drift • Price falling • " + formattedPrice
 
     message
@@ -885,10 +891,10 @@ getESmessage() =>
     else if isRejectionTriggerUp or isRejectionTriggerDown
         message := "Failure • Return to range"
 
-    else if triggerSlowTrendUp
+    else if triggerSlowTrendUpEvent
         message := "Bias • Upside"
 
-    else if triggerSlowTrendDown
+    else if triggerSlowTrendDownEvent
         message := "Bias • Downside"
 
     message

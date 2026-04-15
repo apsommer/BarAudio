@@ -1,12 +1,37 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="18dp"
-    android:height="18dp"
-    android:viewportWidth="18"
-    android:viewportHeight="18">
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+  <!-- canonical trapezoid (same geometry used 3 times) -->
+  <!-- width reduced, stronger taper, consistent angle -->
+
+  <!-- top -->
   <path
-      android:pathData="M0,0h18v18H0z"
-      android:fillColor="#7B61FF"/>
+      android:fillColor="#F4DE9A"
+      android:pathData="
+            M10.5,7.2
+            L13.5,7.2
+            L14.6,8.6
+            L9.4,8.6 Z"/>
+
+  <!-- bottom left -->
   <path
-      android:pathData="M3.5,11.9h1.2L4.7,6.1L3.5,6.1L2,7.14v1.08l1.47,-1h0.03v4.68ZM8.27,12c1.46,0 2.35,-1.15 2.35,-3s-0.89,-3 -2.35,-3 -2.35,1.15 -2.35,3 0.89,3 2.35,3ZM8.27,11.03c-0.72,0 -1.13,-0.75 -1.13,-2.03 0,-1.28 0.41,-2.03 1.13,-2.03S9.4,7.72 9.4,9L9.4,9c0,1.28 -0.41,2.03 -1.13,2.03ZM13.65,12C15.1,12 16,10.85 16,9s-0.89,-3 -2.35,-3c-1.47,0 -2.36,1.15 -2.36,3s0.9,3 2.36,3ZM13.65,11.03c-0.72,0 -1.13,-0.75 -1.13,-2.03 0,-1.28 0.4,-2.03 1.13,-2.03 0.72,0 1.13,0.75 1.13,2.02L14.78,9c0,1.28 -0.41,2.03 -1.13,2.03Z"
-      android:fillColor="#fff"/>
+      android:fillColor="#E6C96A"
+      android:pathData="
+            M8.6,9.6
+            L11.6,9.6
+            L12.7,11
+            L7.5,11 Z"/>
+
+  <!-- bottom right -->
+  <path
+      android:fillColor="#D4B85A"
+      android:pathData="
+            M12.4,9.6
+            L15.4,9.6
+            L16.5,11
+            L11.3,11 Z"/>
+
 </vector>
