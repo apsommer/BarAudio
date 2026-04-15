@@ -28,3 +28,8 @@ fun MessageItemIcon(iconRes: Int) {
             modifier = Modifier.fillMaxSize())
     }
 }
+
+@Composable
+fun AssetTextIcon(modifier: Modifier = Modifier) {
+    
+}
