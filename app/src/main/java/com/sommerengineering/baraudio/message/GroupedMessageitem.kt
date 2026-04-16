@@ -18,11 +18,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import com.sommerengineering.baraudio.messages.EllipsisText
+import androidx.compose.ui.text.style.TextOverflow
 import com.sommerengineering.baraudio.source.OriginIcon
 import com.sommerengineering.baraudio.theme.timestampTextStyle
-import com.sommerengineering.baraudio.uitls.TimestampFormatter
 import com.sommerengineering.baraudio.uitls.dividerThickness
 import com.sommerengineering.baraudio.uitls.messageItemExpansionTimeMillis
 import com.sommerengineering.baraudio.uitls.rowHorizontalPadding
@@ -60,9 +58,14 @@ fun GroupedMessageItem(
                     verticalAlignment = Alignment.CenterVertically) {
 
                     // message
-                    EllipsisText(
-                        text = state.text,
+                    Text(
+                        text = buildStyledMessage(
+                            text = state.text,
+                            colorScheme = MaterialTheme.colorScheme,
+                            isShowAsset = true),
                         style = MaterialTheme.typography.bodyMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f))
 
                     // compact timestamp
