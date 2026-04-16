@@ -692,12 +692,14 @@ if barstate.islast
 
 // Event • Direction + Context • Value
 
-var string alertMessage = na
+var string newMessage = na // signal evaluation (stateless) can exist or not intrabar
+var string alertMessage = na // delivery latch (stateful) if newMessage ever existed this bar then alertMessage exists
 
 // unbelievable: alerts are not guaranteed per tick, they are sampled by a different looper at "near tick" frequency
 // latch fixes the issue, wow pinescript
 if barstate.isnew
     alertMessage := na
+    newMessage := na
 
 // price
 formattedPrice = str.tostring(close, format.mintick)
@@ -913,7 +915,7 @@ getESmessage() =>
     message
 
 // alert message
-newMessage =
+newMessage :=
      isZN ? getZNmessage() :
      isNQ ? getNQmessage() :
      isBTC ? getBTCmessage() :
@@ -922,7 +924,7 @@ newMessage =
 if not na(newMessage)
     alertMessage := newMessage
 
-// cascades fire on bar close, special case
+// cascades fire on bar close to capture full magnitude, special case
 isCascadeAlert = triggerStopCascade or triggerContinuationCascade
 
 // send alert to webhook
