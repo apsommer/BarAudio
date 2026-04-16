@@ -67,7 +67,6 @@ var int expansionStartBar = bar_index
 var bool isExpansionActive = false
 var bool isExpansionUp = false
 var float expansionPeakMomentum = 0.0
-var bool hasFiredRangeBreak = false
 var bool triggerExpansion = false
 var bool expansionDirection = false
 var bool isExhaustionCooledDown = false
@@ -77,7 +76,7 @@ var float cascadeHigh = na
 var float cascadeLow = na
 var bool cascadeDirection = false
 var bool rangeBreakoutDirectionUp = false
-var bool triggerRangeBreakout = false
+var bool triggerRangeBreak = false
 var bool isRangeActive = false
 var int rangeStartBar = bar_index
 var float rangeHigh = high
@@ -96,6 +95,19 @@ var int slowTrendDirection = 0  // 1 up, -1 down, 0 none
 var int lastSlowTrendBar = 0
 var bool triggerSlowTrendUp = false
 var bool triggerSlowTrendDown = false
+
+// latches (prevent intrabar instability)
+var bool hasFiredExpansionThisBar = false
+var bool hasFiredExhaustionThisBar = false
+var bool hasFiredRangeBreakThisBar = false
+var bool hasFiredSlowTrendUpThisBar = false
+var bool hasFiredSlowTrendDownThisBar = false
+if barstate.isnew
+    hasFiredExpansionThisBar := false
+    hasFiredExhaustionThisBar := false
+    hasFiredRangeBreakThisBar := false
+    hasFiredSlowTrendUpThisBar := false
+    hasFiredSlowTrendDownThisBar := false
 
 // current bar
 currentPriceUp = high
@@ -237,8 +249,7 @@ isNewTrend =
      not isExpansionActive
      or isExpansionUp != isUp
 
-// RAW trigger (unchanged logic)
-triggerExpansionRaw =
+isExpansionTrigger =
      isExpansion
      and not isExpansionActive
      and isCascadeCooledDown
@@ -246,16 +257,13 @@ triggerExpansionRaw =
      and isExhaustionCooledDown
      and EXPANSION_LEVEL_PERCENT > momentum[1]
 
-if barstate.isnew
-    triggerExpansion := false
-
-if triggerExpansionRaw
-    triggerExpansion := true
-
-// ONE-SHOT EVENT (fires once per bar)
 triggerExpansionEvent =
-     triggerExpansion
-     and not triggerExpansion[1]
+     isExpansionTrigger
+     and not isExpansionTrigger[1]
+     and not hasFiredExpansionThisBar
+
+if triggerExpansionEvent
+    hasFiredExpansionThisBar := true
 
 // continuation classification (message layer)
 isContinuationExpansionTrigger =
@@ -326,12 +334,13 @@ triggerExhaustion =
 
 triggerExhaustionEvent =
      triggerExhaustion
-     and not triggerExhaustion[1]
+     and not hasFiredExhaustionThisBar
 
 if triggerExhaustionEvent
     isExpansionActive := false
     expansionPeakMomentum := 0.0
     lastExhaustionBar := bar_index
+    hasFiredExhaustionThisBar := true
 
 barsSinceExhaustion = bar_index - lastExhaustionBar
 isExhaustionCooledDown := barsSinceExhaustion > ACCELERATION_BARS
@@ -352,8 +361,8 @@ isRangeCooledDown = barsSinceLastRangeEnd > RANGE_BARS
 
 triggerRangeStart =
      isRange
-     and not isExpansionActive
      and not isRangeActive
+     and not isExpansionActive
      and isRangeCooledDown
 
 if triggerRangeStart
@@ -362,6 +371,7 @@ if triggerRangeStart
     rangeHigh := rollingHigh
     rangeLow := rollingLow
 
+// breakout detection
 isRangeBreakoutUp =
      isRangeActive
      and high > rangeHigh
@@ -370,37 +380,30 @@ isRangeBreakoutDown =
      isRangeActive
      and rangeLow > low
 
-triggerRangeBreakoutRaw =
-     (isRangeBreakoutUp or isRangeBreakoutDown)
-     and not hasFiredRangeBreak
-
-// hard reset at start of bar
-if barstate.isnew
-    triggerRangeBreakout := false
-
-// latch intrabar
-if triggerRangeBreakoutRaw
-    triggerRangeBreakout := true
+isRangeBreakout =
+     isRangeBreakoutUp or isRangeBreakoutDown
 
 triggerRangeBreakoutEvent =
-     triggerRangeBreakout and not triggerRangeBreakout[1]
+     isRangeBreakout
+     and not isRangeBreakout[1]
+     and not hasFiredRangeBreakThisBar
 
 if triggerRangeBreakoutEvent
     rangeBreakoutDirectionUp := isRangeBreakoutUp
     isRangeActive := false
     lastRangeEndBar := bar_index
-    hasFiredRangeBreak := true
+    hasFiredRangeBreakThisBar := true
 
 rangeDuration = bar_index - rangeStartBar
 
 // end range for not-persistent assets
-if (triggerStopCascade or triggerExpansion) and not IS_PERSISTENT_RANGE
+if (triggerStopCascade or triggerExpansionEvent) and not IS_PERSISTENT_RANGE
     isRangeActive := false
     lastRangeEndBar := bar_index
-    hasFiredRangeBreak := true
 
-if isRangeActive
-    hasFiredRangeBreak := false
+if isRangeActive and not isRange
+    isRangeActive := false
+    lastRangeEndBar := bar_index
 
 // ACCEPTANCE / REJECTION
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -470,7 +473,7 @@ barsSinceEvent = bar_index - lastEventBar
 
 // significant time has passed since last event
 isSlowEnvironment =
-     not isRange
+     not isRangeActive
      and barsSinceEvent > SLOW_TREND_BARS
 
 // SMA
@@ -521,9 +524,16 @@ if triggerSlowTrendDownRaw
 
 // event
 triggerSlowTrendUpEvent =
-     triggerSlowTrendUp and not triggerSlowTrendUp[1]
+     triggerSlowTrendUpRaw
+     and not hasFiredSlowTrendUpThisBar
+if triggerSlowTrendUpEvent
+    hasFiredSlowTrendUpThisBar := true
+
 triggerSlowTrendDownEvent =
-     triggerSlowTrendDown and not triggerSlowTrendDown[1]
+     triggerSlowTrendDownRaw
+     and not hasFiredSlowTrendDownThisBar
+if triggerSlowTrendDownEvent
+    hasFiredSlowTrendDownThisBar := true
 
 // cooldown anchor
 if triggerSlowTrendUpEvent or triggerSlowTrendDownEvent
