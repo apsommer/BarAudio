@@ -770,6 +770,9 @@ getZNmessage() =>
     else if triggerSlowTrendDownEvent
         message := "Drift • Yields rising"
 
+    else
+        message := na
+
     message
 
 getNQmessage() =>
@@ -823,6 +826,9 @@ getNQmessage() =>
     else if triggerSlowTrendDownEvent
         message := "Trend • Bearish drift"
 
+    else
+        message := na
+
     message
 
 getBTCmessage() =>
@@ -869,6 +875,9 @@ getBTCmessage() =>
     else if triggerSlowTrendDownEvent
         message := "Drift • Price falling • " + formattedPrice
 
+    else
+        message := na
+
     message
 
 getESmessage() =>
@@ -911,6 +920,9 @@ getESmessage() =>
 
     else if triggerSlowTrendDownEvent
         message := "Bias • Downside"
+
+    else
+        message := na
 
     message
 
