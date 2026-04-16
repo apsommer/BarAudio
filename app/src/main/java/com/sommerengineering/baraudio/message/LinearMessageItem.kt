@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.messages.EllipsisText
 import com.sommerengineering.baraudio.source.MessageOrigin
@@ -48,7 +49,6 @@ fun LinearMessageItem(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(IntrinsicSize.Min) // required for collapse/expand animation
-                .heightIn(min = rowMinHeight)
                 .combinedClickable(
                     onClick = state.onClick,
                     onLongClick = state.onLongClick)
@@ -60,22 +60,17 @@ fun LinearMessageItem(
             // accent rail
             LinearRail(state.style.primary)
 
-            // todo isolate this expanded state and extract
-            //  common to both Linear/GroupedMessageItem
+            val modifier = Modifier.weight(1f).padding(vertical = rowVerticalPadding)
 
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(vertical = rowVerticalPadding),
-                horizontalAlignment = Alignment.Start) {
+            // collapsed
+            if (!state.isExpanded) {
 
-                // collapsed
-                if (!state.isExpanded) {
+                Column(modifier) {
 
                     // message
                     EllipsisText(
                         text = displayText,
-                        style = MaterialTheme.typography.titleMedium)
+                        style = MaterialTheme.typography.bodyMedium)
                     Spacer(Modifier.height(4.dp))
 
                     // compact timestamp
@@ -83,29 +78,14 @@ fun LinearMessageItem(
                         text = state.beautifulTimestamp,
                         style = timestampTextStyle,
                         color = MaterialTheme.colorScheme.onSurface.copy(0.6f))
-
-                // expanded
-                } else {
-
-                    // message
-                    Text(
-                        text = displayText,
-                        style = MaterialTheme.typography.titleMedium)
-                    Spacer(Modifier.height(4.dp))
-
-                    // compact timestamp
-                    Text(
-                        text = state.beautifulTimestamp,
-                        style = timestampTextStyle,
-                        color = MaterialTheme.colorScheme.onSurface.copy(0.6f))
-                    Spacer(Modifier.height(4.dp))
-
-                    // full timestamp
-                    Text(
-                        text = TimestampFormatter.beautifyFull(state.timestamp),
-                        style = timestampTextStyle,
-                        color = MaterialTheme.colorScheme.onSurface.copy(0.45f))
                 }
+
+            // expanded, parity with expanded GroupedMessageItem
+            } else {
+
+                ExpandedMessageItem(
+                    state = state,
+                    modifier = modifier)
             }
 
             // origin image

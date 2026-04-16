@@ -50,19 +50,19 @@ fun GroupedMessageItem(
             // accent rail
             GroupedRail(state.style.primary)
 
+            val modifier = Modifier.weight(1f).padding(vertical = rowVerticalPadding)
+
             // collapsed
             if (!state.isExpanded) {
 
                 Row(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(vertical = rowVerticalPadding),
+                    modifier = modifier,
                     verticalAlignment = Alignment.CenterVertically) {
 
                     // message
                     EllipsisText(
                         text = state.text,
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.weight(1f))
 
                     // compact timestamp
@@ -74,37 +74,12 @@ fun GroupedMessageItem(
                 }
             }
 
-            // todo isolate this expanded state and extract
-            //  common to both Linear/GroupedMessageItem
-
             // expanded, parity with expanded LinearMessageItem
             else {
 
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(vertical = rowVerticalPadding),
-                    horizontalAlignment = Alignment.Start) {
-
-                    // message
-                    Text(
-                        text = state.text,
-                        style = MaterialTheme.typography.titleMedium)
-                    Spacer(Modifier.height(4.dp))
-
-                    // compact timestamp
-                    Text(
-                        text = state.beautifulTimestamp,
-                        style = timestampTextStyle,
-                        color = MaterialTheme.colorScheme.onSurface.copy(0.6f))
-                    Spacer(Modifier.height(4.dp))
-
-                    // full timestamp
-                    Text(
-                        text = TimestampFormatter.beautifyFull(state.timestamp),
-                        style = timestampTextStyle,
-                        color = MaterialTheme.colorScheme.onSurface.copy(0.45f))
-                }
+                ExpandedMessageItem(
+                    state = state,
+                    modifier = modifier)
 
                 // origin image
                 Spacer(Modifier.width(rowIconPadding))
