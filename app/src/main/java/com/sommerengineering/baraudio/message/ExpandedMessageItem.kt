@@ -22,10 +22,8 @@ fun ExpandedMessageItem(
         // message
         Text(
             text = buildStyledMessage(
-                text = displayText,
-                colorScheme = MaterialTheme.colorScheme,
-                isShowAsset = true
-            ),
+                displayText = displayText,
+                state = state),
             style = MaterialTheme.typography.bodyMedium)
         Spacer(Modifier.height(4.dp))
 

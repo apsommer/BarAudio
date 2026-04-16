@@ -1,6 +1,6 @@
 package com.sommerengineering.baraudio.message
 
-import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
@@ -28,44 +28,56 @@ fun resolveMessageStyle(
     is MessageOrigin.UserSignal -> origin.source.style(isDarkMode)
 }
 
+@Composable
 fun buildStyledMessage(
-    text: String,
-    colorScheme: ColorScheme,
-    isShowAsset: Boolean): AnnotatedString {
+    displayText: String,
+    state: MessageItemState): AnnotatedString {
 
+    // message format
     // (Asset) • Event • Variable message that may include numbers
 
-    val slots = text.split(" • ")
+    // split message into parts
+    val parts = displayText.split(" • ")
+
+    // determine if asset is displayed
+    val isShowAsset = parts.first() == state.origin.displayName
 
     return buildAnnotatedString {
 
-        slots.forEachIndexed { index, part ->
+        parts.forEachIndexed { index, part ->
+
+            // linear mode: asset prepended, grouped mode: raw message, first part is event
+            val isAsset = index == 0 && isShowAsset
+            val isEvent =
+                if (isShowAsset) index == 1
+                else index == 0
 
             // dim '•' character
             if (index > 0) {
-                withStyle(SpanStyle(colorScheme.onSurface.copy(0.4f))) {
+                withStyle(SpanStyle(MaterialTheme.colorScheme.onSurface.copy(0.4f))) {
                     append(" • ")
                 }
             }
 
             val style = when {
 
-                // first visible token (asset in linear, event in grouped)
-                index == 0 -> SpanStyle(
-                    fontWeight = FontWeight.SemiBold)
+                isAsset -> SpanStyle(
+                    fontWeight = FontWeight.SemiBold
+                )
 
-                // event (second token if asset shown)
-                index == 1 && isShowAsset -> SpanStyle(
-                    fontWeight = FontWeight.Medium)
+                isEvent -> SpanStyle(
+                    fontWeight = FontWeight.Medium
+                )
 
                 // highlight numbers
                 part.any { it.isDigit() } -> SpanStyle(
                     fontWeight = FontWeight.Medium,
-                    color = colorScheme.primary)
+                    color = MaterialTheme.colorScheme.primary)
 
-                // dim slightly long phrases
-                part.length > 18 -> SpanStyle(
-                    color = colorScheme.onSurface.copy(0.75f))
+                // variable part(s)
+                index >= (if (isShowAsset) 2 else 1) -> SpanStyle(
+                    color = MaterialTheme.colorScheme.onSurface.copy(0.8f)
+                )
 
                 else -> SpanStyle()
             }

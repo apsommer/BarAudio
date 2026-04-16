@@ -32,6 +32,9 @@ fun GroupedMessageItem(
     state: MessageItemState,
     isShowDivider: Boolean) {
 
+    // omit prepended asset name
+    val displayText = state.text
+
     Column {
         Row(
             modifier = Modifier
@@ -60,9 +63,8 @@ fun GroupedMessageItem(
                     // message
                     Text(
                         text = buildStyledMessage(
-                            text = state.text,
-                            colorScheme = MaterialTheme.colorScheme,
-                            isShowAsset = true),
+                            displayText = displayText,
+                            state = state),
                         style = MaterialTheme.typography.bodyMedium,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -82,7 +84,7 @@ fun GroupedMessageItem(
 
                 ExpandedMessageItem(
                     state = state,
-                    displayText = state.text,
+                    displayText = displayText,
                     modifier = modifier)
 
                 // origin image

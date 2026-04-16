@@ -66,9 +66,8 @@ fun LinearMessageItem(
                     // message
                     Text(
                         text = buildStyledMessage(
-                            text = displayText,
-                            colorScheme = MaterialTheme.colorScheme,
-                            isShowAsset = true),
+                            displayText = displayText,
+                            state = state),
                         style = MaterialTheme.typography.bodyMedium,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis)
