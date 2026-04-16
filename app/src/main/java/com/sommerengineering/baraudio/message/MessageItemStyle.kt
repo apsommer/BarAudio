@@ -54,7 +54,7 @@ fun buildStyledMessage(
 
             // dim '•' character
             if (index > 0) {
-                withStyle(SpanStyle(MaterialTheme.colorScheme.onSurface.copy(0.4f))) {
+                withStyle(SpanStyle(MaterialTheme.colorScheme.onSurface.copy(0.25f))) {
                     append(" • ")
                 }
             }
@@ -72,11 +72,11 @@ fun buildStyledMessage(
                 // highlight numbers
                 part.any { it.isDigit() } -> SpanStyle(
                     fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.primary)
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.9f))
 
                 // variable part(s)
                 index >= (if (isShowAsset) 2 else 1) -> SpanStyle(
-                    color = MaterialTheme.colorScheme.onSurface.copy(0.8f)
+                    color = MaterialTheme.colorScheme.onSurface.copy(0.85f)
                 )
 
                 else -> SpanStyle()
