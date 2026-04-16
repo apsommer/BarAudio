@@ -18,12 +18,8 @@ import com.sommerengineering.baraudio.uitls.rowVerticalPadding
 @Composable
 fun ExpandedMessageItem(
     state: MessageItemState,
+    displayText: String,
     modifier: Modifier = Modifier) {
-
-    // prepend asset display name for streams
-    val displayText =
-        if (state.origin is MessageOrigin.BroadcastStream) { "${state.origin.displayName} • ${state.text}" }
-        else { state.text }
 
     Column(modifier) {
 
@@ -46,5 +42,4 @@ fun ExpandedMessageItem(
             style = timestampTextStyle,
             color = MaterialTheme.colorScheme.onSurface.copy(0.45f))
     }
-
 }

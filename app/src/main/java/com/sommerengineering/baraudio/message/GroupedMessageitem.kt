@@ -79,6 +79,7 @@ fun GroupedMessageItem(
 
                 ExpandedMessageItem(
                     state = state,
+                    displayText = state.text,
                     modifier = modifier)
 
                 // origin image

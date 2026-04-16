@@ -85,6 +85,7 @@ fun LinearMessageItem(
 
                 ExpandedMessageItem(
                     state = state,
+                    displayText = displayText,
                     modifier = modifier)
             }
 
