@@ -244,22 +244,15 @@ isExpansion =
      momentum > EXPANSION_LEVEL_PERCENT
      and (isContinuationExpansion or (isUp ? isStructureBreakUp : isStructureBreakDown))
 
-// new expansion direction
-isNewTrend =
-     not isExpansionActive
-     or isExpansionUp != isUp
-
 isExpansionTrigger =
      isExpansion
      and not isExpansionActive
      and isCascadeCooledDown
-     and isNewTrend
      and isExhaustionCooledDown
      and EXPANSION_LEVEL_PERCENT > momentum[1]
 
 triggerExpansionEvent =
      isExpansionTrigger
-     and not isExpansionTrigger[1]
      and not hasFiredExpansionThisBar
 
 if triggerExpansionEvent
