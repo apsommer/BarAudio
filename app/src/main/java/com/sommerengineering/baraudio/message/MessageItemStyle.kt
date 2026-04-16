@@ -61,13 +61,13 @@ fun buildStyledMessage(
 
             val style = when {
 
+                // bold asset (if shown)
                 isAsset -> SpanStyle(
-                    fontWeight = FontWeight.SemiBold
-                )
+                    fontWeight = FontWeight.SemiBold)
 
+                // medium event
                 isEvent -> SpanStyle(
-                    fontWeight = FontWeight.Medium
-                )
+                    fontWeight = FontWeight.Medium)
 
                 // highlight numbers
                 part.any { it.isDigit() } -> SpanStyle(
@@ -76,8 +76,7 @@ fun buildStyledMessage(
 
                 // variable part(s)
                 index >= (if (isShowAsset) 2 else 1) -> SpanStyle(
-                    color = MaterialTheme.colorScheme.onSurface.copy(0.85f)
-                )
+                    color = MaterialTheme.colorScheme.onSurface.copy(0.85f))
 
                 else -> SpanStyle()
             }
