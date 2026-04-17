@@ -41,7 +41,7 @@ fun GroupedRail(color: Color) {
             .align(Alignment.Center)
             .width(rowAccentWidth / 2)
             .fillMaxHeight()
-            .background(color.copy(0.6f))) }
+            .background(color.copy(0.4f))) }
 
     Spacer(Modifier.width(rowIconPadding))
 }

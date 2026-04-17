@@ -60,7 +60,7 @@ fun GroupHeaderItem(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(rowMinHeight)
+                    .height(rowMinHeight) // required for accent bar
                     .combinedClickable(onClick = { onExpand() })
                     .background(style.surface)
                     .padding(horizontal = rowHorizontalPadding),
@@ -73,7 +73,7 @@ fun GroupHeaderItem(
                         .fillMaxHeight()
                         .padding(vertical = rowVerticalPadding)
                         .clip(RoundedCornerShape(3.dp))
-                        .background(style.primary))
+                        .background(style.primary.copy(alpha = 0.6f)))
                 Spacer(Modifier.width(rowIconPadding))
 
                 // display name and description
@@ -88,7 +88,7 @@ fun GroupHeaderItem(
                     Text(
                         text = description,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = style.accent,
+                        color = MaterialTheme.colorScheme.onSurface.copy(0.6f),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis)
                 }
@@ -98,14 +98,14 @@ fun GroupHeaderItem(
                 Text(
                     text = messageCount.toString(),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = style.accent)
+                    color = MaterialTheme.colorScheme.onSurface.copy(0.6f))
 
                 // chevron with rotation
                 val rotation by animateFloatAsState(if (isExpanded) 90f else 0f)
                 Icon(
                     painter = painterResource(R.drawable.chevron),
                     contentDescription = null,
-                    tint = style.primary,
+                    tint = MaterialTheme.colorScheme.onSurface.copy(0.6f),
                     modifier = Modifier.rotate(rotation))
             }
 
@@ -115,10 +115,16 @@ fun GroupHeaderItem(
                 Box(
                     Modifier
                         .align(Alignment.BottomStart)
-                        .padding(start = rowHorizontalPadding + railWidth / 2)
+                        .padding(start = rowHorizontalPadding + (rowAccentWidth - railWidth) / 2)
                         .width(railWidth)
-                        .height(8.dp + 6.dp)
-                        .background(style.primary.copy(alpha = 0.6f)))
+                        .height(rowVerticalPadding + railWidth / 2)
+                        .clip(RoundedCornerShape(
+                            topStart = railWidth / 2,
+                            topEnd = railWidth / 2,
+                            bottomStart = 0.dp,
+                            bottomEnd = 0.dp
+                        ))
+                        .background(style.primary.copy(alpha = 0.4f)))
             }
         }
 
@@ -129,7 +135,6 @@ fun GroupHeaderItem(
                 color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 1f),
                 modifier = Modifier.fillMaxWidth())
         }
-
     }
 }
 
