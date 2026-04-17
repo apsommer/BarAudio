@@ -30,8 +30,8 @@ CASCADE_CONTINUATION_BARS = isZN ? 20 : isNQ ? 15 : isBTC ? 20 : isES ? 15 : na
 // expansion
 ACCELERATION_BARS = isZN ? 8 : isNQ ? 5 : isBTC ? 8 : isES ? 7 : na
 EXPANSION_STRUCTURE_LOOKBACK = isZN ? 24 : isNQ ? 18 : isBTC ? 22 : isES ? 16 : na
-ACCELERATION_PERCENT = isZN ? 12.0 : isNQ ? 18.0 : isBTC ? 14.0 : isES ? 20.0 : na
-EXPANSION_LEVEL_PERCENT = isZN ? 85 : isNQ ? 115 : isBTC ? 100 : isES ? 108 : na
+ACCELERATION_PERCENT = isZN ? 12.0 : isNQ ? 16.0 : isBTC ? 14.0 : isES ? 20.0 : na
+EXPANSION_LEVEL_PERCENT = isZN ? 85 : isNQ ? 105 : isBTC ? 100 : isES ? 108 : na
 
 // exhaustion
 EXHAUSTION_LEVEL_PERCENT = isZN ? 60 : isNQ ? 48 : isBTC ? 55 : isES ? 52 : na
@@ -47,7 +47,7 @@ RANGE_MAGNITUDE_POINTS = isZN ? 0.12 : isNQ ? 20 : isBTC ? 200 : isES ? 18 : na
 ACCEPTANCE_BARS = isZN ? 6 : isNQ ? 5 : isBTC ? 7 : isES ? 6 : na
 
 // slow trend
-SLOW_TREND_BARS = isZN ? 120 : isNQ ? 90 : isBTC ? 90 : isES ? 90 : na
+SLOW_TREND_BARS = isZN ? 120 : isNQ ? 70 : isBTC ? 90 : isES ? 90 : na
 SLOW_TREND_COOLDOWN_BARS = 60
 SMA_BARS = isZN ? 120 : isNQ ? 90 : isBTC ? 70 : isES ? 90 : na
 SLOPE_LOOKBACK = isZN ? 20 : isNQ ? 10 : isBTC ? 10 : isES ? 20 : na
@@ -229,7 +229,7 @@ isAccelerating = acceleration > ACCELERATION_PERCENT
 isStructureBreakUp = high > ta.highest(high[1], EXPANSION_STRUCTURE_LOOKBACK)
 isStructureBreakDown = ta.lowest(low[1], EXPANSION_STRUCTURE_LOOKBACK) > low
 
-// cascade cooldown (safe)
+// wait for cascade cooldown
 barsSinceCascade = bar_index - cascadeBarIndex
 isCascadeCooledDown = bar_index - cascadeBarIndex > CASCADE_CONTINUATION_BARS
 
@@ -253,19 +253,20 @@ isExpansionTrigger =
 
 triggerExpansionEvent =
      isExpansionTrigger
+     and not isExpansionTrigger[1]
      and not hasFiredExpansionThisBar
 
 if triggerExpansionEvent
     hasFiredExpansionThisBar := true
 
-// continuation classification (message layer)
+// continuation classification
 isContinuationExpansionTrigger =
      triggerExpansionEvent
      and not triggerStopCascade
      and isContinuationExpansion
      and not (isUp ? isStructureBreakUp : isStructureBreakDown)
 
-// state update (ONE-SHOT)
+// state update
 if triggerExpansionEvent
     isExpansionActive := true
     isExpansionUp := isUp
@@ -593,10 +594,12 @@ plotshape(
     color=color.red,
     size=size.small)
 
+barcolor(isRange ? color.red : na)
+
 // range breakout
-if triggerRangeBreakoutEvent
+if triggerRangeBreakoutEvent or (not isRangeActive and isRangeActive[1])
     line.new(
-        x1 = rangeStartBar,
+        x1 = rangeStartBar - RANGE_BARS,
         y1 = (rangeHigh + rangeLow) * 0.5,
         x2 = bar_index,
         y2 = (rangeHigh + rangeLow) * 0.5,
@@ -605,7 +608,7 @@ if triggerRangeBreakoutEvent
         width = 2)
 
     box.new(
-        left = rangeStartBar,
+        left = rangeStartBar - RANGE_BARS,
         right = bar_index,
         top = rangeHigh,
         bottom = rangeLow,
@@ -939,9 +942,23 @@ newMessage :=
 if not na(newMessage)
     alertMessage := newMessage
 
+// hard constraint to prevent duplicate alerts
+shouldFireAlert =
+     triggerExpansionEvent
+     or triggerStopCascade
+     or triggerContinuationCascade
+     or triggerExhaustionEvent
+     or triggerRangeBreakoutEvent
+     or triggerSlowTrendUpEvent
+     or triggerSlowTrendDownEvent
+     or isAcceptanceTriggerUp
+     or isAcceptanceTriggerDown
+     or isRejectionTriggerUp
+     or isRejectionTriggerDown
+
 // cascades fire on bar close to capture full magnitude, special case
 isCascadeAlert = triggerStopCascade or triggerContinuationCascade
 
 // send alert to webhook
-if not na(alertMessage) and (barstate.isconfirmed or not isCascadeAlert)
+if shouldFireAlert and not na(alertMessage) and (barstate.isconfirmed or not isCascadeAlert)
     alert(alertMessage, alert.freq_once_per_bar)
