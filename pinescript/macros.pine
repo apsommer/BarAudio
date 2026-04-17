@@ -45,12 +45,13 @@ isSessionClosing = not na(time(timeframe.period, marketClosingTime, "America/New
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ZN_LOOKBACK = 30
+ZN_STRUCTURE_LOOKBACK = 90
 
 znAvg = ta.sma(ta.ema(znOpen, ZN_LOOKBACK), 5)
 znSlope = znAvg - znAvg[1]
 
 // trend
-isZNsupportive = znOpen > znAvg or znOpen > znAvg[90] // and znSlope > 0
+isZNsupportive = znOpen > znAvg or znOpen > znAvg[ZN_STRUCTURE_LOOKBACK] // and znSlope > 0
 isZNhostile = not isZNsupportive // znAvg > znOpen and 0 > znSlope
 
 // 6E
@@ -238,6 +239,7 @@ barColor =
      isGC and isGChostile ? color.new(short_color, bar_transparency) :
      isGC ? color.new(GC_color, bar_transparency) : na
 barcolor(barColor)
+bgcolor(isSessionClosing ? color.new(session_color, bar_transparency) : na)
 
 // entry
 plot(
@@ -265,7 +267,6 @@ plotshape(
 
 // averages
 plot(isZN ? znAvg : na, color = color.new(line_color, line_transparency))
-plot(isZN ? znAvg + 0.002 : na, color = color.green)
 plot(isE6 ? e6Avg : na, color = color.new(line_color, line_transparency))
 plot(isGC ? gcAvg : na, color = color.new(line_color, line_transparency))
 
