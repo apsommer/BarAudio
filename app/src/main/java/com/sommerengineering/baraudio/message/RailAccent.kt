@@ -25,7 +25,7 @@ fun LinearRail(color: Color) {
             .fillMaxHeight()
             .padding(vertical = rowVerticalPadding)
             .clip(RoundedCornerShape(3.dp))
-            .background(color))
+            .background(color.copy(0.7f)))
 
     Spacer(Modifier.width(rowIconPadding))
 }

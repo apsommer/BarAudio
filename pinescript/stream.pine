@@ -23,7 +23,7 @@ SMOOTH_BARS = isZN ? 12 : isNQ ? 6 : isBTC ? 10 : isES ? 8 : na
 
 // cascade
 CASCADE_STRUCTURE_BARS = isZN ? 8 : isNQ ? 6 : isBTC ? 8 : isES ? 6 : na
-CASCADE_LARGE_BAR_RATIO = isZN ? 2.9 : isNQ ? 4.0 : isBTC ? 4.5 : isES ? 4.2 : na
+CASCADE_LARGE_BAR_RATIO = isZN ? 3.2 : isNQ ? 4.0 : isBTC ? 4.5 : isES ? 4.2 : na
 CASCADE_SWEEP_RATIO = isZN ? 0.30 : isNQ ? 0.35 : isBTC ? 0.45 : isES ? 0.33 : na
 CASCADE_CONTINUATION_BARS = isZN ? 20 : isNQ ? 15 : isBTC ? 20 : isES ? 15 : na
 
@@ -40,8 +40,8 @@ EXHAUSTION_LOOKBACK = isZN ? 26 : isNQ ? 20 : isBTC ? 24 : isES ? 18 : na
 EXHAUSTION_REVERSAL_BARS = isZN ? 8 : isNQ ? 6 : isBTC ? 8 : isES ? 7 : na
 
 // range
-RANGE_BARS = isZN ? 140 : isNQ ? 60 : isBTC ? 90 : isES ? 120 : na
-RANGE_MAGNITUDE_POINTS = isZN ? 0.12 : isNQ ? 20 : isBTC ? 200 : isES ? 18 : na
+RANGE_BARS = isZN ? 90 : isNQ ? 60 : isBTC ? 90 : isES ? 120 : na
+RANGE_MAGNITUDE_POINTS = isZN ? 0.125 : isNQ ? 20 : isBTC ? 200 : isES ? 18 : na
 
 // acceptance
 ACCEPTANCE_BARS = isZN ? 6 : isNQ ? 5 : isBTC ? 7 : isES ? 6 : na
@@ -339,33 +339,35 @@ if triggerExhaustionEvent
 barsSinceExhaustion = bar_index - lastExhaustionBar
 isExhaustionCooledDown := barsSinceExhaustion > ACCELERATION_BARS
 
-// RANGE BREAKOUT
+// RANGE (anchored box model)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// highest and lowest in range lookback
+// detection (unchanged)
 rollingHigh = ta.highest(high, RANGE_BARS)
 rollingLow = ta.lowest(low, RANGE_BARS)
 rollingRange = rollingHigh - rollingLow
 
 isRange = rollingRange <= RANGE_MAGNITUDE_POINTS
 
-// cooldown since last range
-barsSinceLastRangeEnd = bar_index - lastRangeEndBar
-isRangeCooledDown = barsSinceLastRangeEnd > RANGE_BARS
+// cooldown
+barsSinceRange = bar_index - lastRangeEndBar
+isRangeCooledDown =
+     barsSinceRange > RANGE_BARS
 
+// activate (freeze box in space)
 triggerRangeStart =
      isRange
      and not isRangeActive
-     and not isExpansionActive
      and isRangeCooledDown
 
 if triggerRangeStart
+    mid = (rollingHigh + rollingLow) * 0.5
+    rangeHigh := mid + RANGE_MAGNITUDE_POINTS * 0.5
+    rangeLow := mid - RANGE_MAGNITUDE_POINTS * 0.5
+    rangeStartBar := bar_index
     isRangeActive := true
-    rangeStartBar := bar_index - RANGE_BARS
-    rangeHigh := rollingHigh
-    rangeLow := rollingLow
 
-// breakout detection
+// breakout (fixed boundaries)
 isRangeBreakoutUp =
      isRangeActive
      and high > rangeHigh
@@ -388,16 +390,10 @@ if triggerRangeBreakoutEvent
     lastRangeEndBar := bar_index
     hasFiredRangeBreakThisBar := true
 
-rangeDuration = bar_index - rangeStartBar
-
-// end range for not-persistent assets
-if (triggerStopCascade or triggerExpansionEvent) and not IS_PERSISTENT_RANGE
-    isRangeActive := false
-    lastRangeEndBar := bar_index
-
-if isRangeActive and not isRange
-    isRangeActive := false
-    lastRangeEndBar := bar_index
+// IMPORTANT: remove this behavior (range should not be killed externally)
+// if (triggerStopCascade or triggerExpansionEvent) and not IS_PERSISTENT_RANGE
+//     isRangeActive := false
+//     lastRangeEndBar := bar_index
 
 // ACCEPTANCE / REJECTION
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -594,8 +590,6 @@ plotshape(
     color=color.red,
     size=size.small)
 
-barcolor(isRange ? color.red : na)
-
 // range breakout
 if triggerRangeBreakoutEvent or (not isRangeActive and isRangeActive[1])
     line.new(
@@ -722,6 +716,9 @@ formattedPercent =
 cascadeMove = math.round(math.abs(high - low)) // round to nearest point
 formattedPoints = str.tostring(cascadeMove) + " points"
 
+// range duration
+rangeDuration = bar_index - rangeStartBar - RANGE_BARS
+
 // MESSAGE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -758,7 +755,7 @@ getZNmessage() =>
     else if triggerRangeBreakoutEvent
         message :=
              "Range break • " +
-             str.tostring(rangeDuration) + " min • " +
+             str.tostring(rangeDuration) + "m • " +
              (eventDirectionUp ? "Upside" : "Downside")
 
     else if isAcceptanceTriggerUp
@@ -811,7 +808,7 @@ getNQmessage() =>
     else if triggerRangeBreakoutEvent
         message :=
              "Range break • " +
-             str.tostring(rangeDuration) + " min • " +
+             str.tostring(rangeDuration) + "m • " +
              (eventDirectionUp ? "Bullish" : "Bearish")
 
     else if isAcceptanceTriggerUp
@@ -860,7 +857,7 @@ getBTCmessage() =>
     else if triggerRangeBreakoutEvent
         message :=
              "Compression break • " +
-             str.tostring(rangeDuration) + " min • " +
+             str.tostring(rangeDuration) + "m • " +
              (eventDirectionUp ? "Bullish" : "Bearish")
 
     else if isAcceptanceTriggerUp
@@ -909,7 +906,7 @@ getESmessage() =>
     else if triggerRangeBreakoutEvent
         message :=
              "Structure break • " +
-             str.tostring(rangeDuration) + " min • " +
+             str.tostring(rangeDuration) + "m • " +
              (eventDirectionUp ? "Upside" : "Downside")
 
     else if isAcceptanceTriggerUp
