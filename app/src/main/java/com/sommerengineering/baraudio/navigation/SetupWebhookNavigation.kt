@@ -70,11 +70,11 @@ fun NavGraphBuilder.SetupWebhookNavigation(
                 Image(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(6.dp))
+                        .clip(RoundedCornerShape(8.dp))
                         .border(
                             width = 1.dp,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.15f),
-                            shape = RoundedCornerShape(6.dp)),
+                            shape = RoundedCornerShape(8.dp)),
                     painter = painterResource(R.drawable.screenshot),
                     contentDescription = null)
             }
@@ -88,7 +88,13 @@ fun NavGraphBuilder.SetupWebhookNavigation(
                 onboardingMode = SetupWebhook,
                 pageNumber = 2,
                 onNextClick = onClose,
-                isNextEnabled = verificationUiState.state == VerificationState.RECEIVED) {
+                isNextEnabled = verificationUiState.state == VerificationState.RECEIVED,
+                onCloseClick = {
+                    controller.popBackStack(
+                        route = SetupOnboardingRoute,
+                        inclusive = true
+                    )
+                }) {
                 VerificationContent(verificationUiState)
             }
         }
