@@ -1,15 +1,20 @@
 package com.sommerengineering.baraudio.navigation
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -63,7 +68,13 @@ fun NavGraphBuilder.SetupWebhookNavigation(
                         popUpTo(SetupOnboardingPasteWebhookRoute) { inclusive = true }
                     }}) {
                 Image(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(6.dp))
+                        .border(
+                            width = 1.dp,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.15f),
+                            shape = RoundedCornerShape(6.dp)),
                     painter = painterResource(R.drawable.screenshot),
                     contentDescription = null)
             }
