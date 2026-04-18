@@ -91,9 +91,7 @@ fun LinearMessageItem(
 
             // origin image
             Spacer(Modifier.width(rowIconPadding))
-            OriginIcon(
-                messageOrigin = state.origin,
-                isDarkMode = true)
+            OriginIcon(state.origin)
         }
 
         // divider between rows

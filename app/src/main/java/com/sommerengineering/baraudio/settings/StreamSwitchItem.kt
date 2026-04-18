@@ -11,18 +11,16 @@ import com.sommerengineering.baraudio.uitls.settingsIconSize
 @Composable
 fun StreamSwitchItem(
     messageOrigin: MessageOrigin,
-    isDarkMode: Boolean,
     isStream: Boolean,
     updateStream: (Boolean) -> Unit) {
 
-    val style = messageOrigin.style(isDarkMode)
+    val style = messageOrigin.style
 
     SwitchItem(
         icon = {
             OriginIcon(
                 messageOrigin = messageOrigin,
-                isSettings = true,
-                isDarkMode = isDarkMode)
+                isSettings = true)
         },
         title = messageOrigin.settingsTitle(),
         description = messageOrigin.signalDescription,

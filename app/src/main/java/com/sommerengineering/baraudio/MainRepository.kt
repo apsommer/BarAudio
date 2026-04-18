@@ -25,7 +25,6 @@ import com.sommerengineering.baraudio.uitls.esStream
 import com.sommerengineering.baraudio.uitls.feedModeKey
 import com.sommerengineering.baraudio.uitls.gcStream
 import com.sommerengineering.baraudio.uitls.isBTCKey
-import com.sommerengineering.baraudio.uitls.isDarkModeKey
 import com.sommerengineering.baraudio.uitls.isESKey
 import com.sommerengineering.baraudio.uitls.isFullScreenKey
 import com.sommerengineering.baraudio.uitls.isGCKey
@@ -237,12 +236,6 @@ class MainRepository @Inject constructor(
         readPreference(booleanPreferencesKey(isFullScreenKey)) ?: false
     fun updateFullScreen(enabled: Boolean) =
         writePreference(booleanPreferencesKey(isFullScreenKey), enabled)
-
-    // dark mode
-    suspend fun loadDarkMode(systemDefault: Boolean) =
-        readPreference(booleanPreferencesKey(isDarkModeKey)) ?: systemDefault
-    fun updateDarkMode(enabled: Boolean) =
-        writePreference(booleanPreferencesKey(isDarkModeKey), enabled)
 
     suspend fun initTtsSettings() {
 

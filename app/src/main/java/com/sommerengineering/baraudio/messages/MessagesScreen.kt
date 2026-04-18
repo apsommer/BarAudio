@@ -1,6 +1,5 @@
 package com.sommerengineering.baraudio.messages
 
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -33,10 +32,8 @@ import com.sommerengineering.baraudio.source.Message
 import com.sommerengineering.baraudio.source.MessageGroup
 import com.sommerengineering.baraudio.source.MessageOrigin
 import com.sommerengineering.baraudio.source.resolveMessageOrigin
-import com.sommerengineering.baraudio.uitls.backgroundDarkAlpha
-import com.sommerengineering.baraudio.uitls.backgroundLightAlpha
+import com.sommerengineering.baraudio.uitls.backgroundAlpha
 import com.sommerengineering.baraudio.uitls.edgePadding
-import com.sommerengineering.baraudio.uitls.logMessage
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -61,12 +58,6 @@ fun MessagesScreen(
     val feedMode = viewModel.feedMode
     val groups = remember(messages) { groupMessages(messages) }
     val expandedGroups = remember(feedMode) { mutableStateMapOf<MessageOrigin, Boolean>() }
-
-    // toggle background image with dark mode
-    val isDarkMode = viewModel.isDarkMode
-    val backgroundRes =
-        if (isDarkMode) R.drawable.background_dark
-        else R.drawable.background
 
     // scroll to latest when user at top of list
     LaunchedEffect(messages.size) {
@@ -98,8 +89,8 @@ fun MessagesScreen(
 
                 // background image
                 ScrimImage(
-                    iconRes = backgroundRes,
-                    alpha = if (isDarkMode) backgroundDarkAlpha else backgroundLightAlpha,
+                    iconRes = R.drawable.background_dark,
+                    alpha = backgroundAlpha,
                     modifier = Modifier
                         .align(Alignment.Center)
                         .padding(2 * edgePadding))
@@ -137,7 +128,6 @@ fun MessagesScreen(
                                 val isExpanded = expandedGroups[origin] == true
                                 item(origin.key) {
                                     GroupHeaderItem(
-                                        viewModel = viewModel,
                                         origin = origin,
                                         messageCount = messages.size,
                                         isExpanded = isExpanded,

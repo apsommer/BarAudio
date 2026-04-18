@@ -23,8 +23,6 @@ import com.sommerengineering.baraudio.source.Message
 import com.sommerengineering.baraudio.uitls.RomanNumerals
 import com.sommerengineering.baraudio.uitls.screenFullDescription
 import com.sommerengineering.baraudio.uitls.screenWindowedDescription
-import com.sommerengineering.baraudio.uitls.uiDarkDescription
-import com.sommerengineering.baraudio.uitls.uiLightDescription
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.filter
@@ -34,7 +32,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
-import com.sommerengineering.baraudio.onboarding.webhook.VerificationState.RECEIVED
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
@@ -184,18 +181,6 @@ class MainViewModel @Inject constructor(
     fun updateFullScreen(enabled: Boolean) {
         isFullScreen = enabled
         repo.updateFullScreen(enabled)
-    }
-
-    // dark mode
-    var isDarkMode by mutableStateOf(false)
-        private set
-    val darkModeDescription
-        get() = if (isDarkMode) uiDarkDescription else uiLightDescription
-    fun initDarkMode(systemDefault: Boolean) =
-        viewModelScope.launch { isDarkMode = repo.loadDarkMode(systemDefault) }
-    fun updateDarkMode(enabled: Boolean) {
-        isDarkMode = enabled
-        repo.updateDarkMode(enabled)
     }
 
     private fun refreshTtsSettingsUi() {

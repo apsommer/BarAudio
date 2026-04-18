@@ -21,11 +21,10 @@ data class MessageItemStyle(
 
 @Composable
 fun resolveMessageStyle(
-    origin: MessageOrigin,
-    isDarkMode: Boolean) = when (origin) {
+    origin: MessageOrigin) = when (origin) {
 
-    is MessageOrigin.BroadcastStream -> origin.asset.style(isDarkMode)
-    is MessageOrigin.UserSignal -> origin.source.style(isDarkMode)
+    is MessageOrigin.BroadcastStream -> origin.asset.style
+    is MessageOrigin.UserSignal -> origin.source.style
 }
 
 @Composable

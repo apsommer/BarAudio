@@ -12,5 +12,5 @@ data class Asset(
     val assetDescription: String,
     val signalDescription: String,
     val order: Int,
-    val style: (isDark: Boolean) -> MessageItemStyle
+    val style: MessageItemStyle
 )

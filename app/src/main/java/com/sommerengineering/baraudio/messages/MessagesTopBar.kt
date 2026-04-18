@@ -14,8 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.uitls.logoDarkAlpha
-import com.sommerengineering.baraudio.uitls.logoLightAlpha
+import com.sommerengineering.baraudio.uitls.logoAlpha
 import com.sommerengineering.baraudio.uitls.rowHorizontalPadding
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -29,8 +28,6 @@ fun MessagesTopBar(
     val feedModeIcon =
         if (feedMode == FeedMode.Linear) R.drawable.group
         else R.drawable.ungroup
-
-    val isDarkMode = viewModel.isDarkMode
 
     CenterAlignedTopAppBar(
 
@@ -51,7 +48,7 @@ fun MessagesTopBar(
         title = {
             Box { ScrimImage(
                 iconRes = R.drawable.banner,
-                alpha = if (isDarkMode) logoDarkAlpha else logoLightAlpha,
+                alpha = logoAlpha,
                 modifier = Modifier.padding(horizontal = 2 * rowHorizontalPadding)) }},
 
         // feed mode

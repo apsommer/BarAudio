@@ -39,19 +39,16 @@ import com.sommerengineering.baraudio.uitls.rowVerticalPadding
 
 @Composable
 fun GroupHeaderItem(
-    viewModel: MainViewModel,
     origin: MessageOrigin,
     messageCount: Int,
     isExpanded: Boolean,
     isShowDivider: Boolean,
     onExpand: () -> Unit) {
 
-    val isDarkMode = viewModel.isDarkMode
-
     // extract attributes from origin
     val displayName = origin.displayName
     val description = origin.description
-    val style = origin.style(isDarkMode)
+    val style = origin.style
 
     Column {
 

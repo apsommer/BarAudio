@@ -27,9 +27,8 @@ fun MessageItem(
     var beautifulTimestamp by remember { mutableStateOf("") }
 
     // style from origin
-    val isDarkMode = viewModel.isDarkMode
     val origin = resolveMessageOrigin(message)
-    val style = resolveMessageStyle(origin, isDarkMode)
+    val style = resolveMessageStyle(origin)
 
     // detect tap (expand) and long press (speak)
     var isExpanded by remember { mutableStateOf(false) }

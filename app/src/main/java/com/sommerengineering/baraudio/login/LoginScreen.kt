@@ -24,10 +24,6 @@ fun LoginScreen (
     onAuthentication: () -> Unit) {
 
     val context = LocalContext.current
-    val isDarkMode = viewModel.isDarkMode
-    val gitHubImageId =
-        if (isDarkMode) R.drawable.github_light
-        else R.drawable.github_dark
 
     Column(
         modifier = Modifier.fillMaxSize().offset(y = (-16).dp),
@@ -44,7 +40,7 @@ fun LoginScreen (
             onClick = { viewModel.signInWithGoogle(context, onAuthentication) })
         Spacer(Modifier.height(24.dp))
         LoginButton(
-            iconRes = gitHubImageId,
+            iconRes = R.drawable.github_light,
             iconRatio = 0.55f,
             onClick = { viewModel.signInWithGitHub(context, onAuthentication) })
     }

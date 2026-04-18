@@ -80,7 +80,6 @@ const val voiceNameKey = "voice"
 const val speedKey = "speed"
 const val pitchKey = "pitch"
 const val isMuteKey = "isMuteKey"
-const val isDarkModeKey = "isDarkMode"
 const val isFullScreenKey = "isFullScreen"
 const val volumeKey = TextToSpeech.Engine.KEY_PARAM_VOLUME
 const val feedModeKey = "feedMode"
@@ -110,13 +109,10 @@ const val premiumDividerTitle = "PREMIUM"
 const val customTitle = "Custom signal"
 const val customDividerTitle = "CUSTOM"
 const val customDescription = "Webhook alerts"
-const val uiDividerTitle = "THEME"
+const val displayDividerTitle = "DISPLAY"
 const val screenTitle = "Screen"
 const val screenFullDescription = "Full screen"
 const val screenWindowedDescription = "Show system bars"
-const val uiModeTitle = "Theme"
-const val uiDarkDescription = "Dark"
-const val uiLightDescription = "Light"
 const val legalDividerTitle = "ACCOUNT"
 const val manageSubscriptionTitle = "Manage subscription"
 const val manageSubscriptionDescription = "Billing and plan"
@@ -129,10 +125,8 @@ val fabSize = 72.dp
 val edgePadding = 24.dp
 
 // scrim logo and background
-val logoDarkAlpha = 0.4f
-val logoLightAlpha = 0.8f
-val backgroundDarkAlpha = 0.5f
-val backgroundLightAlpha = 0.9f
+val logoAlpha = 0.4f
+val backgroundAlpha = 0.5f
 
 // item style
 val assetIconSize = 28.dp

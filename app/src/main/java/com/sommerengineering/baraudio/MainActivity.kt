@@ -25,7 +25,6 @@ import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.sommerengineering.baraudio.navigation.MainNavigation
 import com.sommerengineering.baraudio.theme.AppTheme
-import com.sommerengineering.baraudio.theme.isSystemInDarkMode
 import com.sommerengineering.baraudio.uitls.channelDescription
 import com.sommerengineering.baraudio.uitls.channelGroupId
 import com.sommerengineering.baraudio.uitls.channelGroupName
@@ -85,9 +84,6 @@ class MainActivity : ComponentActivity() {
 
         // track app process state
         processState.isTaskAlive = true
-
-        // initialize dark mode
-        viewModel.initDarkMode(isSystemInDarkMode())
 
         // enable layout resizing into system designated screen space
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -184,9 +180,7 @@ class MainActivity : ComponentActivity() {
 fun App(
     viewModel: MainViewModel) {
 
-    val isDarkMode = viewModel.isDarkMode
-
-    AppTheme(isDarkMode) {
+    AppTheme() {
         Scaffold(
             modifier = Modifier.fillMaxSize()) { padding -> padding
             MainNavigation(viewModel)
