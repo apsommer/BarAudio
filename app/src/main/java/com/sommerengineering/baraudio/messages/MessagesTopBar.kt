@@ -47,7 +47,7 @@ fun MessagesTopBar(
         // logo
         title = {
             Box { ScrimImage(
-                iconRes = R.drawable.banner,
+                iconRes = R.drawable.appbar,
                 alpha = logoAlpha,
                 modifier = Modifier.padding(horizontal = 2 * rowHorizontalPadding)) }},
 
