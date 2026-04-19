@@ -22,7 +22,7 @@ fun StreamSwitchItem(
                 messageOrigin = messageOrigin,
                 isSettings = true)
         },
-        title = messageOrigin.settingsTitle(),
+        title = messageOrigin.displayName,
         description = messageOrigin.signalDescription,
         titleColor = if (isStream) style.primary else null,
         descriptionColor = if (isStream) style.primary.copy(alpha = 0.7f) else null) {

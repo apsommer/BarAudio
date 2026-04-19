@@ -11,5 +11,3 @@ data class Source(
     val description: String = userSignalDescription,
     val signalDescription: String = userSignalDescription
 )
-
-fun Source.settingsTitle() = userSignalDescription
