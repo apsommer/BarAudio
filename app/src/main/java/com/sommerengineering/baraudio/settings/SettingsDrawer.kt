@@ -37,7 +37,7 @@ import com.sommerengineering.baraudio.source.znAsset
 import com.sommerengineering.baraudio.uitls.customDividerTitle
 import com.sommerengineering.baraudio.uitls.streamsDividerTitle
 import com.sommerengineering.baraudio.uitls.edgePadding
-import com.sommerengineering.baraudio.uitls.legalDividerTitle
+import com.sommerengineering.baraudio.uitls.generalDividerTitle
 import com.sommerengineering.baraudio.uitls.manageSubscriptionTitle
 import com.sommerengineering.baraudio.uitls.pitchChangeUtterance
 import com.sommerengineering.baraudio.uitls.pitchTitle
@@ -50,7 +50,6 @@ import com.sommerengineering.baraudio.uitls.subscriptionUrl
 import com.sommerengineering.baraudio.uitls.systemTtsDescription
 import com.sommerengineering.baraudio.uitls.systemTtsInstallVoicesAction
 import com.sommerengineering.baraudio.uitls.systemTtsTitle
-import com.sommerengineering.baraudio.uitls.displayDividerTitle
 import com.sommerengineering.baraudio.uitls.voiceDividerTitle
 import com.sommerengineering.baraudio.uitls.voiceTitle
 import com.sommerengineering.baraudio.uitls.customDescription
@@ -251,7 +250,7 @@ fun SettingsDrawer(
 
             // divider
             item {
-                DividerItem(displayDividerTitle)
+                DividerItem(generalDividerTitle)
             }
 
             // full screen
@@ -275,11 +274,6 @@ fun SettingsDrawer(
                         checked = isFullScreen,
                         onCheckedChange = { viewModel.updateFullScreen(it) })
                 }
-            }
-
-            // divider
-            item {
-                DividerItem(legalDividerTitle)
             }
 
             // manage subscription
