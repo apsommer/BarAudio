@@ -78,12 +78,17 @@ fun MessagesScreen(
         scrimColor = DrawerDefaults.scrimColor.copy(alpha = 0.5f)) {
 
         Scaffold(
-            topBar = { MessagesTopBar(
-                viewModel = viewModel,
-                onSettingsClick = { coroutineScope.launch { drawerState.open() } },
-                onToggleFeedMode = { viewModel.toggleFeedMode() })},
-            // floatingActionButton = { MessagesFloatingActionButton(viewModel) },
-            bottomBar = { AllowNotificationsBottomBar(viewModel.areNotificationsEnabled) }) { padding ->
+            topBar = {
+                MessagesTopBar(
+                    viewModel = viewModel,
+                    onSettingsClick = { coroutineScope.launch { drawerState.open() } },
+                    onToggleFeedMode = { viewModel.toggleFeedMode() },
+                    onToggleMute = { viewModel.toggleMute() })
+                 },
+            bottomBar = {
+                AllowNotificationsBottomBar(viewModel.areNotificationsEnabled)
+            }
+        ) { padding ->
 
             Box(Modifier.fillMaxSize().padding(padding)) {
 
