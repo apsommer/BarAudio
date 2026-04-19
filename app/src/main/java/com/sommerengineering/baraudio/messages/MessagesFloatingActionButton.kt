@@ -23,7 +23,7 @@ fun MessagesFloatingActionButton(
     val isMute = viewModel.isMute
 
     val containerColor = if (isMute) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.primaryContainer
-    val iconRes = if (isMute) R.drawable.volume_off else R.drawable.volume_on
+    val iconRes = if (isMute) R.drawable.mute else R.drawable.unmute
     val iconSize = if (isMute) fabSize * 0.45f else fabSize * 0.5f
     val iconColor = if (isMute) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onPrimaryContainer
 

@@ -1,5 +1,7 @@
 package com.sommerengineering.baraudio.messages
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -8,6 +10,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.DrawerDefaults
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
@@ -22,6 +25,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.times
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
@@ -87,13 +91,19 @@ fun MessagesScreen(
 
             Box(Modifier.fillMaxSize().padding(padding)) {
 
-                // background image
-                ScrimImage(
-                    iconRes = R.drawable.background_dark,
-                    alpha = backgroundAlpha,
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .padding(2 * edgePadding))
+                // background image todo remove? replace?
+                Box {
+                    Image(
+                        painter = painterResource(R.drawable.background_dark),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .padding(2 * edgePadding))
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .background(MaterialTheme.colorScheme.background.copy(backgroundAlpha)))
+                }
 
                 // messages
                 LazyColumn(state = listState) {

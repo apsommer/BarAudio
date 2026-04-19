@@ -125,7 +125,7 @@ val fabSize = 72.dp
 val edgePadding = 24.dp
 
 // scrim logo and background
-val logoAlpha = 0.4f
+val logoAlpha = 0.25f
 val backgroundAlpha = 0.5f
 
 // item style

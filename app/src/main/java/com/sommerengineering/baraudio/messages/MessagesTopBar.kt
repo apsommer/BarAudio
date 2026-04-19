@@ -1,14 +1,21 @@
 package com.sommerengineering.baraudio.messages
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
@@ -31,8 +38,7 @@ fun MessagesTopBar(
 
     CenterAlignedTopAppBar(
 
-        modifier = Modifier
-            .padding(8.dp),
+        modifier = Modifier.padding(horizontal = 8.dp),
 
         // settings
         navigationIcon = {
@@ -46,10 +52,23 @@ fun MessagesTopBar(
 
         // logo
         title = {
-            Box { ScrimImage(
-                iconRes = R.drawable.banner,
-                alpha = logoAlpha,
-                modifier = Modifier.padding(horizontal = 2 * rowHorizontalPadding)) }},
+            Box {
+
+                Image(
+                    painter = painterResource(R.drawable.appbar),
+                    contentDescription = null,
+                    modifier = Modifier.graphicsLayer {
+                        scaleX = 0.6f
+                        scaleY = 0.6f
+                    })
+
+                // scrim overlay
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .background(MaterialTheme.colorScheme.background.copy(logoAlpha)))
+            }
+        },
 
         // feed mode
         actions = {
