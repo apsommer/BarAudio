@@ -42,15 +42,16 @@ fun MessagesTopBar(
                     modifier = Modifier
                         .rotate(180f),
                     painter = painterResource(R.drawable.menu_open),
-                    contentDescription = null) }},
+                    contentDescription = null)
+            }},
 
         // logo
         title = {
-            Box { ScrimImage(
-                iconRes = R.drawable.appbar,
-                alpha = logoAlpha,
-                modifier = Modifier.padding(horizontal = 3 * rowHorizontalPadding))
-//                modifier = Modifier)
+            Box {
+                ScrimImage(
+                    iconRes = R.drawable.appbar,
+                    alpha = logoAlpha,
+                    modifier = Modifier.padding(horizontal = 3 * rowHorizontalPadding))
             }},
 
         // feed mode
@@ -59,5 +60,6 @@ fun MessagesTopBar(
                 onClick = { onToggleFeedMode() }) {
                 Icon(
                     painter = painterResource(feedModeIcon),
-                    contentDescription = null) }})
+                    contentDescription = null)
+            }})
 }

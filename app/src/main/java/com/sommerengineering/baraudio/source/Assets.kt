@@ -117,7 +117,7 @@ val siAsset = Asset(
         text = Color(0xFFF5FAFF),
         iconRes = R.drawable.si))
 
-fun Asset.settingsTitle() = "$displayName ($symbol)"
+fun Asset.settingsTitle() = displayName // todo remove function, becomes val
 
 val allAssets = listOf(znAsset, nqAsset, btcAsset, esAsset, gcAsset, siAsset)
 val assetMap = allAssets.associateBy { it.origin }
