@@ -3,14 +3,19 @@ package com.sommerengineering.baraudio.messages
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.uitls.logoAlpha
@@ -37,7 +42,7 @@ fun MessagesTopBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = rowVerticalPadding),
+            .padding(vertical = rowHorizontalPadding),
         verticalAlignment = Alignment.CenterVertically) {
 
         // settings drawer
@@ -54,10 +59,7 @@ fun MessagesTopBar(
             ScrimImage(
                 iconRes = R.drawable.appbar,
                 alpha = logoAlpha,
-                modifier = Modifier
-                    .align(Alignment.CenterStart)
-//                    .padding(vertical = rowHorizontalPadding)
-            )
+                modifier = Modifier.height(16.dp))
         }
 
         // feed mode

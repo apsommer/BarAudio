@@ -13,7 +13,7 @@ import androidx.compose.ui.res.painterResource
 fun BoxScope.ScrimImage(
     iconRes: Int,
     alpha: Float,
-    modifier: Modifier) {
+    modifier: Modifier = Modifier) {
 
     Image(
         painter = painterResource(iconRes),
