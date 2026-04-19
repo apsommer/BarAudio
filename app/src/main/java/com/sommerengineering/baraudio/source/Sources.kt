@@ -13,7 +13,7 @@ val tradingViewSource = Source(
         accent = Color(0xFF82B1FF),
         surface = Color(0xFF0B1A3A),
         text = Color(0xFFEAF1FF),
-        iconRes = R.drawable.tradingview_light))
+        iconRes = R.drawable.tradingview))
 
 val trendSpiderSource = Source(
     key = "trendspider",

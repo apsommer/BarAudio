@@ -4,14 +4,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -20,8 +18,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.TransformOrigin
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -29,7 +25,6 @@ import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.uitls.logoAlpha
 import com.sommerengineering.baraudio.uitls.rowHorizontalPadding
-import com.sommerengineering.baraudio.uitls.rowVerticalPadding
 
 @Composable
 fun MessagesTopBar(
@@ -44,7 +39,7 @@ fun MessagesTopBar(
 
     // mute
     val isMute = viewModel.isMute
-    val muteIcon = if (isMute) R.drawable.volume_off else R.drawable.volume_on
+    val muteIcon = if (isMute) R.drawable.mute else R.drawable.unmute
     val muteAlpa = if (isMute) 0.5f else 0.8f
 
     Row(
@@ -55,7 +50,7 @@ fun MessagesTopBar(
 
         // settings drawer
         AppBarIcon(
-            iconRes = R.drawable.menu_open,
+            iconRes = R.drawable.drawer,
             onClick = onSettingsClick,
             modifier = Modifier.rotate(180f))
 
@@ -73,8 +68,7 @@ fun MessagesTopBar(
         AppBarIcon(
             iconRes = feedModeIcon,
             onClick = onToggleFeedMode,
-            modifier = Modifier.offset(x = rowHorizontalPadding)
-        )
+            modifier = Modifier.offset(x = rowHorizontalPadding))
 
         // mute
         AppBarIcon(

@@ -94,7 +94,7 @@ fun MessagesScreen(
 
                 // background image
                 ScrimImage(
-                    iconRes = R.drawable.background_dark,
+                    iconRes = R.drawable.background,
                     alpha = backgroundAlpha,
                     modifier = Modifier
                         .align(Alignment.Center)

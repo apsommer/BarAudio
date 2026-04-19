@@ -40,7 +40,7 @@ fun LoginScreen (
             onClick = { viewModel.signInWithGoogle(context, onAuthentication) })
         Spacer(Modifier.height(24.dp))
         LoginButton(
-            iconRes = R.drawable.github_light,
+            iconRes = R.drawable.github,
             iconRatio = 0.55f,
             onClick = { viewModel.signInWithGitHub(context, onAuthentication) })
     }
