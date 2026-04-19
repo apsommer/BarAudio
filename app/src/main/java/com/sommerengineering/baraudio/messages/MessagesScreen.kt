@@ -82,7 +82,7 @@ fun MessagesScreen(
                 viewModel = viewModel,
                 onSettingsClick = { coroutineScope.launch { drawerState.open() } },
                 onToggleFeedMode = { viewModel.toggleFeedMode() })},
-            floatingActionButton = { MessagesFloatingActionButton(viewModel) },
+            // floatingActionButton = { MessagesFloatingActionButton(viewModel) },
             bottomBar = { AllowNotificationsBottomBar(viewModel.areNotificationsEnabled) }) { padding ->
 
             Box(Modifier.fillMaxSize().padding(padding)) {

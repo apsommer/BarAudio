@@ -12,17 +12,17 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.uitls.dividerThickness
 import com.sommerengineering.baraudio.uitls.rowHorizontalPadding
 import com.sommerengineering.baraudio.uitls.rowIconPadding
-import com.sommerengineering.baraudio.uitls.rowMinHeight
 import com.sommerengineering.baraudio.uitls.settingsIconSize
 
 @Composable
 fun DividerItem(
     text: String) {
 
-    val rowHeight = rowMinHeight
+    val rowHeight = 82.dp
     val leadingLineWidth = rowIconPadding + (settingsIconSize / 2)
     val color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
 

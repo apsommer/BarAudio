@@ -25,17 +25,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.source.MessageOrigin
 import com.sommerengineering.baraudio.uitls.dividerThickness
 import com.sommerengineering.baraudio.uitls.rowAccentWidth
 import com.sommerengineering.baraudio.uitls.rowHorizontalPadding
 import com.sommerengineering.baraudio.uitls.rowIconPadding
-import com.sommerengineering.baraudio.uitls.rowMinHeight
 import com.sommerengineering.baraudio.uitls.rowVerticalPadding
+import com.sommerengineering.baraudio.uitls.settingsRowMinHeight
 
 @Composable
 fun GroupHeaderItem(
@@ -57,7 +57,7 @@ fun GroupHeaderItem(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(rowMinHeight) // required for accent bar
+                    .height(settingsRowMinHeight) // required for accent bar
                     .combinedClickable(onClick = { onExpand() })
                     .background(style.surface)
                     .padding(horizontal = rowHorizontalPadding),
@@ -75,16 +75,17 @@ fun GroupHeaderItem(
 
                 // display name and description
                 Column(
-                    modifier = Modifier.weight(1f).height(rowMinHeight),
+                    modifier = Modifier.weight(1f).height(settingsRowMinHeight),
                     verticalArrangement = Arrangement.Center) {
                     Text(
                         text = displayName,
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
                         color = style.text)
                     Spacer(Modifier.height(4.dp))
                     Text(
                         text = description,
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurface.copy(0.6f),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis)

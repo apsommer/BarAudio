@@ -21,8 +21,7 @@ fun BoxScope.ScrimImage(
         modifier = modifier)
 
     // scrim overlay
-    Box(
-        modifier = Modifier
-            .matchParentSize()
-            .background(MaterialTheme.colorScheme.background.copy(alpha)))
+    Box(Modifier
+        .matchParentSize()
+        .background(MaterialTheme.colorScheme.background.copy(alpha)))
 }

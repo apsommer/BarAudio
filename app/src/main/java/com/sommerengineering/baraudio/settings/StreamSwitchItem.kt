@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import com.sommerengineering.baraudio.source.MessageOrigin
 import com.sommerengineering.baraudio.source.OriginIcon
 import com.sommerengineering.baraudio.uitls.assetIconSize
+import com.sommerengineering.baraudio.uitls.descriptionAlpha
 import com.sommerengineering.baraudio.uitls.settingsIconSize
 
 @Composable
@@ -25,7 +26,7 @@ fun StreamSwitchItem(
         title = messageOrigin.displayName,
         description = messageOrigin.signalDescription,
         titleColor = if (isStream) style.primary else null,
-        descriptionColor = if (isStream) style.primary.copy(alpha = 0.7f) else null) {
+        descriptionColor = if (isStream) style.primary.copy(descriptionAlpha) else null) {
         Switch(
             checked = isStream,
             onCheckedChange = { updateStream(it) },

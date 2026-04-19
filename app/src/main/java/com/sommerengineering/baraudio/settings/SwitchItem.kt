@@ -1,18 +1,12 @@
 package com.sommerengineering.baraudio.settings
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -20,18 +14,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.sommerengineering.baraudio.R
+import com.sommerengineering.baraudio.uitls.descriptionAlpha
 import com.sommerengineering.baraudio.uitls.rowHorizontalPadding
 import com.sommerengineering.baraudio.uitls.rowIconPadding
-import com.sommerengineering.baraudio.uitls.rowMinHeight
 import com.sommerengineering.baraudio.uitls.rowVerticalPadding
-import com.sommerengineering.baraudio.uitls.settingsIconSize
+import com.sommerengineering.baraudio.uitls.settingsRowMinHeight
 
 @Composable
 fun SwitchItem(
@@ -47,7 +37,7 @@ fun SwitchItem(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(rowMinHeight)
+                    .heightIn(settingsRowMinHeight)
                     .padding(
                         start = rowHorizontalPadding + 4.dp,
                         end = rowHorizontalPadding,
@@ -75,7 +65,7 @@ fun SwitchItem(
                                 modifier = Modifier.padding(top = 4.dp),
                                 text = description,
                                 style = MaterialTheme.typography.bodySmall,
-                                color = descriptionColor ?: LocalContentColor.current.copy(alpha = 0.7f),
+                                color = descriptionColor ?: LocalContentColor.current.copy(descriptionAlpha),
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis)
                         }

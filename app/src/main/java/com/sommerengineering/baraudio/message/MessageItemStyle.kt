@@ -8,6 +8,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.sp
 import com.sommerengineering.baraudio.source.MessageOrigin
 
 data class MessageItemStyle(
@@ -71,6 +72,7 @@ fun buildStyledMessage(
                 // highlight numbers
                 part.any { it.isDigit() } -> SpanStyle(
                     fontWeight = FontWeight.Medium,
+                    fontSize = 15.sp,
                     color = MaterialTheme.colorScheme.primary.copy(alpha = 0.9f))
 
                 // variable part(s)

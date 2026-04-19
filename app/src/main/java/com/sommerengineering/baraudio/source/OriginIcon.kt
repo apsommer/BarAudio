@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -33,18 +34,18 @@ fun OriginIcon(
     val size =
         if (isSettings) settingsIconSize
         else assetIconSize
-    val background =
+    val textIconBackground =
         if (isSettings) style.primary.copy(alpha = 0.85f)
-        else style.primary
+        else style.primary.copy(alpha = 0.85f)
     val borderColor =
         if (isSettings) style.accent.copy(alpha = 0.4f)
-        else style.accent.copy(alpha = 0.6f)
+        else style.accent.copy(alpha = 0.4f)
 
     Box(
         modifier = Modifier
             .size(size)
             .clip(CircleShape)
-            .background(background)
+            .background(textIconBackground)
             .border(
                 width = 1.dp,
                 color = borderColor,
