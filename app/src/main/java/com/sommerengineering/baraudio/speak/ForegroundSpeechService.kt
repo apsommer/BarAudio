@@ -57,7 +57,7 @@ class ForegroundSpeechService : Service() {
 
         // create notification
         val notification = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(R.drawable.app)
+            .setSmallIcon(R.drawable.monochrome) // status bar
             .setColor(ContextCompat.getColor(this, R.color.app_blue))
             .setContentTitle(title)
             .setContentText(beautifulTimestamp) // collapsed
