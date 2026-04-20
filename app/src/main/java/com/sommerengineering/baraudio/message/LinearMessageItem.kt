@@ -29,7 +29,7 @@ import com.sommerengineering.baraudio.uitls.messageItemExpansionTimeMillis
 import com.sommerengineering.baraudio.uitls.rowHorizontalPadding
 import com.sommerengineering.baraudio.uitls.rowIconPadding
 import com.sommerengineering.baraudio.uitls.rowVerticalPadding
-import com.sommerengineering.baraudio.uitls.rowMinHeight
+import com.sommerengineering.baraudio.uitls.rowHeight
 
 @Composable
 fun LinearMessageItem(
@@ -48,7 +48,7 @@ fun LinearMessageItem(
                 .fillMaxWidth()
                 .then(
                     if (state.isExpanded) Modifier.height(IntrinsicSize.Min) // dynamic expanded
-                    else Modifier.height(rowMinHeight) ) // fixed collapsed
+                    else Modifier.height(rowHeight) ) // fixed collapsed
                 .combinedClickable(
                     onClick = state.onClick,
                     onLongClick = state.onLongClick)

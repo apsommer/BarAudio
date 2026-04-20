@@ -35,7 +35,7 @@ import com.sommerengineering.baraudio.uitls.rowAccentWidth
 import com.sommerengineering.baraudio.uitls.rowHorizontalPadding
 import com.sommerengineering.baraudio.uitls.rowIconPadding
 import com.sommerengineering.baraudio.uitls.rowVerticalPadding
-import com.sommerengineering.baraudio.uitls.rowMinHeight
+import com.sommerengineering.baraudio.uitls.rowHeight
 
 @Composable
 fun GroupHeaderItem(
@@ -57,7 +57,7 @@ fun GroupHeaderItem(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(rowMinHeight) // required for accent bar
+                    .height(rowHeight) // required for accent bar
                     .combinedClickable(onClick = { onExpand() })
                     .background(style.surface)
                     .padding(horizontal = rowHorizontalPadding),

@@ -128,7 +128,7 @@ val logoAlpha = 0.4f
 val backgroundAlpha = 0.5f
 
 // item style
-val rowMinHeight = 62.dp
+val rowHeight = 62.dp
 val assetIconSize = 26.dp
 val settingsIconSize = 24.dp
 val rowHorizontalPadding = 16.dp
@@ -137,6 +137,8 @@ val rowIconPadding = 16.dp
 val rowAccentWidth = 6.dp
 val dividerThickness = 0.5.dp
 val descriptionAlpha = 0.5f
+val streamDescriptionAlpha = 0.6f
+
 // onboarding
 const val onboardingTotalPages = 3
 const val appOnboardingTtsTitle = "Hear alerts instantly"

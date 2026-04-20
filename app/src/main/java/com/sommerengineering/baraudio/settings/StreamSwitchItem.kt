@@ -8,6 +8,7 @@ import com.sommerengineering.baraudio.source.OriginIcon
 import com.sommerengineering.baraudio.uitls.assetIconSize
 import com.sommerengineering.baraudio.uitls.descriptionAlpha
 import com.sommerengineering.baraudio.uitls.settingsIconSize
+import com.sommerengineering.baraudio.uitls.streamDescriptionAlpha
 
 @Composable
 fun StreamSwitchItem(
@@ -26,7 +27,7 @@ fun StreamSwitchItem(
         title = messageOrigin.displayName,
         description = messageOrigin.signalDescription,
         titleColor = if (isStream) style.primary else null,
-        descriptionColor = if (isStream) style.primary.copy(descriptionAlpha) else null) {
+        descriptionColor = if (isStream) style.primary.copy(streamDescriptionAlpha) else null) {
         Switch(
             checked = isStream,
             onCheckedChange = { updateStream(it) },

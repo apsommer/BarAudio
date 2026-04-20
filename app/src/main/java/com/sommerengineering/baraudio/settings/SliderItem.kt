@@ -21,11 +21,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.uitls.descriptionAlpha
-import com.sommerengineering.baraudio.uitls.rowHorizontalPadding
 import com.sommerengineering.baraudio.uitls.rowIconPadding
-import com.sommerengineering.baraudio.uitls.rowVerticalPadding
 import com.sommerengineering.baraudio.uitls.settingsIconSize
-import com.sommerengineering.baraudio.uitls.rowMinHeight
+import com.sommerengineering.baraudio.uitls.rowHeight
+import com.sommerengineering.baraudio.uitls.rowHorizontalPadding
 import com.sommerengineering.baraudio.uitls.speedTitle
 
 @Composable
@@ -40,12 +39,10 @@ fun SliderItem(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(rowMinHeight)
+                    .heightIn(rowHeight)
                     .padding(
                         start = rowHorizontalPadding + 4.dp,
-                        end = rowHorizontalPadding,
-                        top = rowVerticalPadding,
-                        bottom = rowVerticalPadding),
+                        end = rowHorizontalPadding),
                 verticalAlignment = Alignment.CenterVertically) {
 
                 Row(
