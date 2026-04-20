@@ -8,13 +8,11 @@ indicator(
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // quantity relative to day trade margin rates: tradestation
-DAY_QUANTITY = 3
+DAY_QUANTITY = 2
 OVERNIGHT_QUANTITY = 1
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // DATA
@@ -50,25 +48,27 @@ isSessionClosing = not na(time(timeframe.period, marketClosingTime, "America/New
 // ZN
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ZN_LOOKBACK = 90
+ZN_LOOKBACK = 30
+ZN_STRUCTURE_LOOKBACK = 90
 
 znAvg = ta.sma(ta.ema(znOpen, ZN_LOOKBACK), 5)
 znSlope = znAvg - znAvg[1]
 
 // trend
-isZNsupportive = znOpen > znAvg // and znSlope > 0
+isZNsupportive = znOpen > znAvg or znOpen > znAvg[ZN_STRUCTURE_LOOKBACK] // and znSlope > 0
 isZNhostile = not isZNsupportive // znAvg > znOpen and 0 > znSlope
 
 // 6E
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-E6_LOOKBACK = 75
+E6_LOOKBACK = 30
+E6_STRUCTURE_LOOKBACK = 90
 
 e6Avg = ta.sma(ta.ema(e6Open, E6_LOOKBACK), 5)
 e6Slope = e6Avg - e6Avg[1]
 
 // trend
-isE6supportive = e6Open > e6Avg // and e6Slope > 0
+isE6supportive = e6Open > e6Avg // or e6Open > e6Avg[E6_STRUCTURE_LOOKBACK] // and e6Slope > 0
 isE6hostile = not isE6supportive // e6Avg > e6Open and 0 > e6Slope
 
 // MACRO REGIME
@@ -89,15 +89,15 @@ macroFlipCountLong = math.sum(macroFlip ? 1 : 0, MACRO_CHOP_LOOKBACK_LONG)
 macroFlipCountShort = math.sum(macroFlip ? 1 : 0, MACRO_CHOP_LOOKBACK_SHORT)
 
 // stability
-isMacroCleanLong = macroFlipCountLong <= 1
-isMacroCleanShort = macroFlipCountShort <= 1
+isMacroCleanLong = macroFlipCountLong < 2
+isMacroCleanShort = macroFlipCountShort < 2
 
 // GC LOGIC
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-GC_LOOKBACK = 14
+GC_LOOKBACK = 25
 GC_EARLY_ALIGNMENT_MIN_BARS  = 2 // wait for stability
-GC_EARLY_ALIGNMENT_MAX_BARS = 5 // ensure move is early
+GC_EARLY_ALIGNMENT_MAX_BARS = 100 // ensure move is early
 
 var int gcSupportiveBars = 0
 var int gcHostileBars = 0
@@ -106,8 +106,8 @@ gcAvg = ta.sma(ta.ema(open, GC_LOOKBACK), 5)
 gcSlope = gcAvg - gcAvg[1]
 
 // trend
-isGCsupportive = open > gcAvg
-isGChostile = not isGCsupportive
+isGCsupportive = open > gcAvg // and gcSlope > 0
+isGChostile = not isGCsupportive // and 0 > gcSlope
 
 // count trend bars
 gcSupportiveBars := isGCsupportive ? gcSupportiveBars[1] + 1 : 0
@@ -150,14 +150,14 @@ isLongEntry =
      and isGCsupportiveEarly
      and isMacroCleanLong
 
-isShortEntry =
-     isBarStable
-     and isInSession
-     and not isLongTradeActive
-     and not isShortTradeActive
-     and isMacroHostile and isMacroHostile[1]
-     and isGChostileEarly
-     and isMacroCleanShort
+isShortEntry = false
+     // isBarStable
+     // and isInSession
+     // and not isLongTradeActive
+     // and not isShortTradeActive
+     // and isMacroHostile and isMacroHostile[1]
+     // and isGChostileEarly
+     // and isMacroCleanShort
 
 if isLongEntry
     isLongTradeActive := true
@@ -195,8 +195,6 @@ if isShortExit
     isShortTradeActive := false
     exitPrice := open
     profit := entryPrice - exitPrice
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
