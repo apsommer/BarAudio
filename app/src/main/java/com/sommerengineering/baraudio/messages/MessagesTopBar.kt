@@ -40,7 +40,7 @@ fun MessagesTopBar(
     // mute
     val isMute = viewModel.isMute
     val muteIcon = if (isMute) R.drawable.mute else R.drawable.unmute
-    val muteAlpa = if (isMute) 0.5f else 0.8f
+    val muteAlpa = if (isMute) 0.5f else 0.7f
 
     // icon size
     val iconSize = 28.dp
@@ -57,7 +57,9 @@ fun MessagesTopBar(
             iconRes = R.drawable.drawer,
             iconSize = iconSize,
             onClick = onSettingsClick,
-            modifier = Modifier.rotate(180f))
+            modifier = Modifier
+                .padding(end = 2.dp)
+                .rotate(180f))
 
         // logo
         Box(Modifier.weight(1f)) {
@@ -66,13 +68,14 @@ fun MessagesTopBar(
                 alpha = logoAlpha,
                 modifier = Modifier
                     .align(Alignment.CenterStart)
-                    .height(18.dp))
+                    .height(22.dp))
         }
 
         // feed mode
         AppBarIcon(
             iconRes = feedModeIcon,
             iconSize = iconSize,
+            iconAlpha = 0.7f,
             onClick = onToggleFeedMode,
             modifier = Modifier.offset(x = iconSize / 2))
 
