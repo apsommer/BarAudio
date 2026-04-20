@@ -97,8 +97,8 @@ fun MessagesScreen(
                     iconRes = R.drawable.background,
                     alpha = backgroundAlpha,
                     modifier = Modifier
-                        .align(Alignment.Center)
-                        .padding(2 * edgePadding))
+                        .align(Alignment.BottomCenter)
+                        .padding(edgePadding))
 
                 // messages
                 LazyColumn(state = listState) {

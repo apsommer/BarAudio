@@ -35,7 +35,7 @@ val insomniaSource = Source(
         accent = Color(0xFF7C4DFF),
         surface = Color(0xFF1B0D3A),
         text = Color(0xFFF0E9FF),
-        iconRes = R.drawable.insomnia))
+        iconRes = R.drawable.tradingview)) // todo temp, fix all these icons color/scale/alphs
 
 val unknownSource = Source(
     key = "unknown",
