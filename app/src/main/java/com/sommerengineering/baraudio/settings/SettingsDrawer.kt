@@ -107,7 +107,7 @@ fun SettingsDrawer(
                     IconButton(
                         onClick = { isShowVoiceDialog = true }) {
                         Icon(
-                            painter = painterResource(R.drawable.more_vertical),
+                            painter = painterResource(R.drawable.more),
                             contentDescription = null)
                     }
 
