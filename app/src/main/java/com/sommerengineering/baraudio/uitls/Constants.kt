@@ -137,7 +137,6 @@ val rowAccentWidth = 6.dp
 val settingsRowMinHeight = 64.dp
 val dividerThickness = 0.5.dp
 val descriptionAlpha = 0.5f
-
 // onboarding
 const val onboardingTotalPages = 3
 const val appOnboardingTtsTitle = "Hear alerts instantly"

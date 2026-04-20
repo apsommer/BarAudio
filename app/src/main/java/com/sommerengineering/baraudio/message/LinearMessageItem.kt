@@ -4,10 +4,12 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -28,6 +30,7 @@ import com.sommerengineering.baraudio.uitls.messageItemExpansionTimeMillis
 import com.sommerengineering.baraudio.uitls.rowHorizontalPadding
 import com.sommerengineering.baraudio.uitls.rowIconPadding
 import com.sommerengineering.baraudio.uitls.rowVerticalPadding
+import com.sommerengineering.baraudio.uitls.settingsRowMinHeight
 
 @Composable
 fun LinearMessageItem(
@@ -44,7 +47,9 @@ fun LinearMessageItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(IntrinsicSize.Min) // required for collapse/expand animation
+                .then(
+                    if (state.isExpanded) Modifier.height(IntrinsicSize.Min) // dynamic expanded
+                    else Modifier.height(settingsRowMinHeight) ) // fixed collapsed
                 .combinedClickable(
                     onClick = state.onClick,
                     onLongClick = state.onLongClick)
@@ -56,7 +61,10 @@ fun LinearMessageItem(
             // accent rail
             LinearRail(state.style.primary)
 
-            val modifier = Modifier.weight(1f).padding(vertical = rowVerticalPadding)
+            val modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight()
+                .padding(vertical = rowVerticalPadding)
 
             // collapsed
             if (!state.isExpanded) {
