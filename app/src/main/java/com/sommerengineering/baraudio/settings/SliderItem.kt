@@ -25,7 +25,7 @@ import com.sommerengineering.baraudio.uitls.rowHorizontalPadding
 import com.sommerengineering.baraudio.uitls.rowIconPadding
 import com.sommerengineering.baraudio.uitls.rowVerticalPadding
 import com.sommerengineering.baraudio.uitls.settingsIconSize
-import com.sommerengineering.baraudio.uitls.settingsRowMinHeight
+import com.sommerengineering.baraudio.uitls.rowMinHeight
 import com.sommerengineering.baraudio.uitls.speedTitle
 
 @Composable
@@ -40,7 +40,7 @@ fun SliderItem(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(settingsRowMinHeight)
+                    .heightIn(rowMinHeight)
                     .padding(
                         start = rowHorizontalPadding + 4.dp,
                         end = rowHorizontalPadding,

@@ -6,7 +6,6 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -31,13 +30,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.source.MessageOrigin
-import com.sommerengineering.baraudio.theme.timestampTextStyle
 import com.sommerengineering.baraudio.uitls.dividerThickness
 import com.sommerengineering.baraudio.uitls.rowAccentWidth
 import com.sommerengineering.baraudio.uitls.rowHorizontalPadding
 import com.sommerengineering.baraudio.uitls.rowIconPadding
 import com.sommerengineering.baraudio.uitls.rowVerticalPadding
-import com.sommerengineering.baraudio.uitls.settingsRowMinHeight
+import com.sommerengineering.baraudio.uitls.rowMinHeight
 
 @Composable
 fun GroupHeaderItem(
@@ -59,7 +57,7 @@ fun GroupHeaderItem(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(settingsRowMinHeight) // required for accent bar
+                    .height(rowMinHeight) // required for accent bar
                     .combinedClickable(onClick = { onExpand() })
                     .background(style.surface)
                     .padding(horizontal = rowHorizontalPadding),

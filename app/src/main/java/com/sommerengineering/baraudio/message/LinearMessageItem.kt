@@ -4,7 +4,6 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -30,7 +29,7 @@ import com.sommerengineering.baraudio.uitls.messageItemExpansionTimeMillis
 import com.sommerengineering.baraudio.uitls.rowHorizontalPadding
 import com.sommerengineering.baraudio.uitls.rowIconPadding
 import com.sommerengineering.baraudio.uitls.rowVerticalPadding
-import com.sommerengineering.baraudio.uitls.settingsRowMinHeight
+import com.sommerengineering.baraudio.uitls.rowMinHeight
 
 @Composable
 fun LinearMessageItem(
@@ -49,7 +48,7 @@ fun LinearMessageItem(
                 .fillMaxWidth()
                 .then(
                     if (state.isExpanded) Modifier.height(IntrinsicSize.Min) // dynamic expanded
-                    else Modifier.height(settingsRowMinHeight) ) // fixed collapsed
+                    else Modifier.height(rowMinHeight) ) // fixed collapsed
                 .combinedClickable(
                     onClick = state.onClick,
                     onLongClick = state.onLongClick)

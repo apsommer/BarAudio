@@ -24,7 +24,7 @@ import com.sommerengineering.baraudio.uitls.rowHorizontalPadding
 import com.sommerengineering.baraudio.uitls.rowIconPadding
 import com.sommerengineering.baraudio.uitls.rowVerticalPadding
 import com.sommerengineering.baraudio.uitls.settingsIconSize
-import com.sommerengineering.baraudio.uitls.settingsRowMinHeight
+import com.sommerengineering.baraudio.uitls.rowMinHeight
 
 @Composable
 fun DialogItem(
@@ -39,7 +39,7 @@ fun DialogItem(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(settingsRowMinHeight)
+                    .heightIn(rowMinHeight)
                     .clickable { onClick() }
                     .padding(
                         start = rowHorizontalPadding + 4.dp,

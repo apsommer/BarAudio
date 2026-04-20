@@ -21,7 +21,7 @@ import com.sommerengineering.baraudio.uitls.descriptionAlpha
 import com.sommerengineering.baraudio.uitls.rowHorizontalPadding
 import com.sommerengineering.baraudio.uitls.rowIconPadding
 import com.sommerengineering.baraudio.uitls.rowVerticalPadding
-import com.sommerengineering.baraudio.uitls.settingsRowMinHeight
+import com.sommerengineering.baraudio.uitls.rowMinHeight
 
 @Composable
 fun SwitchItem(
@@ -37,7 +37,7 @@ fun SwitchItem(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(settingsRowMinHeight)
+                    .heightIn(rowMinHeight)
                     .padding(
                         start = rowHorizontalPadding + 4.dp,
                         end = rowHorizontalPadding,

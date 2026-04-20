@@ -128,13 +128,13 @@ val logoAlpha = 0.4f
 val backgroundAlpha = 0.5f
 
 // item style
+val rowMinHeight = 62.dp
 val assetIconSize = 26.dp
 val settingsIconSize = 24.dp
 val rowHorizontalPadding = 16.dp
 val rowVerticalPadding = 12.dp
 val rowIconPadding = 16.dp
 val rowAccentWidth = 6.dp
-val settingsRowMinHeight = 64.dp
 val dividerThickness = 0.5.dp
 val descriptionAlpha = 0.5f
 // onboarding
