@@ -42,6 +42,10 @@ fun MessagesTopBar(
     val muteIcon = if (isMute) R.drawable.mute else R.drawable.unmute
     val muteAlpa = if (isMute) 0.5f else 0.8f
 
+    // icon size
+    val iconSize = 28.dp
+    val muteIconSize = 24.dp
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -51,6 +55,7 @@ fun MessagesTopBar(
         // settings drawer
         AppBarIcon(
             iconRes = R.drawable.drawer,
+            iconSize = iconSize,
             onClick = onSettingsClick,
             modifier = Modifier.rotate(180f))
 
@@ -67,13 +72,14 @@ fun MessagesTopBar(
         // feed mode
         AppBarIcon(
             iconRes = feedModeIcon,
+            iconSize = iconSize,
             onClick = onToggleFeedMode,
-            modifier = Modifier.offset(x = rowHorizontalPadding))
+            modifier = Modifier.offset(x = iconSize / 2))
 
         // mute
         AppBarIcon(
             iconRes = muteIcon,
-            iconSize = 22.dp,
+            iconSize = muteIconSize,
             iconAlpha = muteAlpa,
             onClick = onToggleMute)
     }
@@ -82,7 +88,7 @@ fun MessagesTopBar(
 @Composable
 fun AppBarIcon(
     iconRes: Int,
-    iconSize: Dp = 24.dp,
+    iconSize: Dp,
     iconAlpha: Float = 1f,
     onClick: () -> Unit,
     modifier: Modifier = Modifier) {
