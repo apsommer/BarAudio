@@ -6,6 +6,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -20,6 +22,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -37,8 +41,8 @@ fun MessagesTopBar(
 
     // fullscreen
     val isFullScreen = viewModel.isFullScreen
-
-    // logo
+    val basePadding = rowHorizontalPadding / 2
+    val (cutoutStart, cutoutEnd) = getCutoutPadding(isFullScreen)
     val logoIcon = if (isFullScreen) R.drawable.appbar_compact else R.drawable.appbar
 
     // feed mode
@@ -57,7 +61,11 @@ fun MessagesTopBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(rowHorizontalPadding / 2),
+            .padding(
+                start = basePadding + cutoutStart,
+                end = basePadding + cutoutEnd,
+                top = basePadding,
+                bottom = basePadding),
         verticalAlignment = Alignment.CenterVertically) {
 
         // settings drawer
@@ -121,4 +129,23 @@ fun AppBarIcon(
             tint = MaterialTheme.colorScheme.onSurface.copy(iconAlpha),
             contentDescription = null)
     }
+}
+
+@Composable
+fun getCutoutPadding(isFullScreen: Boolean): Pair<Dp, Dp> {
+
+    // fullscreen
+    if (isFullScreen) return 0.dp to 0.dp
+
+    val density = LocalDensity.current
+    val layoutDirection = LocalLayoutDirection.current
+    val cutout = WindowInsets.displayCutout
+
+    val leftPx = cutout.getLeft(density, layoutDirection)
+    val rightPx = cutout.getRight(density, layoutDirection)
+
+    val left = (leftPx / density.density).dp
+    val right = (rightPx / density.density).dp
+
+    return left to right
 }
