@@ -38,7 +38,7 @@ e6Open = request.security(E6_SYMBOL, timeframe.period, open)
 // us: 0930-1600
 
 // session windows (entry allowed)
-inSessionTimes = "1810-0359,0910-1658"
+inSessionTimes = "1805-0459" // "1810-0459,0910-1658"
 isInSession = not na(time(timeframe.period, inSessionTimes, "America/New_York"))
 
 // session closing (exit)
@@ -48,34 +48,24 @@ isSessionClosing = not na(time(timeframe.period, marketClosingTime, "America/New
 // ZN
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ZN_LOOKBACK = 30
-ZN_STRUCTURE_LOOKBACK = 90
+ZN_LOOKBACK = 90
 
-znAvg = ta.sma(ta.ema(znOpen, ZN_LOOKBACK), 5)
-znSlope = znAvg - znAvg[1]
-
-// trend
-isZNsupportive = znOpen > znAvg or znOpen > znAvg[ZN_STRUCTURE_LOOKBACK] // and znSlope > 0
-isZNhostile = not isZNsupportive // znAvg > znOpen and 0 > znSlope
+isZNsupportive = request.security(ZN_SYMBOL, timeframe.period, open > ta.sma(ta.ema(open, ZN_LOOKBACK), 5))
+isZNhostile = not isZNsupportive
 
 // 6E
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 E6_LOOKBACK = 30
-E6_STRUCTURE_LOOKBACK = 90
 
-e6Avg = ta.sma(ta.ema(e6Open, E6_LOOKBACK), 5)
-e6Slope = e6Avg - e6Avg[1]
-
-// trend
-isE6supportive = e6Open > e6Avg // or e6Open > e6Avg[E6_STRUCTURE_LOOKBACK] // and e6Slope > 0
-isE6hostile = not isE6supportive // e6Avg > e6Open and 0 > e6Slope
+isE6supportive = request.security(E6_SYMBOL, timeframe.period, open > ta.sma(ta.ema(open, E6_LOOKBACK), 5))
+isE6hostile = not isE6supportive
 
 // MACRO REGIME
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 MACRO_CHOP_LOOKBACK_LONG = 10
-MACRO_CHOP_LOOKBACK_SHORT = 3
+MACRO_CHOP_LOOKBACK_SHORT = 5
 
 // alignment
 isMacroSupportive = isZNsupportive and isE6supportive
@@ -95,9 +85,9 @@ isMacroCleanShort = macroFlipCountShort < 2
 // GC LOGIC
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-GC_LOOKBACK = 25
+GC_LOOKBACK = 10
 GC_EARLY_ALIGNMENT_MIN_BARS  = 2 // wait for stability
-GC_EARLY_ALIGNMENT_MAX_BARS = 100 // ensure move is early
+GC_EARLY_ALIGNMENT_MAX_BARS = 5 // ensure move is early
 
 var int gcSupportiveBars = 0
 var int gcHostileBars = 0
