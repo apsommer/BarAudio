@@ -35,6 +35,12 @@ fun MessagesTopBar(
     onToggleFeedMode: () -> Unit,
     onToggleMute: () -> Unit) {
 
+    // fullscreen
+    val isFullScreen = viewModel.isFullScreen
+
+    // logo
+    val logoIcon = if (isFullScreen) R.drawable.appbar_compact else R.drawable.appbar
+
     // feed mode
     val feedMode = viewModel.feedMode
     val feedModeIcon = if (feedMode == FeedMode.Linear) R.drawable.group  else R.drawable.ungroup
@@ -69,7 +75,7 @@ fun MessagesTopBar(
                 modifier = Modifier
                     .align(Alignment.CenterStart)
                     .height(22.dp),
-                painter = painterResource(R.drawable.appbar),
+                painter = painterResource(logoIcon),
                 contentDescription = null)
             Box(Modifier
                 .matchParentSize()
