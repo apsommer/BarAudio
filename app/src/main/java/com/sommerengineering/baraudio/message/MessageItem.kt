@@ -24,7 +24,6 @@ fun MessageItem(
     // extract message attributes
     val timestamp = message.timestamp
     val text = message.message
-    var beautifulTimestamp by remember { mutableStateOf("") }
 
     // style from origin
     val origin = resolveMessageOrigin(message)
@@ -42,6 +41,7 @@ fun MessageItem(
         label = "background")
 
     // update timestamp once per minute
+    var beautifulTimestamp by remember { mutableStateOf("") }
     LaunchedEffect(Unit) {
         while (true) {
             beautifulTimestamp = TimestampFormatter.beautifyCompact(timestamp)

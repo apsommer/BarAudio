@@ -1,23 +1,18 @@
 package com.sommerengineering.baraudio.messages
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.DrawerDefaults
 import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,22 +24,15 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.times
 import com.sommerengineering.baraudio.MainViewModel
-import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.message.GroupHeaderItem
 import com.sommerengineering.baraudio.message.MessageItem
-import com.sommerengineering.baraudio.onboarding.webhook.ListeningDot
 import com.sommerengineering.baraudio.settings.SettingsDrawer
 import com.sommerengineering.baraudio.source.Message
 import com.sommerengineering.baraudio.source.MessageGroup
 import com.sommerengineering.baraudio.source.MessageOrigin
 import com.sommerengineering.baraudio.source.resolveMessageOrigin
-import com.sommerengineering.baraudio.uitls.backgroundAlpha
-import com.sommerengineering.baraudio.uitls.edgePadding
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -101,28 +89,7 @@ fun MessagesScreen(
             }
         ) { padding ->
 
-            Box(Modifier.fillMaxSize().padding(padding)) {
-
-                //
-                Row(
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .fillMaxWidth()
-                        .padding(bottom = 120.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-
-                    ListeningDot()
-
-                    Spacer(modifier = Modifier.width(6.dp))
-
-                    Text(
-                        text = "last signal · 2m ago",
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
+            Column(Modifier.fillMaxSize().padding(padding)) {
 
                 // messages
                 LazyColumn(state = listState) {
@@ -179,6 +146,10 @@ fun MessagesScreen(
                         }
                     }
                 }
+
+                LastSignalPulse(
+                    modifier = Modifier.fillMaxWidth().weight(1f),
+                    timestamp = messages.firstOrNull()?.timestamp ?: System.currentTimeMillis().toString())
             }
         }
     }
