@@ -24,7 +24,7 @@ fun OnboardingScreen(
     onNextClick: () -> Unit,
     isNextEnabled: Boolean = true,
     onCloseClick: (() -> Unit)? = null,
-    content: @Composable (() -> Unit)? = null) {
+    content: @Composable (() -> Unit)) {
 
     Box(Modifier
         .fillMaxSize()
@@ -48,12 +48,8 @@ fun OnboardingScreen(
                     .padding(vertical = edgePadding * 2),
                 contentAlignment = Alignment.Center) {
 
-                content?.let { it() } ?: // image, verification ui, ...
-                OnboardingAnimation( // app onboarding animation
-                    pageNumber = pageNumber,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .align(Alignment.Center))
+                content()
+
             }
 
             // page indicators and button

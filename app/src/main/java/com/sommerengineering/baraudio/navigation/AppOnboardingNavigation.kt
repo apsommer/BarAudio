@@ -15,6 +15,9 @@ import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.onboarding.OnboardingMode.AppOnboarding
 import com.sommerengineering.baraudio.onboarding.OnboardingScreen
+import com.sommerengineering.baraudio.onboarding.app.NodeConnection
+import com.sommerengineering.baraudio.onboarding.app.PulseRings
+import com.sommerengineering.baraudio.onboarding.app.VoicePulseGraphic
 import com.sommerengineering.baraudio.uitls.AppOnboardingRoute
 import com.sommerengineering.baraudio.uitls.AppOnboardingNotificationsRoute
 import com.sommerengineering.baraudio.uitls.AppOnboardingTextToSpeechRoute
@@ -36,7 +39,9 @@ fun NavGraphBuilder.AppOnboardingNavigation(
             OnboardingScreen(
                 onboardingMode = AppOnboarding,
                 pageNumber = 0,
-                onNextClick = { controller.navigate(AppOnboardingNotificationsRoute) })
+                onNextClick = { controller.navigate(AppOnboardingNotificationsRoute) }) {
+                VoicePulseGraphic()
+            }
         }
 
         // onboarding screen: notifications
@@ -65,7 +70,10 @@ fun NavGraphBuilder.AppOnboardingNavigation(
                     } else {
                         controller.navigate(AppOnboardingWebhookRoute)
                     }
-                })
+                }
+            ) {
+                PulseRings()
+            }
         }
 
         // onboarding screen: webhook
@@ -79,7 +87,9 @@ fun NavGraphBuilder.AppOnboardingNavigation(
                     controller.navigate(MessagesRoute) {
                         popUpTo(MessagesRoute) { inclusive = true }
                     }
-                })
+                }) {
+                NodeConnection()
+            }
         }
     }
 }
