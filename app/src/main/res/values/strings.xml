@@ -1,4 +1,4 @@
 <resources>
-    <string name="app_name">BarAudio</string>
+    <string name="app_name">SignalVoice</string>
     <string name="notification_channel_id">42</string>
 </resources>
