@@ -1,5 +1,7 @@
 package com.sommerengineering.baraudio.messages
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -61,14 +63,17 @@ fun MessagesTopBar(
                 .padding(end = 2.dp)
                 .rotate(180f))
 
-        // logo
+        // logo with scrim overlay
         Box(Modifier.weight(1f)) {
-            ScrimImage(
-                iconRes = R.drawable.appbar,
-                alpha = logoAlpha,
+            Image(
                 modifier = Modifier
                     .align(Alignment.CenterStart)
-                    .height(22.dp))
+                    .height(22.dp),
+                painter = painterResource(R.drawable.appbar),
+                contentDescription = null)
+            Box(Modifier
+                .matchParentSize()
+                .background(MaterialTheme.colorScheme.background.copy(logoAlpha)))
         }
 
         // feed mode
