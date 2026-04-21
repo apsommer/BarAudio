@@ -67,29 +67,13 @@ fun LinearMessageItem(
 
             // collapsed
             if (!state.isExpanded) {
-
-                Column(modifier) {
-
-                    // message
-                    Text(
-                        text = buildStyledMessage(
-                            displayText = displayText,
-                            state = state),
-                        style = MaterialTheme.typography.bodyMedium,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis)
-                    Spacer(Modifier.height(4.dp))
-
-                    // compact timestamp
-                    Text(
-                        text = state.beautifulTimestamp,
-                        style = timestampTextStyle,
-                        color = MaterialTheme.colorScheme.onSurface.copy(0.6f))
-                }
+                LinearCollapsedMessageItem(
+                    state = state,
+                    displayText = displayText,
+                    modifier = modifier)
 
             // expanded, parity with expanded GroupedMessageItem
             } else {
-
                 ExpandedMessageItem(
                     state = state,
                     displayText = displayText,

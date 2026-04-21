@@ -1,6 +1,8 @@
-package com.sommerengineering.baraudio.onboarding
+package com.sommerengineering.baraudio.onboarding.app
 
 import com.sommerengineering.baraudio.source.Message
+
+
 
 fun onboardingMessages(): List<Message> {
 
