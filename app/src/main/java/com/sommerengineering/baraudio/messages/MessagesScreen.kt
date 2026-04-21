@@ -119,8 +119,6 @@ fun MessagesScreen(
                         // grouped messages by origin, then by timestamp
                         FeedMode.Grouped -> {
                             groups.forEachIndexed { groupIndex, (origin, messages) ->
-
-                                // group header
                                 val isExpanded = expandedGroups[origin] == true
                                 item(origin.key) {
                                     GroupHeaderItem(
@@ -130,8 +128,6 @@ fun MessagesScreen(
                                         isShowDivider = groupIndex != groups.size - 1,
                                         onExpand = { expandedGroups[origin] = !isExpanded })
                                 }
-
-                                // messages in group
                                 if (isExpanded) {
                                     itemsIndexed(
                                         items = messages,
@@ -147,6 +143,7 @@ fun MessagesScreen(
                     }
                 }
 
+                // pulse icon with last signal timestamp
                 LastSignalPulse(
                     modifier = Modifier.fillMaxWidth().weight(1f),
                     timestamp = messages.firstOrNull()?.timestamp ?: System.currentTimeMillis().toString())

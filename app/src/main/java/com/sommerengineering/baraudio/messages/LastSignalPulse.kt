@@ -58,7 +58,7 @@ fun LastSignalPulse(
             verticalAlignment = Alignment.CenterVertically) {
 
             ListeningDot()
-            Spacer(modifier = Modifier.width(6.dp))
+            Spacer(Modifier.width(6.dp))
             Text(
                 text = displayText,
                 color = MaterialTheme.colorScheme.onBackground.copy(0.5f),
@@ -68,7 +68,7 @@ fun LastSignalPulse(
 }
 
 @Composable
-fun ListeningDot(modifier: Modifier = Modifier) {
+fun ListeningDot() {
 
     val pulseDurationMillis = 1000
     val infiniteTransition = rememberInfiniteTransition()
@@ -80,7 +80,7 @@ fun ListeningDot(modifier: Modifier = Modifier) {
             animation = tween(pulseDurationMillis),
             repeatMode = RepeatMode.Reverse))
 
-    Box(modifier
+    Box(Modifier
         .size(4.dp)
         .alpha(alpha)
         .background(
