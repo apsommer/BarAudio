@@ -33,6 +33,7 @@ import com.sommerengineering.baraudio.source.Message
 import com.sommerengineering.baraudio.source.MessageGroup
 import com.sommerengineering.baraudio.source.MessageOrigin
 import com.sommerengineering.baraudio.source.resolveMessageOrigin
+import com.sommerengineering.baraudio.uitls.logMessage
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -110,6 +111,7 @@ fun MessagesScreen(
                             itemsIndexed(
                                 items = messages,
                                 key = { _, it -> it.timestamp }) { index, message ->
+                                logMessage(message.message)
                                 MessageItem(
                                     viewModel = viewModel,
                                     message = message,

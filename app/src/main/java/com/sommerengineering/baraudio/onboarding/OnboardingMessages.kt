@@ -11,27 +11,27 @@ fun onboardingMessages(): List<Message> {
     return listOf(
         Message(
             timestamp = (now - staggerMillis).toString(),
-            message = "Cascade • Stop cascade • Velocity spike",
+            message = "Macro Supportive • Treasuries +0.36% • Dollar falling",
             stream = "GC",
             source = null),
         Message(
             timestamp = (now - 2 * staggerMillis).toString(),
-            message = "Exhaustion • Momentum fading",
+            message = "Acceptance • Upside holding • 7125.25",
             stream = "ES",
             source = null),
         Message(
             timestamp = (now - 3 * staggerMillis).toString(),
-            message = "Continuation • Range expansion",
+            message = "Cascade • Bullish short liquidation • 157 points",
             stream = "NQ",
             source = null),
         Message(
             timestamp = (now - 4 * staggerMillis).toString(),
-            message = "Expansion • Volatility building",
+            message = "Impulse • Bearish momentum • -0.48%",
             stream = "BTC",
             source = null),
         Message(
             timestamp = (now - 5 * staggerMillis).toString(),
-            message = "Compression • Range tightening",
+            message = "Repricing • Yields rising • +0.12%",
             stream = "ZN",
             source = null))
 }
