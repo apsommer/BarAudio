@@ -63,7 +63,7 @@ fun MessagesTopBar(
                 .padding(end = 2.dp)
                 .rotate(180f))
 
-        // logo with scrim overlay
+        // logo, with scrim overlay
         Box(Modifier.weight(1f)) {
             Image(
                 modifier = Modifier
