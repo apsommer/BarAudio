@@ -219,8 +219,13 @@ class MainViewModel @Inject constructor(
     }
 
     // notifications
+    var areNotificationsRequested by mutableStateOf(false)
+        private set
     var areNotificationsEnabled by mutableStateOf(false)
         private set
+    fun updateNotificationsRequested(areRequested: Boolean) {
+        areNotificationsRequested = areRequested
+    }
     fun updateNotificationsEnabled(enabled: Boolean) {
         areNotificationsEnabled = enabled
     }

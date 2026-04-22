@@ -47,6 +47,7 @@ class MainActivity : ComponentActivity() {
 
     val requestNotificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+        viewModel.updateNotificationsRequested(true)
         viewModel.updateNotificationsEnabled(areNotificationsEnabled())
     }
 

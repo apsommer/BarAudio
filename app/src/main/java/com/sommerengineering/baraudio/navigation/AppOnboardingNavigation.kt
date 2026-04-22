@@ -5,7 +5,9 @@ import android.content.Context
 import android.os.Build
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -56,15 +58,11 @@ fun NavGraphBuilder.AppOnboardingNavigation(
         // onboarding screen: notifications
         composable(AppOnboardingNotificationsRoute) {
 
-            // ask for permission again if the first request is declined
-            val areNotificationsEnabled = viewModel.areNotificationsEnabled
-            val count = remember { mutableIntStateOf(0) }
-
-            // navigate forward if notifications are granted
-            LaunchedEffect(areNotificationsEnabled) {
-                if (areNotificationsEnabled && Build.VERSION.SDK_INT >= 33) {
-                    controller.navigate(AppOnboardingWebhookRoute)
-                }
+            // navigate forward after system notification request
+            val hasRequested = viewModel.areNotificationsRequested
+            LaunchedEffect(hasRequested) {
+                if (!hasRequested) return@LaunchedEffect
+                controller.navigate(AppOnboardingWebhookRoute)
             }
 
             BackHandler { (context as MainActivity).moveTaskToBack(true) }
@@ -72,15 +70,13 @@ fun NavGraphBuilder.AppOnboardingNavigation(
                 title = onboardingNotificationsTitle,
                 subTitle = onboardingNotificationsSubtitle,
                 pageNumber = 1,
-                buttonText = nextText,
+                buttonText = "Enable\nNotifications",
                 onNextClick = {
-                    if (Build.VERSION.SDK_INT >= 33 && 2 > count.intValue) {
-                        (context as MainActivity).requestNotificationPermissionLauncher
+                    if (Build.VERSION.SDK_INT >= 33) { // request notifications with system dialog
+                        (context as MainActivity)
+                            .requestNotificationPermissionLauncher
                             .launch(Manifest.permission.POST_NOTIFICATIONS)
-                        count.intValue++
-                    } else {
-                        controller.navigate(AppOnboardingWebhookRoute)
-                    }
+                    } else { controller.navigate(AppOnboardingWebhookRoute) } // old api notifications default to allowed
                 }) {
                 OnboardingAllowNotifications()
             }
