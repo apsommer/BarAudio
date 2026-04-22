@@ -1,50 +1,36 @@
 package com.sommerengineering.baraudio.onboarding
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
-import com.sommerengineering.baraudio.onboarding.OnboardingMode.AppOnboarding
-import com.sommerengineering.baraudio.onboarding.OnboardingMode.SetupWebhook
-import com.sommerengineering.baraudio.uitls.allowNotificationsMessage
-import com.sommerengineering.baraudio.uitls.appOnboardingTtsTitle
-import com.sommerengineering.baraudio.uitls.appOnboardingWebhookTitle
-import com.sommerengineering.baraudio.uitls.setupOnboardingCopyTitle
-import com.sommerengineering.baraudio.uitls.setupOnboardingPasteSubtitle
-import com.sommerengineering.baraudio.uitls.setupOnboardingPasteTitle
-import com.sommerengineering.baraudio.uitls.setupOnboardingSignalTitle
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun OnboardingText(
-    onboardingMode: OnboardingMode,
-    pageNumber: Int,
+    title: String,
+    subTitle: String? = null,
     modifier: Modifier) {
 
-    val annotatedString = buildAnnotatedString { when (onboardingMode) {
+    Column(modifier) {
 
-        AppOnboarding -> { when (pageNumber) {
-            0 -> { append(appOnboardingTtsTitle) }
-            1 -> { append(allowNotificationsMessage) }
-            2 -> { append(appOnboardingWebhookTitle) }
-        }}
+        // title
+        Text(
+            text = title,
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.titleLarge)
+        Spacer(Modifier.height(8.dp))
 
-        SetupWebhook -> { when (pageNumber) {
-            0 -> append(setupOnboardingCopyTitle)
-            1 -> {
-                append(setupOnboardingPasteTitle)
-                withStyle(style = MaterialTheme.typography.bodyMedium.toSpanStyle()) {
-                    append(setupOnboardingPasteSubtitle) }
-            }
-            2 -> append(setupOnboardingSignalTitle)
-        }}
-    }}
-
-    Text(
-        modifier = modifier,
-        text = annotatedString,
-        textAlign = TextAlign.Center,
-        style = MaterialTheme.typography.titleLarge)
+        // subtitle
+        if (subTitle != null) {
+            Text(
+                text = subTitle,
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyLarge)
+        }
+    }
 }

@@ -17,15 +17,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.onboarding.OnboardingMode.SetupWebhook
-import com.sommerengineering.baraudio.uitls.copyText
-import com.sommerengineering.baraudio.uitls.doneText
-import com.sommerengineering.baraudio.uitls.nextText
 import com.sommerengineering.baraudio.uitls.onboardingTotalPages
 
 @Composable
 fun OnboardingButton(
-    onboardingMode: OnboardingMode,
+    buttonText: String,
     pageNumber: Int,
     onNextClick: () -> Unit,
     isNextEnabled: Boolean = true,
@@ -37,14 +33,16 @@ fun OnboardingButton(
 
             // page indicator
             Row(Modifier.align(Alignment.Center)) {
-                for (i in 0 ..< onboardingTotalPages) {
+                for (i in 0..<onboardingTotalPages) {
                     Icon(
                         modifier = Modifier.padding(6.dp).size(12.dp),
                         tint = MaterialTheme.colorScheme.outline,
                         painter = painterResource(
                             if (i == pageNumber) R.drawable.indicator_filled
-                            else R.drawable.indicator_open),
-                        contentDescription = null)
+                            else R.drawable.indicator_open
+                        ),
+                        contentDescription = null
+                    )
                 }
             }
 
@@ -52,16 +50,13 @@ fun OnboardingButton(
             Button(
                 modifier = Modifier.align(Alignment.CenterEnd),
                 enabled = isNextEnabled,
-                onClick = onNextClick) {
+                onClick = onNextClick
+            ) {
                 Text(
                     textAlign = TextAlign.Center,
-                    text = when (onboardingMode) {
-                        SetupWebhook if pageNumber == 0 -> copyText
-                        SetupWebhook if pageNumber == 2 -> doneText
-                        else -> nextText
-                    })
+                    text = buttonText
+                )
             }
         }
     }
 }
-

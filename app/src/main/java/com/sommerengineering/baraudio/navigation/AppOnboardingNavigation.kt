@@ -13,17 +13,19 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
-import com.sommerengineering.baraudio.onboarding.OnboardingMode.AppOnboarding
 import com.sommerengineering.baraudio.onboarding.OnboardingScreen
 import com.sommerengineering.baraudio.onboarding.app.AppOnboardingTextToSpeech
 import com.sommerengineering.baraudio.onboarding.app.NodeConnection
 import com.sommerengineering.baraudio.onboarding.app.PulseRings
-import com.sommerengineering.baraudio.onboarding.app.VoicePulseGraphic
-import com.sommerengineering.baraudio.uitls.AppOnboardingRoute
 import com.sommerengineering.baraudio.uitls.AppOnboardingNotificationsRoute
+import com.sommerengineering.baraudio.uitls.AppOnboardingRoute
 import com.sommerengineering.baraudio.uitls.AppOnboardingTextToSpeechRoute
 import com.sommerengineering.baraudio.uitls.AppOnboardingWebhookRoute
 import com.sommerengineering.baraudio.uitls.MessagesRoute
+import com.sommerengineering.baraudio.uitls.allowNotificationsMessage
+import com.sommerengineering.baraudio.uitls.appOnboardingTtsTitle
+import com.sommerengineering.baraudio.uitls.appOnboardingWebhookTitle
+import com.sommerengineering.baraudio.uitls.nextText
 
 fun NavGraphBuilder.AppOnboardingNavigation(
     controller: NavController,
@@ -38,8 +40,9 @@ fun NavGraphBuilder.AppOnboardingNavigation(
         composable(AppOnboardingTextToSpeechRoute) {
             BackHandler { (context as MainActivity).moveTaskToBack(true) }
             OnboardingScreen(
-                onboardingMode = AppOnboarding,
+                title = appOnboardingTtsTitle,
                 pageNumber = 0,
+                buttonText = nextText,
                 onNextClick = { controller.navigate(AppOnboardingNotificationsRoute) }) {
                 AppOnboardingTextToSpeech()
             }
@@ -61,8 +64,9 @@ fun NavGraphBuilder.AppOnboardingNavigation(
 
             BackHandler { (context as MainActivity).moveTaskToBack(true) }
             OnboardingScreen(
-                onboardingMode = AppOnboarding,
+                title = allowNotificationsMessage,
                 pageNumber = 1,
+                buttonText = nextText,
                 onNextClick = {
                     if (Build.VERSION.SDK_INT >= 33 && 2 > count.intValue) {
                         (context as MainActivity).requestNotificationPermissionLauncher
@@ -81,8 +85,9 @@ fun NavGraphBuilder.AppOnboardingNavigation(
         composable(AppOnboardingWebhookRoute) {
             BackHandler { (context as MainActivity).moveTaskToBack(true) }
             OnboardingScreen(
-                onboardingMode = AppOnboarding,
+                title = appOnboardingWebhookTitle,
                 pageNumber = 2,
+                buttonText = nextText,
                 onNextClick = {
                     viewModel.updateOnboarding(true)
                     controller.navigate(MessagesRoute) {

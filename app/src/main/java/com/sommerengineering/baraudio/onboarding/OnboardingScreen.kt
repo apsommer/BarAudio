@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -19,8 +18,10 @@ import com.sommerengineering.baraudio.uitls.edgePadding
 
 @Composable
 fun OnboardingScreen(
-    onboardingMode: OnboardingMode,
+    title: String,
+    subTitle: String? = null,
     pageNumber: Int,
+    buttonText: String,
     onNextClick: () -> Unit,
     isNextEnabled: Boolean = true,
     onCloseClick: (() -> Unit)? = null,
@@ -34,8 +35,8 @@ fun OnboardingScreen(
 
             // title
             OnboardingText(
-                onboardingMode = onboardingMode,
-                pageNumber = pageNumber,
+                title = title,
+                subTitle = subTitle,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = edgePadding * 5))
@@ -47,14 +48,12 @@ fun OnboardingScreen(
                     .fillMaxWidth()
                     .padding(vertical = edgePadding * 2),
                 contentAlignment = Alignment.Center) {
-
                 content()
-
             }
 
             // page indicators and button
             OnboardingButton(
-                onboardingMode = onboardingMode,
+                buttonText = buttonText,
                 pageNumber = pageNumber,
                 onNextClick = onNextClick,
                 isNextEnabled = isNextEnabled,

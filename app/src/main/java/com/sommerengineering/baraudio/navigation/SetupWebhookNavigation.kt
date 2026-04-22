@@ -2,7 +2,6 @@ package com.sommerengineering.baraudio.navigation
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -11,7 +10,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -21,7 +19,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
-import com.sommerengineering.baraudio.onboarding.OnboardingMode.SetupWebhook
 import com.sommerengineering.baraudio.onboarding.OnboardingScreen
 import com.sommerengineering.baraudio.onboarding.webhook.VerificationContent
 import com.sommerengineering.baraudio.onboarding.webhook.VerificationState
@@ -30,6 +27,12 @@ import com.sommerengineering.baraudio.uitls.SetupOnboardingCopyWebhookRoute
 import com.sommerengineering.baraudio.uitls.SetupOnboardingPasteWebhookRoute
 import com.sommerengineering.baraudio.uitls.SetupOnboardingRoute
 import com.sommerengineering.baraudio.uitls.SetupOnboardingSignalArmedRoute
+import com.sommerengineering.baraudio.uitls.copyText
+import com.sommerengineering.baraudio.uitls.doneText
+import com.sommerengineering.baraudio.uitls.nextText
+import com.sommerengineering.baraudio.uitls.setupOnboardingCopyTitle
+import com.sommerengineering.baraudio.uitls.setupOnboardingPasteTitle
+import com.sommerengineering.baraudio.uitls.setupOnboardingSignalTitle
 
 fun NavGraphBuilder.SetupWebhookNavigation(
     controller: NavHostController,
@@ -49,8 +52,9 @@ fun NavGraphBuilder.SetupWebhookNavigation(
                 popUpTo(SetupOnboardingCopyWebhookRoute) { inclusive = true }
             }}
             OnboardingScreen(
-                onboardingMode = SetupWebhook,
+                title = setupOnboardingCopyTitle,
                 pageNumber = 0,
+                buttonText = copyText,
                 onNextClick = onClick) {
                 WebhookUrlCard(
                     viewModel = viewModel,
@@ -61,8 +65,9 @@ fun NavGraphBuilder.SetupWebhookNavigation(
         // paste webhook
         composable(SetupOnboardingPasteWebhookRoute) {
             OnboardingScreen(
-                onboardingMode = SetupWebhook,
+                title = setupOnboardingPasteTitle,
                 pageNumber = 1,
+                buttonText = nextText,
                 onNextClick = {
                     controller.navigate(SetupOnboardingSignalArmedRoute) {
                         popUpTo(SetupOnboardingPasteWebhookRoute) { inclusive = true }
@@ -85,15 +90,15 @@ fun NavGraphBuilder.SetupWebhookNavigation(
             val verificationUiState by viewModel.verificationUiState.collectAsState()
             LaunchedEffect(Unit) { viewModel.setVerificationStartTime() }
             OnboardingScreen(
-                onboardingMode = SetupWebhook,
+                title = setupOnboardingSignalTitle,
                 pageNumber = 2,
+                buttonText = doneText,
                 onNextClick = onClose,
                 isNextEnabled = verificationUiState.state == VerificationState.RECEIVED,
                 onCloseClick = {
                     controller.popBackStack(
                         route = SetupOnboardingRoute,
-                        inclusive = true
-                    )
+                        inclusive = true)
                 }) {
                 VerificationContent(verificationUiState)
             }
