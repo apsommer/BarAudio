@@ -20,7 +20,7 @@ import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.uitls.onboardingTotalPages
 
 @Composable
-fun OnboardingButton(
+fun OnboardingFooter(
     buttonText: String,
     pageNumber: Int,
     onNextClick: () -> Unit,
@@ -31,31 +31,18 @@ fun OnboardingButton(
 
         Box(Modifier.fillMaxWidth()) {
 
-            // page indicator
-            Row(Modifier.align(Alignment.Center)) {
-                for (i in 0..<onboardingTotalPages) {
-                    Icon(
-                        modifier = Modifier.padding(6.dp).size(12.dp),
-                        tint = MaterialTheme.colorScheme.outline,
-                        painter = painterResource(
-                            if (i == pageNumber) R.drawable.indicator_filled
-                            else R.drawable.indicator_open
-                        ),
-                        contentDescription = null
-                    )
-                }
-            }
+            PageIndicator(
+                pageNumber = pageNumber,
+                modifier = Modifier.align(Alignment.Center))
 
             // next button
             Button(
                 modifier = Modifier.align(Alignment.CenterEnd),
                 enabled = isNextEnabled,
-                onClick = onNextClick
-            ) {
+                onClick = onNextClick) {
                 Text(
                     textAlign = TextAlign.Center,
-                    text = buttonText
-                )
+                    text = buttonText)
             }
         }
     }

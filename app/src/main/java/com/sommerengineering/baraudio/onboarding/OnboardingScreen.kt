@@ -27,11 +27,15 @@ fun OnboardingScreen(
     onCloseClick: (() -> Unit)? = null,
     content: @Composable (() -> Unit)) {
 
-    Box(Modifier
-        .fillMaxSize()
-        .padding(horizontal = edgePadding)) {
+//    Box(Modifier
+//        .fillMaxSize()
+//        .padding(horizontal = edgePadding)) {
 
-        Column(Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(edgePadding),
+            horizontalAlignment = Alignment.CenterHorizontally) {
 
             // title
             OnboardingText(
@@ -39,7 +43,7 @@ fun OnboardingScreen(
                 subTitle = subTitle,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = edgePadding * 5))
+                    .padding(top = edgePadding * 4))
 
             // dynamic content
             Box(
@@ -52,14 +56,14 @@ fun OnboardingScreen(
             }
 
             // page indicators and button
-            OnboardingButton(
+            OnboardingFooter(
                 buttonText = buttonText,
                 pageNumber = pageNumber,
                 onNextClick = onNextClick,
                 isNextEnabled = isNextEnabled,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = edgePadding * 2))
+                    .padding(bottom = edgePadding))
         }
 
         // close button
@@ -70,14 +74,13 @@ fun OnboardingScreen(
                     .padding(vertical = edgePadding)
                     .wrapContentWidth(Alignment.End),
                 onClick = { onCloseClick() }) {
-
                 Icon(
                     painter = painterResource(R.drawable.close),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
             }
         }
-    }
+//    }
 }
 
 
