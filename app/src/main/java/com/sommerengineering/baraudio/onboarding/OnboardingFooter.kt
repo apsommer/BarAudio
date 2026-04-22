@@ -40,23 +40,31 @@ fun OnboardingFooter(
                 pageNumber = pageNumber,
                 modifier = Modifier.align(Alignment.Center))
 
+            // style enable/disable next button
+            val background =
+                if (isNextEnabled) MaterialTheme.colorScheme.surfaceContainer
+                else MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.5f)
+            val textColor =
+                if (isNextEnabled) MaterialTheme.colorScheme.primary
+                else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+
             // next button
             Box(
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
                     .padding(end = edgePadding / 2)
-                    .clip(MaterialTheme.shapes.small) // THIS fixes square ripple
-                    .background(MaterialTheme.colorScheme.surfaceContainer) // subtle background
-                    .clickable(onClick = onNextClick)
+                    .clip(MaterialTheme.shapes.small)
+                    .background(background)
+                    .clickable(
+                        enabled = isNextEnabled,
+                        onClick = onNextClick)
                     .padding(horizontal = 16.dp, vertical = 10.dp),
-                contentAlignment = Alignment.Center
-            ) {
+                contentAlignment = Alignment.Center) {
                 Text(
                     text = buttonText,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                    textAlign = TextAlign.Center
-                )
+                    color = textColor,
+                    textAlign = TextAlign.Center)
             }
         }
     }

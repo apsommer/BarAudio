@@ -80,7 +80,7 @@ fun OnboardingAllowNotifications() {
             .background(Brush.verticalGradient(
                 colors = listOf(
                     Color.Transparent,
-                    MaterialTheme.colorScheme.background))))
+                    MaterialTheme.colorScheme.background.copy(0.9f)))))
     }
 }
 

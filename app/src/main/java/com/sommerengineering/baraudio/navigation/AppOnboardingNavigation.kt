@@ -70,7 +70,7 @@ fun NavGraphBuilder.AppOnboardingNavigation(
                 title = onboardingNotificationsTitle,
                 subTitle = onboardingNotificationsSubtitle,
                 pageNumber = 1,
-                buttonText = "Enable\nNotifications",
+                buttonText = "Enable",
                 onNextClick = {
                     if (Build.VERSION.SDK_INT >= 33) { // request notifications with system dialog
                         (context as MainActivity)
