@@ -16,6 +16,7 @@ import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.onboarding.OnboardingScreen
 import com.sommerengineering.baraudio.onboarding.app.AppOnboardingTextToSpeech
 import com.sommerengineering.baraudio.onboarding.app.NodeConnection
+import com.sommerengineering.baraudio.onboarding.app.OnboardingAllowNotifications
 import com.sommerengineering.baraudio.onboarding.app.PulseRings
 import com.sommerengineering.baraudio.uitls.AppOnboardingNotificationsRoute
 import com.sommerengineering.baraudio.uitls.AppOnboardingRoute
@@ -80,9 +81,8 @@ fun NavGraphBuilder.AppOnboardingNavigation(
                     } else {
                         controller.navigate(AppOnboardingWebhookRoute)
                     }
-                }
-            ) {
-                PulseRings()
+                }) {
+                OnboardingAllowNotifications()
             }
         }
 
