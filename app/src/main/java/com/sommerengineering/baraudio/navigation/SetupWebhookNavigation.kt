@@ -76,7 +76,6 @@ fun NavGraphBuilder.SetupWebhookNavigation(
                     }}) {
                 Image(
                     modifier = Modifier
-                        .fillMaxWidth()
                         .clip(RoundedCornerShape(8.dp))
                         .border(
                             width = 1.dp,

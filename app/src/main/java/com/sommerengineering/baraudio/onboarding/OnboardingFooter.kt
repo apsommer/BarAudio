@@ -17,6 +17,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.R
+import com.sommerengineering.baraudio.uitls.edgePadding
 import com.sommerengineering.baraudio.uitls.onboardingTotalPages
 
 @Composable
@@ -37,7 +38,9 @@ fun OnboardingFooter(
 
             // next button
             Button(
-                modifier = Modifier.align(Alignment.CenterEnd),
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(end = edgePadding / 2),
                 enabled = isNextEnabled,
                 onClick = onNextClick) {
                 Text(

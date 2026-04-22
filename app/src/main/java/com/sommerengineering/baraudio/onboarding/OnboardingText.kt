@@ -2,6 +2,7 @@ package com.sommerengineering.baraudio.onboarding
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -20,6 +21,7 @@ fun OnboardingText(
 
         // title
         Text(
+            modifier = Modifier.fillMaxWidth(),
             text = title,
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.titleLarge)
@@ -28,9 +30,11 @@ fun OnboardingText(
         // subtitle
         if (subTitle != null) {
             Text(
+                modifier = Modifier.fillMaxWidth(),
                 text = subTitle,
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodyLarge)
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
         }
     }
 }
