@@ -20,7 +20,7 @@ data class MessageItemStyle(
     val iconText: String? = null
 )
 
-@Composable
+@Composable // todo doesn't need to be composable, raw hex palletes
 fun resolveMessageStyle(
     origin: MessageOrigin) = when (origin) {
 

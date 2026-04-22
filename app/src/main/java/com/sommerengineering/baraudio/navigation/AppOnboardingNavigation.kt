@@ -15,6 +15,7 @@ import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.onboarding.OnboardingMode.AppOnboarding
 import com.sommerengineering.baraudio.onboarding.OnboardingScreen
+import com.sommerengineering.baraudio.onboarding.app.AppOnboardingTextToSpeech
 import com.sommerengineering.baraudio.onboarding.app.NodeConnection
 import com.sommerengineering.baraudio.onboarding.app.PulseRings
 import com.sommerengineering.baraudio.onboarding.app.VoicePulseGraphic
@@ -40,7 +41,7 @@ fun NavGraphBuilder.AppOnboardingNavigation(
                 onboardingMode = AppOnboarding,
                 pageNumber = 0,
                 onNextClick = { controller.navigate(AppOnboardingNotificationsRoute) }) {
-                VoicePulseGraphic()
+                AppOnboardingTextToSpeech()
             }
         }
 

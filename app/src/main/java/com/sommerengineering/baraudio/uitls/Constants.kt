@@ -151,9 +151,6 @@ const val setupOnboardingSignalTitle = "Send a test alert"
 const val nextText = "Next"
 const val copyText = "Copy\nwebhook"
 const val doneText = "Done"
-const val soundAnimation = "sound.json"
-const val notificationAnimation = "notification.json"
-const val linkAnimation = "link.json"
 
 // login
 const val gitHubProviderId = "github.com"
