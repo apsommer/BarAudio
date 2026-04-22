@@ -141,16 +141,22 @@ val streamDescriptionAlpha = 0.6f
 
 // onboarding
 const val onboardingTotalPages = 3
-const val appOnboardingTtsTitle = "Hear alerts instantly"
-const val allowNotificationsMessage = "Stay updated in real time"
-const val appOnboardingWebhookTitle = "Send alerts from any webhook"
-const val setupOnboardingCopyTitle = "Copy your webhook URL"
-const val setupOnboardingPasteTitle = "Paste into a TradingView alert\n"
-const val setupOnboardingPasteSubtitle = "*Requires \"Essential\" plan or higher"
-const val setupOnboardingSignalTitle = "Send a test alert"
+const val onboardingTtsTitle = "Hear alerts instantly"
+const val onboardingTtsSubTitle = "We speak trading signals the moment they happen."
+const val onboardingNotificationsTitle = "Stay updated in real time"
+const val onboardingNotificationsSubtitle = "Get every signal as it happens. No delays. No noise."
+const val onboardingSendAlertTitle = "Send alerts from any webhook"
+const val onboardingSendAlertsSubtitle = "Connect your tools. We'll speak your signals out loud."
+const val onboardingCopyWebhookTitle = "Copy your webhook URL"
+const val onboardingPasteWebhookTitle = "Paste into a TradingView alert\n"
+const val onboardingPasteWebhookSubtitle = "*Requires \"Essential\" plan or higher"
+const val onboardingListeningTitle = "Send a test alert"
 const val nextText = "Next"
 const val copyText = "Copy\nwebhook"
 const val doneText = "Done"
+
+// allow notifications banner
+const val allowNotificationsMessage = "Allow notification to stay updates in real time"
 
 // login
 const val gitHubProviderId = "github.com"

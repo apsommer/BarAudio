@@ -22,10 +22,13 @@ import com.sommerengineering.baraudio.uitls.AppOnboardingRoute
 import com.sommerengineering.baraudio.uitls.AppOnboardingTextToSpeechRoute
 import com.sommerengineering.baraudio.uitls.AppOnboardingWebhookRoute
 import com.sommerengineering.baraudio.uitls.MessagesRoute
-import com.sommerengineering.baraudio.uitls.allowNotificationsMessage
-import com.sommerengineering.baraudio.uitls.appOnboardingTtsTitle
-import com.sommerengineering.baraudio.uitls.appOnboardingWebhookTitle
+import com.sommerengineering.baraudio.uitls.onboardingNotificationsTitle
+import com.sommerengineering.baraudio.uitls.onboardingTtsTitle
+import com.sommerengineering.baraudio.uitls.onboardingSendAlertTitle
 import com.sommerengineering.baraudio.uitls.nextText
+import com.sommerengineering.baraudio.uitls.onboardingNotificationsSubtitle
+import com.sommerengineering.baraudio.uitls.onboardingTtsSubTitle
+import com.sommerengineering.baraudio.uitls.onboardingSendAlertsSubtitle
 
 fun NavGraphBuilder.AppOnboardingNavigation(
     controller: NavController,
@@ -40,7 +43,8 @@ fun NavGraphBuilder.AppOnboardingNavigation(
         composable(AppOnboardingTextToSpeechRoute) {
             BackHandler { (context as MainActivity).moveTaskToBack(true) }
             OnboardingScreen(
-                title = appOnboardingTtsTitle,
+                title = onboardingTtsTitle,
+                subTitle = onboardingTtsSubTitle,
                 pageNumber = 0,
                 buttonText = nextText,
                 onNextClick = { controller.navigate(AppOnboardingNotificationsRoute) }) {
@@ -64,7 +68,8 @@ fun NavGraphBuilder.AppOnboardingNavigation(
 
             BackHandler { (context as MainActivity).moveTaskToBack(true) }
             OnboardingScreen(
-                title = allowNotificationsMessage,
+                title = onboardingNotificationsTitle,
+                subTitle = onboardingNotificationsSubtitle,
                 pageNumber = 1,
                 buttonText = nextText,
                 onNextClick = {
@@ -85,7 +90,8 @@ fun NavGraphBuilder.AppOnboardingNavigation(
         composable(AppOnboardingWebhookRoute) {
             BackHandler { (context as MainActivity).moveTaskToBack(true) }
             OnboardingScreen(
-                title = appOnboardingWebhookTitle,
+                title = onboardingSendAlertTitle,
+                subTitle = onboardingSendAlertsSubtitle,
                 pageNumber = 2,
                 buttonText = nextText,
                 onNextClick = {

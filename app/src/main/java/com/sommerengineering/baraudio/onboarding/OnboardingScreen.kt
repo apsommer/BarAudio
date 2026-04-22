@@ -43,7 +43,7 @@ fun OnboardingScreen(
                 subTitle = subTitle,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = edgePadding * 4))
+                    .padding(top = edgePadding * 2))
 
             // dynamic content
             Box(

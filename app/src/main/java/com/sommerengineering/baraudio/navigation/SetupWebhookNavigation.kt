@@ -30,9 +30,10 @@ import com.sommerengineering.baraudio.uitls.SetupOnboardingSignalArmedRoute
 import com.sommerengineering.baraudio.uitls.copyText
 import com.sommerengineering.baraudio.uitls.doneText
 import com.sommerengineering.baraudio.uitls.nextText
-import com.sommerengineering.baraudio.uitls.setupOnboardingCopyTitle
-import com.sommerengineering.baraudio.uitls.setupOnboardingPasteTitle
-import com.sommerengineering.baraudio.uitls.setupOnboardingSignalTitle
+import com.sommerengineering.baraudio.uitls.onboardingCopyWebhookTitle
+import com.sommerengineering.baraudio.uitls.onboardingListeningTitle
+import com.sommerengineering.baraudio.uitls.onboardingPasteWebhookSubtitle
+import com.sommerengineering.baraudio.uitls.onboardingPasteWebhookTitle
 
 fun NavGraphBuilder.SetupWebhookNavigation(
     controller: NavHostController,
@@ -52,7 +53,7 @@ fun NavGraphBuilder.SetupWebhookNavigation(
                 popUpTo(SetupOnboardingCopyWebhookRoute) { inclusive = true }
             }}
             OnboardingScreen(
-                title = setupOnboardingCopyTitle,
+                title = onboardingCopyWebhookTitle,
                 pageNumber = 0,
                 buttonText = copyText,
                 onNextClick = onClick) {
@@ -65,7 +66,8 @@ fun NavGraphBuilder.SetupWebhookNavigation(
         // paste webhook
         composable(SetupOnboardingPasteWebhookRoute) {
             OnboardingScreen(
-                title = setupOnboardingPasteTitle,
+                title = onboardingPasteWebhookTitle,
+                subTitle = onboardingPasteWebhookSubtitle,
                 pageNumber = 1,
                 buttonText = nextText,
                 onNextClick = {
@@ -90,7 +92,7 @@ fun NavGraphBuilder.SetupWebhookNavigation(
             val verificationUiState by viewModel.verificationUiState.collectAsState()
             LaunchedEffect(Unit) { viewModel.setVerificationStartTime() }
             OnboardingScreen(
-                title = setupOnboardingSignalTitle,
+                title = onboardingListeningTitle,
                 pageNumber = 2,
                 buttonText = doneText,
                 onNextClick = onClose,
