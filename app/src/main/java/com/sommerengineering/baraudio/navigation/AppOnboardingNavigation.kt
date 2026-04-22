@@ -5,10 +5,6 @@ import android.content.Context
 import android.os.Build
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
@@ -17,21 +13,19 @@ import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.onboarding.OnboardingScreen
 import com.sommerengineering.baraudio.onboarding.app.AppOnboardingTextToSpeech
-import com.sommerengineering.baraudio.onboarding.app.NodeConnection
 import com.sommerengineering.baraudio.onboarding.app.OnboardingAllowNotifications
-import com.sommerengineering.baraudio.onboarding.app.PulseRings
 import com.sommerengineering.baraudio.uitls.AppOnboardingNotificationsRoute
 import com.sommerengineering.baraudio.uitls.AppOnboardingRoute
 import com.sommerengineering.baraudio.uitls.AppOnboardingTextToSpeechRoute
 import com.sommerengineering.baraudio.uitls.AppOnboardingWebhookRoute
 import com.sommerengineering.baraudio.uitls.MessagesRoute
-import com.sommerengineering.baraudio.uitls.onboardingNotificationsTitle
-import com.sommerengineering.baraudio.uitls.onboardingTtsTitle
-import com.sommerengineering.baraudio.uitls.onboardingSendAlertTitle
 import com.sommerengineering.baraudio.uitls.nextText
 import com.sommerengineering.baraudio.uitls.onboardingNotificationsSubtitle
-import com.sommerengineering.baraudio.uitls.onboardingTtsSubTitle
+import com.sommerengineering.baraudio.uitls.onboardingNotificationsTitle
+import com.sommerengineering.baraudio.uitls.onboardingSendAlertTitle
 import com.sommerengineering.baraudio.uitls.onboardingSendAlertsSubtitle
+import com.sommerengineering.baraudio.uitls.onboardingTtsSubTitle
+import com.sommerengineering.baraudio.uitls.onboardingTtsTitle
 
 fun NavGraphBuilder.AppOnboardingNavigation(
     controller: NavController,
@@ -96,7 +90,7 @@ fun NavGraphBuilder.AppOnboardingNavigation(
                         popUpTo(MessagesRoute) { inclusive = true }
                     }
                 }) {
-                NodeConnection()
+                OnboardingAllowNotifications()
             }
         }
     }
