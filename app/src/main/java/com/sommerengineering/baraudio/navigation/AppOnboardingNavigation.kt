@@ -12,7 +12,7 @@ import androidx.navigation.compose.navigation
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.onboarding.OnboardingScreen
-import com.sommerengineering.baraudio.onboarding.app.AppOnboardingTextToSpeech
+import com.sommerengineering.baraudio.onboarding.app.OnboardingTextToSpeech
 import com.sommerengineering.baraudio.onboarding.app.OnboardingAllowNotifications
 import com.sommerengineering.baraudio.uitls.AppOnboardingNotificationsRoute
 import com.sommerengineering.baraudio.uitls.AppOnboardingRoute
@@ -45,7 +45,7 @@ fun NavGraphBuilder.AppOnboardingNavigation(
                 pageNumber = 0,
                 buttonText = nextText,
                 onNextClick = { controller.navigate(AppOnboardingNotificationsRoute) }) {
-                AppOnboardingTextToSpeech()
+                OnboardingTextToSpeech()
             }
         }
 
