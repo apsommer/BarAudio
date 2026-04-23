@@ -12,8 +12,8 @@ import androidx.navigation.compose.navigation
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.onboarding.OnboardingScreen
-import com.sommerengineering.baraudio.onboarding.app.OnboardingTextToSpeech
 import com.sommerengineering.baraudio.onboarding.app.OnboardingAllowNotifications
+import com.sommerengineering.baraudio.onboarding.app.OnboardingTextToSpeech
 import com.sommerengineering.baraudio.uitls.AppOnboardingNotificationsRoute
 import com.sommerengineering.baraudio.uitls.AppOnboardingRoute
 import com.sommerengineering.baraudio.uitls.AppOnboardingTextToSpeechRoute
@@ -30,13 +30,14 @@ import com.sommerengineering.baraudio.uitls.onboardingTtsTitle
 fun NavGraphBuilder.AppOnboardingNavigation(
     controller: NavController,
     context: Context,
-    viewModel: MainViewModel) {
+    viewModel: MainViewModel
+) {
 
     navigation(
         route = AppOnboardingRoute,
-        startDestination = AppOnboardingTextToSpeechRoute) {
+        startDestination = AppOnboardingTextToSpeechRoute
+    ) {
 
-        // onboarding screen: text-to-speech
         composable(AppOnboardingTextToSpeechRoute) {
             BackHandler { (context as MainActivity).moveTaskToBack(true) }
             OnboardingScreen(
@@ -49,7 +50,6 @@ fun NavGraphBuilder.AppOnboardingNavigation(
             }
         }
 
-        // onboarding screen: notifications
         composable(AppOnboardingNotificationsRoute) {
 
             // navigate forward after system notification request
@@ -70,13 +70,14 @@ fun NavGraphBuilder.AppOnboardingNavigation(
                         (context as MainActivity)
                             .requestNotificationPermissionLauncher
                             .launch(Manifest.permission.POST_NOTIFICATIONS)
-                    } else { controller.navigate(AppOnboardingWebhookRoute) } // old api notifications default to allowed
+                    } else {
+                        controller.navigate(AppOnboardingWebhookRoute)
+                    } // old api notifications default to allowed
                 }) {
                 OnboardingAllowNotifications()
             }
         }
-
-        // onboarding screen: webhook
+        
         composable(AppOnboardingWebhookRoute) {
             BackHandler { (context as MainActivity).moveTaskToBack(true) }
             OnboardingScreen(
