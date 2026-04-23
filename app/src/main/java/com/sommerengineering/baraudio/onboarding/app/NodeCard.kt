@@ -14,23 +14,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.uitls.rowVerticalPadding
 
 @Composable
-fun OnboardingNodeCard(
+fun NodeCard(
     title: String,
-    iconRes: Int,
-    modifier: Modifier = Modifier
+    iconRes: Int
 ) {
 
     val squareSize = 96.dp
     val iconSize = 32.dp
 
     Box(
-        modifier = modifier
+        modifier = Modifier
             .size(squareSize)
             .clip(MaterialTheme.shapes.medium)
             .background(MaterialTheme.colorScheme.surfaceContainer)
@@ -45,7 +45,7 @@ fun OnboardingNodeCard(
             Icon(
                 painter = painterResource(iconRes),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurface,
+                tint = Color.Unspecified,
                 modifier = Modifier.size(iconSize)
             )
 

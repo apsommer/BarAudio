@@ -30,7 +30,8 @@ const val roomDatabaseName = "messages.db"
 
 // firebase database
 const val databaseUrl = "https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/"
-const val webhookBaseUrl = "https://us-central1-com-sommerengineering-baraudio.cloudfunctions.net/baraudio?uid="
+const val webhookBaseUrl =
+    "https://us-central1-com-sommerengineering-baraudio.cloudfunctions.net/baraudio?uid="
 const val streamsNode = "streams"
 const val usersNode = "users"
 const val tokensNode = "tokens"
@@ -63,9 +64,9 @@ const val userSignalDescription = "Custom signal"
 // navigation
 const val LoginRoute = "Login"
 const val AppOnboardingRoute = "AppOnboarding"
-const val AppOnboardingTextToSpeechRoute = "AppOnboardingTextToSpeech"
-const val AppOnboardingNotificationsRoute = "AppOnboardingNotifications"
-const val AppOnboardingWebhookRoute = "AppOnboardingWebhook"
+const val OnboardingHearAlertsRoute = "AppOnboardingTextToSpeech"
+const val OnboardingStayUpdatedRoute = "AppOnboardingNotifications"
+const val OnboardingSendAlertsRoute = "AppOnboardingWebhook"
 const val MessagesRoute = "Messages"
 const val SetupOnboardingRoute = "SetupOnboarding"
 const val SetupOnboardingCopyWebhookRoute = "SetupOnboardingCopyWebhook"
@@ -94,7 +95,7 @@ const val isSIKey = "isSI"
 const val productId = "subscription" // match play store config
 const val freeTrial = "free-trial" // match play store config
 const val subscriptionUrl = "https://play.google.com/store/account/subscriptions?sku=" +
-    productId + "&package=" + BuildConfig.APPLICATION_ID
+        productId + "&package=" + BuildConfig.APPLICATION_ID
 
 // settings
 const val voiceDividerTitle = "VOICE"
@@ -141,12 +142,13 @@ val streamDescriptionAlpha = 0.6f
 
 // onboarding
 const val onboardingTotalPages = 3
-const val onboardingTtsTitle = "Hear alerts instantly"
-const val onboardingTtsSubTitle = "We speak trading signals the moment they happen."
-const val onboardingNotificationsTitle = "Stay updated in real time"
-const val onboardingNotificationsSubtitle = "Get every signal as it happens. No delays. No filtering."
+const val onboardingHearAlertsTitle = "Hear alerts instantly"
+const val onboardingHearAlertsSubTitle = "We speak trading signals the moment\nthey happen."
+const val onboardingStayUpdatedTitle = "Stay updated in real time"
+const val onboardingStayUpdatedSubtitle =
+    "Get every signal as it happens.\nNo delays. No filtering."
 const val onboardingSendAlertTitle = "Send alerts from any webhook"
-const val onboardingSendAlertsSubtitle = "Connect your tools. We'll speak your signals out loud."
+const val onboardingSendAlertsSubtitle = "Connect your tools. We'll speak\nyour signals out loud."
 const val onboardingCopyWebhookTitle = "Copy your webhook URL"
 const val onboardingPasteWebhookTitle = "Paste into a TradingView alert"
 const val onboardingPasteWebhookSubtitle = "*Requires \"Essential\" plan or higher"

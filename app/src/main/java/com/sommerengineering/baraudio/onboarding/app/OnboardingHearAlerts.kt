@@ -12,7 +12,7 @@ import androidx.compose.runtime.setValue
 import com.sommerengineering.baraudio.message.LinearMessageItem
 
 @Composable
-fun OnboardingTextToSpeech() {
+fun OnboardingHearAlerts() {
 
     val message = onboardingMessage()
     val state = getOnboardingMessageState(
@@ -22,12 +22,16 @@ fun OnboardingTextToSpeech() {
     // fade in subtly
     var isVisible by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { isVisible = true }
-    AnimatedVisibility(
-        visible = isVisible,
-        enter = fadeIn(tween(1000))
-    ) {
-        LinearMessageItem(
-            state = state, isShowDivider = false
-        )
+
+    AppOnboardingScreen {
+        AnimatedVisibility(
+            visible = isVisible,
+            enter = fadeIn(tween(1000))
+        ) {
+            LinearMessageItem(
+                state = state,
+                isShowDivider = false
+            )
+        }
     }
 }
