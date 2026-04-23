@@ -15,7 +15,8 @@ import androidx.compose.ui.unit.dp
 fun OnboardingText(
     title: String,
     subTitle: String? = null,
-    modifier: Modifier) {
+    modifier: Modifier
+) {
 
     Column(modifier) {
 
@@ -24,7 +25,8 @@ fun OnboardingText(
             modifier = Modifier.fillMaxWidth(),
             text = title,
             textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.titleLarge)
+            style = MaterialTheme.typography.titleLarge
+        )
         Spacer(Modifier.height(8.dp))
 
         // subtitle
@@ -34,7 +36,8 @@ fun OnboardingText(
                 text = subTitle,
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+            )
         }
     }
 }

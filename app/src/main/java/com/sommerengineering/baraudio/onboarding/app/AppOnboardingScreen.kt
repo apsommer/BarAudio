@@ -9,41 +9,45 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
-import com.sommerengineering.baraudio.R
+import com.sommerengineering.baraudio.uitls.appBlue
 
 @Composable
 fun AppOnboardingScreen(content: @Composable () -> Unit) {
 
-    val glowColor = colorResource(R.color.app_blue)
-    val alpha = 0.22f
+    val glowColor = appBlue()
 
     Box {
 
-        // background
+        // background glow
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .drawBehind {
-                    val radius = size.minDimension * 0.6f
+
+                    val center = Offset(size.width / 2f, size.height / 2f)
+                    val radius = size.minDimension * 0.55f
 
                     drawCircle(
                         brush = Brush.radialGradient(
                             colors = listOf(
-                                glowColor.copy(alpha),
-                                glowColor.copy(alpha * 0.35f),
+                                glowColor.copy(alpha = 0.18f),
+                                glowColor.copy(alpha = 0.10f),
+                                glowColor.copy(alpha = 0.04f),
                                 Color.Transparent
                             ),
-                            center = Offset(size.width / 2f, size.height * 0.55f),
+                            center = center,
                             radius = radius
                         ),
                         radius = radius,
-                        center = Offset(size.width / 2f, size.height * 0.55f)
+                        center = center
                     )
                 }
         )
 
-        Box(Modifier.align(Alignment.Center)) {
+        // content
+        Box(
+            modifier = Modifier.align(Alignment.Center)
+        ) {
             content()
         }
     }

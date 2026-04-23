@@ -25,16 +25,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
-import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.uitls.TimestampFormatter
+import com.sommerengineering.baraudio.uitls.appGreen
 import kotlinx.coroutines.delay
 
 @Composable
 fun LastSignalPulse(
     modifier: Modifier = Modifier,
-    timestamp: String) {
+    timestamp: String
+) {
 
     // update timestamp once per minute
     var beautifulTimestamp by remember { mutableStateOf("") }
@@ -51,18 +51,23 @@ fun LastSignalPulse(
 
     Box(
         modifier = modifier,
-        contentAlignment = Alignment.Center) {
+        contentAlignment = Alignment.Center
+    ) {
         Row(
-            modifier = Modifier.align(Alignment.Center).fillMaxWidth(),
+            modifier = Modifier
+                .align(Alignment.Center)
+                .fillMaxWidth(),
             horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically) {
+            verticalAlignment = Alignment.CenterVertically
+        ) {
 
             ListeningDot()
             Spacer(Modifier.width(6.dp))
             Text(
                 text = displayText,
                 color = MaterialTheme.colorScheme.onBackground.copy(0.5f),
-                style = MaterialTheme.typography.bodySmall)
+                style = MaterialTheme.typography.bodySmall
+            )
         }
     }
 }
@@ -78,12 +83,17 @@ fun ListeningDot() {
         targetValue = 0.75f,
         animationSpec = infiniteRepeatable(
             animation = tween(pulseDurationMillis),
-            repeatMode = RepeatMode.Reverse))
+            repeatMode = RepeatMode.Reverse
+        )
+    )
 
-    Box(Modifier
-        .size(4.dp)
-        .alpha(alpha)
-        .background(
-            color = colorResource(R.color.app_green).copy(0.7f),
-            shape = CircleShape))
+    Box(
+        Modifier
+            .size(4.dp)
+            .alpha(alpha)
+            .background(
+                color = appGreen().copy(0.7f),
+                shape = CircleShape
+            )
+    )
 }

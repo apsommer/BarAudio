@@ -2,10 +2,13 @@ package com.sommerengineering.baraudio.uitls
 
 import android.speech.tts.TextToSpeech
 import android.util.Log
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import com.google.firebase.Firebase
 import com.google.firebase.crashlytics.crashlytics
 import com.sommerengineering.baraudio.BuildConfig
+import com.sommerengineering.baraudio.R
 
 // logs
 const val TAG = "~~"
@@ -124,9 +127,12 @@ val loginButtonSize = 96.dp
 val fabSize = 72.dp
 val edgePadding = 24.dp
 
-// scrim logo and background
+// style, general
 val logoAlpha = 0.4f
-val backgroundAlpha = 0.5f
+@Composable
+fun appBlue() = colorResource(R.color.app_blue)
+@Composable
+fun appGreen() = colorResource(R.color.app_green)
 
 // item style
 val rowHeight = 62.dp
@@ -139,6 +145,7 @@ val rowAccentWidth = 6.dp
 val dividerThickness = 0.5.dp
 val descriptionAlpha = 0.5f
 val streamDescriptionAlpha = 0.6f
+
 
 // onboarding
 const val onboardingTotalPages = 3

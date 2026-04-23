@@ -1,28 +1,23 @@
 package com.sommerengineering.baraudio.onboarding
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.uitls.edgePadding
-import com.sommerengineering.baraudio.uitls.onboardingTotalPages
 
 @Composable
 fun OnboardingFooter(
@@ -30,7 +25,8 @@ fun OnboardingFooter(
     pageNumber: Int,
     onNextClick: () -> Unit,
     isNextEnabled: Boolean = true,
-    modifier: Modifier) {
+    modifier: Modifier
+) {
 
     Column(modifier) {
 
@@ -38,34 +34,64 @@ fun OnboardingFooter(
 
             PageIndicator(
                 pageNumber = pageNumber,
-                modifier = Modifier.align(Alignment.Center))
+                modifier = Modifier.align(Alignment.Center)
+            )
 
-            // style enable/disable next button
-            val background =
-                if (isNextEnabled) MaterialTheme.colorScheme.surfaceContainer
-                else MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.5f)
-            val textColor =
-                if (isNextEnabled) MaterialTheme.colorScheme.primary
-                else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
-
-            // next button
-            Box(
-                modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .padding(end = edgePadding / 2)
-                    .clip(MaterialTheme.shapes.small)
-                    .background(background)
-                    .clickable(
-                        enabled = isNextEnabled,
-                        onClick = onNextClick)
-                    .padding(horizontal = 16.dp, vertical = 10.dp),
-                contentAlignment = Alignment.Center) {
-                Text(
-                    text = buttonText,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = textColor,
-                    textAlign = TextAlign.Center)
-            }
+            OnboardingButton(
+                buttonText = buttonText,
+                onNextClick = onNextClick,
+                isNextEnabled = isNextEnabled,
+                modifier = Modifier.align(Alignment.CenterEnd)
+            )
         }
+    }
+}
+
+@Composable
+fun OnboardingButton(
+    buttonText: String,
+    onNextClick: () -> Unit,
+    isNextEnabled: Boolean,
+    modifier: Modifier = Modifier
+) {
+
+    // style enable/disable
+    val background =
+        if (isNextEnabled) MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+        else MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.4f)
+    val textColor =
+        if (isNextEnabled) MaterialTheme.colorScheme.primary
+        else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f)
+
+    Box(
+        modifier = modifier
+            .padding(end = edgePadding / 2)
+            .clip(RoundedCornerShape(10.dp))
+            .background(
+                Brush.verticalGradient(
+                    listOf(
+                        background,
+                        background.copy(alpha = background.alpha * 0.85f)
+                    )
+                )
+            )
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                shape = RoundedCornerShape(10.dp)
+            )
+            .clickable(
+                enabled = isNextEnabled,
+                onClick = onNextClick
+            )
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = buttonText,
+            style = MaterialTheme.typography.bodyMedium,
+            color = textColor,
+            textAlign = TextAlign.Center
+        )
     }
 }
