@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.onboarding.webhook
+package com.sommerengineering.baraudio.onboarding.webhook.verification
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
@@ -17,39 +17,42 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.sommerengineering.baraudio.onboarding.webhook.VerificationState.RECEIVED
-import com.sommerengineering.baraudio.onboarding.webhook.VerificationState.WAITING
 
 @Composable
 fun VerificationContent(
-    verificationUiState: VerificationUiState) {
+    verificationUiState: VerificationUiState
+) {
 
     AnimatedContent(
         targetState = verificationUiState,
-        transitionSpec =  {
+        transitionSpec = {
             fadeIn(tween(220)) +
-            scaleIn(initialScale = 0.95f) togetherWith fadeOut(tween(120)) }) { uiState ->
+                    scaleIn(initialScale = 0.95f) togetherWith fadeOut(tween(120))
+        }) { uiState ->
 
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center) {
+            verticalArrangement = Arrangement.Center
+        ) {
 
             when (uiState.state) {
-                WAITING -> {
+                VerificationState.WAITING -> {
                     ListeningDots()
                     Spacer(Modifier.size(16.dp))
                     Text(
                         text = "Waiting for your first signal ...",
-                        textAlign = TextAlign.Center)
+                        textAlign = TextAlign.Center
+                    )
                 }
 
-                RECEIVED -> {
+                VerificationState.RECEIVED -> {
                     SuccessCheck()
                     Spacer(Modifier.size(16.dp))
                     Text(
                         text = "Signal received successfully.",
-                        textAlign = TextAlign.Center)
+                        textAlign = TextAlign.Center
+                    )
                     val message = uiState.message ?: return@Column
                     Spacer(Modifier.size(16.dp))
                     MessageBubble(message)

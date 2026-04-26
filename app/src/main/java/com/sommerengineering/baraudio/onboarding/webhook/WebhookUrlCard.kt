@@ -13,28 +13,30 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.theme.monospacedFontFamily
 
 @Composable
 fun WebhookUrlCard(
-    viewModel: MainViewModel,
-    onClick: () -> Unit) {
+    webhookUrl: String,
+    onClick: () -> Unit
+) {
 
     // clarify spacing of long url
-    val formattedUrl = viewModel.webhookUrl
+    val formattedUrl = webhookUrl
         .replace("com-", "com\n-")
         .replace("baraudio.", "baraudio\n.")
         .replace("/baraudio?", "/baraudio?\n")
 
     // simple card background
-    Box(Modifier
-        .fillMaxWidth()
-        .padding(horizontal = 24.dp)
-        .clip(RoundedCornerShape(12.dp))
-        .background(MaterialTheme.colorScheme.surfaceVariant)
-        .clickable(onClick = onClick)
-        .padding(16.dp)) {
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .clickable(onClick = onClick)
+            .padding(16.dp)
+    ) {
 
         // formatted webhook url
         Text(
@@ -42,6 +44,7 @@ fun WebhookUrlCard(
             fontFamily = monospacedFontFamily,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            lineHeight = 24.sp)
+            lineHeight = 24.sp
+        )
     }
 }

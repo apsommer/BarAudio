@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.onboarding.webhook
+package com.sommerengineering.baraudio.onboarding.webhook.verification
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.spring
@@ -24,7 +24,9 @@ fun SuccessCheck() {
             targetValue = 1f,
             animationSpec = spring(
                 dampingRatio = 0.5f,
-                stiffness = 300f))
+                stiffness = 300f
+            )
+        )
     }
 
     Icon(
