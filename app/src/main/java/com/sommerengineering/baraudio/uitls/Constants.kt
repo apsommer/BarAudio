@@ -41,10 +41,10 @@ const val tokensNode = "tokens"
 
 // notifications
 const val channelId = "42"
-const val channelName = "Webhook"
-const val channelDescription = "Realtime data connection for BarAudio"
+const val channelName = "Alerts"
+const val channelDescription = "Real-time trading alerts"
 const val channelGroupId = "42"
-const val channelGroupName = "Webhook"
+const val channelGroupName = "Signals"
 const val notificationId = 42
 const val notificationKey = "notification"
 const val streamKey = "stream"

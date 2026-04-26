@@ -1,5 +1,7 @@
 package com.sommerengineering.baraudio.messages
 
+import android.content.Intent
+import android.provider.Settings
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -24,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -50,9 +53,19 @@ fun EmptyStateCard(
 }
 
 @Composable
-fun NotificationsDisabledCard(
-    onOpenSettings: () -> Unit
-) {
+fun NotificationsDisabledCard() {
+    
+    val context = LocalContext.current
+    val onOpenSettings = {
+        context.startActivity(
+            Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                putExtra(
+                    Settings.EXTRA_APP_PACKAGE,
+                    context.packageName
+                )
+            }
+        )
+    }
 
     InlineActionCard(
         title = "Notifications are off",

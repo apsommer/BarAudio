@@ -1,7 +1,5 @@
 package com.sommerengineering.baraudio.messages
 
-import android.content.Intent
-import android.provider.Settings
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,7 +22,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.message.GroupHeaderItem
 import com.sommerengineering.baraudio.message.MessageItem
@@ -43,8 +40,6 @@ fun MessagesScreen(
     onSignOut: () -> Unit,
     onLaunchWebhookOnboarding: () -> Unit
 ) {
-
-    val context = LocalContext.current
 
     // lazy column of messages
     val messages by viewModel.messages.collectAsState()
@@ -107,29 +102,18 @@ fun MessagesScreen(
                     // notification permission
                     if (!areNotificationsEnabled) {
                         item {
-                            NotificationsDisabledCard(
-                                onOpenSettings = {
-                                    context.startActivity(
-                                        Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
-                                            putExtra(
-                                                Settings.EXTRA_APP_PACKAGE,
-                                                context.packageName
-                                            )
-                                        }
-                                    )
-                                }
-                            )
+                            NotificationsDisabledCard()
                         }
                     }
 
                     // user signal empty state
-//                    if (isEmptyState) {
-                    item {
-                        EmptyStateCard(
-                            onLaunchWebhookOnboarding = { onLaunchWebhookOnboarding() },
-                            onDismiss = { viewModel.updateEmptyState(false) })
+                    if (isEmptyState) {
+                        item {
+                            EmptyStateCard(
+                                onLaunchWebhookOnboarding = { onLaunchWebhookOnboarding() },
+                                onDismiss = { viewModel.updateEmptyState(false) })
+                        }
                     }
-//                    }
 
                     when (feedMode) {
 
