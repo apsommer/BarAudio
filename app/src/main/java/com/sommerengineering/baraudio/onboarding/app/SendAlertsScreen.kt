@@ -8,7 +8,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.message.LinearMessageItem
-import com.sommerengineering.baraudio.onboarding.BackgroundGlowContainer
 import com.sommerengineering.baraudio.onboarding.NodeCard
 import com.sommerengineering.baraudio.onboarding.NodeConnector
 import com.sommerengineering.baraudio.onboarding.OnboardingScreen
@@ -39,32 +38,29 @@ fun SendAlertsScreen(
         onNextClick = onNextClick
     ) {
 
-        BackgroundGlowContainer {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
 
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+            NodeCard(
+                title = "Webhook",
+                iconRes = R.drawable.webhook
+            )
 
-                NodeCard(
-                    title = "Webhook",
-                    iconRes = R.drawable.webhook
-                )
+            NodeConnector(connectorLength, connectorWidth)
 
-                NodeConnector(connectorLength, connectorWidth)
+            NodeCard(
+                title = "SignalVoice",
+                iconRes = R.drawable.appbar_compact
+            )
 
-                NodeCard(
-                    title = "SignalVoice",
-                    iconRes = R.drawable.appbar_compact
-                )
+            NodeConnector(connectorLength, connectorWidth)
 
-                NodeConnector(connectorLength, connectorWidth)
-
-                LinearMessageItem(
-                    state = state,
-                    isShowDivider = false
-                )
-            }
+            LinearMessageItem(
+                state = state,
+                isShowDivider = false
+            )
         }
     }
 }

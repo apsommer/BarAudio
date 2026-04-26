@@ -16,7 +16,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.message.LinearMessageItem
-import com.sommerengineering.baraudio.onboarding.BackgroundGlowContainer
 import com.sommerengineering.baraudio.onboarding.OnboardingScreen
 import com.sommerengineering.baraudio.uitls.onboardingStayUpdatedSubtitle
 import com.sommerengineering.baraudio.uitls.onboardingStayUpdatedTitle
@@ -46,40 +45,37 @@ fun StayUpdatedScreen(
         onNextClick = onNextClick
     ) {
 
-        BackgroundGlowContainer {
+        BoxWithConstraints {
 
-            BoxWithConstraints {
-
-                // messages
-                LazyColumn {
-                    items(messages) {
-                        val state = getOnboardingMessageState(
-                            message = it,
-                            isExpanded = true
-                        )
-                        LinearMessageItem(
-                            state = state,
-                            isShowDivider = true
-                        )
-                    }
+            // messages
+            LazyColumn {
+                items(messages) {
+                    val state = getOnboardingMessageState(
+                        message = it,
+                        isExpanded = true
+                    )
+                    LinearMessageItem(
+                        state = state,
+                        isShowDivider = true
+                    )
                 }
+            }
 
-                // scrim bottom area to imply feed
-                Box(
-                    Modifier
-                        .align(Alignment.BottomCenter)
-                        .fillMaxWidth()
-                        .height(maxHeight * 0.2f)
-                        .background(
-                            Brush.verticalGradient(
-                                colors = listOf(
-                                    Color.Transparent,
-                                    MaterialTheme.colorScheme.background.copy(0.9f)
-                                )
+            // scrim bottom area to imply feed
+            Box(
+                Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .height(maxHeight * 0.2f)
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                Color.Transparent,
+                                MaterialTheme.colorScheme.background.copy(0.9f)
                             )
                         )
-                )
-            }
+                    )
+            )
         }
     }
 }
