@@ -85,7 +85,7 @@ fun WebhookUrlCard(
         ) {
 
             Icon(
-                painter = painterResource(R.drawable.secure),
+                painter = painterResource(R.drawable.shield),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(16.dp)
