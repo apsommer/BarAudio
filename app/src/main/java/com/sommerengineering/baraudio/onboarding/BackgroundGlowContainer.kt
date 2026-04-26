@@ -2,6 +2,7 @@ package com.sommerengineering.baraudio.onboarding
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -10,13 +11,20 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import com.sommerengineering.baraudio.uitls.appBlue
+import com.sommerengineering.baraudio.uitls.edgePadding
 
 @Composable
-fun BackgroundGlowContainer(content: @Composable () -> Unit) {
+fun BackgroundGlowContainer(
+    modifier: Modifier,
+    content: @Composable () -> Unit
+) {
 
     val glowColor = appBlue()
 
-    Box {
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center
+    ) {
 
         // background glow
         Box(
@@ -46,7 +54,9 @@ fun BackgroundGlowContainer(content: @Composable () -> Unit) {
 
         // content
         Box(
-            modifier = Modifier.align(Alignment.Center)
+            modifier = Modifier
+                .align(Alignment.Center)
+                .padding(vertical = edgePadding * 2)
         ) {
             content()
         }

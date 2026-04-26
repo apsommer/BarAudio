@@ -158,13 +158,11 @@ const val onboardingStayUpdatedSubtitle =
 const val onboardingSendAlertTitle = "Send alerts from any webhook"
 const val onboardingSendAlertsSubtitle = "Connect your tools. We'll speak\nyour signals out loud."
 const val onboardingCopyWebhookTitle = "Copy your webhook URL"
-const val onboardingCopyWebhookSubtitle = "We'll use this URL to receive signals from TradingView."
-const val onboardingPasteWebhookTitle = "Paste into a TradingView alert"
-const val onboardingPasteWebhookSubtitle =
-    "Create a TradingView alert and paste your webhook URL.\nRequires TradingView Essential plan or higher."
+const val onboardingCopyWebhookSubtitle = "Tap to copy."
+const val onboardingPasteWebhookTitle = "Paste it into your alert"
+const val onboardingPasteWebhookSubtitle = "Paste the URL into the webhook field."
 const val onboardingListeningTitle = "Send a test alert"
-const val onboardingListeningSubTitle =
-    "Send a test alert from TradingView and we'll confirm when we receive it."
+const val onboardingListeningSubTitle = "We’ll confirm when it arrives."
 const val nextText = "Next"
 const val copyText = "Copy\nwebhook"
 const val doneText = "Done"

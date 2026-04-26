@@ -32,9 +32,7 @@ fun NavGraphBuilder.SetupWebhookNavigation(
             val context = LocalContext.current
             val onNextClick = {
                 viewModel.copyWebhook(context)
-                controller.navigate(SetupOnboardingPasteWebhookRoute) {
-                    popUpTo(SetupOnboardingCopyWebhookRoute) { inclusive = true }
-                }
+                controller.navigate(SetupOnboardingPasteWebhookRoute)
             }
 
             CopyWebhookScreen(
@@ -47,9 +45,7 @@ fun NavGraphBuilder.SetupWebhookNavigation(
         composable(SetupOnboardingPasteWebhookRoute) {
 
             val onNextClick = {
-                controller.navigate(SetupOnboardingSignalArmedRoute) {
-                    popUpTo(SetupOnboardingPasteWebhookRoute) { inclusive = true }
-                }
+                controller.navigate(SetupOnboardingSignalArmedRoute)
             }
 
             PasteWebhookScreen(
