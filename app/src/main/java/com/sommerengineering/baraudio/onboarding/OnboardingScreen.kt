@@ -58,7 +58,7 @@ fun OnboardingScreen(
             }
 
             // page indicators and button
-            OnboardingFooter(
+            OnboardingButton(
                 buttonText = buttonText,
                 pageNumber = pageNumber,
                 onNextClick = onNextClick,

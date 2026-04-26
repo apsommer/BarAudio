@@ -162,7 +162,7 @@ const val onboardingCopyWebhookTitle = "Copy your webhook URL"
 const val onboardingCopyWebhookSubtitle = "We'll use this URL to receive signals from TradingView."
 const val onboardingPasteWebhookTitle = "Paste into a TradingView alert"
 const val onboardingPasteWebhookSubtitle =
-    "Create or edit an alert in TradingView and paste your webhook URL."
+    "Create a TradingView alert and paste your webhook URL.\nRequires TradingView Essential plan or higher."
 const val onboardingListeningTitle = "Send a test alert"
 const val onboardingListeningSubTitle =
     "Send a test alert from TradingView and we'll confirm when we receive it."

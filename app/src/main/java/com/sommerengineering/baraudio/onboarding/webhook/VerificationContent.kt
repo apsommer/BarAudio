@@ -40,12 +40,13 @@ fun VerificationContent(
             when (uiState.state) {
                 VerificationState.WAITING -> {
                     ListeningDots()
-                    Spacer(Modifier.size(16.dp))
+                    Spacer(Modifier.size(24.dp))
                     Text(
                         text = "Waiting for your first signal ...",
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.bodyLarge
                     )
+                    Spacer(Modifier.size(8.dp))
                     Text(
                         text = "This can take up to 30 seconds.",
                         textAlign = TextAlign.Center,

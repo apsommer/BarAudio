@@ -4,8 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -20,39 +18,11 @@ import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.uitls.edgePadding
 
 @Composable
-fun OnboardingFooter(
-    buttonText: String,
-    pageNumber: Int,
-    onNextClick: () -> Unit,
-    isNextEnabled: Boolean = true,
-    modifier: Modifier
-) {
-
-    Column(modifier) {
-
-        Box(Modifier.fillMaxWidth()) {
-
-            PageIndicator(
-                pageNumber = pageNumber,
-                modifier = Modifier.align(Alignment.Center)
-            )
-
-            OnboardingButton(
-                buttonText = buttonText,
-                onNextClick = onNextClick,
-                isNextEnabled = isNextEnabled,
-                modifier = Modifier.align(Alignment.CenterEnd)
-            )
-        }
-    }
-}
-
-@Composable
 fun OnboardingButton(
     buttonText: String,
     onNextClick: () -> Unit,
-    isNextEnabled: Boolean,
-    modifier: Modifier = Modifier
+    isNextEnabled: Boolean = true,
+    modifier: Modifier
 ) {
 
     // style enable/disable
