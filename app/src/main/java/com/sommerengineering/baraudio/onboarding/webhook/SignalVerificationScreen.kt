@@ -7,6 +7,7 @@ import androidx.compose.runtime.getValue
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.onboarding.OnboardingScreen
 import com.sommerengineering.baraudio.uitls.doneText
+import com.sommerengineering.baraudio.uitls.onboardingListeningSubTitle
 import com.sommerengineering.baraudio.uitls.onboardingListeningTitle
 
 @Composable
@@ -21,6 +22,7 @@ fun SignalVerificationScreen(
 
     OnboardingScreen(
         title = onboardingListeningTitle,
+        subTitle = onboardingListeningSubTitle,
         pageNumber = 2,
         buttonText = doneText,
         onNextClick = onClose,
