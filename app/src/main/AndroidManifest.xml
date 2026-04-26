@@ -51,12 +51,12 @@
                     TODO: these can all be delete if safe (?) system generated notifications not possible -->
             <meta-data
                 android:name="com.google.firebase.messaging.default_notification_icon"
-                android:resource="@drawable/logo_square" />
+                android:resource="@drawable/app" />
 
             <!-- fcm notification color -->
             <meta-data
                 android:name="com.google.firebase.messaging.default_notification_color"
-                android:resource="@color/logo_blue" />
+                android:resource="@color/app_blue" />
 
             <!-- fcm notification channel -->
             <meta-data

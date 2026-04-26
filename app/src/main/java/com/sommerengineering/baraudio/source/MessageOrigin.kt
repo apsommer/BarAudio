@@ -9,8 +9,7 @@ sealed interface MessageOrigin {
     val description: String // group header description
     val signalDescription: String // settings description
     val order: Int
-    fun settingsTitle(): String
-    fun style(isDark: Boolean): MessageItemStyle
+    val style: MessageItemStyle
 
     data class BroadcastStream(val asset: Asset) : MessageOrigin {
         override val key = asset.origin
@@ -18,8 +17,7 @@ sealed interface MessageOrigin {
         override val description = asset.assetDescription
         override val signalDescription = asset.signalDescription
         override val order = asset.order
-        override fun settingsTitle() = asset.settingsTitle()
-        override fun style(isDark: Boolean) = asset.style(isDark)
+        override val style = asset.style
     }
 
     data class UserSignal(val source: Source) : MessageOrigin {
@@ -28,8 +26,7 @@ sealed interface MessageOrigin {
         override val description = source.description
         override val signalDescription = source.signalDescription
         override val order = source.order + 100 // always after assets
-        override fun settingsTitle() = source.settingsTitle()
-        override fun style(isDark: Boolean) = source.style(isDark)
+        override val style = source.style
     }
 }
 

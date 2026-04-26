@@ -6,9 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -17,21 +15,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.sommerengineering.baraudio.uitls.rowHorizontalPadding
+import com.sommerengineering.baraudio.uitls.descriptionAlpha
 import com.sommerengineering.baraudio.uitls.rowIconPadding
-import com.sommerengineering.baraudio.uitls.rowMinHeight
-import com.sommerengineering.baraudio.uitls.rowVerticalPadding
-import com.sommerengineering.baraudio.uitls.settingsIconSize
+import com.sommerengineering.baraudio.uitls.rowHeight
+import com.sommerengineering.baraudio.uitls.rowHorizontalPadding
 
 @Composable
 fun SwitchItem(
-    iconRes: Int,
+    icon: @Composable () -> Unit,
     title: String,
     description: String? = null,
-    iconTint: Color? = null,
     titleColor: Color? = null,
     descriptionColor: Color? = null,
     content: @Composable () -> Unit) {
@@ -41,25 +36,18 @@ fun SwitchItem(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(rowMinHeight)
+                    .heightIn(rowHeight)
                     .padding(
                         start = rowHorizontalPadding + 4.dp,
-                        end = rowHorizontalPadding,
-                        top = rowVerticalPadding,
-                        bottom = rowVerticalPadding),
+                        end = rowHorizontalPadding),
                 verticalAlignment = Alignment.CenterVertically) {
-
 
                 Row(
                     modifier = Modifier.weight(1f),
                     verticalAlignment = Alignment.CenterVertically) {
 
                     // icon
-                    Icon(
-                        modifier = Modifier.size(settingsIconSize),
-                        painter = painterResource(iconRes),
-                        tint = iconTint ?: LocalContentColor.current,
-                        contentDescription = null)
+                    icon()
                     Spacer(Modifier.width(rowIconPadding + 4.dp))
 
                     // title and description
@@ -73,7 +61,7 @@ fun SwitchItem(
                                 modifier = Modifier.padding(top = 4.dp),
                                 text = description,
                                 style = MaterialTheme.typography.bodySmall,
-                                color = descriptionColor ?: LocalContentColor.current.copy(alpha = 0.7f),
+                                color = descriptionColor ?: LocalContentColor.current.copy(descriptionAlpha),
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis)
                         }

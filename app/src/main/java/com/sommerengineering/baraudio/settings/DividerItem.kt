@@ -15,14 +15,14 @@ import androidx.compose.ui.Modifier
 import com.sommerengineering.baraudio.uitls.dividerThickness
 import com.sommerengineering.baraudio.uitls.rowHorizontalPadding
 import com.sommerengineering.baraudio.uitls.rowIconPadding
-import com.sommerengineering.baraudio.uitls.rowMinHeight
+import com.sommerengineering.baraudio.uitls.rowHeight
 import com.sommerengineering.baraudio.uitls.settingsIconSize
 
 @Composable
 fun DividerItem(
     text: String) {
 
-    val rowHeight = rowMinHeight
+    val rowHeight = rowHeight
     val leadingLineWidth = rowIconPadding + (settingsIconSize / 2)
     val color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
 

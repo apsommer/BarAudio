@@ -1,8 +1,9 @@
 package com.sommerengineering.baraudio.messages
 
-import android.util.Log
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -23,9 +24,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.times
+import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.MainViewModel
-import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.message.GroupHeaderItem
 import com.sommerengineering.baraudio.message.MessageItem
 import com.sommerengineering.baraudio.settings.SettingsDrawer
@@ -33,9 +33,6 @@ import com.sommerengineering.baraudio.source.Message
 import com.sommerengineering.baraudio.source.MessageGroup
 import com.sommerengineering.baraudio.source.MessageOrigin
 import com.sommerengineering.baraudio.source.resolveMessageOrigin
-import com.sommerengineering.baraudio.uitls.backgroundDarkAlpha
-import com.sommerengineering.baraudio.uitls.backgroundLightAlpha
-import com.sommerengineering.baraudio.uitls.edgePadding
 import com.sommerengineering.baraudio.uitls.logMessage
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -62,12 +59,6 @@ fun MessagesScreen(
     val groups = remember(messages) { groupMessages(messages) }
     val expandedGroups = remember(feedMode) { mutableStateMapOf<MessageOrigin, Boolean>() }
 
-    // toggle background image with dark mode
-    val isDarkMode = viewModel.isDarkMode
-    val backgroundRes =
-        if (isDarkMode) R.drawable.background_dark
-        else R.drawable.background
-
     // scroll to latest when user at top of list
     LaunchedEffect(messages.size) {
         if (listState.firstVisibleItemIndex > 1) return@LaunchedEffect
@@ -87,22 +78,19 @@ fun MessagesScreen(
         scrimColor = DrawerDefaults.scrimColor.copy(alpha = 0.5f)) {
 
         Scaffold(
-            topBar = { MessagesTopBar(
-                viewModel = viewModel,
-                onSettingsClick = { coroutineScope.launch { drawerState.open() } },
-                onToggleFeedMode = { viewModel.toggleFeedMode() })},
-            floatingActionButton = { MessagesFloatingActionButton(viewModel) },
-            bottomBar = { AllowNotificationsBottomBar(viewModel.areNotificationsEnabled) }) { padding ->
+            topBar = {
+                MessagesTopBar(
+                    viewModel = viewModel,
+                    onSettingsClick = { coroutineScope.launch { drawerState.open() } },
+                    onToggleFeedMode = { viewModel.toggleFeedMode() },
+                    onToggleMute = { viewModel.toggleMute() })
+                 },
+            bottomBar = {
+                AllowNotificationsBottomBar(viewModel.areNotificationsEnabled)
+            }
+        ) { padding ->
 
-            Box(Modifier.fillMaxSize().padding(padding)) {
-
-                // background image
-                ScrimImage(
-                    iconRes = backgroundRes,
-                    alpha = if (isDarkMode) backgroundDarkAlpha else backgroundLightAlpha,
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .padding(2 * edgePadding))
+            Column(Modifier.fillMaxSize().padding(padding)) {
 
                 // messages
                 LazyColumn(state = listState) {
@@ -123,6 +111,7 @@ fun MessagesScreen(
                             itemsIndexed(
                                 items = messages,
                                 key = { _, it -> it.timestamp }) { index, message ->
+                                logMessage(message.message)
                                 MessageItem(
                                     viewModel = viewModel,
                                     message = message,
@@ -132,20 +121,15 @@ fun MessagesScreen(
                         // grouped messages by origin, then by timestamp
                         FeedMode.Grouped -> {
                             groups.forEachIndexed { groupIndex, (origin, messages) ->
-
-                                // group header
                                 val isExpanded = expandedGroups[origin] == true
                                 item(origin.key) {
                                     GroupHeaderItem(
-                                        viewModel = viewModel,
                                         origin = origin,
                                         messageCount = messages.size,
                                         isExpanded = isExpanded,
                                         isShowDivider = groupIndex != groups.size - 1,
                                         onExpand = { expandedGroups[origin] = !isExpanded })
                                 }
-
-                                // messages in group
                                 if (isExpanded) {
                                     itemsIndexed(
                                         items = messages,
@@ -160,6 +144,11 @@ fun MessagesScreen(
                         }
                     }
                 }
+
+                // pulse icon with last signal timestamp
+                LastSignalPulse(
+                    modifier = Modifier.fillMaxWidth().weight(1f),
+                    timestamp = messages.firstOrNull()?.timestamp ?: System.currentTimeMillis().toString())
             }
         }
     }

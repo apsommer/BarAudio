@@ -23,8 +23,6 @@ import com.sommerengineering.baraudio.source.Message
 import com.sommerengineering.baraudio.uitls.RomanNumerals
 import com.sommerengineering.baraudio.uitls.screenFullDescription
 import com.sommerengineering.baraudio.uitls.screenWindowedDescription
-import com.sommerengineering.baraudio.uitls.uiDarkDescription
-import com.sommerengineering.baraudio.uitls.uiLightDescription
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.filter
@@ -34,7 +32,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
-import com.sommerengineering.baraudio.onboarding.webhook.VerificationState.RECEIVED
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
@@ -119,6 +116,14 @@ class MainViewModel @Inject constructor(
         repo.updateEmptyState(enabled)
     }
 
+    // stream ZN
+    var isZN by mutableStateOf(true)
+        private set
+    fun updateZN(enabled: Boolean) {
+        isZN = enabled
+        repo.updateZN(enabled)
+    }
+
     // stream NQ
     var isNQ by mutableStateOf(true)
         private set
@@ -178,18 +183,6 @@ class MainViewModel @Inject constructor(
         repo.updateFullScreen(enabled)
     }
 
-    // dark mode
-    var isDarkMode by mutableStateOf(false)
-        private set
-    val darkModeDescription
-        get() = if (isDarkMode) uiDarkDescription else uiLightDescription
-    fun initDarkMode(systemDefault: Boolean) =
-        viewModelScope.launch { isDarkMode = repo.loadDarkMode(systemDefault) }
-    fun updateDarkMode(enabled: Boolean) {
-        isDarkMode = enabled
-        repo.updateDarkMode(enabled)
-    }
-
     private fun refreshTtsSettingsUi() {
 
         // add roman numerals to voice locale groups
@@ -226,8 +219,13 @@ class MainViewModel @Inject constructor(
     }
 
     // notifications
+    var areNotificationsRequested by mutableStateOf(false)
+        private set
     var areNotificationsEnabled by mutableStateOf(false)
         private set
+    fun updateNotificationsRequested(areRequested: Boolean) {
+        areNotificationsRequested = areRequested
+    }
     fun updateNotificationsEnabled(enabled: Boolean) {
         areNotificationsEnabled = enabled
     }
@@ -299,9 +297,10 @@ class MainViewModel @Inject constructor(
         runBlocking {
             isOnboardingComplete = repo.loadOnboarding()
             isEmptyState = repo.loadEmptyState()
+            isZN = repo.loadZN()
             isNQ = repo.loadNQ()
-            isES = repo.loadES()
             isBTC = repo.loadBTC()
+            isES = repo.loadES()
             isGC = repo.loadGC()
             isSI = repo.loadSI()
             feedMode = repo.loadFeedMode()

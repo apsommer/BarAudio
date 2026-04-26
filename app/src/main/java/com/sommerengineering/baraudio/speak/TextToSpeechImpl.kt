@@ -118,6 +118,13 @@ class TextToSpeechImpl @Inject constructor(
         spokenText = Regex("""\b(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII|XIII|XIV|XV|XVI|XVII|XVIII|XIX|XX)\b""")
             .replace(spokenText) { RomanNumerals.toWord(it.value) }
 
+        // 'm' to minutes, 123m -> 123 minutes
+        spokenText = Regex("""\b(\d+)m\b""")
+            .replace(spokenText) {
+                val value = it.groupValues[1]
+                if (value == "1") "$value minute" else "$value minutes"
+            }
+
         // numbers to words, prevent "oh" instead of "zero"
         spokenText = Regex("""-?\d[\d,]*(\.\d+)?""")
             .replace(spokenText) {
@@ -126,7 +133,7 @@ class TextToSpeechImpl @Inject constructor(
                     .format(number)
             }
 
-        logMessage("spoken text: $spokenText")
+        logMessage("Spoken text\n$spokenText")
         return spokenText
     }
 }

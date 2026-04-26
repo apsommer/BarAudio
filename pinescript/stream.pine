@@ -8,50 +8,51 @@ indicator(
 // DATA
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-isNQ = syminfo.root == "NQ"
-isES = syminfo.root == "ES"
-isBTC = str.contains(syminfo.ticker, "BTC")
+isZN = str.contains(syminfo.tickerid, "CBOT:ZN1!")
+isNQ = str.contains(syminfo.tickerid, "CME_MINI:NQ1!")
+isES = str.contains(syminfo.tickerid, "CME_MINI:ES1!")
+isBTC = str.contains(syminfo.tickerid, "BINANCE:BTCUSDT")
 
 // CONSTANTS
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // momentum
-VELOCITY_BARS = isNQ ? 8 : isES ? 10 : isBTC ? 12 : 8
-VELOCITY_BASELINE_BARS = isNQ ? 120 : isES ? 140 : isBTC ? 160 : 120
-SMOOTH_BARS = isNQ ? 6 : isES ? 8 : isBTC ? 10 : 6
+VELOCITY_BARS = isZN ? 14 : isNQ ? 8 : isBTC ? 12 : isES ? 10 : na
+VELOCITY_BASELINE_BARS = isZN ? 220 : isNQ ? 120 : isBTC ? 160 : isES ? 140 : na
+SMOOTH_BARS = isZN ? 12 : isNQ ? 6 : isBTC ? 10 : isES ? 8 : na
 
 // cascade
-CASCADE_STRUCTURE_BARS = isNQ ? 6 : isES ? 6 : isBTC ? 8 : 6
-CASCADE_LARGE_BAR_RATIO = isNQ ? 4.0 : isES ? 4.2 : isBTC ? 4.5 : 4.0
-CASCADE_SWEEP_RATIO = isNQ ? 0.35 : isES ? 0.33 : isBTC ? 0.45 : 0.35
-CASCADE_CONTINUATION_BARS = isNQ ? 15 : isES ? 15 : isBTC ? 20 : 15
+CASCADE_STRUCTURE_BARS = isZN ? 8 : isNQ ? 6 : isBTC ? 8 : isES ? 6 : na
+CASCADE_LARGE_BAR_RATIO = isZN ? 3.2 : isNQ ? 4.0 : isBTC ? 4.5 : isES ? 4.2 : na
+CASCADE_SWEEP_RATIO = isZN ? 0.30 : isNQ ? 0.35 : isBTC ? 0.45 : isES ? 0.33 : na
+CASCADE_CONTINUATION_BARS = isZN ? 20 : isNQ ? 15 : isBTC ? 20 : isES ? 15 : na
 
 // expansion
-ACCELERATION_BARS = isNQ ? 5 : isES ? 7 : isBTC ? 8 : 5
-EXPANSION_STRUCTURE_LOOKBACK = isNQ ? 18 : isES ? 16 : isBTC ? 22 : 18
-ACCELERATION_PERCENT = isNQ ? 18.0 : isES ? 20.0 : isBTC ? 14.0 : 18.0
-EXPANSION_LEVEL_PERCENT = isNQ ? 115 : isES ? 108 : isBTC ? 100 : 115
+ACCELERATION_BARS = isZN ? 8 : isNQ ? 5 : isBTC ? 8 : isES ? 7 : na
+EXPANSION_STRUCTURE_LOOKBACK = isZN ? 24 : isNQ ? 18 : isBTC ? 22 : isES ? 16 : na
+ACCELERATION_PERCENT = isZN ? 12.0 : isNQ ? 16.0 : isBTC ? 14.0 : isES ? 20.0 : na
+EXPANSION_LEVEL_PERCENT = isZN ? 85 : isNQ ? 105 : isBTC ? 100 : isES ? 108 : na
 
 // exhaustion
-EXHAUSTION_LEVEL_PERCENT = isNQ ? 48 : isES ? 52 : isBTC ? 55 : 48
-TREND_MATURE_BARS = isNQ ? 18 : isES ? 18 : isBTC ? 22 : 18
-EXHAUSTION_LOOKBACK = isNQ ? 20 : isES ? 18 : isBTC ? 24 : 20
-EXHAUSTION_REVERSAL_BARS = isNQ ? 6 : isES ? 7 : isBTC ? 8 : 6
+EXHAUSTION_LEVEL_PERCENT = isZN ? 60 : isNQ ? 48 : isBTC ? 55 : isES ? 52 : na
+TREND_MATURE_BARS = isZN ? 26 : isNQ ? 18 : isBTC ? 22 : isES ? 18 : na
+EXHAUSTION_LOOKBACK = isZN ? 26 : isNQ ? 20 : isBTC ? 24 : isES ? 18 : na
+EXHAUSTION_REVERSAL_BARS = isZN ? 8 : isNQ ? 6 : isBTC ? 8 : isES ? 7 : na
 
 // range
-RANGE_BARS = isNQ ? 60 : isES ? 120 : isBTC ? 90 : 60
-RANGE_MAGNITUDE_POINTS = isNQ ? 20 : isES ? 18 : isBTC ? 200 : 80
+RANGE_BARS = isZN ? 90 : isNQ ? 60 : isBTC ? 90 : isES ? 120 : na
+RANGE_MAGNITUDE_POINTS = isZN ? 0.125 : isNQ ? 20 : isBTC ? 200 : isES ? 18 : na
 
 // acceptance
-ACCEPTANCE_BARS = isNQ ? 5 : isES ? 6 : isBTC ? 7 : 5
+ACCEPTANCE_BARS = isZN ? 6 : isNQ ? 5 : isBTC ? 7 : isES ? 6 : na
 
 // slow trend
-SLOW_TREND_BARS = isNQ ? 120 : isES ? 120 : isBTC ? 90 : 120
+SLOW_TREND_BARS = isZN ? 120 : isNQ ? 70 : isBTC ? 90 : isES ? 90 : na
 SLOW_TREND_COOLDOWN_BARS = 60
-SMA_BARS = isNQ ? 90 : isES ? 90 : isBTC ? 70 : 90
-SLOPE_LOOKBACK = isNQ ? 10 : isES ? 20 : isBTC ? 10 : 10
-STRUCTURE_BARS = isNQ ? 20 : isES ? 14 : isBTC ? 25 : 20
-DISTANCE_THRESHOLD = isNQ ? 0.0015 : isES ? 0.0008 : isBTC ? 0.0025 : 0.0015
+SMA_BARS = isZN ? 120 : isNQ ? 90 : isBTC ? 70 : isES ? 90 : na
+SLOPE_LOOKBACK = isZN ? 20 : isNQ ? 10 : isBTC ? 10 : isES ? 20 : na
+STRUCTURE_BARS = isZN ? 30 : isNQ ? 20 : isBTC ? 25 : isES ? 14 : na
+DISTANCE_THRESHOLD = isZN ? 0.0006 : isNQ ? 0.0015 : isBTC ? 0.0025 : isES ? 0.0008 : na
 
 // FEATURES
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -66,16 +67,16 @@ var int expansionStartBar = bar_index
 var bool isExpansionActive = false
 var bool isExpansionUp = false
 var float expansionPeakMomentum = 0.0
-var float expansionHigh = high
-var float expansionLow = low
-var color expansionColor = color.black
+var bool triggerExpansion = false
 var bool expansionDirection = false
-var box expansionBox = na
-var int cascadeBarIndex = na
+var bool isExhaustionCooledDown = false
+var int cascadeBarIndex = 0
 var bool hasActiveCascade = false
 var float cascadeHigh = na
 var float cascadeLow = na
 var bool cascadeDirection = false
+var bool rangeBreakoutDirectionUp = false
+var bool triggerRangeBreak = false
 var bool isRangeActive = false
 var int rangeStartBar = bar_index
 var float rangeHigh = high
@@ -89,9 +90,24 @@ var float eventReferenceMid = na
 var bool eventDirectionUp = false
 var bool isEvaluatingEvent = false
 var int eventType = 0  // 1 range, 2 cascade
-var int lastEventBar = na
+var int lastEventBar = 0
 var int slowTrendDirection = 0  // 1 up, -1 down, 0 none
-var int lastSlowTrendBar = na
+var int lastSlowTrendBar = 0
+var bool triggerSlowTrendUp = false
+var bool triggerSlowTrendDown = false
+
+// latches (prevent intrabar instability)
+var bool hasFiredExpansionThisBar = false
+var bool hasFiredExhaustionThisBar = false
+var bool hasFiredRangeBreakThisBar = false
+var bool hasFiredSlowTrendUpThisBar = false
+var bool hasFiredSlowTrendDownThisBar = false
+if barstate.isnew
+    hasFiredExpansionThisBar := false
+    hasFiredExhaustionThisBar := false
+    hasFiredRangeBreakThisBar := false
+    hasFiredSlowTrendUpThisBar := false
+    hasFiredSlowTrendDownThisBar := false
 
 // current bar
 currentPriceUp = high
@@ -106,11 +122,11 @@ isDown = close[VELOCITY_BARS] > low
 velocityUp = (currentPriceUp - referencePrice) / VELOCITY_BARS
 velocityDown = (referencePrice - currentPriceDown) / VELOCITY_BARS
 velocity = math.max(velocityUp, velocityDown)
-velocitySma = nz(ta.sma(velocity, VELOCITY_BASELINE_BARS), 1)
-velocitySmaSafe = math.max(velocitySma, 0.000001)
+velocitySmaRaw = ta.sma(velocity, VELOCITY_BASELINE_BARS)
+velocitySma = velocitySmaRaw > 0 ? velocitySmaRaw : 1
 
 // momentum
-rawMomentumPercent = (velocity / velocitySmaSafe - 1.0) * 100.0
+rawMomentumPercent = (velocity / velocitySma - 1.0) * 100.0
 momentum = ta.sma(rawMomentumPercent, SMOOTH_BARS)
 
 // CASCADE
@@ -184,7 +200,6 @@ triggerContinuationCascade =
 
 if triggerStopCascade
     hasActiveCascade := true
-    isExpansionActive := false
     expansionPeakMomentum := 0.0
     isRangeActive := false
     cascadeBarIndex := bar_index
@@ -192,8 +207,15 @@ if triggerStopCascade
     cascadeLow := low
     cascadeDirection := currentCascadeDirection
 
+    // kill expansion if direction opposes
+    isExpansionActive :=
+         isExpansionActive
+         and not (
+            (isExpansionUp and not isStopCascadeUp)
+            or (not isExpansionUp and isStopCascadeUp))
+
 hasActiveCascade :=
-     not na(cascadeBarIndex)
+     hasActiveCascade
      and bar_index - cascadeBarIndex <= CASCADE_CONTINUATION_BARS
 
 // EXPANSION
@@ -207,48 +229,52 @@ isAccelerating = acceleration > ACCELERATION_PERCENT
 isStructureBreakUp = high > ta.highest(high[1], EXPANSION_STRUCTURE_LOOKBACK)
 isStructureBreakDown = ta.lowest(low[1], EXPANSION_STRUCTURE_LOOKBACK) > low
 
+// wait for cascade cooldown
+barsSinceCascade = bar_index - cascadeBarIndex
+isCascadeCooledDown = bar_index - cascadeBarIndex > CASCADE_CONTINUATION_BARS
+
 // continuation, expansion in same direction as previous expansion
 isContinuationExpansion =
      momentum > EXPANSION_LEVEL_PERCENT
      and isUp == isUp[1]
      and momentum > momentum[1]
 
+// expansion condition
 isExpansion =
      momentum > EXPANSION_LEVEL_PERCENT
      and (isContinuationExpansion or (isUp ? isStructureBreakUp : isStructureBreakDown))
 
-// new expansion direction
-isNewTrend =
-     not isExpansionActive
-     or isExpansionUp != isUp
-
-var bool triggerExpansion = false
-
-triggerExpansionRaw =
+isExpansionTrigger =
      isExpansion
-     and not triggerStopCascade
-     and isNewTrend
-     and not isExpansion[1]
-     and isNewTrend[1]
+     and not isExpansionActive
+     and isCascadeCooledDown
+     and isExhaustionCooledDown
      and EXPANSION_LEVEL_PERCENT > momentum[1]
 
-triggerExpansion :=
-     barstate.isnew ? triggerExpansionRaw :
-     (triggerExpansion or triggerExpansionRaw)
+triggerExpansionEvent =
+     isExpansionTrigger
+     and not isExpansionTrigger[1]
+     and not hasFiredExpansionThisBar
 
+if triggerExpansionEvent
+    hasFiredExpansionThisBar := true
+
+// continuation classification
 isContinuationExpansionTrigger =
-     triggerExpansion
+     triggerExpansionEvent
      and not triggerStopCascade
      and isContinuationExpansion
      and not (isUp ? isStructureBreakUp : isStructureBreakDown)
 
-if triggerExpansion and not triggerExpansion[1]
+// state update
+if triggerExpansionEvent
     isExpansionActive := true
     isExpansionUp := isUp
     expansionPeakMomentum := momentum
     expansionDirection := isUp
     expansionStartBar := bar_index
 
+// maintain peak
 if isExpansionActive
     expansionPeakMomentum := math.max(expansionPeakMomentum, momentum)
 
@@ -300,37 +326,48 @@ triggerExhaustion =
      and isExhaustionDamage
      and expansionPeakMomentum > EXPANSION_LEVEL_PERCENT
 
-if triggerExhaustion
+triggerExhaustionEvent =
+     triggerExhaustion
+     and not hasFiredExhaustionThisBar
+
+if triggerExhaustionEvent
     isExpansionActive := false
     expansionPeakMomentum := 0.0
     lastExhaustionBar := bar_index
+    hasFiredExhaustionThisBar := true
 
-// RANGE BREAKOUT
+barsSinceExhaustion = bar_index - lastExhaustionBar
+isExhaustionCooledDown := barsSinceExhaustion > ACCELERATION_BARS
+
+// RANGE (anchored box model)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// highest and lowest in range lookback
+// detection (unchanged)
 rollingHigh = ta.highest(high, RANGE_BARS)
 rollingLow = ta.lowest(low, RANGE_BARS)
 rollingRange = rollingHigh - rollingLow
 
 isRange = rollingRange <= RANGE_MAGNITUDE_POINTS
 
-// cooldown since last range
-barsSinceLastRangeEnd = bar_index - lastRangeEndBar
-isRangeCooledDown = barsSinceLastRangeEnd > RANGE_BARS
+// cooldown
+barsSinceRange = bar_index - lastRangeEndBar
+isRangeCooledDown =
+     barsSinceRange > RANGE_BARS
 
+// activate (freeze box in space)
 triggerRangeStart =
      isRange
-     and not isExpansionActive
      and not isRangeActive
      and isRangeCooledDown
 
 if triggerRangeStart
+    mid = (rollingHigh + rollingLow) * 0.5
+    rangeHigh := mid + RANGE_MAGNITUDE_POINTS * 0.5
+    rangeLow := mid - RANGE_MAGNITUDE_POINTS * 0.5
+    rangeStartBar := bar_index
     isRangeActive := true
-    rangeStartBar := bar_index - RANGE_BARS
-    rangeHigh := rollingHigh
-    rangeLow := rollingLow
 
+// breakout (fixed boundaries)
 isRangeBreakoutUp =
      isRangeActive
      and high > rangeHigh
@@ -339,27 +376,24 @@ isRangeBreakoutDown =
      isRangeActive
      and rangeLow > low
 
-var bool rangeBreakoutDirectionUp = false
-var bool triggerRangeBreakout = false
+isRangeBreakout =
+     isRangeBreakoutUp or isRangeBreakoutDown
 
-triggerRangeBreakoutRaw =
-     isRangeBreakoutUp
-     or isRangeBreakoutDown
+triggerRangeBreakoutEvent =
+     isRangeBreakout
+     and not isRangeBreakout[1]
+     and not hasFiredRangeBreakThisBar
 
-triggerRangeBreakout :=
-     barstate.isnew ? triggerRangeBreakoutRaw :
-     (triggerRangeBreakout or triggerRangeBreakoutRaw)
-
-if triggerRangeBreakout and not triggerRangeBreakout[1]
+if triggerRangeBreakoutEvent
     rangeBreakoutDirectionUp := isRangeBreakoutUp
     isRangeActive := false
     lastRangeEndBar := bar_index
+    hasFiredRangeBreakThisBar := true
 
-rangeDuration = bar_index - rangeStartBar
-
-// only non-persistent assets kill range on internal activity (NQ, but not ES or BTC)
-if (triggerStopCascade or triggerExpansion) and not IS_PERSISTENT_RANGE
-    isRangeActive := false
+// IMPORTANT: remove this behavior (range should not be killed externally)
+// if (triggerStopCascade or triggerExpansionEvent) and not IS_PERSISTENT_RANGE
+//     isRangeActive := false
+//     lastRangeEndBar := bar_index
 
 // ACCEPTANCE / REJECTION
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -375,7 +409,7 @@ if triggerStopCascade
     eventType := 2
 
 // range breakout event
-else if triggerRangeBreakout and not triggerRangeBreakout[1]
+else if triggerRangeBreakoutEvent
     eventBarIndex := bar_index
     eventReferenceHigh := rollingHigh
     eventReferenceLow := rollingLow
@@ -422,22 +456,21 @@ if isEvaluationDone
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // track last major event
-if triggerExpansion or triggerExhaustion or triggerStopCascade or triggerRangeBreakout
+if triggerExpansionEvent or triggerExhaustionEvent or triggerStopCascade or triggerRangeBreakoutEvent
     lastEventBar := bar_index
 
 barsSinceEvent = bar_index - lastEventBar
 
 // significant time has passed since last event
 isSlowEnvironment =
-     not na(lastEventBar)
-     and not isRange
+     not isRangeActive
      and barsSinceEvent > SLOW_TREND_BARS
 
 // SMA
 sma = ta.sma(ta.sma(close[1], SMA_BARS), 10)
 slope = sma - sma[SLOPE_LOOKBACK]
 isSlopeUp = slope > 0
-isSlopeDown = slope < 0
+isSlopeDown = sma[SLOPE_LOOKBACK] > sma
 
 // distance from SMA
 distanceUp = (high - sma) / sma
@@ -453,41 +486,59 @@ isStructureDown = ta.highest(high[1], STRUCTURE_BARS) > high
 barsSinceSlowTrend = bar_index - lastSlowTrendBar
 
 isSlowTrendCooledDown =
-     na(lastSlowTrendBar)
-     or barsSinceSlowTrend > SLOW_TREND_COOLDOWN_BARS
+     barsSinceSlowTrend > SLOW_TREND_COOLDOWN_BARS
 
-// triggers (event-based)
-triggerSlowTrendUp =
-     isSlowEnvironment
+// raw triggers
+triggerSlowTrendUpRaw =
+     isSlowEnvironment and not isSlowEnvironment[1]
      and isSlopeUp
      and isAboveSma
      and isStructureUp
      and isSlowTrendCooledDown
 
-var bool slowTrendUpLatched = false
-slowTrendUpLatched := barstate.isnew ? triggerSlowTrendUp : (slowTrendUpLatched or triggerSlowTrendUp)
-triggerSlowTrendUp := slowTrendUpLatched
-
-triggerSlowTrendDown =
-     isSlowEnvironment
+triggerSlowTrendDownRaw =
+     isSlowEnvironment and not isSlowEnvironment[1]
      and isSlopeDown
      and isBelowSma
      and isStructureDown
      and isSlowTrendCooledDown
 
-var bool slowTrendDownLatched = false
-slowTrendDownLatched := barstate.isnew ? triggerSlowTrendDown : (slowTrendDownLatched or triggerSlowTrendDown)
-triggerSlowTrendDown := slowTrendDownLatched
+// hard reset with latch
+if barstate.isnew
+    triggerSlowTrendUp := false
+    triggerSlowTrendDown := false
+if triggerSlowTrendUpRaw
+    triggerSlowTrendUp := true
+if triggerSlowTrendDownRaw
+    triggerSlowTrendDown := true
 
-// update cooldown anchor
-if triggerSlowTrendUp or triggerSlowTrendDown
+// event
+triggerSlowTrendUpEvent =
+     triggerSlowTrendUpRaw
+     and not hasFiredSlowTrendUpThisBar
+if triggerSlowTrendUpEvent
+    hasFiredSlowTrendUpThisBar := true
+
+triggerSlowTrendDownEvent =
+     triggerSlowTrendDownRaw
+     and not hasFiredSlowTrendDownThisBar
+if triggerSlowTrendDownEvent
+    hasFiredSlowTrendDownThisBar := true
+
+// cooldown anchor
+if triggerSlowTrendUpEvent or triggerSlowTrendDownEvent
     lastSlowTrendBar := bar_index
 
 // PLOT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+var box expansionBox = na
+var float expansionHigh = high
+var float expansionLow = low
+var color expansionColor = color.black
+
 // expansion
-if triggerExpansion
+if triggerExpansionEvent
     expansionColor := isUp ? color.new(color.blue, 80) : color.new(color.red, 80)
     expansionBox := box.new(
         left = expansionStartBar,
@@ -496,16 +547,17 @@ if triggerExpansion
         bottom = low,
         border_color = expansionColor,
         bgcolor = expansionColor)
+    expansionHigh := high
+    expansionLow := low
 
 if isExpansionActive
-    trendLength = bar_index - expansionStartBar + 1
-    expansionHigh := ta.highest(high, trendLength)
-    expansionLow := ta.lowest(low, trendLength)
+    expansionHigh := math.max(expansionHigh, high)
+    expansionLow := math.min(expansionLow, low)
     box.set_right(expansionBox, bar_index)
     box.set_top(expansionBox, expansionHigh)
     box.set_bottom(expansionBox, expansionLow)
 
-barcolor(triggerExpansion ? (isUp ? color.blue : color.red) : na)
+barcolor(triggerExpansionEvent ? (isUp ? color.blue : color.red) : na)
 
 // cascade
 plotshape(
@@ -539,9 +591,9 @@ plotshape(
     size=size.small)
 
 // range breakout
-if triggerRangeBreakout
+if triggerRangeBreakoutEvent or (not isRangeActive and isRangeActive[1])
     line.new(
-        x1 = rangeStartBar,
+        x1 = rangeStartBar - RANGE_BARS,
         y1 = (rangeHigh + rangeLow) * 0.5,
         x2 = bar_index,
         y2 = (rangeHigh + rangeLow) * 0.5,
@@ -550,7 +602,7 @@ if triggerRangeBreakout
         width = 2)
 
     box.new(
-        left = rangeStartBar,
+        left = rangeStartBar - RANGE_BARS,
         right = bar_index,
         top = rangeHigh,
         bottom = rangeLow,
@@ -592,7 +644,7 @@ plotshape(
 
 // slow trend
 plotshape(
-    triggerSlowTrendUp,
+    triggerSlowTrendUpEvent,
     title = "slow trend up",
     location = location.belowbar,
     style = shape.triangleup,
@@ -600,7 +652,7 @@ plotshape(
     size = size.tiny)
 
 plotshape(
-    triggerSlowTrendDown,
+    triggerSlowTrendDownEvent,
     title = "slow trend down",
     location = location.abovebar,
     style = shape.triangledown,
@@ -613,15 +665,17 @@ plot(sma, title = "sma", color = color.new(color.white, 50), linewidth = 1)
 
 // asset name (top right)
 assetName =
+     isZN ? "10Y Treasury (ZN)" :
      isNQ ? "Nasdaq (NQ)" :
-     isES ? "S&P 500 (ES)" :
      isBTC ? "Bitcoin (BTC)" :
+     isES ? "S&P 500 (ES)" :
      "Untagged signal\n" + syminfo.description + " (" + syminfo.ticker + ")"
 
 assetNameColor =
+     isZN ? color.green :
      isNQ ? color.rgb(105, 39, 176) :
-     isES ? color.green :
      isBTC ? color.orange :
+     isES ? color.blue :
      color.red
 
 var table assetTable = table.new(position.top_right, 1, 1)
@@ -638,8 +692,14 @@ if barstate.islast
 
 // Event • Direction + Context • Value
 
-var string alertMessage = na
-alertMessage := na
+var string newMessage = na // signal evaluation (stateless) can exist or not intrabar
+var string alertMessage = na // delivery latch (stateful) if newMessage ever existed this bar then alertMessage exists
+
+// unbelievable: alerts are not guaranteed per tick, they are sampled by a different looper at "near tick" frequency
+// latch fixes the issue, wow pinescript
+if barstate.isnew
+    alertMessage := na
+    newMessage := na
 
 // price
 formattedPrice = str.tostring(close, format.mintick)
@@ -656,8 +716,67 @@ formattedPercent =
 cascadeMove = math.round(math.abs(high - low)) // round to nearest point
 formattedPoints = str.tostring(cascadeMove) + " points"
 
+// range duration
+rangeDuration = bar_index - rangeStartBar - RANGE_BARS
+
 // MESSAGE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+getZNmessage() =>
+    string message = na
+
+    // ticks (ZN-native)
+    cascadeTicks = math.round(math.abs(high - low) / syminfo.mintick)
+    formattedTicks = str.tostring(cascadeTicks) + " ticks"
+
+    if triggerStopCascade and not (isContinuationCascadeUp or isContinuationCascadeDown)
+        message :=
+             "Flow • " +
+             (isStopCascadeUp ? "Rapid yield contraction • " : "Rapid yield expansion • ") +
+             formattedTicks
+
+    else if triggerContinuationCascade
+        message :=
+             "Flow • " +
+             (isContinuationCascadeUp ? "Continuation yield contraction • " : "Continuation yield expansion • ") +
+             formattedTicks
+
+    else if triggerExpansionEvent
+        message :=
+             "Repricing • " +
+             (isUp ? "Yields dropping • " : "Yields rising • ") +
+             formattedPercent
+
+    else if triggerExhaustionEvent
+        message :=
+             "Fatigue • " +
+             (expansionDirection ? "Selling pressure fading" : "Buying pressure fading")
+
+    else if triggerRangeBreakoutEvent
+        message :=
+             "Range break • " +
+             str.tostring(rangeDuration) + "m • " +
+             (eventDirectionUp ? "Upside" : "Downside")
+
+    else if isAcceptanceTriggerUp
+        message := "Acceptance • Lower yields holding • " + formattedPrice
+
+    else if isAcceptanceTriggerDown
+        message := "Acceptance • Higher yields holding • " + formattedPrice
+
+    else if isRejectionTriggerUp or isRejectionTriggerDown
+        message := "Failure • Return to range"
+
+    else if triggerSlowTrendUpEvent
+        message := "Drift • Yields easing"
+
+    else if triggerSlowTrendDownEvent
+        message := "Drift • Yields rising"
+
+    else
+        message := na
+
+    message
 
 getNQmessage() =>
     string message = na
@@ -668,90 +787,50 @@ getNQmessage() =>
              (isStopCascadeUp ? "Bullish short liquidation • " : "Bearish long liquidation • ") +
              formattedPoints
 
-    if triggerContinuationCascade
+    else if triggerContinuationCascade
         message :=
              "Cascade • " +
              (isContinuationCascadeUp ? "Bullish continuation • " : "Bearish continuation • ") +
              formattedPoints
 
-    if triggerExpansion
+    else if triggerExpansionEvent
         message :=
              "Expansion • " +
              (isUp ? "Bullish " : "Bearish ") +
              (isContinuationExpansionTrigger ? "continuation • " : "initiative • ") +
              formattedPercent
 
-    if triggerExhaustion
+    else if triggerExhaustionEvent
         message :=
              "Exhaustion • " +
              (expansionDirection ? "Bullish expansion weakening" : "Bearish expansion weakening")
 
-    if triggerRangeBreakout
+    else if triggerRangeBreakoutEvent
         message :=
-             "Range • " +
-             (eventDirectionUp ? "Bullish breakout • " : "Bearish breakout • ") +
-             str.tostring(rangeDuration) + " minutes"
+             "Range break • " +
+             str.tostring(rangeDuration) + "m • " +
+             (eventDirectionUp ? "Bullish" : "Bearish")
 
-    if isAcceptanceTriggerUp
+    else if isAcceptanceTriggerUp
         message := "Acceptance • Bullish breakout holding • " + formattedPrice
 
-    if isAcceptanceTriggerDown
+    else if isAcceptanceTriggerDown
         message := "Acceptance • Bearish breakout holding • " + formattedPrice
 
-    if isRejectionTriggerUp
+    else if isRejectionTriggerUp
         message := "Rejection • Bullish breakout failed"
 
-    if isRejectionTriggerDown
+    else if isRejectionTriggerDown
         message := "Rejection • Bearish breakout failed"
 
-    if triggerSlowTrendUp
+    else if triggerSlowTrendUpEvent
         message := "Trend • Bullish drift"
 
-    if triggerSlowTrendDown
+    else if triggerSlowTrendDownEvent
         message := "Trend • Bearish drift"
 
-    message
-
-getESmessage() =>
-    string message = na
-
-    if triggerStopCascade
-        message :=
-             "Sweep • " +
-             (isStopCascadeUp ? "Highside • " : "Lowside • ") +
-             formattedPoints
-
-    if triggerExpansion
-        message :=
-             "Move • " +
-             (isUp ? "Upside momentum • " : "Downside momentum • ") +
-             formattedPercent
-
-    if triggerExhaustion
-        message :=
-             "Fade • " +
-             (expansionDirection ? "Upside weakening" : "Downside weakening")
-
-    if triggerRangeBreakout
-        message :=
-             "Structure • " +
-             (eventDirectionUp ? "Upside push • " : "Downside push • ") +
-             str.tostring(rangeDuration) + " minutes"
-
-    if isAcceptanceTriggerUp
-        message := "Stable • Above range • " + formattedPrice
-
-    if isAcceptanceTriggerDown
-        message := "Stable • Below range • " + formattedPrice
-
-    if isRejectionTriggerUp or isRejectionTriggerDown
-        message := "Failure • Revert to range"
-
-    if triggerSlowTrendUp
-        message := "Bias • Upside"
-
-    if triggerSlowTrendDown
-        message := "Bias • Downside"
+    else
+        message := na
 
     message
 
@@ -764,52 +843,119 @@ getBTCmessage() =>
              (isStopCascadeUp ? "Short squeeze • " : "Long flush • ") +
              formattedPoints
 
-    if triggerExpansion
+    else if triggerExpansionEvent
         message :=
              "Impulse • " +
-             (isUp ? "Upside momentum increasing • " : "Downside momentum increasing • ") +
+             (isUp ? "Bullish momentum • " : "Bearish momentum • ") +
              formattedPercent
 
-    if triggerExhaustion
+    else if triggerExhaustionEvent
         message :=
              "Cooldown • " +
-             (expansionDirection ? "Upside momentum fading" : "Downside momentum fading")
+             (expansionDirection ? "Bullish momentum fading" : "Bearish momentum fading")
 
-    if triggerRangeBreakout
+    else if triggerRangeBreakoutEvent
         message :=
-             "Compression • " +
-             (eventDirectionUp ? "Break higher • " : "Break lower • ") +
-             str.tostring(rangeDuration) + " minutes"
+             "Compression break • " +
+             str.tostring(rangeDuration) + "m • " +
+             (eventDirectionUp ? "Bullish" : "Bearish")
 
-    if isAcceptanceTriggerUp
-        message := "Holding • Above • " + formattedPrice
+    else if isAcceptanceTriggerUp
+        message := "Holding • " + formattedPrice
 
-    if isAcceptanceTriggerDown
-        message := "Holding • Below • " + formattedPrice
+    else if isAcceptanceTriggerDown
+        message := "Holding • " + formattedPrice
 
-    if isRejectionTriggerUp
+    else if isRejectionTriggerUp
         message := "Failure • Bearish reversal"
 
-    if isRejectionTriggerDown
+    else if isRejectionTriggerDown
         message := "Failure • Bullish reversal"
 
-    if triggerSlowTrendUp
-        message := "Drift • Price climbing • " + formattedPrice
+    else if triggerSlowTrendUpEvent
+        message := "Drift • Price rising • " + formattedPrice
 
-    if triggerSlowTrendDown
+    else if triggerSlowTrendDownEvent
         message := "Drift • Price falling • " + formattedPrice
+
+    else
+        message := na
+
+    message
+
+getESmessage() =>
+    string message = na
+
+    if triggerStopCascade
+        message :=
+             "Sweep • " +
+             (isStopCascadeUp ? "Upside • " : "Downside • ") +
+             formattedPoints
+
+    else if triggerExpansionEvent
+        message :=
+             "Drive • " +
+             (isUp ? "Upside momentum • " : "Downside momentum • ") +
+             formattedPercent
+
+    else if triggerExhaustionEvent
+        message :=
+             "Fade • " +
+             (expansionDirection ? "Upside weakening" : "Downside weakening")
+
+    else if triggerRangeBreakoutEvent
+        message :=
+             "Structure break • " +
+             str.tostring(rangeDuration) + "m • " +
+             (eventDirectionUp ? "Upside" : "Downside")
+
+    else if isAcceptanceTriggerUp
+        message := "Acceptance • Upside holding • " + formattedPrice
+
+    else if isAcceptanceTriggerDown
+        message := "Acceptance • Downside holding • " + formattedPrice
+
+    else if isRejectionTriggerUp or isRejectionTriggerDown
+        message := "Failure • Return to range"
+
+    else if triggerSlowTrendUpEvent
+        message := "Bias • Upside"
+
+    else if triggerSlowTrendDownEvent
+        message := "Bias • Downside"
+
+    else
+        message := na
 
     message
 
 // alert message
-alertMessage :=
+newMessage :=
+     isZN ? getZNmessage() :
      isNQ ? getNQmessage() :
-     isES ? getESmessage() :
-     isBTC ? getBTCmessage() : na
+     isBTC ? getBTCmessage() :
+     isES ? getESmessage() : na
 
-// cascades fire on bar close, special case
+if not na(newMessage)
+    alertMessage := newMessage
+
+// hard constraint to prevent duplicate alerts
+shouldFireAlert =
+     triggerExpansionEvent
+     or triggerStopCascade
+     or triggerContinuationCascade
+     or triggerExhaustionEvent
+     or triggerRangeBreakoutEvent
+     or triggerSlowTrendUpEvent
+     or triggerSlowTrendDownEvent
+     or isAcceptanceTriggerUp
+     or isAcceptanceTriggerDown
+     or isRejectionTriggerUp
+     or isRejectionTriggerDown
+
+// cascades fire on bar close to capture full magnitude, special case
 isCascadeAlert = triggerStopCascade or triggerContinuationCascade
 
 // send alert to webhook
-if not na(alertMessage) and (barstate.isconfirmed or not isCascadeAlert)
+if shouldFireAlert and not na(alertMessage) and (barstate.isconfirmed or not isCascadeAlert)
     alert(alertMessage, alert.freq_once_per_bar)

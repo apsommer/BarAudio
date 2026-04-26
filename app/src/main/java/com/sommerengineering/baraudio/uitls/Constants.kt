@@ -2,10 +2,13 @@ package com.sommerengineering.baraudio.uitls
 
 import android.speech.tts.TextToSpeech
 import android.util.Log
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import com.google.firebase.Firebase
 import com.google.firebase.crashlytics.crashlytics
 import com.sommerengineering.baraudio.BuildConfig
+import com.sommerengineering.baraudio.R
 
 // logs
 const val TAG = "~~"
@@ -30,7 +33,8 @@ const val roomDatabaseName = "messages.db"
 
 // firebase database
 const val databaseUrl = "https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/"
-const val webhookBaseUrl = "https://us-central1-com-sommerengineering-baraudio.cloudfunctions.net/baraudio?uid="
+const val webhookBaseUrl =
+    "https://us-central1-com-sommerengineering-baraudio.cloudfunctions.net/baraudio?uid="
 const val streamsNode = "streams"
 const val usersNode = "users"
 const val tokensNode = "tokens"
@@ -50,6 +54,7 @@ const val messageKey = "message"
 const val sourceKey = "source"
 
 // streams
+const val znStream = "ZN"
 const val nqStream = "NQ"
 const val esStream = "ES"
 const val btcStream = "BTC"
@@ -62,9 +67,9 @@ const val userSignalDescription = "Custom signal"
 // navigation
 const val LoginRoute = "Login"
 const val AppOnboardingRoute = "AppOnboarding"
-const val AppOnboardingTextToSpeechRoute = "AppOnboardingTextToSpeech"
-const val AppOnboardingNotificationsRoute = "AppOnboardingNotifications"
-const val AppOnboardingWebhookRoute = "AppOnboardingWebhook"
+const val OnboardingHearAlertsRoute = "AppOnboardingTextToSpeech"
+const val OnboardingStayUpdatedRoute = "AppOnboardingNotifications"
+const val OnboardingSendAlertsRoute = "AppOnboardingWebhook"
 const val MessagesRoute = "Messages"
 const val SetupOnboardingRoute = "SetupOnboarding"
 const val SetupOnboardingCopyWebhookRoute = "SetupOnboardingCopyWebhook"
@@ -79,10 +84,10 @@ const val voiceNameKey = "voice"
 const val speedKey = "speed"
 const val pitchKey = "pitch"
 const val isMuteKey = "isMuteKey"
-const val isDarkModeKey = "isDarkMode"
 const val isFullScreenKey = "isFullScreen"
 const val volumeKey = TextToSpeech.Engine.KEY_PARAM_VOLUME
 const val feedModeKey = "feedMode"
+const val isZNKey = "isZN"
 const val isNQKey = "isNQ"
 const val isESKey = "isES"
 const val isBTCKey = "isBTC"
@@ -93,7 +98,7 @@ const val isSIKey = "isSI"
 const val productId = "subscription" // match play store config
 const val freeTrial = "free-trial" // match play store config
 const val subscriptionUrl = "https://play.google.com/store/account/subscriptions?sku=" +
-    productId + "&package=" + BuildConfig.APPLICATION_ID
+        productId + "&package=" + BuildConfig.APPLICATION_ID
 
 // settings
 const val voiceDividerTitle = "VOICE"
@@ -108,14 +113,10 @@ const val premiumDividerTitle = "PREMIUM"
 const val customTitle = "Custom signal"
 const val customDividerTitle = "CUSTOM"
 const val customDescription = "Webhook alerts"
-const val uiDividerTitle = "THEME"
 const val screenTitle = "Screen"
 const val screenFullDescription = "Full screen"
 const val screenWindowedDescription = "Show system bars"
-const val uiModeTitle = "Theme"
-const val uiDarkDescription = "Dark"
-const val uiLightDescription = "Light"
-const val legalDividerTitle = "ACCOUNT"
+const val generalDividerTitle = "GENERAL"
 const val manageSubscriptionTitle = "Manage subscription"
 const val manageSubscriptionDescription = "Billing and plan"
 const val signOutTitle = "Sign-out"
@@ -126,37 +127,45 @@ val loginButtonSize = 96.dp
 val fabSize = 72.dp
 val edgePadding = 24.dp
 
-// scrim logo and background
-val logoDarkAlpha = 0.4f
-val logoLightAlpha = 0.8f
-val backgroundDarkAlpha = 0.5f
-val backgroundLightAlpha = 0.9f
+// style, general
+val logoAlpha = 0.4f
+@Composable
+fun appBlue() = colorResource(R.color.app_blue)
+@Composable
+fun appGreen() = colorResource(R.color.app_green)
 
 // item style
-val assetIconSize = 28.dp
+val rowHeight = 62.dp
+val assetIconSize = 26.dp
 val settingsIconSize = 24.dp
 val rowHorizontalPadding = 16.dp
 val rowVerticalPadding = 12.dp
 val rowIconPadding = 16.dp
 val rowAccentWidth = 6.dp
-val rowMinHeight = 72.dp
 val dividerThickness = 0.5.dp
+val descriptionAlpha = 0.5f
+val streamDescriptionAlpha = 0.6f
+
 
 // onboarding
 const val onboardingTotalPages = 3
-const val appOnboardingTtsTitle = "Hear alerts instantly"
-const val allowNotificationsMessage = "Stay updated in real time"
-const val appOnboardingWebhookTitle = "Send alerts from any webhook"
-const val setupOnboardingCopyTitle = "Copy your webhook URL"
-const val setupOnboardingPasteTitle = "Paste into a TradingView alert\n"
-const val setupOnboardingPasteSubtitle = "*Requires TradingView \"Essential Plan\""
-const val setupOnboardingSignalTitle = "Send a test alert"
+const val onboardingHearAlertsTitle = "Hear alerts instantly"
+const val onboardingHearAlertsSubTitle = "We speak trading signals the moment\nthey happen."
+const val onboardingStayUpdatedTitle = "Stay updated in real time"
+const val onboardingStayUpdatedSubtitle =
+    "Get every signal as it happens.\nNo delays. No filtering."
+const val onboardingSendAlertTitle = "Send alerts from any webhook"
+const val onboardingSendAlertsSubtitle = "Connect your tools. We'll speak\nyour signals out loud."
+const val onboardingCopyWebhookTitle = "Copy your webhook URL"
+const val onboardingPasteWebhookTitle = "Paste into a TradingView alert"
+const val onboardingPasteWebhookSubtitle = "*Requires \"Essential\" plan or higher"
+const val onboardingListeningTitle = "Send a test alert"
 const val nextText = "Next"
 const val copyText = "Copy\nwebhook"
 const val doneText = "Done"
-const val soundAnimation = "sound.json"
-const val notificationAnimation = "notification.json"
-const val linkAnimation = "link.json"
+
+// allow notifications banner
+const val allowNotificationsMessage = "Allow notification to stay updates in real time"
 
 // login
 const val gitHubProviderId = "github.com"

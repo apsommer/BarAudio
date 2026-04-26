@@ -25,7 +25,7 @@ fun LinearRail(color: Color) {
             .fillMaxHeight()
             .padding(vertical = rowVerticalPadding)
             .clip(RoundedCornerShape(3.dp))
-            .background(color))
+            .background(color.copy(0.7f)))
 
     Spacer(Modifier.width(rowIconPadding))
 }
@@ -41,7 +41,7 @@ fun GroupedRail(color: Color) {
             .align(Alignment.Center)
             .width(rowAccentWidth / 2)
             .fillMaxHeight()
-            .background(color.copy(0.6f))) }
+            .background(color.copy(0.4f))) }
 
     Spacer(Modifier.width(rowIconPadding))
 }

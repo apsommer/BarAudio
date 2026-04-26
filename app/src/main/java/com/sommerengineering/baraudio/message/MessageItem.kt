@@ -24,12 +24,10 @@ fun MessageItem(
     // extract message attributes
     val timestamp = message.timestamp
     val text = message.message
-    var beautifulTimestamp by remember { mutableStateOf("") }
 
     // style from origin
-    val isDarkMode = viewModel.isDarkMode
     val origin = resolveMessageOrigin(message)
-    val style = resolveMessageStyle(origin, isDarkMode)
+    val style = resolveMessageStyle(origin)
 
     // detect tap (expand) and long press (speak)
     var isExpanded by remember { mutableStateOf(false) }
@@ -43,6 +41,7 @@ fun MessageItem(
         label = "background")
 
     // update timestamp once per minute
+    var beautifulTimestamp by remember { mutableStateOf("") }
     LaunchedEffect(Unit) {
         while (true) {
             beautifulTimestamp = TimestampFormatter.beautifyCompact(timestamp)
@@ -60,7 +59,7 @@ fun MessageItem(
     }
 
     // ui state
-    val messageItemState = MessageItemState(
+    val state = MessageItemState(
         text = text,
         timestamp = timestamp,
         beautifulTimestamp = beautifulTimestamp,
@@ -79,11 +78,11 @@ fun MessageItem(
     val feedMode = viewModel.feedMode
     if (feedMode == FeedMode.Linear) {
         LinearMessageItem(
-            state = messageItemState,
+            state = state,
             isShowDivider = isShowDivider)
         return
     }
     GroupedMessageItem(
-        state = messageItemState,
+        state = state,
         isShowDivider = isShowDivider)
 }

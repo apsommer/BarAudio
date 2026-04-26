@@ -1,0 +1,35 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+  <!-- background (DO NOT SCALE) -->
+  <path
+      android:pathData="M0,0h24v24h-24z"
+      android:fillColor="#6A737A"/>
+
+  <!-- scale only the bars -->
+  <group
+      android:scaleX="0.75"
+      android:scaleY="0.75"
+      android:pivotX="12"
+      android:pivotY="12">
+
+    <!-- original bars -->
+    <path
+        android:pathData="M7.732,6.298A2.75,2.75 0,0 1,10.444 4h2.612a2.75,2.75 0,0 1,2.712 2.298l0.867,5.202h-9.77l0.867,-5.202zM10.444,5.5a1.25,1.25 0,0 0,-1.233 1.045L8.635,10h6.23l-0.576,-3.455A1.25,1.25 0,0 0,13.056 5.5h-2.612zM2.732,14.798A2.75,2.75 0,0 1,5.444 12.5h2.612a2.75,2.75 0,0 1,2.712 2.298L11.635,20h-9.77l0.867,-5.202zM5.444,14a1.25,1.25 0,0 0,-1.233 1.044L3.635,18.5h6.23l-0.576,-3.456A1.25,1.25 0,0 0,8.056 14L5.444,14zM13.232,14.798a2.75,2.75 0,0 1,2.712 -2.298h2.612a2.75,2.75 0,0 1,2.712 2.298L22.135,20h-9.77l0.867,-5.202zM15.944,14a1.25,1.25 0,0 0,-1.233 1.044l-0.576,3.456h6.23l-0.576,-3.456A1.25,1.25 0,0 0,18.556 14h-2.612z"
+        android:fillColor="#FFDCE6EE"
+        android:fillType="evenOdd"/>
+
+    <!-- inner fills -->
+    <path
+        android:fillColor="#FFDCE6EE"
+        android:pathData="
+                M10.444,5.5a1.25,1.25 0,0 0,-1.233 1.045L8.635,10h6.23l-0.576,-3.455A1.25,1.25 0,0 0,13.056 5.5h-2.612z
+                M5.444,14a1.25,1.25 0,0 0,-1.233 1.044L3.635,18.5h6.23l-0.576,-3.456A1.25,1.25 0,0 0,8.056 14L5.444,14z
+                M15.944,14a1.25,1.25 0,0 0,-1.233 1.044l-0.576,3.456h6.23l-0.576,-3.456A1.25,1.25 0,0 0,18.556 14h-2.612z"/>
+
+  </group>
+
+</vector>

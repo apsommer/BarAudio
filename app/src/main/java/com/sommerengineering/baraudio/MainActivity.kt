@@ -9,7 +9,11 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,7 +29,6 @@ import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.sommerengineering.baraudio.navigation.MainNavigation
 import com.sommerengineering.baraudio.theme.AppTheme
-import com.sommerengineering.baraudio.theme.isSystemInDarkMode
 import com.sommerengineering.baraudio.uitls.channelDescription
 import com.sommerengineering.baraudio.uitls.channelGroupId
 import com.sommerengineering.baraudio.uitls.channelGroupName
@@ -44,6 +47,7 @@ class MainActivity : ComponentActivity() {
 
     val requestNotificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+        viewModel.updateNotificationsRequested(true)
         viewModel.updateNotificationsEnabled(areNotificationsEnabled())
     }
 
@@ -86,12 +90,6 @@ class MainActivity : ComponentActivity() {
         // track app process state
         processState.isTaskAlive = true
 
-        // initialize dark mode
-        viewModel.initDarkMode(isSystemInDarkMode())
-
-        // enable layout resizing into system designated screen space
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-
         initNotificationChannel()
         checkForcedUpdate()
 
@@ -126,18 +124,15 @@ class MainActivity : ComponentActivity() {
     private fun applyFullScreen(
         isFullScreen: Boolean) {
 
-        // controller to toggle fullscreen
-        val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+        val controller = WindowCompat.getInsetsController(window, window.decorView)
 
-        // expand
         if (isFullScreen) {
-            windowInsetsController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
+            controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            controller.hide(WindowInsetsCompat.Type.systemBars())
             return
         }
 
-        // collapse
-        windowInsetsController.show(WindowInsetsCompat.Type.systemBars())
+        controller.show(WindowInsetsCompat.Type.systemBars())
     }
 
     fun checkForcedUpdate() {
@@ -184,12 +179,16 @@ class MainActivity : ComponentActivity() {
 fun App(
     viewModel: MainViewModel) {
 
-    val isDarkMode = viewModel.isDarkMode
+    // safe drawing area when not in fullscreen
+    val insets =
+        if (viewModel.isFullScreen) WindowInsets(0)
+        else WindowInsets.safeDrawing
 
-    AppTheme(isDarkMode) {
-        Scaffold(
-            modifier = Modifier.fillMaxSize()) { padding -> padding
-            MainNavigation(viewModel)
+    AppTheme {
+        Scaffold(contentWindowInsets = insets) { insetsPadding ->
+            Box(Modifier.padding(insetsPadding)) {
+                MainNavigation(viewModel)
+            }
         }
     }
 }

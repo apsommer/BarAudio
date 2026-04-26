@@ -25,33 +25,30 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.source.MessageOrigin
 import com.sommerengineering.baraudio.uitls.dividerThickness
 import com.sommerengineering.baraudio.uitls.rowAccentWidth
 import com.sommerengineering.baraudio.uitls.rowHorizontalPadding
 import com.sommerengineering.baraudio.uitls.rowIconPadding
-import com.sommerengineering.baraudio.uitls.rowMinHeight
 import com.sommerengineering.baraudio.uitls.rowVerticalPadding
+import com.sommerengineering.baraudio.uitls.rowHeight
 
 @Composable
 fun GroupHeaderItem(
-    viewModel: MainViewModel,
     origin: MessageOrigin,
     messageCount: Int,
     isExpanded: Boolean,
     isShowDivider: Boolean,
     onExpand: () -> Unit) {
 
-    val isDarkMode = viewModel.isDarkMode
-
     // extract attributes from origin
     val displayName = origin.displayName
     val description = origin.description
-    val style = origin.style(isDarkMode)
+    val style = origin.style
 
     Column {
 
@@ -60,12 +57,11 @@ fun GroupHeaderItem(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(rowMinHeight)
+                    .height(rowHeight) // required for accent bar
                     .combinedClickable(onClick = { onExpand() })
                     .background(style.surface)
                     .padding(horizontal = rowHorizontalPadding),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+                verticalAlignment = Alignment.CenterVertically) {
 
                 // accent bar
                 Box(
@@ -74,28 +70,27 @@ fun GroupHeaderItem(
                         .fillMaxHeight()
                         .padding(vertical = rowVerticalPadding)
                         .clip(RoundedCornerShape(3.dp))
-                        .background(style.primary)
-                )
+                        .background(style.primary.copy(alpha = 0.6f)))
                 Spacer(Modifier.width(rowIconPadding))
 
                 // display name and description
                 Column(
-                    modifier = Modifier.weight(1f).height(rowMinHeight),
-                    verticalArrangement = Arrangement.Center
-                ) {
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(vertical = rowVerticalPadding),
+                    verticalArrangement = Arrangement.Center) {
                     Text(
                         text = displayName,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = style.text
-                    )
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = style.text)
                     Spacer(Modifier.height(4.dp))
                     Text(
                         text = description,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = style.accent,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(0.6f),
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                        overflow = TextOverflow.Ellipsis)
                 }
 
                 // message count
@@ -103,17 +98,15 @@ fun GroupHeaderItem(
                 Text(
                     text = messageCount.toString(),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = style.accent
-                )
+                    color = MaterialTheme.colorScheme.onSurface.copy(0.6f))
 
                 // chevron with rotation
                 val rotation by animateFloatAsState(if (isExpanded) 90f else 0f)
                 Icon(
                     painter = painterResource(R.drawable.chevron),
                     contentDescription = null,
-                    tint = style.primary,
-                    modifier = Modifier.rotate(rotation)
-                )
+                    tint = MaterialTheme.colorScheme.onSurface.copy(0.6f),
+                    modifier = Modifier.rotate(rotation))
             }
 
             // rail connector
@@ -122,10 +115,16 @@ fun GroupHeaderItem(
                 Box(
                     Modifier
                         .align(Alignment.BottomStart)
-                        .padding(start = rowHorizontalPadding + railWidth / 2)
+                        .padding(start = rowHorizontalPadding + (rowAccentWidth - railWidth) / 2)
                         .width(railWidth)
-                        .height(8.dp + 6.dp)
-                        .background(style.primary.copy(alpha = 0.6f)))
+                        .height(rowVerticalPadding + railWidth / 2)
+                        .clip(RoundedCornerShape(
+                            topStart = railWidth / 2,
+                            topEnd = railWidth / 2,
+                            bottomStart = 0.dp,
+                            bottomEnd = 0.dp
+                        ))
+                        .background(style.primary.copy(alpha = 0.4f)))
             }
         }
 
@@ -136,7 +135,6 @@ fun GroupHeaderItem(
                 color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 1f),
                 modifier = Modifier.fillMaxWidth())
         }
-
     }
 }
 

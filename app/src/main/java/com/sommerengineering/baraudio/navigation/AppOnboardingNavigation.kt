@@ -5,81 +5,95 @@ import android.content.Context
 import android.os.Build
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
-import com.sommerengineering.baraudio.onboarding.OnboardingMode.AppOnboarding
 import com.sommerengineering.baraudio.onboarding.OnboardingScreen
+import com.sommerengineering.baraudio.onboarding.app.OnboardingHearAlerts
+import com.sommerengineering.baraudio.onboarding.app.OnboardingSendAlerts
+import com.sommerengineering.baraudio.onboarding.app.OnboardingStayUpdated
 import com.sommerengineering.baraudio.uitls.AppOnboardingRoute
-import com.sommerengineering.baraudio.uitls.AppOnboardingNotificationsRoute
-import com.sommerengineering.baraudio.uitls.AppOnboardingTextToSpeechRoute
-import com.sommerengineering.baraudio.uitls.AppOnboardingWebhookRoute
 import com.sommerengineering.baraudio.uitls.MessagesRoute
+import com.sommerengineering.baraudio.uitls.OnboardingHearAlertsRoute
+import com.sommerengineering.baraudio.uitls.OnboardingSendAlertsRoute
+import com.sommerengineering.baraudio.uitls.OnboardingStayUpdatedRoute
+import com.sommerengineering.baraudio.uitls.nextText
+import com.sommerengineering.baraudio.uitls.onboardingHearAlertsSubTitle
+import com.sommerengineering.baraudio.uitls.onboardingHearAlertsTitle
+import com.sommerengineering.baraudio.uitls.onboardingSendAlertTitle
+import com.sommerengineering.baraudio.uitls.onboardingSendAlertsSubtitle
+import com.sommerengineering.baraudio.uitls.onboardingStayUpdatedSubtitle
+import com.sommerengineering.baraudio.uitls.onboardingStayUpdatedTitle
 
 fun NavGraphBuilder.AppOnboardingNavigation(
     controller: NavController,
     context: Context,
-    viewModel: MainViewModel) {
+    viewModel: MainViewModel
+) {
 
     navigation(
         route = AppOnboardingRoute,
-        startDestination = AppOnboardingTextToSpeechRoute) {
+        startDestination = OnboardingHearAlertsRoute
+    ) {
 
-        // onboarding screen: text-to-speech
-        composable(AppOnboardingTextToSpeechRoute) {
+        composable(OnboardingHearAlertsRoute) {
             BackHandler { (context as MainActivity).moveTaskToBack(true) }
             OnboardingScreen(
-                onboardingMode = AppOnboarding,
+                title = onboardingHearAlertsTitle,
+                subTitle = onboardingHearAlertsSubTitle,
                 pageNumber = 0,
-                onNextClick = { controller.navigate(AppOnboardingNotificationsRoute) })
+                buttonText = nextText,
+                onNextClick = { controller.navigate(OnboardingStayUpdatedRoute) }) {
+                OnboardingHearAlerts()
+            }
         }
 
-        // onboarding screen: notifications
-        composable(AppOnboardingNotificationsRoute) {
+        composable(OnboardingStayUpdatedRoute) {
 
-            // ask for permission again if the first request is declined
-            val areNotificationsEnabled = viewModel.areNotificationsEnabled
-            val count = remember { mutableIntStateOf(0) }
-
-            // navigate forward if notifications are granted
-            LaunchedEffect(areNotificationsEnabled) {
-                if (areNotificationsEnabled && Build.VERSION.SDK_INT >= 33) {
-                    controller.navigate(AppOnboardingWebhookRoute)
-                }
+            // navigate forward after system notification request
+            val hasRequested = viewModel.areNotificationsRequested
+            LaunchedEffect(hasRequested) {
+                if (!hasRequested) return@LaunchedEffect
+                controller.navigate(OnboardingSendAlertsRoute)
             }
 
             BackHandler { (context as MainActivity).moveTaskToBack(true) }
             OnboardingScreen(
-                onboardingMode = AppOnboarding,
+                title = onboardingStayUpdatedTitle,
+                subTitle = onboardingStayUpdatedSubtitle,
                 pageNumber = 1,
+                buttonText = "Enable",
                 onNextClick = {
-                    if (Build.VERSION.SDK_INT >= 33 && 2 > count.intValue) {
-                        (context as MainActivity).requestNotificationPermissionLauncher
+                    if (Build.VERSION.SDK_INT >= 33) { // request notifications with system dialog
+                        (context as MainActivity)
+                            .requestNotificationPermissionLauncher
                             .launch(Manifest.permission.POST_NOTIFICATIONS)
-                        count.intValue++
                     } else {
-                        controller.navigate(AppOnboardingWebhookRoute)
-                    }
-                })
+                        controller.navigate(OnboardingSendAlertsRoute)
+                    } // old api notifications default to allowed
+                }) {
+                OnboardingStayUpdated()
+            }
         }
 
-        // onboarding screen: webhook
-        composable(AppOnboardingWebhookRoute) {
+        composable(OnboardingSendAlertsRoute) {
             BackHandler { (context as MainActivity).moveTaskToBack(true) }
             OnboardingScreen(
-                onboardingMode = AppOnboarding,
+                title = onboardingSendAlertTitle,
+                subTitle = onboardingSendAlertsSubtitle,
                 pageNumber = 2,
+                buttonText = nextText,
                 onNextClick = {
                     viewModel.updateOnboarding(true)
                     controller.navigate(MessagesRoute) {
                         popUpTo(MessagesRoute) { inclusive = true }
                     }
-                })
+                }) {
+                OnboardingSendAlerts()
+            }
         }
     }
 }

@@ -5,32 +5,41 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.uitls.edgePadding
 
 @Composable
 fun OnboardingScreen(
-    onboardingMode: OnboardingMode,
+    title: String,
+    subTitle: String? = null,
     pageNumber: Int,
+    buttonText: String,
     onNextClick: () -> Unit,
     isNextEnabled: Boolean = true,
-    content: @Composable (() -> Unit)? = null) {
+    onCloseClick: (() -> Unit)? = null,
+    content: @Composable (() -> Unit)) {
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = edgePadding)
-    ) {
+            .padding(edgePadding),
+        horizontalAlignment = Alignment.CenterHorizontally) {
 
         // title
         OnboardingText(
-            onboardingMode = onboardingMode,
-            pageNumber = pageNumber,
+            title = title,
+            subTitle = subTitle,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = edgePadding * 5))
+                .padding(top = edgePadding * 2))
 
         // dynamic content
         Box(
@@ -39,26 +48,33 @@ fun OnboardingScreen(
                 .fillMaxWidth()
                 .padding(vertical = edgePadding * 2),
             contentAlignment = Alignment.Center) {
-            content?.let { it() } ?: // image, verification ui, ...
-            OnboardingAnimation( // app onboarding animation
-                pageNumber = pageNumber,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .align(Alignment.Center))
+            content()
         }
 
         // page indicators and button
-        OnboardingButton(
-            onboardingMode = onboardingMode,
+        OnboardingFooter(
+            buttonText = buttonText,
             pageNumber = pageNumber,
             onNextClick = onNextClick,
             isNextEnabled = isNextEnabled,
+            modifier = Modifier.fillMaxWidth())
+    }
+
+    // close button
+    if (onCloseClick != null) {
+        IconButton(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = edgePadding * 2))
+                .padding(end = edgePadding / 2)
+                .wrapContentWidth(Alignment.End),
+            onClick = { onCloseClick() }) {
+            Icon(
+                painter = painterResource(R.drawable.close),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
+        }
     }
 }
-
 
 
 

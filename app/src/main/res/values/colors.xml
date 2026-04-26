@@ -1,3 +1,4 @@
 <resources>
-    <color name="logo_blue">#183BE9</color>
+    <color name="app_blue">#3B82F6</color>
+    <color name="app_green">#10B981</color>
 </resources>

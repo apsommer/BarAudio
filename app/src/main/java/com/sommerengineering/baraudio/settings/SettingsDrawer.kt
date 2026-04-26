@@ -1,8 +1,10 @@
 package com.sommerengineering.baraudio.settings
 
 import android.content.Intent
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -15,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
@@ -30,10 +33,11 @@ import com.sommerengineering.baraudio.source.esAsset
 import com.sommerengineering.baraudio.source.gcAsset
 import com.sommerengineering.baraudio.source.nqAsset
 import com.sommerengineering.baraudio.source.siAsset
+import com.sommerengineering.baraudio.source.znAsset
 import com.sommerengineering.baraudio.uitls.customDividerTitle
 import com.sommerengineering.baraudio.uitls.streamsDividerTitle
 import com.sommerengineering.baraudio.uitls.edgePadding
-import com.sommerengineering.baraudio.uitls.legalDividerTitle
+import com.sommerengineering.baraudio.uitls.generalDividerTitle
 import com.sommerengineering.baraudio.uitls.manageSubscriptionTitle
 import com.sommerengineering.baraudio.uitls.pitchChangeUtterance
 import com.sommerengineering.baraudio.uitls.pitchTitle
@@ -46,13 +50,12 @@ import com.sommerengineering.baraudio.uitls.subscriptionUrl
 import com.sommerengineering.baraudio.uitls.systemTtsDescription
 import com.sommerengineering.baraudio.uitls.systemTtsInstallVoicesAction
 import com.sommerengineering.baraudio.uitls.systemTtsTitle
-import com.sommerengineering.baraudio.uitls.uiDividerTitle
-import com.sommerengineering.baraudio.uitls.uiModeTitle
 import com.sommerengineering.baraudio.uitls.voiceDividerTitle
 import com.sommerengineering.baraudio.uitls.voiceTitle
 import com.sommerengineering.baraudio.uitls.customDescription
 import com.sommerengineering.baraudio.uitls.customTitle
 import com.sommerengineering.baraudio.uitls.manageSubscriptionDescription
+import com.sommerengineering.baraudio.uitls.settingsIconSize
 import com.sommerengineering.baraudio.uitls.signOutDescription
 
 @Composable
@@ -70,16 +73,15 @@ fun SettingsDrawer(
     val speedDescription = viewModel.speedDescription
     val pitchDescription = viewModel.pitchDescription
 
+    val isZN = viewModel.isZN
     val isNQ = viewModel.isNQ
-    val isES = viewModel.isES
     val isBTC = viewModel.isBTC
+    val isES = viewModel.isES
     val isGC = viewModel.isGC
     val isSI = viewModel.isSI
 
     val isFullScreen = viewModel.isFullScreen
     val fullScreenDescription = viewModel.fullScreenDescription
-    val isDarkMode = viewModel.isDarkMode
-    val uiModeDescription = viewModel.darkModeDescription
 
     var isShowVoiceDialog by remember { mutableStateOf(false) }
 
@@ -105,7 +107,7 @@ fun SettingsDrawer(
                     IconButton(
                         onClick = { isShowVoiceDialog = true }) {
                         Icon(
-                            painter = painterResource(R.drawable.more_vertical),
+                            painter = painterResource(R.drawable.more),
                             contentDescription = null)
                     }
 
@@ -175,29 +177,26 @@ fun SettingsDrawer(
                 DividerItem(streamsDividerTitle)
             }
 
+            // stream ZN
+            item {
+                StreamSwitchItem(
+                    messageOrigin = MessageOrigin.BroadcastStream(znAsset),
+                    isStream = isZN,
+                    updateStream = { viewModel.updateZN(it) })
+            }
+
             // stream NQ
             item {
                 StreamSwitchItem(
                     messageOrigin = MessageOrigin.BroadcastStream(nqAsset),
-                    isDarkMode = isDarkMode,
                     isStream = isNQ,
                     updateStream = { viewModel.updateNQ(it) })
             }
 
-            // stream ES
-            item {
-                StreamSwitchItem(
-                    messageOrigin = MessageOrigin.BroadcastStream(esAsset),
-                    isDarkMode = isDarkMode,
-                    isStream = isES,
-                    updateStream = { viewModel.updateES(it) })
-            }
-
-            // bream BTC
+            // stream BTC
             item {
                 StreamSwitchItem(
                     messageOrigin = MessageOrigin.BroadcastStream(btcAsset),
-                    isDarkMode = isDarkMode,
                     isStream = isBTC,
                     updateStream = { viewModel.updateBTC(it) })
             }
@@ -207,11 +206,18 @@ fun SettingsDrawer(
                 DividerItem(premiumDividerTitle)
             }
 
+            // stream ES
+            item {
+                StreamSwitchItem(
+                    messageOrigin = MessageOrigin.BroadcastStream(esAsset),
+                    isStream = isES,
+                    updateStream = { viewModel.updateES(it) })
+            }
+
             // stream GC
             item {
                 StreamSwitchItem(
                     messageOrigin = MessageOrigin.BroadcastStream(gcAsset),
-                    isDarkMode = isDarkMode,
                     isStream = isGC,
                     updateStream = { viewModel.updateGC(it) })
             }
@@ -220,7 +226,6 @@ fun SettingsDrawer(
             item {
                 StreamSwitchItem(
                     messageOrigin = MessageOrigin.BroadcastStream(siAsset),
-                    isDarkMode = isDarkMode,
                     isStream = isSI,
                     updateStream = { viewModel.updateSI(it) })
             }
@@ -245,13 +250,23 @@ fun SettingsDrawer(
 
             // divider
             item {
-                DividerItem(uiDividerTitle)
+                DividerItem(generalDividerTitle)
             }
 
             // full screen
             item {
                 SwitchItem(
-                    iconRes = R.drawable.fullscreen,
+                    icon = {
+                        Box(
+                            modifier = Modifier.size(settingsIconSize),
+                            contentAlignment = Alignment.Center) {
+                            Icon(
+                                painter = painterResource(R.drawable.fullscreen),
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.fillMaxSize())
+                        }
+                    },
                     title = screenTitle,
                     description = fullScreenDescription) {
 
@@ -261,28 +276,10 @@ fun SettingsDrawer(
                 }
             }
 
-            // theme
-            item {
-                SwitchItem(
-                    iconRes = R.drawable.contrast,
-                    title = uiModeTitle,
-                    description = uiModeDescription) {
-
-                    Switch(
-                        checked = isDarkMode,
-                        onCheckedChange = { viewModel.updateDarkMode(it) })
-                }
-            }
-
-            // divider
-            item {
-                DividerItem(legalDividerTitle)
-            }
-
             // manage subscription
             item {
                 LinkItem(
-                    iconRes = R.drawable.manage_subscription,
+                    iconRes = R.drawable.subscription,
                     title = manageSubscriptionTitle,
                     description = manageSubscriptionDescription,
                     onClick = { uriHandler.openUri(subscriptionUrl) })
