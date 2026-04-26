@@ -37,13 +37,18 @@ fun OnboardingScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
+            // page indicator
+            PageIndicator(
+                pageNumber = pageNumber,
+                modifier = Modifier.padding(top = edgePadding)
+            )
+
             // title
             OnboardingText(
                 title = title,
                 subTitle = subTitle,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = edgePadding * 2)
+                    .padding(edgePadding)
             )
 
             // dynamic content
@@ -60,7 +65,6 @@ fun OnboardingScreen(
             // page indicators and button
             OnboardingButton(
                 buttonText = buttonText,
-                pageNumber = pageNumber,
                 onNextClick = onNextClick,
                 isNextEnabled = isNextEnabled,
                 modifier = Modifier.fillMaxWidth()
