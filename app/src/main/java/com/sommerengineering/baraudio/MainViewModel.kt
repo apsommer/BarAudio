@@ -24,7 +24,9 @@ import com.sommerengineering.baraudio.uitls.RomanNumerals
 import com.sommerengineering.baraudio.uitls.screenFullDescription
 import com.sommerengineering.baraudio.uitls.screenWindowedDescription
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -246,13 +248,19 @@ class MainViewModel @Inject constructor(
     }
 
     // notifications
-    var areNotificationsRequested by mutableStateOf(false)
+    var hasRequestedNotificationPermission by mutableStateOf(false)
         private set
     var areNotificationsEnabled by mutableStateOf(false)
         private set
+    private val _notificationPermissionResult = MutableSharedFlow<Unit>(
+        extraBufferCapacity = 1
+    )
+    val notificationPermissionResult = _notificationPermissionResult.asSharedFlow()
 
-    fun updateNotificationsRequested(areRequested: Boolean) {
-        areNotificationsRequested = areRequested
+    fun onNotificationPermissionResult(enabled: Boolean) {
+        hasRequestedNotificationPermission = true
+        areNotificationsEnabled = enabled
+        _notificationPermissionResult.tryEmit(Unit)
     }
 
     fun updateNotificationsEnabled(enabled: Boolean) {

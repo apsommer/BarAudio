@@ -17,6 +17,8 @@ import com.sommerengineering.baraudio.uitls.MessagesRoute
 import com.sommerengineering.baraudio.uitls.OnboardingHearAlertsRoute
 import com.sommerengineering.baraudio.uitls.OnboardingSendAlertsRoute
 import com.sommerengineering.baraudio.uitls.OnboardingStayUpdatedRoute
+import com.sommerengineering.baraudio.uitls.enableText
+import com.sommerengineering.baraudio.uitls.nextText
 
 fun NavGraphBuilder.AppOnboardingNavigation(
     controller: NavController,
@@ -40,22 +42,24 @@ fun NavGraphBuilder.AppOnboardingNavigation(
 
         composable(OnboardingStayUpdatedRoute) {
 
-            val hasRequested = viewModel.areNotificationsRequested
+            val hasRequested = viewModel.hasRequestedNotificationPermission
             val onNavigate = { controller.navigate(OnboardingSendAlertsRoute) }
             val onNextClick = {
-                if (Build.VERSION.SDK_INT >= 33) { // request notifications with system dialog
+                if (hasRequested || Build.VERSION.SDK_INT < 33) {
+                    onNavigate()
+                } else {
                     (context as MainActivity)
                         .requestNotificationPermissionLauncher
                         .launch(Manifest.permission.POST_NOTIFICATIONS)
-                } else { // notifications default to allowed for older api
-                    onNavigate()
                 }
             }
+            val buttonText = if (hasRequested) nextText else enableText
 
             StayUpdatedScreen(
-                hasRequested = hasRequested,
+                viewModel = viewModel,
                 onNavigate = onNavigate,
-                onNextClick = onNextClick
+                onNextClick = onNextClick,
+                buttonText = buttonText
             )
         }
 

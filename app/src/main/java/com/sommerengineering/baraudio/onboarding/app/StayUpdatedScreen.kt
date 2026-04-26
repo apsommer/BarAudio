@@ -14,33 +14,35 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.message.LinearMessageItem
 import com.sommerengineering.baraudio.onboarding.BackgroundGlowContainer
 import com.sommerengineering.baraudio.onboarding.OnboardingScreen
-import com.sommerengineering.baraudio.uitls.enableText
 import com.sommerengineering.baraudio.uitls.onboardingStayUpdatedSubtitle
 import com.sommerengineering.baraudio.uitls.onboardingStayUpdatedTitle
 
 @Composable
 fun StayUpdatedScreen(
-    hasRequested: Boolean,
+    viewModel: MainViewModel,
     onNavigate: () -> Unit,
-    onNextClick: () -> Unit
+    onNextClick: () -> Unit,
+    buttonText: String
 ) {
 
     val messages = onboardingMessages()
 
     // navigate forward after system notification request
-    LaunchedEffect(hasRequested) {
-        if (!hasRequested) return@LaunchedEffect
-        onNavigate()
+    LaunchedEffect(Unit) {
+        viewModel.notificationPermissionResult.collect {
+            onNavigate()
+        }
     }
 
     OnboardingScreen(
         title = onboardingStayUpdatedTitle,
         subTitle = onboardingStayUpdatedSubtitle,
         pageNumber = 1,
-        buttonText = enableText,
+        buttonText = buttonText,
         onNextClick = onNextClick
     ) {
 

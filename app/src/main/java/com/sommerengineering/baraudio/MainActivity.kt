@@ -11,7 +11,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material3.Scaffold
@@ -42,14 +41,14 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    @Inject lateinit var processState: ProcessState
+    @Inject
+    lateinit var processState: ProcessState
     private val viewModel: MainViewModel by viewModels()
 
     val requestNotificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) {
-        viewModel.updateNotificationsRequested(true)
-        viewModel.updateNotificationsEnabled(areNotificationsEnabled())
-    }
+            viewModel.onNotificationPermissionResult(it)
+        }
 
     val updateLauncher =
         registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
@@ -65,7 +64,8 @@ class MainActivity : ComponentActivity() {
         val channel = NotificationChannel(
             channelId,
             channelName,
-            NotificationManager.IMPORTANCE_DEFAULT) // >= DEFAULT to show in status bar
+            NotificationManager.IMPORTANCE_DEFAULT
+        ) // >= DEFAULT to show in status bar
 
         channel.description = channelDescription
         channel.group = channelGroupId
@@ -77,7 +77,8 @@ class MainActivity : ComponentActivity() {
                 NotificationChannelGroup(
                     channelGroupId,
                     channelGroupName
-                ))
+                )
+            )
         manager.createNotificationChannel(channel)
     }
 
@@ -104,13 +105,13 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    fun areNotificationsEnabled() : Boolean {
+    fun areNotificationsEnabled(): Boolean {
 
         val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         val channel = manager.getNotificationChannel(channelId)
 
         val areNotificationsEnabled = manager.areNotificationsEnabled()
-            && channel.importance > NotificationManager.IMPORTANCE_NONE
+                && channel.importance > NotificationManager.IMPORTANCE_NONE
 
         return areNotificationsEnabled
     }
@@ -122,12 +123,14 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun applyFullScreen(
-        isFullScreen: Boolean) {
+        isFullScreen: Boolean
+    ) {
 
         val controller = WindowCompat.getInsetsController(window, window.decorView)
 
         if (isFullScreen) {
-            controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            controller.systemBarsBehavior =
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
             controller.hide(WindowInsetsCompat.Type.systemBars())
             return
         }
@@ -145,7 +148,8 @@ class MainActivity : ComponentActivity() {
 
                 // check that update is available, and forced
                 if (updateInfo.updateAvailability() != UpdateAvailability.UPDATE_AVAILABLE
-                    || 4 >= updateInfo.updatePriority()) {
+                    || 4 >= updateInfo.updatePriority()
+                ) {
                     return@addOnSuccessListener
                 }
 
@@ -155,7 +159,9 @@ class MainActivity : ComponentActivity() {
                 updateManager.startUpdateFlowForResult(
                     updateInfo,
                     updateLauncher,
-                    AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build()) }
+                    AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build()
+                )
+            }
 
             .addOnFailureListener { exception ->
 
@@ -177,7 +183,8 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun App(
-    viewModel: MainViewModel) {
+    viewModel: MainViewModel
+) {
 
     // safe drawing area when not in fullscreen
     val insets =
