@@ -19,14 +19,7 @@ fun logException(e: Exception) {
 }
 
 // durations
-const val bottomBarTransitionTimeMillis = 1000
-const val colorTransitionTimeMillis = 0
 const val messageItemExpansionTimeMillis = 140
-
-// urls
-const val setupWebhookUrl = "https://sommerengineering.com/baraud.io"
-const val termsAndConditionsUrl = "https://sommerengineering.com/terms_and_conditions"
-const val privacyPolicyUrl = "https://sommerengineering.com/privacy_policy"
 
 // room
 const val roomDatabaseName = "messages.db"
@@ -41,10 +34,10 @@ const val tokensNode = "tokens"
 
 // notifications
 const val channelId = "42"
-const val channelName = "Webhook"
-const val channelDescription = "Realtime data connection for BarAudio"
+const val channelName = "Signals"
+const val channelDescription = "Real-time trading alerts"
 const val channelGroupId = "42"
-const val channelGroupName = "Webhook"
+const val channelGroupName = "Alerts"
 const val notificationId = 42
 const val notificationKey = "notification"
 const val streamKey = "stream"
@@ -124,13 +117,14 @@ const val signOutDescription = "End session"
 
 // images
 val loginButtonSize = 96.dp
-val fabSize = 72.dp
 val edgePadding = 24.dp
 
 // style, general
 val logoAlpha = 0.4f
+
 @Composable
 fun appBlue() = colorResource(R.color.app_blue)
+
 @Composable
 fun appGreen() = colorResource(R.color.app_green)
 
@@ -157,15 +151,15 @@ const val onboardingStayUpdatedSubtitle =
 const val onboardingSendAlertTitle = "Send alerts from any webhook"
 const val onboardingSendAlertsSubtitle = "Connect your tools. We'll speak\nyour signals out loud."
 const val onboardingCopyWebhookTitle = "Copy your webhook URL"
-const val onboardingPasteWebhookTitle = "Paste into a TradingView alert"
-const val onboardingPasteWebhookSubtitle = "*Requires \"Essential\" plan or higher"
+const val onboardingCopyWebhookSubtitle = "Tap to copy."
+const val onboardingPasteWebhookTitle = "Paste it into your alert"
+const val onboardingPasteWebhookSubtitle = "Paste the URL into the webhook field."
 const val onboardingListeningTitle = "Send a test alert"
+const val onboardingListeningSubTitle = "We’ll confirm when it arrives."
 const val nextText = "Next"
 const val copyText = "Copy\nwebhook"
 const val doneText = "Done"
-
-// allow notifications banner
-const val allowNotificationsMessage = "Allow notification to stay updates in real time"
+const val enableText = "Enable"
 
 // login
 const val gitHubProviderId = "github.com"

@@ -7,4 +7,5 @@ enum class VerificationState {
 
 data class VerificationUiState(
     val state: VerificationState,
-    val message: String? = null)
+    val message: String? = null
+)

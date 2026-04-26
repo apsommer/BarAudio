@@ -9,19 +9,41 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.message.LinearMessageItem
+import com.sommerengineering.baraudio.onboarding.OnboardingScreen
+import com.sommerengineering.baraudio.uitls.onboardingStayUpdatedSubtitle
+import com.sommerengineering.baraudio.uitls.onboardingStayUpdatedTitle
 
 @Composable
-fun OnboardingStayUpdated() {
+fun StayUpdatedScreen(
+    viewModel: MainViewModel,
+    onNavigate: () -> Unit,
+    onNextClick: () -> Unit,
+    buttonText: String
+) {
 
     val messages = onboardingMessages()
 
-    AppOnboardingScreen {
+    // navigate forward after system notification request
+    LaunchedEffect(Unit) {
+        viewModel.notificationPermissionResult.collect {
+            onNavigate()
+        }
+    }
 
+    OnboardingScreen(
+        title = onboardingStayUpdatedTitle,
+        subTitle = onboardingStayUpdatedSubtitle,
+        pageNumber = 1,
+        buttonText = buttonText,
+        onNextClick = onNextClick
+    ) {
 
         BoxWithConstraints {
 

@@ -49,7 +49,7 @@ fun LoginScreen(
             Box(
                 modifier = Modifier
                     .matchParentSize()
-                    .background(MaterialTheme.colorScheme.background.copy(0.8f))
+                    .background(MaterialTheme.colorScheme.background.copy(0.7f))
             )
         }
 

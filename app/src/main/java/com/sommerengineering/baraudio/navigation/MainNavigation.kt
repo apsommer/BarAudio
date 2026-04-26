@@ -11,13 +11,14 @@ import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.login.LoginScreen
 import com.sommerengineering.baraudio.messages.MessagesScreen
 import com.sommerengineering.baraudio.uitls.AppOnboardingRoute
-import com.sommerengineering.baraudio.uitls.SetupOnboardingRoute
 import com.sommerengineering.baraudio.uitls.LoginRoute
 import com.sommerengineering.baraudio.uitls.MessagesRoute
+import com.sommerengineering.baraudio.uitls.SetupOnboardingRoute
 
 @Composable
 fun MainNavigation(
-    viewModel: MainViewModel) {
+    viewModel: MainViewModel
+) {
 
     val context = LocalContext.current
     val controller = rememberNavController()
@@ -37,7 +38,8 @@ fun MainNavigation(
 
     NavHost(
         navController = controller,
-        startDestination = startDestination) {
+        startDestination = startDestination
+    ) {
 
         // login screen
         composable(LoginRoute) {
@@ -54,7 +56,8 @@ fun MainNavigation(
         AppOnboardingNavigation(
             controller = controller,
             context = context,
-            viewModel = viewModel)
+            viewModel = viewModel
+        )
 
         // messages screen
         composable(MessagesRoute) {
@@ -66,7 +69,7 @@ fun MainNavigation(
                         popUpTo(MessagesRoute) { inclusive = true }
                     }
                 },
-                onLaunchSetupOnboarding = {
+                onLaunchWebhookOnboarding = {
                     controller.navigate(SetupOnboardingRoute)
                 })
         }

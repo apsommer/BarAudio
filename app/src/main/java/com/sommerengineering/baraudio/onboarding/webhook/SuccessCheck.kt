@@ -24,7 +24,9 @@ fun SuccessCheck() {
             targetValue = 1f,
             animationSpec = spring(
                 dampingRatio = 0.5f,
-                stiffness = 300f))
+                stiffness = 300f
+            )
+        )
     }
 
     Icon(

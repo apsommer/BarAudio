@@ -16,15 +16,17 @@ import androidx.lifecycle.viewModelScope
 import com.sommerengineering.baraudio.login.GitHubAuthenticator
 import com.sommerengineering.baraudio.login.GoogleAuthenticator
 import com.sommerengineering.baraudio.messages.FeedMode
-import com.sommerengineering.baraudio.onboarding.webhook.VerificationState.WAITING
 import com.sommerengineering.baraudio.onboarding.webhook.VerificationState.RECEIVED
+import com.sommerengineering.baraudio.onboarding.webhook.VerificationState.WAITING
 import com.sommerengineering.baraudio.onboarding.webhook.VerificationUiState
 import com.sommerengineering.baraudio.source.Message
 import com.sommerengineering.baraudio.uitls.RomanNumerals
 import com.sommerengineering.baraudio.uitls.screenFullDescription
 import com.sommerengineering.baraudio.uitls.screenWindowedDescription
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -45,7 +47,8 @@ class MainViewModel @Inject constructor(
     val messages = repo.messages.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(),
-        emptyList())
+        emptyList()
+    )
 
     // voice
     var voices by mutableStateOf<List<Voice>>(emptyList())
@@ -55,6 +58,7 @@ class MainViewModel @Inject constructor(
         private set
     var voiceDescription by mutableStateOf("")
         private set
+
     fun setVoice(value: Voice) {
         repo.voice = value
         voiceIndex = voices.indexOfFirst { it.name == value.name }
@@ -68,6 +72,7 @@ class MainViewModel @Inject constructor(
         private set
     var speedDescription by mutableStateOf("")
         private set
+
     fun updateSpeed(value: Float) {
         speed = value
         repo.speed = value
@@ -79,6 +84,7 @@ class MainViewModel @Inject constructor(
         private set
     var pitchDescription by mutableStateOf("")
         private set
+
     fun updatePitch(value: Float) {
         pitch = value
         repo.pitch = value
@@ -88,22 +94,29 @@ class MainViewModel @Inject constructor(
     // mute
     var isMute by mutableStateOf(false)
         private set
+
     fun toggleMute() {
         isMute = !isMute
         repo.isMute = isMute
     }
+
     fun speakUtterance(utterance: String) =
         viewModelScope.launch {
-            repo.speakMessage(Message(
-                timestamp = System.currentTimeMillis().toString(),
-                message = utterance, null, null))
+            repo.speakMessage(
+                Message(
+                    timestamp = System.currentTimeMillis().toString(),
+                    message = utterance, null, null
+                )
+            )
         }
+
     fun speakMessage(message: Message) =
         viewModelScope.launch { repo.speakMessage(message) }
 
     // onboarding
     var isOnboardingComplete by mutableStateOf(false)
         private set
+
     fun updateOnboarding(enabled: Boolean) {
         isOnboardingComplete = enabled
         repo.updateOnboarding(enabled)
@@ -111,6 +124,7 @@ class MainViewModel @Inject constructor(
 
     var isEmptyState by mutableStateOf(true)
         private set
+
     fun updateEmptyState(enabled: Boolean) {
         isEmptyState = enabled
         repo.updateEmptyState(enabled)
@@ -119,6 +133,7 @@ class MainViewModel @Inject constructor(
     // stream ZN
     var isZN by mutableStateOf(true)
         private set
+
     fun updateZN(enabled: Boolean) {
         isZN = enabled
         repo.updateZN(enabled)
@@ -127,6 +142,7 @@ class MainViewModel @Inject constructor(
     // stream NQ
     var isNQ by mutableStateOf(true)
         private set
+
     fun updateNQ(enabled: Boolean) {
         isNQ = enabled
         repo.updateNQ(enabled)
@@ -135,6 +151,7 @@ class MainViewModel @Inject constructor(
     // stream ES
     var isES by mutableStateOf(true)
         private set
+
     fun updateES(enabled: Boolean) {
         isES = enabled
         repo.updateES(enabled)
@@ -143,6 +160,7 @@ class MainViewModel @Inject constructor(
     // stream BTC
     var isBTC by mutableStateOf(true)
         private set
+
     fun updateBTC(enabled: Boolean) {
         isBTC = enabled
         repo.updateBTC(enabled)
@@ -151,6 +169,7 @@ class MainViewModel @Inject constructor(
     // stream GC
     var isGC by mutableStateOf(true)
         private set
+
     fun updateGC(enabled: Boolean) {
         isGC = enabled
         repo.updateGC(enabled)
@@ -159,6 +178,7 @@ class MainViewModel @Inject constructor(
     // stream SI
     var isSI by mutableStateOf(true)
         private set
+
     fun updateSI(enabled: Boolean) {
         isSI = enabled
         repo.updateSI(enabled)
@@ -167,6 +187,7 @@ class MainViewModel @Inject constructor(
     // feed mode: linear or grouped
     var feedMode by mutableStateOf(FeedMode.Linear)
         private set
+
     fun toggleFeedMode() {
         val newFeedMode = if (feedMode == FeedMode.Linear) FeedMode.Grouped else FeedMode.Linear
         feedMode = newFeedMode
@@ -178,6 +199,7 @@ class MainViewModel @Inject constructor(
         private set
     val fullScreenDescription
         get() = if (isFullScreen) screenFullDescription else screenWindowedDescription
+
     fun updateFullScreen(enabled: Boolean) {
         isFullScreen = enabled
         repo.updateFullScreen(enabled)
@@ -209,23 +231,38 @@ class MainViewModel @Inject constructor(
     // sign-in
     fun signInWithGoogle(
         context: Context,
-        onAuthentication: () -> Unit) = viewModelScope.launch {
-        if (googleAuthenticator.signIn(context)) { onAuthentication() }
+        onAuthentication: () -> Unit
+    ) = viewModelScope.launch {
+        if (googleAuthenticator.signIn(context)) {
+            onAuthentication()
+        }
     }
+
     fun signInWithGitHub(
         context: Context,
-        onAuthentication: () -> Unit) = viewModelScope.launch {
-        if (gitHubAuthenticator.signIn(context)) { onAuthentication() }
+        onAuthentication: () -> Unit
+    ) = viewModelScope.launch {
+        if (gitHubAuthenticator.signIn(context)) {
+            onAuthentication()
+        }
     }
 
     // notifications
-    var areNotificationsRequested by mutableStateOf(false)
+    var hasRequestedNotificationPermission by mutableStateOf(false)
         private set
     var areNotificationsEnabled by mutableStateOf(false)
         private set
-    fun updateNotificationsRequested(areRequested: Boolean) {
-        areNotificationsRequested = areRequested
+    private val _notificationPermissionResult = MutableSharedFlow<Unit>(
+        extraBufferCapacity = 1
+    )
+    val notificationPermissionResult = _notificationPermissionResult.asSharedFlow()
+
+    fun onNotificationPermissionResult(enabled: Boolean) {
+        hasRequestedNotificationPermission = true
+        areNotificationsEnabled = enabled
+        _notificationPermissionResult.tryEmit(Unit)
     }
+
     fun updateNotificationsEnabled(enabled: Boolean) {
         areNotificationsEnabled = enabled
     }
@@ -253,7 +290,8 @@ class MainViewModel @Inject constructor(
     // copy webhook
     val webhookUrl get() = repo.webhookUrl
     fun copyWebhook(
-        context: Context) {
+        context: Context
+    ) {
 
         // save url to clipboard
         val clipboardManager = context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
@@ -268,13 +306,14 @@ class MainViewModel @Inject constructor(
         verificationStartTime = System.currentTimeMillis()
         isVerifiedLocked = false
     }
+
     val verificationUiState = messages.map { messages ->
         val startTime = verificationStartTime
         val latestMessage =
             startTime?.let {
                 messages.firstOrNull {
                     it.source != null &&
-                    it.timestamp.toLong() > startTime
+                            it.timestamp.toLong() > startTime
                 }
             }
         if (latestMessage != null) {
@@ -283,10 +322,11 @@ class MainViewModel @Inject constructor(
         } else {
             VerificationUiState(WAITING)
         }
-        }.stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(),
-        VerificationUiState(WAITING))
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(),
+        VerificationUiState(WAITING)
+    )
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -1,6 +1,5 @@
 package com.sommerengineering.baraudio.onboarding
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,39 +24,44 @@ fun OnboardingScreen(
     onNextClick: () -> Unit,
     isNextEnabled: Boolean = true,
     onCloseClick: (() -> Unit)? = null,
-    content: @Composable (() -> Unit)) {
+    content: @Composable (() -> Unit)
+) {
+
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(edgePadding),
-        horizontalAlignment = Alignment.CenterHorizontally) {
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+        // page indicator
+        PageIndicator(
+            pageNumber = pageNumber,
+            modifier = Modifier.padding(top = edgePadding)
+        )
 
         // title
         OnboardingText(
             title = title,
             subTitle = subTitle,
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = edgePadding * 2))
+                .padding(edgePadding)
+        )
 
-        // dynamic content
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                .padding(vertical = edgePadding * 2),
-            contentAlignment = Alignment.Center) {
+        BackgroundGlowContainer(
+            modifier = Modifier.weight(1f),
+        ) {
             content()
         }
 
         // page indicators and button
-        OnboardingFooter(
+        OnboardingButton(
             buttonText = buttonText,
-            pageNumber = pageNumber,
             onNextClick = onNextClick,
             isNextEnabled = isNextEnabled,
-            modifier = Modifier.fillMaxWidth())
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 
     // close button
@@ -71,9 +75,11 @@ fun OnboardingScreen(
             Icon(
                 painter = painterResource(R.drawable.close),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
+                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+            )
         }
     }
+
 }
 
 

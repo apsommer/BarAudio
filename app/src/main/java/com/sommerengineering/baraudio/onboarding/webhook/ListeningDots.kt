@@ -16,9 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
-import com.sommerengineering.baraudio.R
 
 @Composable
 fun ListeningDots() {
@@ -33,13 +31,18 @@ fun ListeningDots() {
                 targetValue = 1f,
                 animationSpec = infiniteRepeatable(
                     animation = tween(600, delayMillis = delay),
-                    repeatMode = RepeatMode.Reverse))
-            Box(Modifier
-                .size(24.dp)
-                .alpha(alpha)
-                .background(
-                    color = MaterialTheme.colorScheme.primary,
-                    shape = CircleShape))
+                    repeatMode = RepeatMode.Reverse
+                )
+            )
+            Box(
+                Modifier
+                    .size(24.dp)
+                    .alpha(alpha)
+                    .background(
+                        color = MaterialTheme.colorScheme.primary,
+                        shape = CircleShape
+                    )
+            )
         }
     }
 }

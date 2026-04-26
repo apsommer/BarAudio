@@ -15,20 +15,26 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun MessageBubble(
-    message: String) {
+    message: String
+) {
 
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(Modifier
-            .padding(top = 6.dp)
-            .background(
-                color = MaterialTheme.colorScheme.surfaceVariant,
-                shape = RoundedCornerShape(12.dp))
-            .padding(12.dp)) {
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            Modifier
+                .padding(top = 6.dp)
+                .background(
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    shape = RoundedCornerShape(12.dp)
+                )
+                .padding(12.dp)
+        ) {
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Center)
+                textAlign = TextAlign.Center
+            )
         }
     }
 }

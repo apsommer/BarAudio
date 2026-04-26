@@ -8,9 +8,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.baraudio.R
 import com.sommerengineering.baraudio.message.LinearMessageItem
+import com.sommerengineering.baraudio.onboarding.NodeCard
+import com.sommerengineering.baraudio.onboarding.NodeConnector
+import com.sommerengineering.baraudio.onboarding.OnboardingScreen
+import com.sommerengineering.baraudio.uitls.nextText
+import com.sommerengineering.baraudio.uitls.onboardingSendAlertTitle
+import com.sommerengineering.baraudio.uitls.onboardingSendAlertsSubtitle
 
 @Composable
-fun OnboardingSendAlerts(modifier: Modifier = Modifier) {
+fun SendAlertsScreen(
+    onNextClick: () -> Unit
+) {
 
     // define message and state (same as first onboarding screen for consistency)
     val message = onboardingMessage()
@@ -22,7 +30,13 @@ fun OnboardingSendAlerts(modifier: Modifier = Modifier) {
     val connectorLength = 80.dp
     val connectorWidth = 2.dp
 
-    AppOnboardingScreen {
+    OnboardingScreen(
+        title = onboardingSendAlertTitle,
+        subTitle = onboardingSendAlertsSubtitle,
+        pageNumber = 2,
+        buttonText = nextText,
+        onNextClick = onNextClick
+    ) {
 
         Column(
             modifier = Modifier.fillMaxWidth(),
@@ -49,5 +63,4 @@ fun OnboardingSendAlerts(modifier: Modifier = Modifier) {
             )
         }
     }
-
 }
