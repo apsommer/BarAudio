@@ -1,6 +1,7 @@
 package com.sommerengineering.baraudio.messages
 
-import androidx.compose.foundation.layout.Box
+import android.content.Intent
+import android.provider.Settings
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,9 +23,8 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.message.GroupHeaderItem
 import com.sommerengineering.baraudio.message.MessageItem
@@ -41,7 +41,10 @@ import kotlinx.coroutines.launch
 fun MessagesScreen(
     viewModel: MainViewModel,
     onSignOut: () -> Unit,
-    onLaunchSetupOnboarding: () -> Unit) {
+    onLaunchWebhookOnboarding: () -> Unit
+) {
+
+    val context = LocalContext.current
 
     // lazy column of messages
     val messages by viewModel.messages.collectAsState()
@@ -51,7 +54,8 @@ fun MessagesScreen(
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
 
-    // user signal empty state
+    // special cards: notifications disabled, user signal empty state
+    val areNotificationsEnabled = viewModel.areNotificationsEnabled
     val isEmptyState = viewModel.isEmptyState
 
     // feed mode: linear, or grouped
@@ -73,9 +77,13 @@ fun MessagesScreen(
                 SettingsDrawer(
                     viewModel = viewModel,
                     onSignOut = onSignOut,
-                    onLaunchSetupOnboarding = onLaunchSetupOnboarding) }},
+                    onLaunchSetupOnboarding = onLaunchWebhookOnboarding
+                )
+            }
+        },
         gesturesEnabled = true,
-        scrimColor = DrawerDefaults.scrimColor.copy(alpha = 0.5f)) {
+        scrimColor = DrawerDefaults.scrimColor.copy(alpha = 0.5f)
+    ) {
 
         Scaffold(
             topBar = {
@@ -84,25 +92,44 @@ fun MessagesScreen(
                     onSettingsClick = { coroutineScope.launch { drawerState.open() } },
                     onToggleFeedMode = { viewModel.toggleFeedMode() },
                     onToggleMute = { viewModel.toggleMute() })
-                 },
-            bottomBar = {
-                AllowNotificationsBottomBar(viewModel.areNotificationsEnabled)
             }
         ) { padding ->
 
-            Column(Modifier.fillMaxSize().padding(padding)) {
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+            ) {
 
                 // messages
                 LazyColumn(state = listState) {
 
-                    // user signal empty state
-                    if (isEmptyState) {
+                    // notification permission
+                    if (!areNotificationsEnabled) {
                         item {
-                            EmptyStateCard(
-                                onClick = { onLaunchSetupOnboarding() },
-                                onDismiss = { viewModel.updateEmptyState(false) })
+                            NotificationsDisabledCard(
+                                onOpenSettings = {
+                                    context.startActivity(
+                                        Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                                            putExtra(
+                                                Settings.EXTRA_APP_PACKAGE,
+                                                context.packageName
+                                            )
+                                        }
+                                    )
+                                }
+                            )
                         }
                     }
+
+                    // user signal empty state
+//                    if (isEmptyState) {
+                    item {
+                        EmptyStateCard(
+                            onLaunchWebhookOnboarding = { onLaunchWebhookOnboarding() },
+                            onDismiss = { viewModel.updateEmptyState(false) })
+                    }
+//                    }
 
                     when (feedMode) {
 
@@ -115,8 +142,10 @@ fun MessagesScreen(
                                 MessageItem(
                                     viewModel = viewModel,
                                     message = message,
-                                    isShowDivider = index != messages.lastIndex)
-                            }}
+                                    isShowDivider = index != messages.lastIndex
+                                )
+                            }
+                        }
 
                         // grouped messages by origin, then by timestamp
                         FeedMode.Grouped -> {
@@ -137,7 +166,8 @@ fun MessagesScreen(
                                         MessageItem(
                                             viewModel = viewModel,
                                             message = message,
-                                            isShowDivider = !(groupIndex == groups.lastIndex && index == messages.lastIndex))
+                                            isShowDivider = !(groupIndex == groups.lastIndex && index == messages.lastIndex)
+                                        )
                                     }
                                 }
                             }
@@ -147,8 +177,12 @@ fun MessagesScreen(
 
                 // pulse icon with last signal timestamp
                 LastSignalPulse(
-                    modifier = Modifier.fillMaxWidth().weight(1f),
-                    timestamp = messages.firstOrNull()?.timestamp ?: System.currentTimeMillis().toString())
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    timestamp = messages.firstOrNull()?.timestamp ?: System.currentTimeMillis()
+                        .toString()
+                )
             }
         }
     }

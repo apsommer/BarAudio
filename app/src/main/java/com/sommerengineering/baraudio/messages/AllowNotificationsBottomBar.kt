@@ -19,10 +19,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.sommerengineering.baraudio.BuildConfig
 import com.sommerengineering.baraudio.uitls.allowNotificationsMessage
 import com.sommerengineering.baraudio.uitls.bottomBarTransitionTimeMillis
-import com.sommerengineering.baraudio.uitls.channelId
 import com.sommerengineering.baraudio.uitls.edgePadding
 
 @Composable
@@ -36,10 +34,13 @@ fun AllowNotificationsBottomBar(
         visible = !areNotificationsAllowed,
         enter = slideInVertically(
             initialOffsetY = { it },
-            animationSpec = tween(bottomBarTransitionTimeMillis)),
+            animationSpec = tween(bottomBarTransitionTimeMillis)
+        ),
         exit = slideOutVertically(
             targetOffsetY = { it },
-            animationSpec = tween(bottomBarTransitionTimeMillis))) {
+            animationSpec = tween(bottomBarTransitionTimeMillis)
+        )
+    ) {
 
         Row(
             modifier = Modifier
@@ -47,9 +48,12 @@ fun AllowNotificationsBottomBar(
                 .clickable(
                     onClick = {
                         context.startActivity(
-                        Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
-                            .putExtra(Settings.EXTRA_APP_PACKAGE, BuildConfig.APPLICATION_ID)
-                            .putExtra(Settings.EXTRA_CHANNEL_ID, channelId)) })) {
+                            Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                                putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+                            }
+                        )
+                    })
+        ) {
 
             Text(
                 modifier = Modifier
@@ -59,7 +63,8 @@ fun AllowNotificationsBottomBar(
                 text = allowNotificationsMessage,
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.titleMedium,
-                color = Color.White)
+                color = Color.White
+            )
         }
     }
 }
