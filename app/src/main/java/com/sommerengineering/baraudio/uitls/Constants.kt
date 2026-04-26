@@ -19,14 +19,7 @@ fun logException(e: Exception) {
 }
 
 // durations
-const val bottomBarTransitionTimeMillis = 1000
-const val colorTransitionTimeMillis = 0
 const val messageItemExpansionTimeMillis = 140
-
-// urls
-const val setupWebhookUrl = "https://sommerengineering.com/baraud.io"
-const val termsAndConditionsUrl = "https://sommerengineering.com/terms_and_conditions"
-const val privacyPolicyUrl = "https://sommerengineering.com/privacy_policy"
 
 // room
 const val roomDatabaseName = "messages.db"
@@ -41,10 +34,10 @@ const val tokensNode = "tokens"
 
 // notifications
 const val channelId = "42"
-const val channelName = "Alerts"
+const val channelName = "Signals"
 const val channelDescription = "Real-time trading alerts"
 const val channelGroupId = "42"
-const val channelGroupName = "Signals"
+const val channelGroupName = "Alerts"
 const val notificationId = 42
 const val notificationKey = "notification"
 const val streamKey = "stream"
@@ -167,9 +160,6 @@ const val nextText = "Next"
 const val copyText = "Copy\nwebhook"
 const val doneText = "Done"
 const val enableText = "Enable"
-
-// allow notifications banner
-const val allowNotificationsMessage = "Allow notification to stay updates in real time"
 
 // login
 const val gitHubProviderId = "github.com"
