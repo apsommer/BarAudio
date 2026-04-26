@@ -162,7 +162,7 @@ def purge_node(node, timestamp):
 
     # calculate session start of last two trading days
     current_session_start = get_session_start(timestamp)
-    previous_session_start = current_session_start - DAY_MILLIS
+    previous_session_start = get_session_start(current_session_start - DAY_MILLIS)
 
     # query old messages
     old_messages = node.order_by_key().end_at(str(previous_session_start - 1)).get()
