@@ -10,9 +10,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.sommerengineering.baraudio.message.LinearMessageItem
+import com.sommerengineering.baraudio.onboarding.BackgroundGlowContainer
 
 @Composable
-fun OnboardingHearAlerts() {
+fun HearAlertsScreen() {
 
     val message = onboardingMessage()
     val state = getOnboardingMessageState(
@@ -23,7 +24,7 @@ fun OnboardingHearAlerts() {
     var isVisible by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { isVisible = true }
 
-    AppOnboardingScreen {
+    BackgroundGlowContainer {
         AnimatedVisibility(
             visible = isVisible,
             enter = fadeIn(tween(1000))

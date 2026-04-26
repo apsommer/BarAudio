@@ -12,9 +12,9 @@ import androidx.navigation.compose.navigation
 import com.sommerengineering.baraudio.MainActivity
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.onboarding.OnboardingScreen
-import com.sommerengineering.baraudio.onboarding.app.OnboardingHearAlerts
-import com.sommerengineering.baraudio.onboarding.app.OnboardingSendAlerts
-import com.sommerengineering.baraudio.onboarding.app.OnboardingStayUpdated
+import com.sommerengineering.baraudio.onboarding.app.HearAlertsScreen
+import com.sommerengineering.baraudio.onboarding.app.SendAlertsScreen
+import com.sommerengineering.baraudio.onboarding.app.StayUpdatedScreen
 import com.sommerengineering.baraudio.uitls.AppOnboardingRoute
 import com.sommerengineering.baraudio.uitls.MessagesRoute
 import com.sommerengineering.baraudio.uitls.OnboardingHearAlertsRoute
@@ -47,7 +47,7 @@ fun NavGraphBuilder.AppOnboardingNavigation(
                 pageNumber = 0,
                 buttonText = nextText,
                 onNextClick = { controller.navigate(OnboardingStayUpdatedRoute) }) {
-                OnboardingHearAlerts()
+                HearAlertsScreen()
             }
         }
 
@@ -75,7 +75,7 @@ fun NavGraphBuilder.AppOnboardingNavigation(
                         controller.navigate(OnboardingSendAlertsRoute)
                     } // old api notifications default to allowed
                 }) {
-                OnboardingStayUpdated()
+                StayUpdatedScreen()
             }
         }
 
@@ -92,7 +92,7 @@ fun NavGraphBuilder.AppOnboardingNavigation(
                         popUpTo(MessagesRoute) { inclusive = true }
                     }
                 }) {
-                OnboardingSendAlerts()
+                SendAlertsScreen()
             }
         }
     }

@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.onboarding.app
+package com.sommerengineering.baraudio.onboarding
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,7 +12,7 @@ import androidx.compose.ui.graphics.Color
 import com.sommerengineering.baraudio.uitls.appBlue
 
 @Composable
-fun AppOnboardingScreen(content: @Composable () -> Unit) {
+fun BackgroundGlowContainer(content: @Composable () -> Unit) {
 
     val glowColor = appBlue()
 

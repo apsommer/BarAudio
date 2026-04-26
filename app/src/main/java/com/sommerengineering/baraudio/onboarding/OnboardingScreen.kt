@@ -25,53 +25,62 @@ fun OnboardingScreen(
     onNextClick: () -> Unit,
     isNextEnabled: Boolean = true,
     onCloseClick: (() -> Unit)? = null,
-    content: @Composable (() -> Unit)) {
+    content: @Composable (() -> Unit)
+) {
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(edgePadding),
-        horizontalAlignment = Alignment.CenterHorizontally) {
+    BackgroundGlowContainer {
 
-        // title
-        OnboardingText(
-            title = title,
-            subTitle = subTitle,
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = edgePadding * 2))
+                .fillMaxSize()
+                .padding(edgePadding),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
 
-        // dynamic content
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                .padding(vertical = edgePadding * 2),
-            contentAlignment = Alignment.Center) {
-            content()
+            // title
+            OnboardingText(
+                title = title,
+                subTitle = subTitle,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = edgePadding * 2)
+            )
+
+            // dynamic content
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .padding(vertical = edgePadding * 2),
+                contentAlignment = Alignment.Center
+            ) {
+                content()
+            }
+
+            // page indicators and button
+            OnboardingFooter(
+                buttonText = buttonText,
+                pageNumber = pageNumber,
+                onNextClick = onNextClick,
+                isNextEnabled = isNextEnabled,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
 
-        // page indicators and button
-        OnboardingFooter(
-            buttonText = buttonText,
-            pageNumber = pageNumber,
-            onNextClick = onNextClick,
-            isNextEnabled = isNextEnabled,
-            modifier = Modifier.fillMaxWidth())
-    }
-
-    // close button
-    if (onCloseClick != null) {
-        IconButton(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(end = edgePadding / 2)
-                .wrapContentWidth(Alignment.End),
-            onClick = { onCloseClick() }) {
-            Icon(
-                painter = painterResource(R.drawable.close),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
+        // close button
+        if (onCloseClick != null) {
+            IconButton(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(end = edgePadding / 2)
+                    .wrapContentWidth(Alignment.End),
+                onClick = { onCloseClick() }) {
+                Icon(
+                    painter = painterResource(R.drawable.close),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                )
+            }
         }
     }
 }

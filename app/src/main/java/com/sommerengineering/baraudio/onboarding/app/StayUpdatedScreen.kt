@@ -14,13 +14,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import com.sommerengineering.baraudio.message.LinearMessageItem
+import com.sommerengineering.baraudio.onboarding.BackgroundGlowContainer
 
 @Composable
-fun OnboardingStayUpdated() {
+fun StayUpdatedScreen() {
 
     val messages = onboardingMessages()
 
-    AppOnboardingScreen {
+    BackgroundGlowContainer {
 
 
         BoxWithConstraints {

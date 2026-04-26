@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.onboarding.app
+package com.sommerengineering.baraudio.onboarding
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
