@@ -16,9 +16,9 @@ import androidx.lifecycle.viewModelScope
 import com.sommerengineering.baraudio.login.GitHubAuthenticator
 import com.sommerengineering.baraudio.login.GoogleAuthenticator
 import com.sommerengineering.baraudio.messages.FeedMode
-import com.sommerengineering.baraudio.onboarding.webhook.verification.VerificationState.RECEIVED
-import com.sommerengineering.baraudio.onboarding.webhook.verification.VerificationState.WAITING
-import com.sommerengineering.baraudio.onboarding.webhook.verification.VerificationUiState
+import com.sommerengineering.baraudio.onboarding.webhook.VerificationState.RECEIVED
+import com.sommerengineering.baraudio.onboarding.webhook.VerificationState.WAITING
+import com.sommerengineering.baraudio.onboarding.webhook.VerificationUiState
 import com.sommerengineering.baraudio.source.Message
 import com.sommerengineering.baraudio.uitls.RomanNumerals
 import com.sommerengineering.baraudio.uitls.screenFullDescription

@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.onboarding.webhook.verification
+package com.sommerengineering.baraudio.onboarding.webhook
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

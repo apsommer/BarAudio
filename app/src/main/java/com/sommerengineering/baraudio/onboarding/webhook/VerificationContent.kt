@@ -1,4 +1,4 @@
-package com.sommerengineering.baraudio.onboarding.webhook.verification
+package com.sommerengineering.baraudio.onboarding.webhook
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween

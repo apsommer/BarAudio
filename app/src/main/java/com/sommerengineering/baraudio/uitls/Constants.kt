@@ -129,8 +129,10 @@ val edgePadding = 24.dp
 
 // style, general
 val logoAlpha = 0.4f
+
 @Composable
 fun appBlue() = colorResource(R.color.app_blue)
+
 @Composable
 fun appGreen() = colorResource(R.color.app_green)
 
@@ -163,6 +165,7 @@ const val onboardingListeningTitle = "Send a test alert"
 const val nextText = "Next"
 const val copyText = "Copy\nwebhook"
 const val doneText = "Done"
+const val enableText = "Enable"
 
 // allow notifications banner
 const val allowNotificationsMessage = "Allow notification to stay updates in real time"

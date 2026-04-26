@@ -6,8 +6,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.sommerengineering.baraudio.MainViewModel
 import com.sommerengineering.baraudio.onboarding.OnboardingScreen
-import com.sommerengineering.baraudio.onboarding.webhook.verification.VerificationContent
-import com.sommerengineering.baraudio.onboarding.webhook.verification.VerificationState
 import com.sommerengineering.baraudio.uitls.doneText
 import com.sommerengineering.baraudio.uitls.onboardingListeningTitle
 

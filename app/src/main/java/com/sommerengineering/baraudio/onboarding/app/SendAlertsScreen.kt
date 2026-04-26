@@ -11,9 +11,15 @@ import com.sommerengineering.baraudio.message.LinearMessageItem
 import com.sommerengineering.baraudio.onboarding.BackgroundGlowContainer
 import com.sommerengineering.baraudio.onboarding.NodeCard
 import com.sommerengineering.baraudio.onboarding.NodeConnector
+import com.sommerengineering.baraudio.onboarding.OnboardingScreen
+import com.sommerengineering.baraudio.uitls.nextText
+import com.sommerengineering.baraudio.uitls.onboardingSendAlertTitle
+import com.sommerengineering.baraudio.uitls.onboardingSendAlertsSubtitle
 
 @Composable
-fun SendAlertsScreen(modifier: Modifier = Modifier) {
+fun SendAlertsScreen(
+    onNextClick: () -> Unit
+) {
 
     // define message and state (same as first onboarding screen for consistency)
     val message = onboardingMessage()
@@ -25,32 +31,40 @@ fun SendAlertsScreen(modifier: Modifier = Modifier) {
     val connectorLength = 80.dp
     val connectorWidth = 2.dp
 
-    BackgroundGlowContainer {
+    OnboardingScreen(
+        title = onboardingSendAlertTitle,
+        subTitle = onboardingSendAlertsSubtitle,
+        pageNumber = 2,
+        buttonText = nextText,
+        onNextClick = onNextClick
+    ) {
 
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        BackgroundGlowContainer {
 
-            NodeCard(
-                title = "Webhook",
-                iconRes = R.drawable.webhook
-            )
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
 
-            NodeConnector(connectorLength, connectorWidth)
+                NodeCard(
+                    title = "Webhook",
+                    iconRes = R.drawable.webhook
+                )
 
-            NodeCard(
-                title = "SignalVoice",
-                iconRes = R.drawable.appbar_compact
-            )
+                NodeConnector(connectorLength, connectorWidth)
 
-            NodeConnector(connectorLength, connectorWidth)
+                NodeCard(
+                    title = "SignalVoice",
+                    iconRes = R.drawable.appbar_compact
+                )
 
-            LinearMessageItem(
-                state = state,
-                isShowDivider = false
-            )
+                NodeConnector(connectorLength, connectorWidth)
+
+                LinearMessageItem(
+                    state = state,
+                    isShowDivider = false
+                )
+            }
         }
     }
-
 }
