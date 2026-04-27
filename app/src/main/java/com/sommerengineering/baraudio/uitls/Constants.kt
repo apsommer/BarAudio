@@ -140,16 +140,16 @@ val dividerThickness = 0.5.dp
 val descriptionAlpha = 0.5f
 val streamDescriptionAlpha = 0.6f
 
-
 // onboarding
 const val onboardingTotalPages = 3
 const val onboardingHearAlertsTitle = "Hear alerts instantly"
-const val onboardingHearAlertsSubTitle = "We speak trading signals the moment\nthey happen."
+const val onboardingHearAlertsSubTitle = "We speak trading signals the moment\n" + "they happen."
 const val onboardingStayUpdatedTitle = "Stay updated in real time"
 const val onboardingStayUpdatedSubtitle =
-    "Get every signal as it happens.\nNo delays. No filtering."
+    "Get every signal as it happens.\n" + "No delays. No filtering."
 const val onboardingSendAlertTitle = "Send alerts from any webhook"
-const val onboardingSendAlertsSubtitle = "Connect your tools. We'll speak\nyour signals out loud."
+const val onboardingSendAlertsSubtitle =
+    "Connect your tools. We'll speak\n" + "your signals out loud."
 const val onboardingCopyWebhookTitle = "Copy your webhook URL"
 const val onboardingCopyWebhookSubtitle = "Tap to copy."
 const val onboardingPasteWebhookTitle = "Paste it into your alert"
@@ -157,7 +157,7 @@ const val onboardingPasteWebhookSubtitle = "Paste the URL into the webhook field
 const val onboardingListeningTitle = "Send a test alert"
 const val onboardingListeningSubTitle = "We’ll confirm when it arrives."
 const val nextText = "Next"
-const val copyText = "Copy\nwebhook"
+const val copyText = "Copy webhook"
 const val doneText = "Done"
 const val enableText = "Enable"
 
