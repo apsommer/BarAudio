@@ -1,4 +1,5 @@
 <resources>
     <color name="app_blue">#3B82F6</color>
     <color name="app_green">#10B981</color>
+    <color name="app_background">#000000</color>
 </resources>

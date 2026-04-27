@@ -4,8 +4,8 @@
     <style name="Theme.BarAudio" parent="android:Theme.Material.Light.NoActionBar" />
 
     <!-- splash screen -->
-    <style name="Theme.BarAudio.Splash" parent="Theme.SplashScreen" >
-        <item name="windowSplashScreenBackground">@color/black</item>
+    <style name="Theme.BarAudio.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/app_background</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/app</item>
         <item name="postSplashScreenTheme">@style/Theme.BarAudio</item>
     </style>
