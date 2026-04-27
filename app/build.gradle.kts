@@ -19,7 +19,10 @@ val keystoreProperties = Properties()
 keystoreProperties.load(
     FileInputStream(
         rootProject.file(
-            rootProject.projectDir.absolutePath + "/upload/keystore.properties")))
+            rootProject.projectDir.absolutePath + "/upload/keystore.properties"
+        )
+    )
+)
 
 java {
     toolchain {
@@ -45,11 +48,11 @@ configure<ApplicationExtension> {
         }
     }
 
-    namespace = "com.sommerengineering.baraudio"
+    namespace = "com.sommerengineering.signalvoice"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.sommerengineering.baraudio"
+        applicationId = "com.sommerengineering.signalvoice"
         minSdk = 28
         targetSdk = 36
         versionCode = 57 // increment for each release
@@ -70,12 +73,14 @@ configure<ApplicationExtension> {
         buildConfigField(
             type = "String",
             name = "googleSignInWebClientId",
-            value = googleSignInWebClientId)
+            value = googleSignInWebClientId
+        )
         val rapidApiKey = properties.getProperty("rapidApiKey")
         buildConfigField(
             type = "String",
             name = "rapidApiKey",
-            value = rapidApiKey)
+            value = rapidApiKey
+        )
     }
 
     buildTypes {

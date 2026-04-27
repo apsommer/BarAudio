@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" >
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
@@ -17,14 +16,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.BarAudio"
-        tools:targetApi="31" >
+        tools:targetApi="31">
 
         <activity
             android:name=".MainActivity"
             android:configChanges="uiMode"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.BarAudio.Splash"
-            android:exported="true" >
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -39,34 +38,42 @@
 
         <!-- firebase cloud messaging -->
         <service
-            android:name="com.sommerengineering.baraudio.firebase.FirebaseServiceImpl"
-            android:exported="true" >
+            android:name="com.sommerengineering.signalvoice.firebase.FirebaseServiceImpl"
+            android:exported="true">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
 
-            <!-- system uses these when app process not running -->
-            <!-- todo fcm status bar icon, system converts to white at 24dp
-                    TODO: these can all be delete if safe (?) system generated notifications not possible -->
-            <meta-data
-                android:name="com.google.firebase.messaging.default_notification_icon"
-                android:resource="@drawable/app" />
+        <!-- system uses these when app process not running -->
+        <!-- todo fcm status bar icon, system converts to white at 24dp
+                TODO: these can all be delete if safe (?) system generated notifications not possible -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/app" />
 
-            <!-- fcm notification color -->
-            <meta-data
-                android:name="com.google.firebase.messaging.default_notification_color"
-                android:resource="@color/app_blue" />
+        <!-- fcm notification color -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/app_blue" />
 
-            <!-- fcm notification channel -->
-            <meta-data
-                android:name="com.google.firebase.messaging.default_notification_channel_id"
-                android:value="@string/notification_channel_id" />
+        <!-- fcm notification channel -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="@string/notification_channel_id" />
 
         <!-- consent mode -->
-        <meta-data android:name="google_analytics_default_allow_analytics_storage" android:value="true" />
-        <meta-data android:name="google_analytics_default_allow_ad_storage" android:value="true" />
-        <meta-data android:name="google_analytics_default_allow_ad_user_data" android:value="true" />
-        <meta-data android:name="google_analytics_default_allow_ad_personalization_signals" android:value="true" />
+        <meta-data
+            android:name="google_analytics_default_allow_analytics_storage"
+            android:value="true" />
+        <meta-data
+            android:name="google_analytics_default_allow_ad_storage"
+            android:value="true" />
+        <meta-data
+            android:name="google_analytics_default_allow_ad_user_data"
+            android:value="true" />
+        <meta-data
+            android:name="google_analytics_default_allow_ad_personalization_signals"
+            android:value="true" />
     </application>
 </manifest>
