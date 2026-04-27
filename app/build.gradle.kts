@@ -62,25 +62,6 @@ configure<ApplicationExtension> {
         vectorDrawables {
             useSupportLibrary = true
         }
-
-        // import local.properties
-        val localProperties = project.rootProject.file("local.properties")
-        val properties = Properties()
-        properties.load(localProperties.inputStream())
-
-        // parse api keys
-        val googleSignInWebClientId = properties.getProperty("googleSignInWebClientId")
-        buildConfigField(
-            type = "String",
-            name = "googleSignInWebClientId",
-            value = googleSignInWebClientId
-        )
-        val rapidApiKey = properties.getProperty("rapidApiKey")
-        buildConfigField(
-            type = "String",
-            name = "rapidApiKey",
-            value = rapidApiKey
-        )
     }
 
     buildTypes {

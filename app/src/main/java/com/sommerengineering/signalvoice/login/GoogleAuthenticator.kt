@@ -9,7 +9,7 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.Firebase
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
-import com.sommerengineering.signalvoice.BuildConfig
+import com.sommerengineering.signalvoice.R
 import com.sommerengineering.signalvoice.uitls.logException
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -24,8 +24,20 @@ class GoogleAuthenticator @Inject constructor(
 
         try {
 
+            // bottom sheet ui
+            val signInOptions = GetGoogleIdOption.Builder()
+                .setFilterByAuthorizedAccounts(false) // false to initiate sign-up flow, if needed
+                .setServerClientId(context.getString(R.string.default_web_client_id))
+                .setAutoSelectEnabled(true)
+                .build()
+
+            // build google sign-in request
+            val request = GetCredentialRequest.Builder()
+                .addCredentialOption(signInOptions)
+                .build()
+
             // launch system google sign-in dialog
-            val response = credentialManager.getCredential(context, buildGoogleRequest())
+            val response = credentialManager.getCredential(context, request)
 
             // extract google id token
             val credential = response.credential
@@ -50,23 +62,5 @@ class GoogleAuthenticator @Inject constructor(
         }
 
         return false
-    }
-
-    private fun buildGoogleRequest(): GetCredentialRequest {
-
-        // bottom sheet ui
-        val signInOptions = GetGoogleIdOption.Builder()
-            .setFilterByAuthorizedAccounts(false) // false to initiate sign-up flow, if needed
-            .setServerClientId(BuildConfig.googleSignInWebClientId)
-            .setAutoSelectEnabled(true)
-            .build()
-
-        return GetCredentialRequest.Builder()
-            .addCredentialOption(signInOptions)
-            .build()
-    }
-
-    fun signOut() {
-
     }
 }
