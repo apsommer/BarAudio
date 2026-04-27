@@ -25,9 +25,8 @@ const val messageItemExpansionTimeMillis = 140
 const val roomDatabaseName = "messages.db"
 
 // firebase database
-const val databaseUrl = "https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/"
-const val webhookBaseUrl =
-    "https://us-central1-com-sommerengineering-baraudio.cloudfunctions.net/baraudio?uid="
+const val databaseUrl = "https://signalvoice-api-default-rtdb.firebaseio.com/"
+const val webhookBaseUrl = "..."
 const val streamsNode = "streams"
 const val usersNode = "users"
 const val tokensNode = "tokens"

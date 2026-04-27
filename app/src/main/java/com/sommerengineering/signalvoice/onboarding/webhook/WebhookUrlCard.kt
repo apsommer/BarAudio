@@ -36,8 +36,8 @@ fun WebhookUrlCard(
     // clarify spacing of long url
     val formattedUrl = webhookUrl
         .replace("com-", "com\n-")
-        .replace("baraudio.", "baraudio\n.")
-        .replace("/baraudio?", "/baraudio?\n")
+        .replace("signalvoice.", "signalvoice\n.")
+        .replace("/signal?", "/signal?\n")
     logMessage(formattedUrl)
 
     Column(

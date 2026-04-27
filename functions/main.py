@@ -8,7 +8,7 @@ from firebase_admin.messaging import UnregisteredError
 from firebase_functions import https_fn
 
 # view logs
-# https://console.cloud.google.com/run/detail/us-central1/baraudio/observability/logs?inv=1&invt=AbhuYw&project=com-sommerengineering-baraudio
+# ...
 
 # todo production notes
 # credential only required for local environment, can be removed for cloud only production
@@ -17,7 +17,7 @@ from firebase_functions import https_fn
 # initialize admin sdk
 APP = initialize_app(
     credential = credentials.Certificate('admin.json'),
-    options = {'databaseURL': 'https://com-sommerengineering-baraudio-default-rtdb.firebaseio.com/'})
+    options = {'databaseURL': 'https://signalvoice-api-default-rtdb.firebaseio.com/'})
 
 # streams
 STREAMS = frozenset({'ZN', 'NQ', 'BTC', 'ES', 'GC', 'SI'})
@@ -42,9 +42,9 @@ USERS_NODE = db.reference('users')
 STREAMS_NODE = db.reference('streams')
 TOKENS_NODE = db.reference('tokens')
 
-# https://us-central1-com-sommerengineering-baraudio.cloudfunctions.net/baraudio?uid=...
+# ...
 @https_fn.on_request()
-def baraudio(req: https_fn.Request) -> https_fn.Response:
+def signal(req: https_fn.Request) -> https_fn.Response:
 
     # parse request
     stream = req.args.get(key = 'broadcast', type = str) # query param

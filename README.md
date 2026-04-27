@@ -1,14 +1,19 @@
-# BarAudio
+# SignalVoice
 
 ## Overview
 
-BarAudio is a production Android application that delivers real-time financial market signals through a voice-first interface. The system is designed for high-frequency intraday traders who need to stay informed without continuously monitoring charts.
+SignalVoice is a production Android application that delivers real-time financial market signals
+through a voice-first interface. The system is designed for high-frequency intraday traders who need
+to stay informed without continuously monitoring charts.
 
-The app ingests external trading signals via webhook endpoints, persists them locally, and delivers them as spoken alerts using a lifecycle-aware architecture. The core design prioritizes reliability, low latency, and predictable behavior across foreground, background, and cold-start states.
+The app ingests external trading signals via webhook endpoints, persists them locally, and delivers
+them as spoken alerts using a lifecycle-aware architecture. The core design prioritizes reliability,
+low latency, and predictable behavior across foreground, background, and cold-start states.
 
 ## Problem
 
-Active traders must constantly monitor charts across multiple instruments and timeframes. This leads to:
+Active traders must constantly monitor charts across multiple instruments and timeframes. This leads
+to:
 
 * Cognitive overload from continuous visual scanning
 * Missed opportunities during attention lapses
@@ -22,7 +27,7 @@ Existing alerting systems are typically:
 
 ## Solution
 
-BarAudio introduces a **voice-first delivery system**:
+SignalVoice introduces a **voice-first delivery system**:
 
 * Signals are spoken in real time using Text-to-Speech
 * Users can step away from screens while maintaining awareness
@@ -36,9 +41,10 @@ The system ensures:
 
 ## Architecture
 
-The system is designed as a real-time, event-driven pipeline from signal generation to voice delivery:
+The system is designed as a real-time, event-driven pipeline from signal generation to voice
+delivery:
 
-![BarAudio Architecture](readme/architecture.png)
+![SignalVoice Architecture](readme/architecture.png)
 
 ### Client (Android)
 
@@ -127,24 +133,29 @@ Speech behavior is explicitly tied to process state:
 
 ## Monetization
 
-BarAudio monetizes based on access to higher-signal, domain-specific data rather than restricting core functionality.
+SignalVoice monetizes based on access to higher-signal, domain-specific data rather than restricting
+core functionality.
 
-The free tier provides a complete voice-first experience with limited asset coverage, allowing users to evaluate the system in real trading conditions.
+The free tier provides a complete voice-first experience with limited asset coverage, allowing users
+to evaluate the system in real trading conditions.
 
-The paid tier unlocks additional premium streams designed to provide deeper market coverage and trading edge.
+The paid tier unlocks additional premium streams designed to provide deeper market coverage and
+trading edge.
 
 * Free tier:
 
-  * Core assets (e.g., NQ, ES, BTC)
-  * Full voice delivery and webhook support
+    * Core assets (e.g., NQ, ES, BTC)
+    * Full voice delivery and webhook support
 
 * Paid subscription:
 
-  * $9.99/month
-  * Additional premium assets (e.g., GC, ZN, CL)
-  * Expanded signal coverage
+    * $9.99/month
+    * Additional premium assets (e.g., GC, ZN, CL)
+    * Expanded signal coverage
 
-BarAudio does not use advertisements. The product is designed as a focused trading tool, where value comes from signal quality and delivery reliability rather than feature gating.
+SignalVoice does not use advertisements. The product is designed as a focused trading tool, where
+value
+comes from signal quality and delivery reliability rather than feature gating.
 
 ## Engineering Focus
 
@@ -158,9 +169,11 @@ This project emphasizes:
 
 ## Links
 
-* Website: https://baraud.io/
-* Play Store: https://play.google.com/store/apps/details?id=com.sommerengineering.baraudio
+* Website: https://signalvoice.com/
+* Play Store: https://play.google.com/store/apps/details?id=com.sommerengineering.signalvoice
 
 ## Summary
 
-BarAudio is not just a mobile app—it is a real-time signal delivery system designed around a voice-first interaction model. The architecture prioritizes correctness, determinism, and user attention efficiency in a domain where timing and clarity are critical.
+SignalVoice is not just a mobile app—it is a real-time signal delivery system designed around a
+voice-first interaction model. The architecture prioritizes correctness, determinism, and user
+attention efficiency in a domain where timing and clarity are critical.
