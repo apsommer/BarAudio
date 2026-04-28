@@ -1,6 +1,8 @@
 package com.sommerengineering.signalvoice.speak
 
+import android.app.Notification
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -19,6 +21,8 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+private const val ACTION_STOP = "ACTION_STOP"
 
 @AndroidEntryPoint
 class ForegroundSpeechService : Service() {
@@ -47,20 +51,23 @@ class ForegroundSpeechService : Service() {
         startId: Int
     ): Int {
 
+        // handle stop service from button
+        if (intent?.action == ACTION_STOP) {
+            repo.isMute = true
+            stopForeground(STOP_FOREGROUND_REMOVE) // removes notification
+            stopSelf() // kills service
+            return START_NOT_STICKY
+        }
+
         // dedupe, check if service already running
         if (isObserving) return START_STICKY
         isObserving = true
 
         // create initial notification
-        val notification = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(R.drawable.monochrome) // status bar
-            .setColor(ContextCompat.getColor(this, R.color.app_blue))
-            .setContentTitle("Listening for signals")
-            .setContentText("Waiting for activity") // collapsed
-            .build()
+        val waitingNotification = buildNotification("Listening for signals", "Waiting for activity")
 
         // show notification
-        startForeground(notificationId, notification)
+        startForeground(notificationId, waitingNotification)
 
         // update notification and speak message
         serviceScope.launch {
@@ -82,31 +89,42 @@ class ForegroundSpeechService : Service() {
                 val beautifulTimestamp = TimestampFormatter.beautifyTime(message.timestamp)
                 val title = message.message
 
-                // create updated notification
-                val notification =
-                    NotificationCompat.Builder(this@ForegroundSpeechService, channelId)
-                        .setSmallIcon(R.drawable.monochrome) // status bar
-                        .setColor(
-                            ContextCompat.getColor(
-                                this@ForegroundSpeechService,
-                                R.color.app_blue
-                            )
-                        )
-                        .setContentTitle(title)
-                        .setContentText(beautifulTimestamp) // collapsed
-                        .setStyle( // expanded
-                            NotificationCompat.BigTextStyle().bigText(beautifulTimestamp)
-                        )
-                        .build()
+                val messageNotification = buildNotification(title, beautifulTimestamp)
 
                 // update notification
-                manager.notify(notificationId, notification)
+                manager.notify(notificationId, messageNotification)
 
                 // speak message
                 repo.speakMessage(message)
             }
         }
         return START_STICKY
+    }
+
+    private fun buildNotification(
+        title: String,
+        text: String
+    ): Notification {
+
+        val stopIntent = Intent(this, ForegroundSpeechService::class.java).apply {
+            action = ACTION_STOP
+        }
+
+        val pendingStopIntent = PendingIntent.getService(
+            this,
+            0,
+            stopIntent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        return NotificationCompat.Builder(this, channelId)
+            .setSmallIcon(R.drawable.monochrome) // status bar
+            .setColor(ContextCompat.getColor(this, R.color.app_blue))
+            .setContentTitle(title)
+            .setContentText(text) // collapsed
+            .setStyle(NotificationCompat.BigTextStyle().bigText(text)) // expanded
+            .addAction(0, "Mute", pendingStopIntent)
+            .build()
     }
 
     override fun onDestroy() {
