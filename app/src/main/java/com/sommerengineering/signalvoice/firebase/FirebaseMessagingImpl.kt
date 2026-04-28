@@ -5,12 +5,10 @@ import com.google.firebase.auth.auth
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.sommerengineering.signalvoice.MainRepository
-import com.sommerengineering.signalvoice.ProcessState
 import com.sommerengineering.signalvoice.source.Message
-import com.sommerengineering.signalvoice.speak.ForegroundSpeechService
-import com.sommerengineering.signalvoice.uitls.streamKey
 import com.sommerengineering.signalvoice.uitls.messageKey
 import com.sommerengineering.signalvoice.uitls.sourceKey
+import com.sommerengineering.signalvoice.uitls.streamKey
 import com.sommerengineering.signalvoice.uitls.timestampKey
 import com.sommerengineering.signalvoice.uitls.uidKey
 import dagger.hilt.android.AndroidEntryPoint
@@ -21,19 +19,14 @@ class FirebaseServiceImpl : FirebaseMessagingService() {
 
     @Inject
     lateinit var repo: MainRepository
-    @Inject
-    lateinit var processState: ProcessState
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-
-        // ensure app is foreground or background
-        if (!processState.isTaskAlive) return
 
         // convert remote message to domain model
         val message = remoteMessage.toMessage() ?: return
 
+        // persist to local database
         repo.addMessage(message)
-        ForegroundSpeechService.start(this, message)
     }
 
     private fun RemoteMessage.toMessage(): Message? {
