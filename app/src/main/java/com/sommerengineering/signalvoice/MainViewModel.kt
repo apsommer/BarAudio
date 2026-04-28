@@ -20,6 +20,7 @@ import com.sommerengineering.signalvoice.onboarding.webhook.VerificationState.RE
 import com.sommerengineering.signalvoice.onboarding.webhook.VerificationState.WAITING
 import com.sommerengineering.signalvoice.onboarding.webhook.VerificationUiState
 import com.sommerengineering.signalvoice.source.Message
+import com.sommerengineering.signalvoice.speak.ForegroundSpeechService
 import com.sommerengineering.signalvoice.uitls.RomanNumerals
 import com.sommerengineering.signalvoice.uitls.screenFullDescription
 import com.sommerengineering.signalvoice.uitls.screenWindowedDescription
@@ -95,9 +96,11 @@ class MainViewModel @Inject constructor(
     var isMute by mutableStateOf(false)
         private set
 
-    fun toggleMute() {
+    fun toggleMute(context: Context) {
         isMute = !isMute
         repo.isMute = isMute
+        if (isMute) ForegroundSpeechService.stop(context)
+        else ForegroundSpeechService.start(context)
     }
 
     fun speakUtterance(utterance: String) =

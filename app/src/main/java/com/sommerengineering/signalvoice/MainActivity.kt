@@ -27,6 +27,7 @@ import com.google.android.play.core.appupdate.AppUpdateOptions
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.sommerengineering.signalvoice.navigation.MainNavigation
+import com.sommerengineering.signalvoice.speak.ForegroundSpeechService
 import com.sommerengineering.signalvoice.theme.AppTheme
 import com.sommerengineering.signalvoice.uitls.channelDescription
 import com.sommerengineering.signalvoice.uitls.channelGroupId
@@ -93,6 +94,11 @@ class MainActivity : ComponentActivity() {
 
         initNotificationChannel()
         checkForcedUpdate()
+
+        // start service if unmuted
+        if (!viewModel.isMute) {
+            ForegroundSpeechService.start(this)
+        }
 
         // launch compose tree
         setContent {

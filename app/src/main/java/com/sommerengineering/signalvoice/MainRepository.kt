@@ -17,7 +17,6 @@ import com.sommerengineering.signalvoice.room.RoomImpl
 import com.sommerengineering.signalvoice.source.Message
 import com.sommerengineering.signalvoice.source.MessageOrigin
 import com.sommerengineering.signalvoice.source.resolveMessageOrigin
-import com.sommerengineering.signalvoice.speak.ForegroundSpeechService
 import com.sommerengineering.signalvoice.speak.TextToSpeechImpl
 import com.sommerengineering.signalvoice.uitls.btcStream
 import com.sommerengineering.signalvoice.uitls.defaultVoice
@@ -129,23 +128,11 @@ class MainRepository @Inject constructor(
     var isMute
         get() = tts.isMute
         set(value) {
-
             tts.isMute = value
-
-            // stop any current speech
             if (value && tts.isSpeaking()) {
                 tts.stop()
-            }
-
-            // persist to datastore
+            } // stop any current speech
             writePreference(booleanPreferencesKey(isMuteKey), value)
-
-            // start or stop foreground service
-            if (value) {
-                ForegroundSpeechService.stop(context)
-            } else {
-                ForegroundSpeechService.start(context)
-            }
         }
 
     suspend fun speakMessage(message: Message) {
