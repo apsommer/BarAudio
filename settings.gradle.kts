@@ -25,6 +25,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "BarAudio"
+rootProject.name = "SignalVoice"
 include(":app")
  

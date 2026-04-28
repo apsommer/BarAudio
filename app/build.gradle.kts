@@ -19,7 +19,10 @@ val keystoreProperties = Properties()
 keystoreProperties.load(
     FileInputStream(
         rootProject.file(
-            rootProject.projectDir.absolutePath + "/upload/keystore.properties")))
+            rootProject.projectDir.absolutePath + "/upload/keystore.properties"
+        )
+    )
+)
 
 java {
     toolchain {
@@ -45,37 +48,20 @@ configure<ApplicationExtension> {
         }
     }
 
-    namespace = "com.sommerengineering.baraudio"
+    namespace = "com.sommerengineering.signalvoice"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.sommerengineering.baraudio"
+        applicationId = "com.sommerengineering.signalvoice"
         minSdk = 28
         targetSdk = 36
-        versionCode = 57 // increment for each release
-        versionName = "2.9.110925a" // major.minor.date.letter
+        versionCode = 1 // increment for each release
+        versionName = "1.0" // major.minor.date.letter
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
-
-        // import local.properties
-        val localProperties = project.rootProject.file("local.properties")
-        val properties = Properties()
-        properties.load(localProperties.inputStream())
-
-        // parse api keys
-        val googleSignInWebClientId = properties.getProperty("googleSignInWebClientId")
-        buildConfigField(
-            type = "String",
-            name = "googleSignInWebClientId",
-            value = googleSignInWebClientId)
-        val rapidApiKey = properties.getProperty("rapidApiKey")
-        buildConfigField(
-            type = "String",
-            name = "rapidApiKey",
-            value = rapidApiKey)
     }
 
     buildTypes {
@@ -85,6 +71,7 @@ configure<ApplicationExtension> {
 
         debug {
             isMinifyEnabled = false
+            applicationIdSuffix = ".debug"
         }
 
         release {
