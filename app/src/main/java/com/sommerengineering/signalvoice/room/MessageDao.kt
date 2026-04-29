@@ -37,5 +37,12 @@ interface MessageDao {
     @Query("DELETE FROM messages WHERE stream = :stream")
     suspend fun deleteStream(stream: String)
 
+    @Transaction
+    suspend fun replaceUserMessages(entities: List<MessageEntity>) {
+        deleteUserMessages()
+        insertAll(entities)
+    }
 
+    @Query("DELETE FROM messages WHERE stream IS NULL")
+    suspend fun deleteUserMessages()
 }

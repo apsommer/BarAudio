@@ -69,7 +69,7 @@ class MainRepository @Inject constructor(
         appScope.launch { roomDb.addMessage(message) }
 
     // firebase database
-    suspend fun hydrateMessages() {
+    suspend fun hydrateStreamMessages() {
 
         val messages = mutableListOf<Message>()
 
@@ -81,11 +81,13 @@ class MainRepository @Inject constructor(
         if (loadGC()) messages.addAll(firebaseDb.fetchStreamMessages(gcStream))
         if (loadSI()) messages.addAll(firebaseDb.fetchStreamMessages(siStream))
 
-        // user specific
-        messages.addAll(firebaseDb.fetchUserMessages())
-
         // sync local database: delete all, then add all
         roomDb.replaceMessages(messages)
+    }
+
+    suspend fun hydrateUserMessages() {
+        val messages = firebaseDb.fetchUserMessages()
+        roomDb.replaceUserMessages(messages)
     }
 
     // text-to-speech
@@ -265,8 +267,12 @@ class MainRepository @Inject constructor(
         setMute(readPreference(booleanPreferencesKey(isMuteKey)) ?: false)
     }
 
-    fun signOut() =
+    fun signOut() {
         Firebase.auth.signOut()
+        appScope.launch {
+            roomDb.removeUserMessages()
+        }
+    }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -315,9 +321,9 @@ class MainRepository @Inject constructor(
         newToken?.let { token -> writeNewToken(token) }
         webhookUrl = "$webhookBaseUrl$uid"
 
-        // cold start hydration sync of firebase to local room database
+        // cold start hydration sync of user signals: firebase to local db
         firebaseDb.setUid(uid)
-        appScope.launch { hydrateMessages() }
+        appScope.launch { hydrateUserMessages() }
     }
 
     // firebase database (token)

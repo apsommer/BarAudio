@@ -28,4 +28,10 @@ class RoomImpl @Inject constructor(
 
     suspend fun removeStream(stream: String) =
         dao.deleteStream(stream)
+
+    suspend fun replaceUserMessages(messages: List<Message>) =
+        dao.replaceUserMessages(messages.map { it.toEntity() })
+
+    suspend fun removeUserMessages() =
+        dao.deleteUserMessages()
 }
