@@ -2,6 +2,7 @@ package com.sommerengineering.signalvoice.login
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -72,5 +73,18 @@ fun LoginScreen(
             iconRes = R.drawable.github,
             iconRatio = 0.55f,
             onClick = { viewModel.signInWithGitHub(context, onAuthentication) })
+
+        // guest login
+        Spacer(Modifier.height(16.dp))
+
+        Text(
+            text = "Continue as guest",
+            color = MaterialTheme.colorScheme.primary.copy(0.9f),
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier
+                .offset(y = 4.dp)
+                .background(MaterialTheme.colorScheme.background) // keeps tap clean over scrim if needed
+                .clickable { onAuthentication() }
+        )
     }
 }

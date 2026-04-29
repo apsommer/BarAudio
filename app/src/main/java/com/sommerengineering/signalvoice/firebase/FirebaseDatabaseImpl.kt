@@ -5,6 +5,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.database
 import com.sommerengineering.signalvoice.source.Message
 import com.sommerengineering.signalvoice.uitls.databaseUrl
+import com.sommerengineering.signalvoice.uitls.logMessage
 import com.sommerengineering.signalvoice.uitls.messageKey
 import com.sommerengineering.signalvoice.uitls.sourceKey
 import com.sommerengineering.signalvoice.uitls.streamsNode
@@ -21,7 +22,7 @@ class FirebaseDatabaseImpl @Inject constructor() {
     private val db = Firebase.database(databaseUrl)
     private var uid: String? = null
 
-    fun setUid(newUid: String) {
+    fun setUid(newUid: String?) {
         if (uid == newUid) return
         uid = newUid
     }
@@ -80,5 +81,6 @@ class FirebaseDatabaseImpl @Inject constructor() {
         db.getReference(tokensNode)
             .child(newToken)
             .setValue(uid ?: "")
+        logMessage(newToken)
     }
 }

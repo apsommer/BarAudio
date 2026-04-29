@@ -37,7 +37,7 @@ class FirebaseServiceImpl : FirebaseMessagingService() {
         if (stream == null && uid == null) return null
 
         // catch different user on same device
-        val currentUid = Firebase.auth.currentUser?.uid ?: return null
+        val currentUid = Firebase.auth.currentUser?.uid
         if (uid != null && uid != currentUid) return null
 
         // validate payload
