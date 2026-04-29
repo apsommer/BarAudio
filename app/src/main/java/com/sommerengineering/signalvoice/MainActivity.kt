@@ -45,9 +45,6 @@ import javax.inject.Inject
 class MainActivity : ComponentActivity() {
 
     @Inject
-    lateinit var processState: ProcessState
-
-    @Inject
     @ApplicationScope
     lateinit var appScope: CoroutineScope
     private val viewModel: MainViewModel by viewModels()
@@ -94,9 +91,6 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
-        // track app process state
-        processState.isTaskAlive = true
 
         initNotificationChannel()
         checkForcedUpdate()
@@ -184,15 +178,6 @@ class MainActivity : ComponentActivity() {
                 if (exception.message?.contains("The app is not owned") == true) return@addOnFailureListener
                 logException(exception)
             }
-    }
-
-    override fun onStop() {
-        super.onStop()
-
-        // user closed app
-        if (isFinishing) {
-            processState.isTaskAlive = false
-        }
     }
 }
 
