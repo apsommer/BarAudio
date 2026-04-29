@@ -27,6 +27,7 @@ import com.google.android.play.core.appupdate.AppUpdateOptions
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.sommerengineering.signalvoice.navigation.MainNavigation
+import com.sommerengineering.signalvoice.speak.ForegroundSpeechService
 import com.sommerengineering.signalvoice.theme.AppTheme
 import com.sommerengineering.signalvoice.uitls.channelDescription
 import com.sommerengineering.signalvoice.uitls.channelGroupId
@@ -36,6 +37,8 @@ import com.sommerengineering.signalvoice.uitls.channelName
 import com.sommerengineering.signalvoice.uitls.logException
 import com.sommerengineering.signalvoice.uitls.logMessage
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -43,6 +46,10 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var processState: ProcessState
+
+    @Inject
+    @ApplicationScope
+    lateinit var appScope: CoroutineScope
     private val viewModel: MainViewModel by viewModels()
 
     val requestNotificationPermissionLauncher =
@@ -93,6 +100,14 @@ class MainActivity : ComponentActivity() {
 
         initNotificationChannel()
         checkForcedUpdate()
+
+        // start/stop speech service
+        appScope.launch {
+            viewModel.isMute.collect { isMute ->
+                if (!isMute) ForegroundSpeechService.start(this@MainActivity)
+                else ForegroundSpeechService.stop(this@MainActivity)
+            }
+        }
 
         // launch compose tree
         setContent {

@@ -130,6 +130,14 @@ class ForegroundSpeechService : Service() {
             .build()
     }
 
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        super.onTaskRemoved(rootIntent)
+
+        // stop service when user closes app (not system)
+        stopForeground(STOP_FOREGROUND_REMOVE) // removes notification
+        stopSelf() // kills service
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         serviceScope.cancel()
