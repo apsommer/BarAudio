@@ -1,4 +1,4 @@
-package com.sommerengineering.signalvoice
+package com.sommerengineering.signalvoice.subscription
 
 import android.content.Context
 import com.android.billingclient.api.AcknowledgePurchaseParams
@@ -17,6 +17,7 @@ import com.android.billingclient.api.QueryProductDetailsParams.Product
 import com.android.billingclient.api.QueryPurchasesParams
 import com.android.billingclient.api.acknowledgePurchase
 import com.android.billingclient.api.queryProductDetails
+import com.sommerengineering.signalvoice.MainActivity
 import com.sommerengineering.signalvoice.uitls.freeTrial
 import com.sommerengineering.signalvoice.uitls.logMessage
 import com.sommerengineering.signalvoice.uitls.productId
