@@ -1,6 +1,5 @@
 package com.sommerengineering.signalvoice
 
-import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -40,7 +39,6 @@ import com.sommerengineering.signalvoice.uitls.speedKey
 import com.sommerengineering.signalvoice.uitls.voiceNameKey
 import com.sommerengineering.signalvoice.uitls.webhookBaseUrl
 import com.sommerengineering.signalvoice.uitls.znStream
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -55,7 +53,6 @@ import kotlin.math.roundToInt
 
 @Singleton
 class MainRepository @Inject constructor(
-    @ApplicationContext val context: Context,
     @ApplicationScope val appScope: CoroutineScope,
     val tts: TextToSpeechImpl,
     val roomDb: RoomImpl,
@@ -125,15 +122,17 @@ class MainRepository @Inject constructor(
         }
 
     // mute
-    var isMute
-        get() = tts.isMute
-        set(value) {
-            tts.isMute = value
-            if (value && tts.isSpeaking()) {
-                tts.stop()
-            } // stop any current speech
-            writePreference(booleanPreferencesKey(isMuteKey), value)
+    private val _isMute = MutableStateFlow(false)
+    val isMute = _isMute.asStateFlow()
+
+    fun setMute(isMute: Boolean) {
+        tts.isMute = isMute
+        if (isMute && tts.isSpeaking()) { // stop any current speech
+            tts.stop()
         }
+        _isMute.value = isMute
+        writePreference(booleanPreferencesKey(isMuteKey), isMute)
+    }
 
     suspend fun speakMessage(message: Message) {
 
@@ -263,7 +262,7 @@ class MainRepository @Inject constructor(
                     ?: voice
         tts.speed = readPreference(floatPreferencesKey(speedKey)) ?: 1f
         tts.pitch = readPreference(floatPreferencesKey(pitchKey)) ?: 1f
-        tts.isMute = readPreference(booleanPreferencesKey(isMuteKey)) ?: false
+        setMute(readPreference(booleanPreferencesKey(isMuteKey)) ?: false)
     }
 
     fun signOut() =
@@ -369,7 +368,7 @@ class MainRepository @Inject constructor(
             // ensure voices are stable, can take 500 milliseconds on slow devices
             stabilizeVoices()
 
-            // finish tts engine with store preferences
+            // finish tts engine with stored preferences
             initTtsSettings()
             _isTtsReady.update { true }
         }

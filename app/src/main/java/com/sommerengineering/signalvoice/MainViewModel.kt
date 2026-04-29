@@ -92,13 +92,8 @@ class MainViewModel @Inject constructor(
     }
 
     // mute
-    var isMute by mutableStateOf(false)
-        private set
-
-    fun toggleMute() {
-        isMute = !isMute
-        repo.isMute = isMute
-    }
+    val isMute = repo.isMute
+    fun toggleMute() = repo.setMute(!isMute.value)
 
     fun speakUtterance(utterance: String) =
         viewModelScope.launch {
@@ -213,7 +208,6 @@ class MainViewModel @Inject constructor(
         // voices and voice exposed by tts engine after initialization
         speed = repo.speed
         pitch = repo.pitch
-        isMute = repo.isMute
         voiceDescription = beautifyVoiceName(repo.voice.name)
         speedDescription = repo.speed.toString()
         pitchDescription = repo.pitch.toString()
