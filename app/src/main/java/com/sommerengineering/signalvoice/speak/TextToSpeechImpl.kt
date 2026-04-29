@@ -7,7 +7,6 @@ import android.speech.tts.Voice
 import androidx.core.os.bundleOf
 import com.ibm.icu.text.RuleBasedNumberFormat
 import com.sommerengineering.signalvoice.uitls.RomanNumerals
-import com.sommerengineering.signalvoice.uitls.logMessage
 import com.sommerengineering.signalvoice.uitls.volumeKey
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -139,7 +138,6 @@ class TextToSpeechImpl @Inject constructor(
                     .format(number)
             }
 
-        logMessage("Spoken text\n$spokenText")
         return spokenText
     }
 }

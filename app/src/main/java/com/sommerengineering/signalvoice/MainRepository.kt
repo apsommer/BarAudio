@@ -305,28 +305,17 @@ class MainRepository @Inject constructor(
         }
     }
 
-    private var lastHydratedUid: String? = null
     private fun onAuth(
         auth: FirebaseAuth
     ) {
 
-        val uid = auth.currentUser?.uid
+        val uid = auth.currentUser?.uid ?: return
 
-        // prevent duplicate hydration
-        if (lastHydratedUid == uid) return
-        lastHydratedUid = uid
+        // associate uid with token, if needed
+        newToken?.let { token -> writeNewToken(token) }
+        webhookUrl = "$webhookBaseUrl$uid"
 
-        // authenticated
-        if (uid != null) {
-
-            // write new token to firebase database, if needed
-            newToken?.let { token -> writeNewToken(token) }
-
-            // set webhook url
-            webhookUrl = "$webhookBaseUrl$uid"
-        }
-
-        // cold start hydration sync of firebase to local room database (authenticated)
+        // cold start hydration sync of firebase to local room database
         firebaseDb.setUid(uid)
         appScope.launch { hydrateMessages() }
     }

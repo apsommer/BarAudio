@@ -356,5 +356,10 @@ class MainViewModel @Inject constructor(
                 }
             }
         }
+
+        // cold start hydration sync of firebase to local room database
+        viewModelScope.launch {
+            repo.hydrateMessages()
+        }
     }
 }

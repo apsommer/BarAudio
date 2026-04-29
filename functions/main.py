@@ -86,8 +86,9 @@ def signal(req: https_fn.Request) -> https_fn.Response:
     # send message to single device
     if uid:
 
-        # ensure user is authenticated
-        device_token = TOKENS_NODE.child(uid).get()
+        # ensure user is authenticated todo this is O(n) reverse lookup, refactor to O(1) with extra node
+        tokens = TOKENS_NODE.get() or {}
+        device_token = next((t for t, u in tokens.items() if u == uid), None)
         if device_token is None:
             return https_fn.Response(f'Sign-in to hear message')
 
@@ -132,7 +133,7 @@ def send_message_to_single_device(uid, device_token, timestamp, message, source)
 
     # send notification to single device
     try: messaging.send(notification)
-    except UnregisteredError: TOKENS_NODE.child(uid).delete() # delete token if unregistered (google test accounts)
+    except UnregisteredError: TOKENS_NODE.child(device_token).delete() # delete token if unregistered (google test accounts)
     except FirebaseError as error: print(f'Send to uid: {uid}, error: {error}')
 
 def write_stream_message_to_database(stream, timestamp, message):
