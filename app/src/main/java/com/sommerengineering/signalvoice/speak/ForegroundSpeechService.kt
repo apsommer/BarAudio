@@ -53,7 +53,7 @@ class ForegroundSpeechService : Service() {
 
         // handle stop service from button
         if (intent?.action == ACTION_STOP) {
-            repo.isMute = true
+            repo.setMute(true)
             stopForeground(STOP_FOREGROUND_REMOVE) // removes notification
             stopSelf() // kills service
             return START_NOT_STICKY
@@ -124,6 +124,9 @@ class ForegroundSpeechService : Service() {
             .setContentText(text) // collapsed
             .setStyle(NotificationCompat.BigTextStyle().bigText(text)) // expanded
             .addAction(0, "Mute", pendingStopIntent)
+            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+            .setOngoing(true)
+            .setDeleteIntent(pendingStopIntent)
             .build()
     }
 

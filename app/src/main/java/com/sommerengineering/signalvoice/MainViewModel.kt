@@ -20,7 +20,6 @@ import com.sommerengineering.signalvoice.onboarding.webhook.VerificationState.RE
 import com.sommerengineering.signalvoice.onboarding.webhook.VerificationState.WAITING
 import com.sommerengineering.signalvoice.onboarding.webhook.VerificationUiState
 import com.sommerengineering.signalvoice.source.Message
-import com.sommerengineering.signalvoice.speak.ForegroundSpeechService
 import com.sommerengineering.signalvoice.uitls.RomanNumerals
 import com.sommerengineering.signalvoice.uitls.screenFullDescription
 import com.sommerengineering.signalvoice.uitls.screenWindowedDescription
@@ -93,15 +92,8 @@ class MainViewModel @Inject constructor(
     }
 
     // mute
-    var isMute by mutableStateOf(false)
-        private set
-
-    fun toggleMute(context: Context) {
-        isMute = !isMute
-        repo.isMute = isMute
-        if (isMute) ForegroundSpeechService.stop(context)
-        else ForegroundSpeechService.start(context)
-    }
+    val isMute = repo.isMute
+    fun toggleMute() = repo.setMute(!isMute.value)
 
     fun speakUtterance(utterance: String) =
         viewModelScope.launch {
@@ -216,7 +208,6 @@ class MainViewModel @Inject constructor(
         // voices and voice exposed by tts engine after initialization
         speed = repo.speed
         pitch = repo.pitch
-        isMute = repo.isMute
         voiceDescription = beautifyVoiceName(repo.voice.name)
         speedDescription = repo.speed.toString()
         pitchDescription = repo.pitch.toString()

@@ -22,7 +22,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import com.sommerengineering.signalvoice.MainViewModel
 import com.sommerengineering.signalvoice.message.GroupHeaderItem
 import com.sommerengineering.signalvoice.message.MessageItem
@@ -41,8 +40,6 @@ fun MessagesScreen(
     onSignOut: () -> Unit,
     onLaunchWebhookOnboarding: () -> Unit
 ) {
-
-    val context = LocalContext.current
 
     // lazy column of messages
     val messages by viewModel.messages.collectAsState()
@@ -89,7 +86,7 @@ fun MessagesScreen(
                     viewModel = viewModel,
                     onSettingsClick = { coroutineScope.launch { drawerState.open() } },
                     onToggleFeedMode = { viewModel.toggleFeedMode() },
-                    onToggleMute = { viewModel.toggleMute(context) })
+                    onToggleMute = { viewModel.toggleMute() })
             }
         ) { padding ->
 
