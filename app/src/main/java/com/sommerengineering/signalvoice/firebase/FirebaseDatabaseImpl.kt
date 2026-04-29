@@ -19,16 +19,14 @@ import kotlin.coroutines.resume
 class FirebaseDatabaseImpl @Inject constructor() {
 
     private val db = Firebase.database(databaseUrl)
-    private lateinit var uid: String
+    private var uid: String? = null
 
     fun setUid(newUid: String) {
-        if (::uid.isInitialized && uid == newUid) return
+        if (uid == newUid) return
         uid = newUid
     }
 
-    // todo refactor this to one fetch method?
-
-    suspend fun fetchStreamMessages(stream: String): List<Message> =
+    suspend fun fetchStreamMessages(stream: String) =
         suspendCancellableCoroutine { continuation ->
             db.getReference(streamsNode)
                 .child(stream)
@@ -41,10 +39,14 @@ class FirebaseDatabaseImpl @Inject constructor() {
                 }.addOnFailureListener { continuation.resume(emptyList()) }
         }
 
-    suspend fun fetchUserMessages(): List<Message> =
-        suspendCancellableCoroutine { continuation ->
+    suspend fun fetchUserMessages(): List<Message> {
+
+        // guest user has no messages
+        val currentUid = uid ?: return emptyList()
+
+        return suspendCancellableCoroutine { continuation ->
             db.getReference(usersNode)
-                .child(uid)
+                .child(currentUid)
                 .get()
                 .addOnSuccessListener { snapshot ->
                     val messages = snapshot.children.mapNotNull {
@@ -53,6 +55,7 @@ class FirebaseDatabaseImpl @Inject constructor() {
                     continuation.resume(messages)
                 }.addOnFailureListener { continuation.resume(emptyList()) }
         }
+    }
 
     private fun DataSnapshot.toStreamMessage(stream: String): Message? {
 
@@ -73,8 +76,9 @@ class FirebaseDatabaseImpl @Inject constructor() {
         return Message(timestamp, message, null, source)
     }
 
-    fun writeToken(token: String) =
+    fun writeToken(newToken: String) {
         db.getReference(tokensNode)
-            .child(uid)
-            .setValue(token)
+            .child(newToken)
+            .setValue(uid ?: "")
+    }
 }

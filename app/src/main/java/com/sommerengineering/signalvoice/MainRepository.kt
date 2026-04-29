@@ -326,6 +326,7 @@ class MainRepository @Inject constructor(
     var newToken: String? = null
     fun onNewToken(token: String) {
         newToken = token
+        writeNewToken(token)
     }
 
     fun writeNewToken(token: String) {
