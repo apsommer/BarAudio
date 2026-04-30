@@ -29,7 +29,7 @@ TRENDSPIDER = '3.12.143.24'
 
 # configure notification
 BASE_CONFIG = messaging.AndroidConfig(
-    priority = 'high',  # 'normal' default, 'high' attempts to wake device in doze mode
+    priority = 'normal',  # 'normal' default, 'high' attempts to wake device in doze mode
     ttl = 0)  # ttl is 'time to live', 0 = 'now or never', '43200' = 12h, 86400 = 24h
 
 # time adjustments

@@ -1,7 +1,6 @@
 package com.sommerengineering.signalvoice.speak
 
 import android.app.Notification
-import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
@@ -10,7 +9,6 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.sommerengineering.signalvoice.MainRepository
 import com.sommerengineering.signalvoice.R
-import com.sommerengineering.signalvoice.uitls.TimestampFormatter
 import com.sommerengineering.signalvoice.uitls.channelId
 import com.sommerengineering.signalvoice.uitls.notificationId
 import dagger.hilt.android.AndroidEntryPoint
@@ -18,11 +16,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-private const val ACTION_STOP = "ACTION_STOP"
 
 @AndroidEntryPoint
 class ForegroundSpeechService : Service() {
@@ -51,20 +46,12 @@ class ForegroundSpeechService : Service() {
         startId: Int
     ): Int {
 
-        // handle stop service from button
-        if (intent?.action == ACTION_STOP) {
-            repo.setMute(true)
-            stopForeground(STOP_FOREGROUND_REMOVE) // removes notification
-            stopSelf() // kills service
-            return START_NOT_STICKY
-        }
-
         // dedupe, check if service already running
         if (isObserving) return START_STICKY
         isObserving = true
 
         // create initial notification
-        val waitingNotification = buildNotification("Listening for signals", "Waiting for activity")
+        val waitingNotification = buildNotification()
 
         // show notification
         startForeground(notificationId, waitingNotification)
@@ -72,27 +59,20 @@ class ForegroundSpeechService : Service() {
         // update notification and speak message
         serviceScope.launch {
 
-            val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-
-            // seed lastTimestamp with latest
-            val initialMessages = repo.messages.firstOrNull()
-            var lastTimestamp = initialMessages?.firstOrNull()?.timestamp
+            var lastTimestamp: String? = null
 
             repo.messages.collect { messages ->
 
-                // dedupe
+                // seed lastTimestamp with latest
                 val message = messages.firstOrNull() ?: return@collect
+                if (lastTimestamp == null) {
+                    lastTimestamp = message.timestamp
+                    return@collect
+                }
+
+                // dedupe
                 if (message.timestamp == lastTimestamp) return@collect
                 lastTimestamp = message.timestamp
-
-                // extract attributes
-                val beautifulTimestamp = TimestampFormatter.beautifyTime(message.timestamp)
-                val title = message.message
-
-                val messageNotification = buildNotification(title, beautifulTimestamp)
-
-                // update notification
-                manager.notify(notificationId, messageNotification)
 
                 // speak message
                 repo.speakMessage(message)
@@ -101,32 +81,28 @@ class ForegroundSpeechService : Service() {
         return START_STICKY
     }
 
-    private fun buildNotification(
-        title: String,
-        text: String
-    ): Notification {
+    private fun buildNotification(): Notification {
 
-        val stopIntent = Intent(this, ForegroundSpeechService::class.java).apply {
-            action = ACTION_STOP
+        // launch app when clicked
+        val launchIntent = packageManager.getLaunchIntentForPackage(packageName)
+        val pendingOpenAppIntent = launchIntent?.let {
+            PendingIntent.getActivity(
+                this,
+                0,
+                it,
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            )
         }
 
-        val pendingStopIntent = PendingIntent.getService(
-            this,
-            0,
-            stopIntent,
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        )
-
         return NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(R.drawable.monochrome) // status bar
-            .setColor(ContextCompat.getColor(this, R.color.app_blue))
-            .setContentTitle(title)
-            .setContentText(text) // collapsed
-            .setStyle(NotificationCompat.BigTextStyle().bigText(text)) // expanded
-            .addAction(0, "Mute", pendingStopIntent)
+            .setSmallIcon(R.drawable.dot)
+            .setColor(ContextCompat.getColor(this, R.color.app_green))
+            .setContentTitle("Listening for signals")
+            .setContentIntent(pendingOpenAppIntent)
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+            .setVisibility(NotificationCompat.VISIBILITY_SECRET)
+            .setOnlyAlertOnce(true)
             .setOngoing(true)
-            .setDeleteIntent(pendingStopIntent)
             .build()
     }
 

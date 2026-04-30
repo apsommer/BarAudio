@@ -66,8 +66,8 @@ class MainActivity : ComponentActivity() {
         val channel = NotificationChannel(
             channelId,
             channelName,
-            NotificationManager.IMPORTANCE_DEFAULT
-        ) // >= DEFAULT to show in status bar
+            NotificationManager.IMPORTANCE_LOW
+        )
 
         channel.description = channelDescription
         channel.group = channelGroupId
