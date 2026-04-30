@@ -19,6 +19,8 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+const val ACTION_DISMISS = "ACTION_DISMISS"
+
 @AndroidEntryPoint
 class ForegroundSpeechService : Service() {
 
@@ -45,6 +47,14 @@ class ForegroundSpeechService : Service() {
         flags: Int,
         startId: Int
     ): Int {
+
+        // stop service when dismissed
+        if (intent?.action == ACTION_DISMISS) {
+            repo.setMute(true)
+            stopForeground(STOP_FOREGROUND_REMOVE)
+            stopSelf()
+            return START_NOT_STICKY
+        }
 
         // dedupe, check if service already running
         if (isObserving) return START_STICKY
@@ -94,10 +104,25 @@ class ForegroundSpeechService : Service() {
             )
         }
 
+        // stop service when dismissed
+        val dismissIntent = Intent(
+            this,
+            ForegroundSpeechService::class.java
+        ).apply {
+            action = ACTION_DISMISS
+        }
+        val pendingDismissIntent = PendingIntent.getService(
+            this,
+            1,
+            dismissIntent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
         return NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.drawable.monochrome)
             .setContentTitle("Listening for signals")
             .setContentIntent(pendingOpenAppIntent)
+            .setDeleteIntent(pendingDismissIntent)
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
             .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
             .setOnlyAlertOnce(true)

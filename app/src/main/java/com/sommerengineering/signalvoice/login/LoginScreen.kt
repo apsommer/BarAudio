@@ -66,7 +66,7 @@ fun LoginScreen(
             onClick = { viewModel.signInWithGitHub(context, onAuthentication) })
 
         // guest login
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(24.dp))
         Text(
             text = "Continue as guest",
             color = MaterialTheme.colorScheme.primary.copy(0.9f),
