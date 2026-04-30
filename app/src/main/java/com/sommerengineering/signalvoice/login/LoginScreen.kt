@@ -54,7 +54,7 @@ fun LoginScreen(
         }
 
         // login buttons
-        Spacer(Modifier.height(72.dp))
+        Spacer(Modifier.height(48.dp))
         LoginButton(
             iconRes = R.drawable.google,
             iconRatio = 0.5f,

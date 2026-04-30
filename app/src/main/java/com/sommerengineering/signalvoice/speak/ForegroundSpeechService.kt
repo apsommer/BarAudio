@@ -95,12 +95,11 @@ class ForegroundSpeechService : Service() {
         }
 
         return NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(R.drawable.dot)
-            .setColor(ContextCompat.getColor(this, R.color.app_green))
+            .setSmallIcon(R.drawable.monochrome)
             .setContentTitle("Listening for signals")
             .setContentIntent(pendingOpenAppIntent)
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
-            .setVisibility(NotificationCompat.VISIBILITY_SECRET)
+            .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
             .setOnlyAlertOnce(true)
             .setOngoing(true)
             .build()
