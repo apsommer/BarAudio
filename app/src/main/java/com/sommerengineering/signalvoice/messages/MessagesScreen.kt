@@ -22,6 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import com.sommerengineering.signalvoice.MainViewModel
 import com.sommerengineering.signalvoice.message.GroupHeaderItem
 import com.sommerengineering.signalvoice.message.MessageItem
@@ -30,6 +31,7 @@ import com.sommerengineering.signalvoice.source.Message
 import com.sommerengineering.signalvoice.source.MessageGroup
 import com.sommerengineering.signalvoice.source.MessageOrigin
 import com.sommerengineering.signalvoice.source.resolveMessageOrigin
+import com.sommerengineering.signalvoice.speak.ForegroundSpeechService
 import com.sommerengineering.signalvoice.uitls.logMessage
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -40,6 +42,15 @@ fun MessagesScreen(
     onSignOut: () -> Unit,
     onLaunchWebhookOnboarding: () -> Unit
 ) {
+
+    // start/stop speech service
+    val context = LocalContext.current
+    LaunchedEffect(Unit) {
+        viewModel.isMute.collect { isMute ->
+            if (!isMute) ForegroundSpeechService.start(context)
+            else ForegroundSpeechService.stop(context)
+        }
+    }
 
     // lazy column of messages
     val messages by viewModel.messages.collectAsState()
