@@ -61,7 +61,7 @@ class MainRepository @Inject constructor(
 ) {
 
     // firebase authentication
-    lateinit var webhookUrl: String
+    var webhookUrl: String? = null
 
     // room database
     val messages = roomDb.messages
@@ -315,7 +315,14 @@ class MainRepository @Inject constructor(
         auth: FirebaseAuth
     ) {
 
-        val uid = auth.currentUser?.uid ?: return
+        val uid = auth.currentUser?.uid
+
+        // guest, or logout
+        if (uid == null) {
+            webhookUrl = null
+            firebaseDb.setUid(uid)
+            return
+        }
 
         // associate uid with token, if needed
         newToken?.let { token -> writeNewToken(token) }
