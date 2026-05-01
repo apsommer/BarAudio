@@ -46,8 +46,7 @@ class MainViewModel @Inject constructor(
 
     // session
     var session by mutableStateOf<Session>(Session.Guest)
-    val isAuthenticated = session is Session.Authenticated
-    val uid = (session as? Session.Authenticated)?.uid ?: ""
+        private set
 
     // room database
     val messages = repo.messages.stateIn(

@@ -7,7 +7,6 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.google.firebase.Firebase
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.messaging.FirebaseMessaging
 import com.sommerengineering.signalvoice.firebase.FirebaseDatabaseImpl
@@ -37,7 +36,6 @@ import com.sommerengineering.signalvoice.uitls.pitchKey
 import com.sommerengineering.signalvoice.uitls.siStream
 import com.sommerengineering.signalvoice.uitls.speedKey
 import com.sommerengineering.signalvoice.uitls.voiceNameKey
-import com.sommerengineering.signalvoice.uitls.webhookBaseUrl
 import com.sommerengineering.signalvoice.uitls.znStream
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -60,9 +58,6 @@ class MainRepository @Inject constructor(
     private val firebaseDb: FirebaseDatabaseImpl,
     private val dataStore: DataStore<Preferences>
 ) {
-
-    // firebase authentication
-    var webhookUrl: String? = null
 
     // room database
     val messages = roomDb.messages
@@ -312,33 +307,10 @@ class MainRepository @Inject constructor(
         }
     }
 
-    private fun onAuth(
-        auth: FirebaseAuth
-    ) {
-
-        val uid = auth.currentUser?.uid
-
-        // guest, or logout
-        if (uid == null) {
-            webhookUrl = null
-            firebaseDb.setUid(uid)
-            return
-        }
-
-        // associate uid with token, if needed
-        newToken?.let { token -> writeNewToken(token) }
-        webhookUrl = "$webhookBaseUrl$uid"
-
-        // cold start hydration sync of user signals: firebase to local db
-        firebaseDb.setUid(uid)
-        appScope.launch { hydrateUserMessages() }
-    }
-
     // firebase database (token)
     var newToken: String? = null
     fun onNewToken(token: String) {
         newToken = token
-        writeNewToken(token)
     }
 
     fun writeNewToken(token: String) {
@@ -373,20 +345,27 @@ class MainRepository @Inject constructor(
 
     init {
 
+        // observe session state
         appScope.launch {
+            sessionManager.session.collect {
+                val uid = (it as? Session.Authenticated)?.uid
+                firebaseDb.setUid(uid) // set uid from flow emission to avoid race
+                if (it is Session.Authenticated) {
+                    hydrateUserMessages() // cold start hydration of user messages
+                }
+                newToken?.let { token ->
+                    writeNewToken(token) // write new token, if needed
+                    newToken = null
+                }
+            }
+        }
 
-            // wait for system initialization of tts engine, takes a few milliseconds
-            isTtsInit.filter { it }.first()
-
-            // ensure voices are stable, can take 500 milliseconds on slow devices
-            stabilizeVoices()
-
-            // finish tts engine with stored preferences
+        // initialize tts engine
+        appScope.launch {
+            isTtsInit.filter { it }.first() // ~10 millis
+            stabilizeVoices() // ~500 millis todo remove this, solved a non-existent problem
             initTtsSettings()
             _isTtsReady.update { true }
         }
-
-        // wait for firebase to initialize to check auth state
-        FirebaseAuth.getInstance().addAuthStateListener { onAuth(it) }
     }
 }

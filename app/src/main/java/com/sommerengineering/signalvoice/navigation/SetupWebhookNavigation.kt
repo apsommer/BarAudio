@@ -7,6 +7,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import com.sommerengineering.signalvoice.MainViewModel
+import com.sommerengineering.signalvoice.Session
 import com.sommerengineering.signalvoice.onboarding.webhook.CopyWebhookScreen
 import com.sommerengineering.signalvoice.onboarding.webhook.PasteWebhookScreen
 import com.sommerengineering.signalvoice.onboarding.webhook.SignalVerificationScreen
@@ -31,22 +32,26 @@ fun NavGraphBuilder.SetupWebhookNavigation(
         // copy webhook
         composable(SetupOnboardingCopyWebhookRoute) {
 
-            // guest, navigate to login screen
-            if (!viewModel.isAuthenticated) {
-                LaunchedEffect(Unit) { onGuestSession() }
+            val session = viewModel.session
+
+            // authenticated, navigate to webhook setup onboarding
+            if (session is Session.Authenticated) {
+
+                val context = LocalContext.current
+                val webhookUrl = "$webhookBaseUrl${session.uid}"
+                
+                CopyWebhookScreen(
+                    webhookUrl = webhookUrl,
+                    onNextClick = {
+                        viewModel.copyWebhook(context, webhookUrl)
+                        controller.navigate(SetupOnboardingPasteWebhookRoute)
+                    }
+                )
                 return@composable
             }
 
-            // authenticated, navigate to webhook setup onboarding
-            val context = LocalContext.current
-            val webhookUrl = "$webhookBaseUrl${viewModel.uid}"
-            CopyWebhookScreen(
-                webhookUrl = webhookUrl,
-                onNextClick = {
-                    viewModel.copyWebhook(context, webhookUrl)
-                    controller.navigate(SetupOnboardingPasteWebhookRoute)
-                }
-            )
+            // guest, navigate to login screen
+            LaunchedEffect(Unit) { onGuestSession() }
         }
 
         // paste webhook
