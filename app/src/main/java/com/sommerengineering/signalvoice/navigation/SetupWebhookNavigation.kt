@@ -36,7 +36,7 @@ fun NavGraphBuilder.SetupWebhookNavigation(
             }
 
             CopyWebhookScreen(
-                webhookUrl = webhookUrl,
+                webhookUrl = webhookUrl!!, // todo temp
                 onNextClick = onNextClick
             )
         }
@@ -56,12 +56,6 @@ fun NavGraphBuilder.SetupWebhookNavigation(
         // signal armed (setup complete)
         composable(SetupOnboardingSignalArmedRoute) {
 
-            val onClose: () -> Unit = {
-                controller.popBackStack(
-                    route = SetupOnboardingRoute,
-                    inclusive = true
-                )
-            }
             SignalVerificationScreen(
                 viewModel = viewModel,
                 onClose = onClose

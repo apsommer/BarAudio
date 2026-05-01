@@ -9,7 +9,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class Authenticator @Inject constructor() {
+class SessionManager @Inject constructor() {
 
     private val auth = FirebaseAuth.getInstance()
 

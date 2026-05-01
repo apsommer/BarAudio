@@ -54,6 +54,7 @@ import kotlin.math.roundToInt
 @Singleton
 class MainRepository @Inject constructor(
     @ApplicationScope val appScope: CoroutineScope,
+    val sessionManager: SessionManager,
     val tts: TextToSpeechImpl,
     val roomDb: RoomImpl,
     val firebaseDb: FirebaseDatabaseImpl,
