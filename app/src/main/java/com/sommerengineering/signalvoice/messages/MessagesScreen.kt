@@ -1,5 +1,7 @@
 package com.sommerengineering.signalvoice.messages
 
+import android.content.Intent
+import android.provider.Settings
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,7 +25,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import com.sommerengineering.signalvoice.MainViewModel
+import com.sommerengineering.signalvoice.R
+import com.sommerengineering.signalvoice.Session.Authenticated
 import com.sommerengineering.signalvoice.message.GroupHeaderItem
 import com.sommerengineering.signalvoice.message.MessageItem
 import com.sommerengineering.signalvoice.settings.SettingsDrawer
@@ -32,7 +37,12 @@ import com.sommerengineering.signalvoice.source.MessageGroup
 import com.sommerengineering.signalvoice.source.MessageOrigin
 import com.sommerengineering.signalvoice.source.resolveMessageOrigin
 import com.sommerengineering.signalvoice.speak.ForegroundSpeechService
+import com.sommerengineering.signalvoice.uitls.emptyStateSubtitle
+import com.sommerengineering.signalvoice.uitls.emptyStateTitle
+import com.sommerengineering.signalvoice.uitls.guestEmptyStateSubtitle
 import com.sommerengineering.signalvoice.uitls.logMessage
+import com.sommerengineering.signalvoice.uitls.notificationsDisabledSubtitle
+import com.sommerengineering.signalvoice.uitls.notificationsDisabledTitle
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -40,8 +50,7 @@ import kotlinx.coroutines.launch
 fun MessagesScreen(
     viewModel: MainViewModel,
     onSignOut: () -> Unit,
-    onLaunchWebhookOnboarding: () -> Unit,
-    onNavigateToLogin: () -> Unit
+    onCustomSignalClick: () -> Unit,
 ) {
 
     // start/stop speech service
@@ -77,6 +86,9 @@ fun MessagesScreen(
         listState.scrollToItem(0)
     }
 
+    // session
+    val session = viewModel.session
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -84,8 +96,7 @@ fun MessagesScreen(
                 SettingsDrawer(
                     viewModel = viewModel,
                     onSignOut = onSignOut,
-                    onLaunchSetupOnboarding = onLaunchWebhookOnboarding,
-                    onNavigateToLogin = onNavigateToLogin
+                    onCustomSignalClick = onCustomSignalClick
                 )
             }
         },
@@ -112,20 +123,38 @@ fun MessagesScreen(
                 // messages
                 LazyColumn(state = listState) {
 
-                    // notification permission
+                    // notification card
                     if (!areNotificationsEnabled) {
                         item {
-                            NotificationsDisabledCard()
+                            InlineActionCard(
+                                iconRes = R.drawable.notifications,
+                                title = notificationsDisabledTitle,
+                                subTitle = notificationsDisabledSubtitle,
+                                onClick = {
+                                    context.startActivity(
+                                        Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                                            putExtra(
+                                                Settings.EXTRA_APP_PACKAGE,
+                                                context.packageName
+                                            )
+                                        }
+                                    )
+                                },
+                                titleWeight = FontWeight.Bold
+                            )
                         }
                     }
 
-                    // user signal empty state
+                    // user signal empty state card
                     if (isEmptyState) {
                         item {
-                            EmptyStateCard(
-                                viewModel = viewModel,
-                                onLaunchWebhookOnboarding = onLaunchWebhookOnboarding,
-                                onNavigateToLogin = onNavigateToLogin
+                            InlineActionCard(
+                                iconRes = R.drawable.webhook,
+                                title = emptyStateTitle,
+                                subTitle =
+                                    if (session is Authenticated) emptyStateSubtitle
+                                    else guestEmptyStateSubtitle,
+                                onClick = onCustomSignalClick,
                             )
                         }
                     }

@@ -64,8 +64,7 @@ import com.sommerengineering.signalvoice.uitls.voiceTitle
 fun SettingsDrawer(
     viewModel: MainViewModel,
     onSignOut: () -> Unit,
-    onLaunchSetupOnboarding: () -> Unit,
-    onNavigateToLogin: () -> Unit
+    onCustomSignalClick: () -> Unit
 ) {
 
     val context = LocalContext.current
@@ -253,9 +252,7 @@ fun SettingsDrawer(
                     description =
                         if (session is Authenticated) customDescription
                         else guestCustomDescription,
-                    onClick =
-                        if (session is Authenticated) onLaunchSetupOnboarding
-                        else onNavigateToLogin
+                    onClick = onCustomSignalClick
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.chevron),

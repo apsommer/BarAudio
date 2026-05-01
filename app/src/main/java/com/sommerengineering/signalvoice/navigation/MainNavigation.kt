@@ -8,6 +8,7 @@ import androidx.navigation.compose.rememberNavController
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.sommerengineering.signalvoice.MainViewModel
+import com.sommerengineering.signalvoice.Session
 import com.sommerengineering.signalvoice.login.LoginScreen
 import com.sommerengineering.signalvoice.messages.MessagesScreen
 import com.sommerengineering.signalvoice.uitls.AppOnboardingRoute
@@ -36,11 +37,17 @@ fun MainNavigation(
         if (isOnboardingComplete) MessagesRoute
         else AppOnboardingRoute
 
-    // guest session
-    val onNavigateToLogin = {
-        controller.navigate(LoginRoute) {
-            popUpTo(controller.graph.startDestinationId) {
-                inclusive = true
+    // guest navigation
+    val session = viewModel.session
+    val onCustomSignalClick: () -> Unit = {
+        when (session) {
+            is Session.Authenticated -> controller.navigate(SetupOnboardingRoute) // webhook onboarding
+            else -> {
+                controller.navigate(LoginRoute) { // login screen
+                    popUpTo(controller.graph.startDestinationId) {
+                        inclusive = true
+                    }
+                }
             }
         }
     }
@@ -78,10 +85,7 @@ fun MainNavigation(
                         popUpTo(MessagesRoute) { inclusive = true }
                     }
                 },
-                onLaunchWebhookOnboarding = {
-                    controller.navigate(SetupOnboardingRoute)
-                },
-                onNavigateToLogin = onNavigateToLogin
+                onCustomSignalClick = onCustomSignalClick
             )
         }
 
@@ -89,8 +93,7 @@ fun MainNavigation(
         SetupWebhookNavigation(
             controller = controller,
             viewModel = viewModel,
-            onClose = { controller.popBackStack() },
-            onNavigateToLogin = onNavigateToLogin
+            onClose = { controller.popBackStack() }
         )
     }
 }

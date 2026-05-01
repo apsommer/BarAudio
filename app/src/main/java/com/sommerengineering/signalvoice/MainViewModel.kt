@@ -23,6 +23,7 @@ import com.sommerengineering.signalvoice.source.Message
 import com.sommerengineering.signalvoice.uitls.RomanNumerals
 import com.sommerengineering.signalvoice.uitls.screenFullDescription
 import com.sommerengineering.signalvoice.uitls.screenWindowedDescription
+import com.sommerengineering.signalvoice.uitls.webhookBaseUrl
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -47,6 +48,8 @@ class MainViewModel @Inject constructor(
     // session
     var session by mutableStateOf<Session>(Session.Guest)
         private set
+    val webhookUrl
+        get() = webhookBaseUrl + (session as Session.Authenticated).uid
 
     // room database
     val messages = repo.messages.stateIn(
@@ -289,7 +292,6 @@ class MainViewModel @Inject constructor(
     // copy webhook
     fun copyWebhook(
         context: Context,
-        webhookUrl: String
     ) {
 
         // save url to clipboard
