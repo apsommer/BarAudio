@@ -54,11 +54,11 @@ import kotlin.math.roundToInt
 @Singleton
 class MainRepository @Inject constructor(
     @ApplicationScope val appScope: CoroutineScope,
-    val sessionManager: SessionManager,
-    val tts: TextToSpeechImpl,
-    val roomDb: RoomImpl,
-    val firebaseDb: FirebaseDatabaseImpl,
-    val dataStore: DataStore<Preferences>
+    private val sessionManager: SessionManager,
+    private val tts: TextToSpeechImpl,
+    private val roomDb: RoomImpl,
+    private val firebaseDb: FirebaseDatabaseImpl,
+    private val dataStore: DataStore<Preferences>
 ) {
 
     // firebase authentication

@@ -78,6 +78,13 @@ fun MainNavigation(
         SetupWebhookNavigation(
             controller = controller,
             viewModel = viewModel,
+            onGuestSession = {
+                controller.navigate(LoginRoute) {
+                    popUpTo(controller.graph.startDestinationId) {
+                        inclusive = true
+                    }
+                }
+            },
             onClose = { controller.popBackStack() })
     }
 }

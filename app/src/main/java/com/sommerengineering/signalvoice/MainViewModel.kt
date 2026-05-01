@@ -37,11 +37,17 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
+    private val sessionManager: SessionManager,
     private val repo: MainRepository,
     private val credentialManager: CredentialManager,
     private val googleAuthenticator: GoogleAuthenticator,
     private val gitHubAuthenticator: GitHubAuthenticator,
 ) : ViewModel() {
+
+    // session
+    var session by mutableStateOf<Session>(Session.Guest)
+    val isAuthenticated = session is Session.Authenticated
+    val uid = (session as? Session.Authenticated)?.uid ?: ""
 
     // room database
     val messages = repo.messages.stateIn(
@@ -282,9 +288,9 @@ class MainViewModel @Inject constructor(
     }
 
     // copy webhook
-    val webhookUrl get() = repo.webhookUrl
     fun copyWebhook(
-        context: Context
+        context: Context,
+        webhookUrl: String
     ) {
 
         // save url to clipboard
@@ -325,6 +331,13 @@ class MainViewModel @Inject constructor(
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
     init {
+
+        // observe session state
+        viewModelScope.launch {
+            sessionManager.session.collect {
+                session = it
+            }
+        }
 
         // load settings from preferences
         // block main thread is acceptable for datastore read ~3 ms each
