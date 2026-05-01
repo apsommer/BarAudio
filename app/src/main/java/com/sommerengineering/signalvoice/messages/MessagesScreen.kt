@@ -40,7 +40,8 @@ import kotlinx.coroutines.launch
 fun MessagesScreen(
     viewModel: MainViewModel,
     onSignOut: () -> Unit,
-    onLaunchWebhookOnboarding: () -> Unit
+    onLaunchWebhookOnboarding: () -> Unit,
+    onNavigateToLogin: () -> Unit
 ) {
 
     // start/stop speech service
@@ -83,7 +84,8 @@ fun MessagesScreen(
                 SettingsDrawer(
                     viewModel = viewModel,
                     onSignOut = onSignOut,
-                    onLaunchSetupOnboarding = onLaunchWebhookOnboarding
+                    onLaunchSetupOnboarding = onLaunchWebhookOnboarding,
+                    onNavigateToLogin = onNavigateToLogin
                 )
             }
         },
@@ -121,8 +123,10 @@ fun MessagesScreen(
                     if (isEmptyState) {
                         item {
                             EmptyStateCard(
-                                onLaunchWebhookOnboarding = { onLaunchWebhookOnboarding() },
-                                onDismiss = { viewModel.updateEmptyState(false) })
+                                viewModel = viewModel,
+                                onLaunchWebhookOnboarding = onLaunchWebhookOnboarding,
+                                onNavigateToLogin = onNavigateToLogin
+                            )
                         }
                     }
 

@@ -11,7 +11,6 @@ fun CopyWebhookScreen(
     webhookUrl: String,
     onNextClick: () -> Unit
 ) {
-    
 
     OnboardingScreen(
         title = onboardingCopyWebhookTitle,

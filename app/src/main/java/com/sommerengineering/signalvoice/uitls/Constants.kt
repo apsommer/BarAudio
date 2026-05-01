@@ -102,9 +102,10 @@ const val systemTtsDescription = "Install additional voices"
 const val systemTtsInstallVoicesAction = TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA
 const val streamsDividerTitle = "STREAMS"
 const val premiumDividerTitle = "PREMIUM"
-const val customTitle = "Custom signal"
 const val customDividerTitle = "CUSTOM"
+const val customTitle = "Custom signal"
 const val customDescription = "Webhook alerts"
+const val guestCustomDescription = "Sign in to set up webhooks"
 const val screenTitle = "Screen"
 const val screenFullDescription = "Full screen"
 const val screenWindowedDescription = "Show system bars"
@@ -113,6 +114,13 @@ const val manageSubscriptionTitle = "Manage subscription"
 const val manageSubscriptionDescription = "Billing and plan"
 const val signOutTitle = "Sign-out"
 const val signOutDescription = "End session"
+
+// cards
+const val emptyStateTitle = "Custom signal"
+const val emptyStateSubtitle = "Set up your webhook to receive alerts →"
+const val guestEmptyStateSubtitle = "Sign in to set up webhook →"
+const val notificationsDisabledTitle = "Notifications are off"
+const val notificationsDisabledSubtitle = "Enable notifications for real-time alerts"
 
 // images
 val loginButtonSize = 96.dp

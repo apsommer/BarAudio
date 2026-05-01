@@ -7,7 +7,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import com.sommerengineering.signalvoice.MainViewModel
-import com.sommerengineering.signalvoice.Session
+import com.sommerengineering.signalvoice.Session.Authenticated
 import com.sommerengineering.signalvoice.onboarding.webhook.CopyWebhookScreen
 import com.sommerengineering.signalvoice.onboarding.webhook.PasteWebhookScreen
 import com.sommerengineering.signalvoice.onboarding.webhook.SignalVerificationScreen
@@ -20,9 +20,11 @@ import com.sommerengineering.signalvoice.uitls.webhookBaseUrl
 fun NavGraphBuilder.SetupWebhookNavigation(
     controller: NavHostController,
     viewModel: MainViewModel,
-    onGuestSession: () -> Unit,
+    onNavigateToLogin: () -> Unit,
     onClose: () -> Unit
 ) {
+
+    val session = viewModel.session
 
     navigation(
         route = SetupOnboardingRoute,
@@ -32,14 +34,12 @@ fun NavGraphBuilder.SetupWebhookNavigation(
         // copy webhook
         composable(SetupOnboardingCopyWebhookRoute) {
 
-            val session = viewModel.session
-
             // authenticated, navigate to webhook setup onboarding
-            if (session is Session.Authenticated) {
+            if (session is Authenticated) {
 
                 val context = LocalContext.current
                 val webhookUrl = "$webhookBaseUrl${session.uid}"
-                
+
                 CopyWebhookScreen(
                     webhookUrl = webhookUrl,
                     onNextClick = {
@@ -51,7 +51,7 @@ fun NavGraphBuilder.SetupWebhookNavigation(
             }
 
             // guest, navigate to login screen
-            LaunchedEffect(Unit) { onGuestSession() }
+            LaunchedEffect(Unit) { onNavigateToLogin() }
         }
 
         // paste webhook

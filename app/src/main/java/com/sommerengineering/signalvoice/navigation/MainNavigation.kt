@@ -36,6 +36,15 @@ fun MainNavigation(
         if (isOnboardingComplete) MessagesRoute
         else AppOnboardingRoute
 
+    // guest session
+    val onNavigateToLogin = {
+        controller.navigate(LoginRoute) {
+            popUpTo(controller.graph.startDestinationId) {
+                inclusive = true
+            }
+        }
+    }
+
     NavHost(
         navController = controller,
         startDestination = startDestination
@@ -71,21 +80,18 @@ fun MainNavigation(
                 },
                 onLaunchWebhookOnboarding = {
                     controller.navigate(SetupOnboardingRoute)
-                })
+                },
+                onNavigateToLogin = onNavigateToLogin
+            )
         }
 
         // setup webhook onboarding
         SetupWebhookNavigation(
             controller = controller,
             viewModel = viewModel,
-            onGuestSession = {
-                controller.navigate(LoginRoute) {
-                    popUpTo(controller.graph.startDestinationId) {
-                        inclusive = true
-                    }
-                }
-            },
-            onClose = { controller.popBackStack() })
+            onClose = { controller.popBackStack() },
+            onNavigateToLogin = onNavigateToLogin
+        )
     }
 }
 

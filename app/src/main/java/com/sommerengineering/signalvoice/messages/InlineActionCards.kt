@@ -32,20 +32,35 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.sommerengineering.signalvoice.MainViewModel
 import com.sommerengineering.signalvoice.R
+import com.sommerengineering.signalvoice.Session.Authenticated
 import com.sommerengineering.signalvoice.uitls.appBlue
+import com.sommerengineering.signalvoice.uitls.emptyStateSubtitle
+import com.sommerengineering.signalvoice.uitls.emptyStateTitle
+import com.sommerengineering.signalvoice.uitls.guestEmptyStateSubtitle
+import com.sommerengineering.signalvoice.uitls.notificationsDisabledSubtitle
+import com.sommerengineering.signalvoice.uitls.notificationsDisabledTitle
 import com.sommerengineering.signalvoice.uitls.settingsIconSize
 
 @Composable
 fun EmptyStateCard(
+    viewModel: MainViewModel,
     onLaunchWebhookOnboarding: () -> Unit,
-    onDismiss: () -> Unit
+    onNavigateToLogin: () -> Unit
 ) {
 
+    val session = viewModel.session
+    val onDismiss = { viewModel.updateEmptyState(false) }
+
     InlineActionCard(
-        title = "Custom signal",
-        subtitle = "Set up your webhook to receive alerts →",
-        onClick = onLaunchWebhookOnboarding,
+        title = emptyStateTitle,
+        subtitle =
+            if (session is Authenticated) emptyStateSubtitle
+            else guestEmptyStateSubtitle,
+        onClick =
+            if (session is Authenticated) onLaunchWebhookOnboarding
+            else onNavigateToLogin,
         showClose = true,
         onDismiss = onDismiss,
         iconRes = R.drawable.webhook
@@ -54,7 +69,7 @@ fun EmptyStateCard(
 
 @Composable
 fun NotificationsDisabledCard() {
-    
+
     val context = LocalContext.current
     val onOpenSettings = {
         context.startActivity(
@@ -68,8 +83,8 @@ fun NotificationsDisabledCard() {
     }
 
     InlineActionCard(
-        title = "Notifications are off",
-        subtitle = "Enable notifications for real-time alerts",
+        title = notificationsDisabledTitle,
+        subtitle = notificationsDisabledSubtitle,
         onClick = onOpenSettings,
         iconRes = R.drawable.notifications,
         textStyle = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
@@ -116,7 +131,7 @@ fun InlineActionCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
-                // ICON (now actually used)
+                // icon
                 if (iconRes != null) {
                     Icon(
                         painter = painterResource(iconRes),
@@ -128,19 +143,17 @@ fun InlineActionCard(
                     Spacer(Modifier.width(12.dp))
                 }
 
+                // title, subtitle
                 Column(
                     modifier = Modifier.weight(1f)
                 ) {
-
                     Text(
                         text = title,
                         style = textStyle,
                         fontSize = 17.sp,
                         color = MaterialTheme.colorScheme.onSurface
                     )
-
                     Spacer(Modifier.height(6.dp))
-
                     Text(
                         text = subtitle,
                         style = MaterialTheme.typography.bodyMedium,
@@ -149,6 +162,7 @@ fun InlineActionCard(
                 }
             }
 
+            // close
             if (showClose && onDismiss != null) {
                 IconButton(
                     modifier = Modifier
