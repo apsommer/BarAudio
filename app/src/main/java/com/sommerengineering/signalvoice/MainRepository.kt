@@ -146,7 +146,15 @@ class MainRepository @Inject constructor(
                 message.message
             }
 
-        tts.speak(message.timestamp, spokenText)
+        tts.speakQueued(message.timestamp, spokenText)
+    }
+
+    suspend fun speakPreview(text: String) {
+
+        // ensure engine is ready
+        isTtsReady.filter { it }.first()
+
+        tts.speakImmediate(text)
     }
 
     // onboarding

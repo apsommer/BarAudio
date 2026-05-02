@@ -113,12 +113,7 @@ class MainViewModel @Inject constructor(
 
     fun speakUtterance(utterance: String) =
         viewModelScope.launch {
-            repo.speakMessage(
-                Message(
-                    timestamp = System.currentTimeMillis().toString(),
-                    message = utterance, null, null
-                )
-            )
+            repo.speakPreview(utterance)
         }
 
     fun speakMessage(message: Message) =

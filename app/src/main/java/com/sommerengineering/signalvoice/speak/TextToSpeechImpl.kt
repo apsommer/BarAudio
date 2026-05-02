@@ -71,27 +71,24 @@ class TextToSpeechImpl @Inject constructor(
     fun isSpeaking() = _textToSpeech.isSpeaking
     fun stop() = _textToSpeech.stop()
 
-    suspend fun speak(
+    suspend fun speakQueued(
         timestamp: String,
         message: String
     ) = suspendCancellableCoroutine { continuation ->
 
-        // cancel on service destruction, etc
-        continuation.invokeOnCancellation { _textToSpeech.stop() }
-
         // listen to speech progress
         val listener = object : UtteranceProgressListener() {
-            override fun onDone(id: String?) {
-                if (id != timestamp || !continuation.isActive) return
-                continuation.resume(Unit)
-            }
-
-            override fun onError(id: String?) {
-                if (id != timestamp || !continuation.isActive) return
-                continuation.resume(Unit)
-            }
 
             override fun onStart(id: String?) = Unit
+
+            // cancel coroutine on completion, error, or stop
+            override fun onDone(id: String?) = finishCoroutine(id)
+            override fun onStop(id: String?, interrupted: Boolean) = finishCoroutine(id)
+            override fun onError(id: String?) = finishCoroutine(id)
+            private fun finishCoroutine(id: String?) {
+                if (id != timestamp || !continuation.isActive) return
+                continuation.resume(Unit)
+            }
         }
 
         _textToSpeech.setOnUtteranceProgressListener(listener)
@@ -104,6 +101,14 @@ class TextToSpeechImpl @Inject constructor(
             timestamp
         )
     }
+
+    fun speakImmediate(utterance: String) =
+        _textToSpeech.speak(
+            normalizeMessage(utterance),
+            TextToSpeech.QUEUE_FLUSH,
+            bundleOf(volumeKey to 1f),
+            System.currentTimeMillis().toString()
+        )
 
     override fun onInit(status: Int) {
         if (status != TextToSpeech.SUCCESS) return
