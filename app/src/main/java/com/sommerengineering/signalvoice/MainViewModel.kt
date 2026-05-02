@@ -273,11 +273,27 @@ class MainViewModel @Inject constructor(
         _notificationPermissionResult.tryEmit(Unit)
     }
 
+    private var wasNotificationsEnabled: Boolean? = null
     fun updateNotificationsEnabled(enabled: Boolean) {
+
+        // previous notification permission
+        val wasEnabled = wasNotificationsEnabled
+        wasNotificationsEnabled = enabled
+
+        // update state
         areNotificationsEnabled = enabled
-        if (!enabled) { // only force off to retain stored preference
+
+        // always enforce off
+        if (!enabled) {
             repo.setListening(false)
+            return
         }
+
+        // first app launch, resume into stored preference
+        if (wasEnabled == null) return
+
+        // auto recover for transition off -> on
+        if (!wasEnabled) repo.setListening(true)
     }
 
     fun launchSystemNotificationSettings(context: Context) {
