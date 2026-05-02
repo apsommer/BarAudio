@@ -5,9 +5,11 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -18,6 +20,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.sommerengineering.signalvoice.R
 import com.sommerengineering.signalvoice.theme.fontFamily
 import com.sommerengineering.signalvoice.uitls.assetIconSize
 import com.sommerengineering.signalvoice.uitls.settingsIconSize
@@ -25,7 +28,8 @@ import com.sommerengineering.signalvoice.uitls.settingsIconSize
 @Composable
 fun OriginIcon(
     messageOrigin: MessageOrigin,
-    isSettings: Boolean = false
+    isSettings: Boolean = false,
+    isLocked: Boolean = kotlin.random.Random.nextBoolean()
 ) {
 
     val style = messageOrigin.style
@@ -42,51 +46,93 @@ fun OriginIcon(
         else style.accent.copy(alpha = 0.4f)
 
     Box(
-        modifier = Modifier
-            .size(size)
-            .clip(CircleShape)
-            .background(textIconBackground)
-            .border(
-                width = 1.dp,
-                color = borderColor,
-                shape = CircleShape
-            ),
-        contentAlignment = Alignment.Center
+        modifier = Modifier.size(size),
     ) {
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .clip(CircleShape)
+                .background(textIconBackground)
+                .border(
+                    width = 1.dp,
+                    color = borderColor,
+                    shape = CircleShape
+                ),
+            contentAlignment = Alignment.Center
+        ) {
 
-        // drawable icon
-        if (style.iconRes != null) {
-            Icon(
-                painter = painterResource(style.iconRes),
-                contentDescription = null,
-                tint = Color.Unspecified,
-                modifier = Modifier.fillMaxSize()
-            )
-        }
-
-        // text icon (NQ: "100", ES: "500", ...)
-        else {
-
-            val iconText = style.iconText ?: return@Box
-
-            // adjust text spacing
-            val fontSize = if (isSettings) 11.sp else 12.sp
-            val letterSpacing = if (iconText == "100") (-0.2).sp else (-0.5).sp
-            val modifier = when (iconText) {
-                "100" -> Modifier.offset(x = (-0.5).dp)
-                "500" -> Modifier.offset(x = 0.3.dp)
-                else -> Modifier
+            // drawable icon
+            if (style.iconRes != null) {
+                Icon(
+                    painter = painterResource(style.iconRes),
+                    contentDescription = null,
+                    tint = Color.Unspecified,
+                    modifier = Modifier.fillMaxSize()
+                )
             }
 
-            Text(
-                text = iconText,
-                color = style.text,
-                fontSize = fontSize,
-                fontWeight = FontWeight.Bold,
-                fontFamily = fontFamily,
-                letterSpacing = letterSpacing,
-                modifier = modifier
-            )
+            // text icon (NQ: "100", ES: "500", ...)
+            else {
+
+                val iconText = style.iconText ?: return@Box
+
+                // adjust text spacing
+                val fontSize = if (isSettings) 11.sp else 12.sp
+                val letterSpacing = if (iconText == "100") (-0.2).sp else (-0.5).sp
+                val modifier = when (iconText) {
+                    "100" -> Modifier.offset(x = (-0.5).dp)
+                    "500" -> Modifier.offset(x = 0.3.dp)
+                    else -> Modifier
+                }
+
+                Text(
+                    text = iconText,
+                    color = style.text,
+                    fontSize = fontSize,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = fontFamily,
+                    letterSpacing = letterSpacing,
+                    modifier = modifier
+                )
+            }
+        }
+
+        // lock badge
+        if (isLocked) {
+
+            val badgeSize = 12.dp
+            val badgePadding = 2.dp
+
+            // accommodate inherent vector padding from emoji conversion
+            val offset = badgeSize * 0.14f + badgePadding
+
+            Box(
+                modifier = Modifier
+                    .size(badgeSize)
+                    .align(Alignment.BottomEnd)
+                    .offset(x = offset, y = badgePadding)
+            ) {
+
+                // halo
+                Box(
+                    Modifier
+                        .matchParentSize()
+                        .background(
+                            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
+                            shape = CircleShape
+                        )
+                )
+
+                // lock
+                Icon(
+                    painter = painterResource(R.drawable.lock),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .matchParentSize()
+                        .padding(badgePadding),
+                    tint = Color.White.copy(alpha = 0.8f)
+                )
+            }
         }
     }
 }
