@@ -69,20 +69,25 @@ class ForegroundSpeechService : Service() {
         // update notification and speak message
         serviceScope.launch {
 
-            var lastTimestamp: String? = null
+            var lastTimestamp: Long? = null
 
             repo.messages.collect { messages ->
 
-                // seed lastTimestamp with latest
+                // parse latest message
                 val message = messages.firstOrNull() ?: return@collect
+                val timestamp = message.timestamp.toLong()
+
+                // ensure message is recent
                 if (lastTimestamp == null) {
-                    lastTimestamp = message.timestamp
-                    return@collect
+
+                    val now = System.currentTimeMillis()
+                    val isRecent = now - timestamp < 60_000
+                    if (!isRecent) return@collect
                 }
 
                 // dedupe
-                if (message.timestamp == lastTimestamp) return@collect
-                lastTimestamp = message.timestamp
+                if (timestamp == lastTimestamp) return@collect
+                lastTimestamp = timestamp
 
                 // speak message
                 repo.speakMessage(message)
