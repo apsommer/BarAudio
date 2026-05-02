@@ -25,7 +25,6 @@ import com.sommerengineering.signalvoice.R
 import com.sommerengineering.signalvoice.theme.monospacedFontFamily
 import com.sommerengineering.signalvoice.uitls.appBlue
 import com.sommerengineering.signalvoice.uitls.edgePadding
-import com.sommerengineering.signalvoice.uitls.logMessage
 
 @Composable
 fun WebhookUrlCard(
@@ -38,7 +37,6 @@ fun WebhookUrlCard(
         .replace("com-", "com\n-")
         .replace("signalvoice.", "signalvoice\n.")
         .replace("/signal?", "/signal?\n")
-    logMessage(formattedUrl)
 
     Column(
         modifier = Modifier

@@ -40,7 +40,6 @@ import com.sommerengineering.signalvoice.speak.ForegroundSpeechService
 import com.sommerengineering.signalvoice.uitls.emptyStateSubtitle
 import com.sommerengineering.signalvoice.uitls.emptyStateTitle
 import com.sommerengineering.signalvoice.uitls.guestEmptyStateSubtitle
-import com.sommerengineering.signalvoice.uitls.logMessage
 import com.sommerengineering.signalvoice.uitls.notificationsDisabledSubtitle
 import com.sommerengineering.signalvoice.uitls.notificationsDisabledTitle
 import kotlinx.coroutines.flow.first
@@ -124,8 +123,9 @@ fun MessagesScreen(
                 LazyColumn(state = listState) {
 
                     // notification card
-                    if (!areNotificationsEnabled) {
-                        item {
+                    item(key = areNotificationsEnabled) {
+                        if (!areNotificationsEnabled) {
+
                             InlineActionCard(
                                 iconRes = R.drawable.notifications,
                                 title = notificationsDisabledTitle,
@@ -142,6 +142,7 @@ fun MessagesScreen(
                                 },
                                 titleWeight = FontWeight.Bold
                             )
+
                         }
                     }
 
@@ -166,7 +167,6 @@ fun MessagesScreen(
                             itemsIndexed(
                                 items = messages,
                                 key = { _, it -> it.timestamp }) { index, message ->
-                                logMessage(message.message)
                                 MessageItem(
                                     viewModel = viewModel,
                                     message = message,

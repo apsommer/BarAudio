@@ -17,7 +17,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.core.app.NotificationManagerCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -106,21 +105,22 @@ class MainActivity : ComponentActivity() {
 
     fun areNotificationsEnabled(): Boolean {
 
+        // query system for notification and channel
         val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         val channel = manager.getNotificationChannel(channelId)
-
         val areNotificationsEnabled = manager.areNotificationsEnabled()
                 && channel.importance > NotificationManager.IMPORTANCE_NONE
-
         return areNotificationsEnabled
     }
 
-    override fun onResume() {
-        super.onResume()
-        viewModel.updateNotificationsEnabled(areNotificationsEnabled())
-        NotificationManagerCompat.from(this).cancelAll()
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) {
+            logMessage("onFocus: " + areNotificationsEnabled().toString())
+            viewModel.updateNotificationsEnabled(areNotificationsEnabled())
+        }
     }
-
+    
     private fun applyFullScreen(
         isFullScreen: Boolean
     ) {

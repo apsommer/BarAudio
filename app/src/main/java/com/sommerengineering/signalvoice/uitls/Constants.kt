@@ -26,7 +26,7 @@ const val roomDatabaseName = "messages.db"
 
 // firebase database
 const val databaseUrl = "https://signalvoice-api-default-rtdb.firebaseio.com/"
-const val webhookBaseUrl = "..."
+const val webhookBaseUrl = "https://us-central1-signalvoice-api.cloudfunctions.net/signal/"
 const val streamsNode = "streams"
 const val usersNode = "users"
 const val tokensNode = "tokens"
@@ -38,7 +38,6 @@ const val channelDescription = "Real-time trading alerts"
 const val channelGroupId = "42"
 const val channelGroupName = "Alerts"
 const val notificationId = 42
-const val notificationKey = "notification"
 const val streamKey = "stream"
 const val uidKey = "uid"
 const val timestampKey = "timestamp"
