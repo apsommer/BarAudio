@@ -2,6 +2,7 @@ package com.sommerengineering.signalvoice.source
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
@@ -29,7 +30,7 @@ import com.sommerengineering.signalvoice.uitls.settingsIconSize
 fun OriginIcon(
     messageOrigin: MessageOrigin,
     isSettings: Boolean = false,
-    isLocked: Boolean = kotlin.random.Random.nextBoolean()
+    onLockedClick: (() -> Unit)? = null
 ) {
 
     val style = messageOrigin.style
@@ -45,8 +46,16 @@ fun OriginIcon(
         if (isSettings) style.accent.copy(alpha = 0.4f)
         else style.accent.copy(alpha = 0.4f)
 
+    // locked status: show lock badge and make icon clickable
+    val isLocked = onLockedClick != null
+    val clickableModifier =
+        if (isLocked) Modifier.clickable { onLockedClick() }
+        else Modifier
+
     Box(
-        modifier = Modifier.size(size),
+        modifier = Modifier
+            .size(size)
+            .then(clickableModifier)
     ) {
         Box(
             modifier = Modifier
