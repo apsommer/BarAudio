@@ -55,8 +55,8 @@ fun MessagesScreen(
     // start/stop speech service
     val context = LocalContext.current
     LaunchedEffect(Unit) {
-        viewModel.isMute.collect { isMute ->
-            if (!isMute) ForegroundSpeechService.start(context)
+        viewModel.isListening.collect { enabled ->
+            if (enabled) ForegroundSpeechService.start(context)
             else ForegroundSpeechService.stop(context)
         }
     }
@@ -86,7 +86,7 @@ fun MessagesScreen(
 
         // wait for any ongoing scroll to finish
         snapshotFlow { listState.isScrollInProgress }.first { !it }
-        
+
         // new message arrives
         if (!isCardVisible && isUserNearTop) {
             listState.scrollToItem(0)
@@ -122,7 +122,7 @@ fun MessagesScreen(
                     viewModel = viewModel,
                     onSettingsClick = { coroutineScope.launch { drawerState.open() } },
                     onToggleFeedMode = { viewModel.toggleFeedMode() },
-                    onToggleMute = { viewModel.toggleMute() })
+                    onToggleListening = { viewModel.toggleListening() })
             }
         ) { padding ->
 

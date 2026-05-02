@@ -26,7 +26,7 @@ import com.sommerengineering.signalvoice.uitls.isBTCKey
 import com.sommerengineering.signalvoice.uitls.isESKey
 import com.sommerengineering.signalvoice.uitls.isFullScreenKey
 import com.sommerengineering.signalvoice.uitls.isGCKey
-import com.sommerengineering.signalvoice.uitls.isMuteKey
+import com.sommerengineering.signalvoice.uitls.isListeningKey
 import com.sommerengineering.signalvoice.uitls.isNQKey
 import com.sommerengineering.signalvoice.uitls.isSIKey
 import com.sommerengineering.signalvoice.uitls.isZNKey
@@ -119,17 +119,17 @@ class MainRepository @Inject constructor(
             writePreference(floatPreferencesKey(pitchKey), roundedPitch)
         }
 
-    // mute
-    private val _isMute = MutableStateFlow(false)
-    val isMute = _isMute.asStateFlow()
+    // listening
+    private val _isListening = MutableStateFlow(false)
+    val isListening = _isListening.asStateFlow()
 
-    fun setMute(isMute: Boolean) {
-        tts.isMute = isMute
-        if (isMute && tts.isSpeaking()) { // stop any current speech
+    fun setListening(enabled: Boolean) {
+        tts.isMute = !enabled
+        if (!enabled && tts.isSpeaking()) { // stop any current speech
             tts.stop()
         }
-        _isMute.value = isMute
-        writePreference(booleanPreferencesKey(isMuteKey), isMute)
+        _isListening.value = enabled
+        writePreference(booleanPreferencesKey(isListeningKey), enabled)
     }
 
     suspend fun speakMessage(message: Message) {
@@ -260,7 +260,7 @@ class MainRepository @Inject constructor(
                     ?: voice
         tts.speed = readPreference(floatPreferencesKey(speedKey)) ?: 1f
         tts.pitch = readPreference(floatPreferencesKey(pitchKey)) ?: 1f
-        setMute(readPreference(booleanPreferencesKey(isMuteKey)) ?: false)
+        setListening(readPreference(booleanPreferencesKey(isListeningKey)) ?: true)
     }
 
     fun signOut() {

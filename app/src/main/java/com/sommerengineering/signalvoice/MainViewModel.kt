@@ -99,9 +99,9 @@ class MainViewModel @Inject constructor(
         pitchDescription = repo.pitch.toString()
     }
 
-    // mute
-    val isMute = repo.isMute
-    fun toggleMute() = repo.setMute(!isMute.value)
+    // listening
+    val isListening = repo.isListening
+    fun toggleListening() = repo.setListening(!isListening.value)
 
     fun speakUtterance(utterance: String) =
         viewModelScope.launch {

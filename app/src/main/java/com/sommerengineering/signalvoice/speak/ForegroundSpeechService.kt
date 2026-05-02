@@ -50,7 +50,7 @@ class ForegroundSpeechService : Service() {
 
         // stop service when dismissed
         if (intent?.action == ACTION_DISMISS) {
-            repo.setMute(true)
+            repo.setListening(false)
             stopForeground(STOP_FOREGROUND_REMOVE)
             stopSelf()
             return START_NOT_STICKY

@@ -43,12 +43,12 @@ fun MessagesTopBar(
     viewModel: MainViewModel,
     onSettingsClick: () -> Unit,
     onToggleFeedMode: () -> Unit,
-    onToggleMute: () -> Unit
+    onToggleListening: () -> Unit
 ) {
 
     val isFullScreen = viewModel.isFullScreen
     val feedMode = viewModel.feedMode
-    val isMute by viewModel.isMute.collectAsState()
+    val isListening by viewModel.isListening.collectAsState()
 
     // full screen toggles logo size to accommodate notches/cutouts
     val basePadding = rowHorizontalPadding / 2
@@ -108,18 +108,18 @@ fun MessagesTopBar(
         // listening
         AppBarIcon(
             iconRes =
-                if (isMute) R.drawable.listening_off
+                if (isListening) R.drawable.listening_off
                 else R.drawable.listening_on,
             iconTint =
-                if (!isMute) appGreen()
+                if (!isListening) appGreen()
                 else MaterialTheme.colorScheme.onSurface.copy(0.6f),
             backgroundColor =
-                if (!isMute) appGreen().copy(alpha = 0.15f)
+                if (!isListening) appGreen().copy(alpha = 0.15f)
                 else appGreen().copy(alpha = 0.04f),
             borderColor =
-                if (!isMute) appGreen().copy(alpha = 0.4f)
+                if (!isListening) appGreen().copy(alpha = 0.4f)
                 else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f),
-            onClick = onToggleMute
+            onClick = onToggleListening
         )
     }
 }
