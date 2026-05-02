@@ -124,7 +124,7 @@ def send_message_to_single_device(uid, device_token, timestamp, message, source)
     # construct notification
     notification = messaging.Message(
         data = {
-            'uid': uid,
+            'uid': uid, # todo remove? source implies user message, only use is "different user same device"?
             'timestamp': str(timestamp),
             'message': message,
             'source': source},

@@ -1,4 +1,4 @@
-package com.sommerengineering.signalvoice.subscription
+package com.sommerengineering.signalvoice.premium
 
 import android.content.Context
 import com.android.billingclient.api.AcknowledgePurchaseParams

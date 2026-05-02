@@ -7,7 +7,6 @@ import android.speech.tts.Voice
 import androidx.core.os.bundleOf
 import com.ibm.icu.text.RuleBasedNumberFormat
 import com.sommerengineering.signalvoice.uitls.RomanNumerals
-import com.sommerengineering.signalvoice.uitls.volumeKey
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,6 +16,8 @@ import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.resume
+
+const val volumeKey = TextToSpeech.Engine.KEY_PARAM_VOLUME
 
 @Singleton
 class TextToSpeechImpl @Inject constructor(

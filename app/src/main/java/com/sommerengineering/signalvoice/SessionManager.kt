@@ -3,9 +3,9 @@ package com.sommerengineering.signalvoice
 import com.google.firebase.auth.FirebaseAuth
 import com.sommerengineering.signalvoice.Session.Authenticated
 import com.sommerengineering.signalvoice.Session.Guest
+import com.sommerengineering.signalvoice.premium.EntitlementRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -14,7 +14,8 @@ import javax.inject.Singleton
 
 @Singleton
 class SessionManager @Inject constructor(
-    @ApplicationScope private val appScope: CoroutineScope
+    @ApplicationScope private val appScope: CoroutineScope,
+    private val repo: EntitlementRepository
 ) {
 
     private val auth = FirebaseAuth.getInstance()
@@ -66,24 +67,37 @@ class SessionManager @Inject constructor(
             uid = uid,
             isPremium = false
         )
-        
+
+        // check premium entitlement
         entitlementJob = appScope.launch {
 
-            // todo simulate network delay
-            delay(1000)
-            val isPremium = true
+            // load entitlement from cache
+            var isPremium = repo.loadPremium(uid)
+            updateSession(uid, isPremium)
 
-            val current = _session.value
+            // fetch entitlement from network
+            isPremium = repo.fetchEntitlement(uid)
+            updateSession(uid, isPremium)
 
-            // prevent race: validate session still active, and same user
-            if (current !is Authenticated) return@launch
-            if (current.uid != uid) return@launch
-
-            // update session with premium entitlement
-            _session.value = current.copy(
-                isPremium = isPremium
-            )
+            // persist entitlement
+            repo.updatePremium(uid, isPremium)
         }
+    }
+
+    private fun updateSession(
+        uid: String,
+        isPremium: Boolean
+    ) {
+
+        val current = _session.value
+
+        // prevent race: validate session still active, and same user
+        if (current !is Authenticated) return
+        if (current.uid != uid) return
+
+        _session.value = current.copy(
+            isPremium = isPremium
+        )
     }
 }
 

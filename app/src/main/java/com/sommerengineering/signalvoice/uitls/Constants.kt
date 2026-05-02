@@ -38,6 +38,8 @@ const val channelDescription = "Real-time trading alerts"
 const val channelGroupId = "42"
 const val channelGroupName = "Alerts"
 const val notificationId = 42
+
+// firebase keys
 const val streamKey = "stream"
 const val uidKey = "uid"
 const val timestampKey = "timestamp"
@@ -66,24 +68,6 @@ const val SetupOnboardingRoute = "SetupOnboarding"
 const val SetupOnboardingCopyWebhookRoute = "SetupOnboardingCopyWebhook"
 const val SetupOnboardingPasteWebhookRoute = "SetupOnboardingPasteWebhook"
 const val SetupOnboardingSignalArmedRoute = "SetupOnboardingSignalArmed"
-
-// datastore
-const val localCache = "localCache"
-const val onboardingKey = "onboarding"
-const val emptyStateKey = "emptyState"
-const val voiceNameKey = "voice"
-const val speedKey = "speed"
-const val pitchKey = "pitch"
-const val isListeningKey = "isListeningKey"
-const val isFullScreenKey = "isFullScreen"
-const val volumeKey = TextToSpeech.Engine.KEY_PARAM_VOLUME
-const val feedModeKey = "feedMode"
-const val isZNKey = "isZN"
-const val isNQKey = "isNQ"
-const val isESKey = "isES"
-const val isBTCKey = "isBTC"
-const val isGCKey = "isGC"
-const val isSIKey = "isSI"
 
 // billing
 const val productId = "subscription" // match play store config

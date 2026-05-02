@@ -1,8 +1,5 @@
 package com.sommerengineering.signalvoice
 
-import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.datastore.preferences.core.floatPreferencesKey
-import androidx.datastore.preferences.core.stringPreferencesKey
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.messaging.FirebaseMessaging
@@ -15,24 +12,10 @@ import com.sommerengineering.signalvoice.source.resolveMessageOrigin
 import com.sommerengineering.signalvoice.speak.TextToSpeechImpl
 import com.sommerengineering.signalvoice.uitls.btcStream
 import com.sommerengineering.signalvoice.uitls.defaultVoice
-import com.sommerengineering.signalvoice.uitls.emptyStateKey
 import com.sommerengineering.signalvoice.uitls.esStream
-import com.sommerengineering.signalvoice.uitls.feedModeKey
 import com.sommerengineering.signalvoice.uitls.gcStream
-import com.sommerengineering.signalvoice.uitls.isBTCKey
-import com.sommerengineering.signalvoice.uitls.isESKey
-import com.sommerengineering.signalvoice.uitls.isFullScreenKey
-import com.sommerengineering.signalvoice.uitls.isGCKey
-import com.sommerengineering.signalvoice.uitls.isListeningKey
-import com.sommerengineering.signalvoice.uitls.isNQKey
-import com.sommerengineering.signalvoice.uitls.isSIKey
-import com.sommerengineering.signalvoice.uitls.isZNKey
 import com.sommerengineering.signalvoice.uitls.nqStream
-import com.sommerengineering.signalvoice.uitls.onboardingKey
-import com.sommerengineering.signalvoice.uitls.pitchKey
 import com.sommerengineering.signalvoice.uitls.siStream
-import com.sommerengineering.signalvoice.uitls.speedKey
-import com.sommerengineering.signalvoice.uitls.voiceNameKey
 import com.sommerengineering.signalvoice.uitls.znStream
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -95,7 +78,7 @@ class MainRepository @Inject constructor(
         get() = tts.voice
         set(value) {
             tts.voice = value
-            appScope.launch { prefs.write(stringPreferencesKey(voiceNameKey), value.name) }
+            appScope.launch { prefs.write(VOICE_NAME, value.name) }
         }
 
     // speed
@@ -104,7 +87,7 @@ class MainRepository @Inject constructor(
         set(value) {
             val roundedSpeed = ((value * 10).roundToInt()).toFloat() / 10
             tts.speed = roundedSpeed
-            appScope.launch { prefs.write(floatPreferencesKey(speedKey), roundedSpeed) }
+            appScope.launch { prefs.write(SPEED, roundedSpeed) }
         }
 
     // pitch
@@ -113,7 +96,7 @@ class MainRepository @Inject constructor(
         set(value) {
             val roundedPitch = ((value * 10).roundToInt()).toFloat() / 10
             tts.pitch = roundedPitch
-            appScope.launch { prefs.write(floatPreferencesKey(pitchKey), roundedPitch) }
+            appScope.launch { prefs.write(PITCH, roundedPitch) }
         }
 
     // listening
@@ -126,7 +109,7 @@ class MainRepository @Inject constructor(
             tts.stop()
         }
         _isListening.value = enabled
-        appScope.launch { prefs.write(booleanPreferencesKey(isListeningKey), enabled) }
+        appScope.launch { prefs.write(LISTENING, enabled) }
     }
 
     suspend fun speakMessage(message: Message) {
@@ -155,70 +138,70 @@ class MainRepository @Inject constructor(
 
     // onboarding
     suspend fun loadOnboarding() =
-        prefs.read(booleanPreferencesKey(onboardingKey)) ?: false
+        prefs.read(ONBOARDING) ?: false
 
     fun updateOnboarding(enabled: Boolean) =
-        appScope.launch { prefs.write(booleanPreferencesKey(onboardingKey), enabled) }
+        appScope.launch { prefs.write(ONBOARDING, enabled) }
 
     // user signal empty state
     suspend fun loadEmptyState() =
-        prefs.read(booleanPreferencesKey(emptyStateKey)) ?: true
+        prefs.read(EMPTY_STATE) ?: true
 
     fun updateEmptyState(enabled: Boolean) =
-        appScope.launch { prefs.write(booleanPreferencesKey(emptyStateKey), enabled) }
+        appScope.launch { prefs.write(EMPTY_STATE, enabled) }
 
     // stream ZN
     suspend fun loadZN() =
-        prefs.read(booleanPreferencesKey(isZNKey)) ?: true
+        prefs.read(ZN) ?: true
 
     fun updateZN(enabled: Boolean) {
         syncStream(znStream, enabled)
-        appScope.launch { prefs.write(booleanPreferencesKey(isZNKey), enabled) }
+        appScope.launch { prefs.write(ZN, enabled) }
     }
 
     // stream NQ
     suspend fun loadNQ() =
-        prefs.read(booleanPreferencesKey(isNQKey)) ?: true
+        prefs.read(NQ) ?: true
 
     fun updateNQ(enabled: Boolean) {
         syncStream(nqStream, enabled)
-        appScope.launch { prefs.write(booleanPreferencesKey(isNQKey), enabled) }
+        appScope.launch { prefs.write(NQ, enabled) }
     }
 
     // stream BTC
     suspend fun loadBTC() =
-        prefs.read(booleanPreferencesKey(isBTCKey)) ?: true
+        prefs.read(BTC) ?: true
 
     fun updateBTC(enabled: Boolean) {
         syncStream(btcStream, enabled)
-        appScope.launch { prefs.write(booleanPreferencesKey(isBTCKey), enabled) }
+        appScope.launch { prefs.write(BTC, enabled) }
     }
 
     // stream ES
     suspend fun loadES() =
-        prefs.read(booleanPreferencesKey(isESKey)) ?: true
+        prefs.read(ES) ?: true
 
     fun updateES(enabled: Boolean) {
         syncStream(esStream, enabled)
-        appScope.launch { prefs.write(booleanPreferencesKey(isESKey), enabled) }
+        appScope.launch { prefs.write(ES, enabled) }
     }
 
     // stream GC
     suspend fun loadGC() =
-        prefs.read(booleanPreferencesKey(isGCKey)) ?: true
+        prefs.read(GC) ?: true
 
     fun updateGC(enabled: Boolean) {
         syncStream(gcStream, enabled)
-        appScope.launch { prefs.write(booleanPreferencesKey(isGCKey), enabled) }
+        appScope.launch { prefs.write(GC, enabled) }
     }
 
     // stream SI
     suspend fun loadSI() =
-        prefs.read(booleanPreferencesKey(isSIKey)) ?: true
+        prefs.read(SI) ?: true
 
     fun updateSI(enabled: Boolean) {
         syncStream(siStream, enabled)
-        appScope.launch { prefs.write(booleanPreferencesKey(isSIKey), enabled) }
+        appScope.launch { prefs.write(SI, enabled) }
     }
 
     // sync stream with firebase/room
@@ -242,29 +225,29 @@ class MainRepository @Inject constructor(
 
     // feed mode
     suspend fun loadFeedMode(): FeedMode {
-        val saved = prefs.read(stringPreferencesKey(feedModeKey))
+        val saved = prefs.read(FEED_MODE)
         return FeedMode.entries.firstOrNull { it.name == saved } ?: FeedMode.Linear
     }
 
     fun updateFeedMode(feedMode: FeedMode) =
-        appScope.launch { prefs.write(stringPreferencesKey(feedModeKey), feedMode.name) }
+        appScope.launch { prefs.write(FEED_MODE, feedMode.name) }
 
     // full screen
     suspend fun loadFullScreen() =
-        prefs.read(booleanPreferencesKey(isFullScreenKey)) ?: false
+        prefs.read(FULLSCREEN) ?: false
 
     fun updateFullScreen(enabled: Boolean) =
-        appScope.launch { prefs.write(booleanPreferencesKey(isFullScreenKey), enabled) }
+        appScope.launch { prefs.write(FULLSCREEN, enabled) }
 
     suspend fun initTtsSettings() {
 
-        tts.voice = prefs.read(stringPreferencesKey(voiceNameKey))
+        tts.voice = prefs.read(VOICE_NAME)
             ?.let { preference -> voices.firstOrNull { it.name == preference } }
             ?: voices.firstOrNull { it.name == defaultVoice }
                     ?: voice
-        tts.speed = prefs.read(floatPreferencesKey(speedKey)) ?: 1f
-        tts.pitch = prefs.read(floatPreferencesKey(pitchKey)) ?: 1f
-        setListening(prefs.read(booleanPreferencesKey(isListeningKey)) ?: true)
+        tts.speed = prefs.read(SPEED) ?: 1f
+        tts.pitch = prefs.read(PITCH) ?: 1f
+        setListening(prefs.read(LISTENING) ?: true)
     }
 
     fun signOut() {

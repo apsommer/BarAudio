@@ -4,11 +4,9 @@ import android.content.Context
 import androidx.credentials.CredentialManager
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.preferencesDataStore
 import androidx.room.Room
 import com.sommerengineering.signalvoice.room.MessageDao
 import com.sommerengineering.signalvoice.room.MessageDatabase
-import com.sommerengineering.signalvoice.uitls.localCache
 import com.sommerengineering.signalvoice.uitls.roomDatabaseName
 import dagger.Module
 import dagger.Provides
@@ -69,5 +67,3 @@ object SingletonModule {
         return db.messageDao()
     }
 }
-
-val Context.dataStore by preferencesDataStore(localCache)

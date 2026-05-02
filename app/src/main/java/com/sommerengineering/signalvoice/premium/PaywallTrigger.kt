@@ -1,4 +1,4 @@
-package com.sommerengineering.signalvoice.subscription
+package com.sommerengineering.signalvoice.premium
 
 enum class PaywallTrigger {
     LOCKED_MESSAGE_TAP,
