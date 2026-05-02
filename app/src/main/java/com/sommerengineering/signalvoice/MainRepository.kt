@@ -1,9 +1,6 @@
 package com.sommerengineering.signalvoice
 
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.google.firebase.Firebase
@@ -56,7 +53,7 @@ class MainRepository @Inject constructor(
     private val tts: TextToSpeechImpl,
     private val roomDb: RoomImpl,
     private val firebaseDb: FirebaseDatabaseImpl,
-    private val dataStore: DataStore<Preferences>
+    private val prefs: PreferenceStore
 ) {
 
     // room database
@@ -98,7 +95,7 @@ class MainRepository @Inject constructor(
         get() = tts.voice
         set(value) {
             tts.voice = value
-            writePreference(stringPreferencesKey(voiceNameKey), value.name)
+            appScope.launch { prefs.write(stringPreferencesKey(voiceNameKey), value.name) }
         }
 
     // speed
@@ -107,7 +104,7 @@ class MainRepository @Inject constructor(
         set(value) {
             val roundedSpeed = ((value * 10).roundToInt()).toFloat() / 10
             tts.speed = roundedSpeed
-            writePreference(floatPreferencesKey(speedKey), roundedSpeed)
+            appScope.launch { prefs.write(floatPreferencesKey(speedKey), roundedSpeed) }
         }
 
     // pitch
@@ -116,7 +113,7 @@ class MainRepository @Inject constructor(
         set(value) {
             val roundedPitch = ((value * 10).roundToInt()).toFloat() / 10
             tts.pitch = roundedPitch
-            writePreference(floatPreferencesKey(pitchKey), roundedPitch)
+            appScope.launch { prefs.write(floatPreferencesKey(pitchKey), roundedPitch) }
         }
 
     // listening
@@ -129,7 +126,7 @@ class MainRepository @Inject constructor(
             tts.stop()
         }
         _isListening.value = enabled
-        writePreference(booleanPreferencesKey(isListeningKey), enabled)
+        appScope.launch { prefs.write(booleanPreferencesKey(isListeningKey), enabled) }
     }
 
     suspend fun speakMessage(message: Message) {
@@ -153,76 +150,75 @@ class MainRepository @Inject constructor(
 
         // ensure engine is ready
         isTtsReady.filter { it }.first()
-
         tts.speakImmediate(text)
     }
 
     // onboarding
     suspend fun loadOnboarding() =
-        readPreference(booleanPreferencesKey(onboardingKey)) ?: false
+        prefs.read(booleanPreferencesKey(onboardingKey)) ?: false
 
     fun updateOnboarding(enabled: Boolean) =
-        writePreference(booleanPreferencesKey(onboardingKey), enabled)
+        appScope.launch { prefs.write(booleanPreferencesKey(onboardingKey), enabled) }
 
     // user signal empty state
     suspend fun loadEmptyState() =
-        readPreference(booleanPreferencesKey(emptyStateKey)) ?: true
+        prefs.read(booleanPreferencesKey(emptyStateKey)) ?: true
 
     fun updateEmptyState(enabled: Boolean) =
-        writePreference(booleanPreferencesKey(emptyStateKey), enabled)
+        appScope.launch { prefs.write(booleanPreferencesKey(emptyStateKey), enabled) }
 
     // stream ZN
     suspend fun loadZN() =
-        readPreference(booleanPreferencesKey(isZNKey)) ?: true
+        prefs.read(booleanPreferencesKey(isZNKey)) ?: true
 
     fun updateZN(enabled: Boolean) {
         syncStream(znStream, enabled)
-        writePreference(booleanPreferencesKey(isZNKey), enabled)
+        appScope.launch { prefs.write(booleanPreferencesKey(isZNKey), enabled) }
     }
 
     // stream NQ
     suspend fun loadNQ() =
-        readPreference(booleanPreferencesKey(isNQKey)) ?: true
+        prefs.read(booleanPreferencesKey(isNQKey)) ?: true
 
     fun updateNQ(enabled: Boolean) {
         syncStream(nqStream, enabled)
-        writePreference(booleanPreferencesKey(isNQKey), enabled)
+        appScope.launch { prefs.write(booleanPreferencesKey(isNQKey), enabled) }
     }
 
     // stream BTC
     suspend fun loadBTC() =
-        readPreference(booleanPreferencesKey(isBTCKey)) ?: true
+        prefs.read(booleanPreferencesKey(isBTCKey)) ?: true
 
     fun updateBTC(enabled: Boolean) {
         syncStream(btcStream, enabled)
-        writePreference(booleanPreferencesKey(isBTCKey), enabled)
+        appScope.launch { prefs.write(booleanPreferencesKey(isBTCKey), enabled) }
     }
 
     // stream ES
     suspend fun loadES() =
-        readPreference(booleanPreferencesKey(isESKey)) ?: true
+        prefs.read(booleanPreferencesKey(isESKey)) ?: true
 
     fun updateES(enabled: Boolean) {
         syncStream(esStream, enabled)
-        writePreference(booleanPreferencesKey(isESKey), enabled)
+        appScope.launch { prefs.write(booleanPreferencesKey(isESKey), enabled) }
     }
 
     // stream GC
     suspend fun loadGC() =
-        readPreference(booleanPreferencesKey(isGCKey)) ?: true
+        prefs.read(booleanPreferencesKey(isGCKey)) ?: true
 
     fun updateGC(enabled: Boolean) {
         syncStream(gcStream, enabled)
-        writePreference(booleanPreferencesKey(isGCKey), enabled)
+        appScope.launch { prefs.write(booleanPreferencesKey(isGCKey), enabled) }
     }
 
     // stream SI
     suspend fun loadSI() =
-        readPreference(booleanPreferencesKey(isSIKey)) ?: true
+        prefs.read(booleanPreferencesKey(isSIKey)) ?: true
 
     fun updateSI(enabled: Boolean) {
         syncStream(siStream, enabled)
-        writePreference(booleanPreferencesKey(isSIKey), enabled)
+        appScope.launch { prefs.write(booleanPreferencesKey(isSIKey), enabled) }
     }
 
     // sync stream with firebase/room
@@ -246,29 +242,29 @@ class MainRepository @Inject constructor(
 
     // feed mode
     suspend fun loadFeedMode(): FeedMode {
-        val saved = readPreference(stringPreferencesKey(feedModeKey))
+        val saved = prefs.read(stringPreferencesKey(feedModeKey))
         return FeedMode.entries.firstOrNull { it.name == saved } ?: FeedMode.Linear
     }
 
     fun updateFeedMode(feedMode: FeedMode) =
-        writePreference(stringPreferencesKey(feedModeKey), feedMode.name)
+        appScope.launch { prefs.write(stringPreferencesKey(feedModeKey), feedMode.name) }
 
     // full screen
     suspend fun loadFullScreen() =
-        readPreference(booleanPreferencesKey(isFullScreenKey)) ?: false
+        prefs.read(booleanPreferencesKey(isFullScreenKey)) ?: false
 
     fun updateFullScreen(enabled: Boolean) =
-        writePreference(booleanPreferencesKey(isFullScreenKey), enabled)
+        appScope.launch { prefs.write(booleanPreferencesKey(isFullScreenKey), enabled) }
 
     suspend fun initTtsSettings() {
 
-        tts.voice = readPreference(stringPreferencesKey(voiceNameKey))
+        tts.voice = prefs.read(stringPreferencesKey(voiceNameKey))
             ?.let { preference -> voices.firstOrNull { it.name == preference } }
             ?: voices.firstOrNull { it.name == defaultVoice }
                     ?: voice
-        tts.speed = readPreference(floatPreferencesKey(speedKey)) ?: 1f
-        tts.pitch = readPreference(floatPreferencesKey(pitchKey)) ?: 1f
-        setListening(readPreference(booleanPreferencesKey(isListeningKey)) ?: true)
+        tts.speed = prefs.read(floatPreferencesKey(speedKey)) ?: 1f
+        tts.pitch = prefs.read(floatPreferencesKey(pitchKey)) ?: 1f
+        setListening(prefs.read(booleanPreferencesKey(isListeningKey)) ?: true)
     }
 
     fun signOut() {
@@ -335,19 +331,6 @@ class MainRepository @Inject constructor(
         firebaseDb.writeToken(token)
     }
 
-    // preference data store
-    suspend fun <T> readPreference(
-        key: Preferences.Key<T>
-    ): T? =
-        dataStore.data.first()[key]
-
-    fun <T> writePreference(
-        key: Preferences.Key<T>,
-        value: T
-    ) =
-        appScope.launch {
-            dataStore.edit { it[key] = value }
-        }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
