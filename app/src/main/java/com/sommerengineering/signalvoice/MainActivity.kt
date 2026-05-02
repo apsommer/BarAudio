@@ -115,10 +115,8 @@ class MainActivity : ComponentActivity() {
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
-        if (hasFocus) {
-            logMessage("onFocus: " + areNotificationsEnabled().toString())
-            viewModel.updateNotificationsEnabled(areNotificationsEnabled())
-        }
+        if (!hasFocus) return
+        viewModel.updateNotificationsEnabled(areNotificationsEnabled())
     }
     
     private fun applyFullScreen(

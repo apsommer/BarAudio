@@ -78,11 +78,24 @@ fun MessagesScreen(
     val groups = remember(messages) { groupMessages(messages) }
     val expandedGroups = remember(feedMode) { mutableStateMapOf<MessageOrigin, Boolean>() }
 
-    // scroll to latest when user at top of list
-    LaunchedEffect(messages.size) {
-        if (listState.firstVisibleItemIndex > 1) return@LaunchedEffect
-        snapshotFlow { listState.isScrollInProgress }.first { !it } // wait for compose internal scroll
-        listState.scrollToItem(0)
+    // scroll to latest: user at top of list or inline card appears
+    LaunchedEffect(messages.size, areNotificationsEnabled, isEmptyState) {
+
+        val isCardVisible = !areNotificationsEnabled || isEmptyState
+        val isUserNearTop = listState.firstVisibleItemIndex <= 1
+
+        // wait for any ongoing scroll to finish
+        snapshotFlow { listState.isScrollInProgress }.first { !it }
+        
+        // new message arrives
+        if (!isCardVisible && isUserNearTop) {
+            listState.scrollToItem(0)
+        }
+
+        // card appears
+        if (isCardVisible && listState.firstVisibleItemIndex > 0) {
+            listState.animateScrollToItem(0)
+        }
     }
 
     // session
@@ -123,41 +136,37 @@ fun MessagesScreen(
                 LazyColumn(state = listState) {
 
                     // notification card
-                    item(key = areNotificationsEnabled) {
-                        if (!areNotificationsEnabled) {
-
-                            InlineActionCard(
-                                iconRes = R.drawable.notifications,
-                                title = notificationsDisabledTitle,
-                                subTitle = notificationsDisabledSubtitle,
-                                onClick = {
-                                    context.startActivity(
-                                        Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
-                                            putExtra(
-                                                Settings.EXTRA_APP_PACKAGE,
-                                                context.packageName
-                                            )
-                                        }
-                                    )
-                                },
-                                titleWeight = FontWeight.Bold
-                            )
-
-                        }
+                    item {
+                        InlineActionCard(
+                            iconRes = R.drawable.notifications,
+                            title = notificationsDisabledTitle,
+                            subTitle = notificationsDisabledSubtitle,
+                            visible = !areNotificationsEnabled,
+                            onClick = {
+                                context.startActivity(
+                                    Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                                        putExtra(
+                                            Settings.EXTRA_APP_PACKAGE,
+                                            context.packageName
+                                        )
+                                    }
+                                )
+                            },
+                            titleWeight = FontWeight.Bold
+                        )
                     }
 
                     // user signal empty state card
-                    if (isEmptyState) {
-                        item {
-                            InlineActionCard(
-                                iconRes = R.drawable.webhook,
-                                title = emptyStateTitle,
-                                subTitle =
-                                    if (session is Authenticated) emptyStateSubtitle
-                                    else guestEmptyStateSubtitle,
-                                onClick = onCustomSignalClick,
-                            )
-                        }
+                    item {
+                        InlineActionCard(
+                            iconRes = R.drawable.webhook,
+                            title = emptyStateTitle,
+                            subTitle =
+                                if (session is Authenticated) emptyStateSubtitle
+                                else guestEmptyStateSubtitle,
+                            onClick = onCustomSignalClick,
+                            visible = isEmptyState
+                        )
                     }
 
                     when (feedMode) {
