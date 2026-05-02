@@ -255,7 +255,7 @@ class MainViewModel @Inject constructor(
     // notifications
     var hasRequestedNotificationPermission by mutableStateOf(false)
         private set
-    var areNotificationsEnabled by mutableStateOf(false)
+    var areNotificationsEnabled by mutableStateOf(true)
         private set
     private val _notificationPermissionResult = MutableSharedFlow<Unit>(
         extraBufferCapacity = 1

@@ -102,8 +102,8 @@ const val signOutDescription = "End session"
 const val emptyStateTitle = "Custom signal"
 const val emptyStateSubtitle = "Set up your webhook to receive alerts →"
 const val guestEmptyStateSubtitle = "Sign in to set up webhook →"
-const val notificationsDisabledTitle = "Notifications are off"
-const val notificationsDisabledSubtitle = "Enable notifications for real-time alerts"
+const val notificationsDisabledTitle = "Signals are paused"
+const val notificationsDisabledSubtitle = "Enable notifications for real-time voice alerts"
 
 // images
 val loginButtonSize = 96.dp
