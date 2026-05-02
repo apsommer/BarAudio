@@ -1,7 +1,5 @@
 package com.sommerengineering.signalvoice.messages
 
-import android.content.Intent
-import android.provider.Settings
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -122,7 +120,7 @@ fun MessagesScreen(
                     viewModel = viewModel,
                     onSettingsClick = { coroutineScope.launch { drawerState.open() } },
                     onToggleFeedMode = { viewModel.toggleFeedMode() },
-                    onToggleListening = { viewModel.toggleListening() })
+                    onToggleListening = { viewModel.toggleListening(context) })
             }
         ) { padding ->
 
@@ -142,16 +140,7 @@ fun MessagesScreen(
                             title = notificationsDisabledTitle,
                             subTitle = notificationsDisabledSubtitle,
                             visible = !areNotificationsEnabled,
-                            onClick = {
-                                context.startActivity(
-                                    Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
-                                        putExtra(
-                                            Settings.EXTRA_APP_PACKAGE,
-                                            context.packageName
-                                        )
-                                    }
-                                )
-                            },
+                            onClick = { viewModel.launchSystemNotificationSettings(context) },
                             titleWeight = FontWeight.Bold
                         )
                     }

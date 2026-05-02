@@ -108,16 +108,16 @@ fun MessagesTopBar(
         // listening
         AppBarIcon(
             iconRes =
-                if (isListening) R.drawable.listening_off
-                else R.drawable.listening_on,
+                if (isListening) R.drawable.listening_on
+                else R.drawable.listening_off,
             iconTint =
-                if (!isListening) appGreen()
+                if (isListening) appGreen()
                 else MaterialTheme.colorScheme.onSurface.copy(0.6f),
             backgroundColor =
-                if (!isListening) appGreen().copy(alpha = 0.15f)
+                if (isListening) appGreen().copy(alpha = 0.15f)
                 else appGreen().copy(alpha = 0.04f),
             borderColor =
-                if (!isListening) appGreen().copy(alpha = 0.4f)
+                if (isListening) appGreen().copy(alpha = 0.4f)
                 else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f),
             onClick = onToggleListening
         )

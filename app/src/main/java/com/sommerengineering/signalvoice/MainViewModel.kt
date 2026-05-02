@@ -4,6 +4,8 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
+import android.content.Intent
+import android.provider.Settings
 import android.speech.tts.Voice
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -101,7 +103,13 @@ class MainViewModel @Inject constructor(
 
     // listening
     val isListening = repo.isListening
-    fun toggleListening() = repo.setListening(!isListening.value)
+    fun toggleListening(context: Context) {
+        if (!areNotificationsEnabled) {
+            launchSystemNotificationSettings(context)
+            return
+        }
+        repo.setListening(!isListening.value)
+    }
 
     fun speakUtterance(utterance: String) =
         viewModelScope.launch {
@@ -267,6 +275,20 @@ class MainViewModel @Inject constructor(
 
     fun updateNotificationsEnabled(enabled: Boolean) {
         areNotificationsEnabled = enabled
+        if (!enabled) { // only force off to retain stored preference
+            repo.setListening(false)
+        }
+    }
+
+    fun launchSystemNotificationSettings(context: Context) {
+        context.startActivity(
+            Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                putExtra(
+                    Settings.EXTRA_APP_PACKAGE,
+                    context.packageName
+                )
+            }
+        )
     }
 
     // beautiful voice names

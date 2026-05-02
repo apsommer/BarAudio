@@ -120,7 +120,7 @@ class MainRepository @Inject constructor(
         }
 
     // listening
-    private val _isListening = MutableStateFlow(false)
+    private val _isListening = MutableStateFlow(true)
     val isListening = _isListening.asStateFlow()
 
     fun setListening(enabled: Boolean) {
