@@ -133,7 +133,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.process)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
-    implementation(libs.icu4j)
 
     ksp(libs.hilt.compiler)
     ksp(libs.kotlin.metadata)
