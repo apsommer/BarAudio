@@ -32,23 +32,31 @@ fun MessageItemUi(
     beautifulTimestamp: String,
     timestamp: String,
     backgroundColor: Color,
-    onClick: () -> Unit,
-    onLongPress: () -> Unit,
+    onClick: (() -> Unit)?,
+    onLongPress: (() -> Unit)?,
     style: MessageItemStyle,
     origin: MessageOrigin,
     isExpanded: Boolean,
     isShowDivider: Boolean
 ) {
 
+    // supress ripple in onboarding presentation
+    val clickableModifier =
+        if (onClick != null || onLongPress != null) {
+            Modifier.combinedClickable(
+                onClick = onClick ?: {},
+                onLongClick = onLongPress ?: {}
+            )
+        } else {
+            Modifier
+        }
+
     Column {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(IntrinsicSize.Min) // required for collapse/expand animation
-                .combinedClickable(
-                    onClick = onClick,
-                    onLongClick = onLongPress
-                )
+                .then(clickableModifier)
                 .animateContentSize(tween(messageItemExpansionTimeMillis))
                 .background(backgroundColor)
                 .padding(horizontal = rowHorizontalPadding),
@@ -68,7 +76,6 @@ fun MessageItemUi(
                 CollapsedMessageItem(
                     displayText = displayText,
                     beautifulTimestamp = beautifulTimestamp,
-                    isShowAsset = true,
                     modifier = modifier
                 )
             }
@@ -80,7 +87,6 @@ fun MessageItemUi(
                     displayText = displayText,
                     beautifulTimestamp = beautifulTimestamp,
                     timestamp = timestamp,
-                    isShowAsset = true,
                     modifier = modifier
                 )
 

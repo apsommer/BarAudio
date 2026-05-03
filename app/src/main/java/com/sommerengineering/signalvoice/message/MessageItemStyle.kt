@@ -10,6 +10,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
 import com.sommerengineering.signalvoice.source.MessageOrigin
+import com.sommerengineering.signalvoice.source.assetDisplayNames
 
 data class MessageItemStyle(
     val primary: Color,
@@ -32,13 +33,15 @@ fun resolveMessageStyle(
 @Composable
 fun buildStyledMessage(
     displayText: String,
-    isShowAsset: Boolean,
 ): AnnotatedString {
 
     // (Asset) • Event • Variable message that may include numbers • Variable message that may include numbers
 
     // split message into parts
-    val parts = displayText.split(" • ")
+    val parts = displayText.split("•").map { it.trim() }
+
+    // determine if first part is asset name
+    val isShowAsset = parts.first() in assetDisplayNames
 
     return buildAnnotatedString {
 

@@ -16,7 +16,6 @@ fun ExpandedMessageItem(
     displayText: String,
     beautifulTimestamp: String,
     timestamp: String,
-    isShowAsset: Boolean,
     modifier: Modifier = Modifier
 ) {
 
@@ -24,10 +23,7 @@ fun ExpandedMessageItem(
 
         // message
         Text(
-            text = buildStyledMessage(
-                displayText = displayText,
-                isShowAsset = isShowAsset
-            ),
+            text = buildStyledMessage(displayText),
             style = MaterialTheme.typography.bodyMedium
         )
         Spacer(Modifier.height(4.dp))

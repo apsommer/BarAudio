@@ -15,7 +15,6 @@ import com.sommerengineering.signalvoice.uitls.rowHorizontalPadding
 fun CollapsedMessageItem(
     displayText: String,
     beautifulTimestamp: String,
-    isShowAsset: Boolean,
     modifier: Modifier = Modifier
 ) {
 
@@ -26,10 +25,7 @@ fun CollapsedMessageItem(
 
         // message
         Text(
-            text = buildStyledMessage(
-                displayText = displayText,
-                isShowAsset = isShowAsset
-            ),
+            text = buildStyledMessage(displayText),
             style = MaterialTheme.typography.bodyMedium,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,

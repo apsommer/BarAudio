@@ -130,6 +130,7 @@ val siAsset = Asset(
 )
 
 val allAssets = listOf(znAsset, nqAsset, btcAsset, esAsset, gcAsset, siAsset)
-val assetMap = allAssets.associateBy { it.origin }
+val assetOrigins = allAssets.associateBy { it.origin }
+val assetDisplayNames = allAssets.map { it.displayName }.toSet()
 fun resolveAsset(stream: String) =
-    assetMap[stream] ?: error("Unknown asset for stream: $stream")
+    assetOrigins[stream] ?: error("Unknown asset for stream: $stream")

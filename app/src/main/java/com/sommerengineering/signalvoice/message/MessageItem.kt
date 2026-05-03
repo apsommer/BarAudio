@@ -44,8 +44,7 @@ fun MessageItem(
             isExpanded -> MaterialTheme.colorScheme.surfaceContainerHighest
             isLongPress -> MaterialTheme.colorScheme.secondaryContainer
             else -> MaterialTheme.colorScheme.surfaceContainer
-        },
-        label = "background"
+        }
     )
 
     // update timestamp once per minute
