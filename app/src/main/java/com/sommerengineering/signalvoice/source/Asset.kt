@@ -12,5 +12,6 @@ data class Asset(
     val assetDescription: String,
     val signalDescription: String,
     val order: Int,
-    val style: MessageItemStyle
+    val style: MessageItemStyle,
+    val isPremium: Boolean
 )

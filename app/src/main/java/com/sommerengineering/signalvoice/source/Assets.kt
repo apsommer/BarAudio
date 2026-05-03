@@ -27,7 +27,8 @@ val znAsset = Asset(
         text = Color(0xFFE6FFFA),
         iconRes = null,
         iconText = "10Y"
-    )
+    ),
+    isPremium = false
 )
 
 val nqAsset = Asset(
@@ -47,7 +48,8 @@ val nqAsset = Asset(
         text = Color(0xFFEAE6FF),
         iconRes = null,
         iconText = "100"
-    )
+    ),
+    isPremium = false
 )
 
 val btcAsset = Asset(
@@ -66,7 +68,8 @@ val btcAsset = Asset(
         surface = Color(0xFF2A1A0A),
         text = Color(0xFFFFF4E6),
         iconRes = R.drawable.btc
-    )
+    ),
+    isPremium = false
 )
 
 // premium /////////////////////////////////////////////////////////////////////////////////////////
@@ -88,7 +91,8 @@ val esAsset = Asset(
         text = Color(0xFFE6F0FF),
         iconRes = null,
         iconText = "500"
-    )
+    ),
+    isPremium = true
 )
 
 val gcAsset = Asset(
@@ -107,7 +111,8 @@ val gcAsset = Asset(
         surface = Color(0xFF2B2400),
         text = Color(0xFFFFF9E6),
         iconRes = R.drawable.gc
-    )
+    ),
+    isPremium = true
 )
 
 val siAsset = Asset(
@@ -126,7 +131,8 @@ val siAsset = Asset(
         surface = Color(0xFF0F1418),
         text = Color(0xFFF5FAFF),
         iconRes = R.drawable.si
-    )
+    ),
+    isPremium = true
 )
 
 val allAssets = listOf(znAsset, nqAsset, btcAsset, esAsset, gcAsset, siAsset)
