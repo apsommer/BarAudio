@@ -2,7 +2,7 @@ package com.sommerengineering.signalvoice.onboarding.app
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import com.sommerengineering.signalvoice.message.MessageItemState
+import com.sommerengineering.signalvoice.message.MessageItemUi
 import com.sommerengineering.signalvoice.message.resolveMessageStyle
 import com.sommerengineering.signalvoice.source.Message
 import com.sommerengineering.signalvoice.source.resolveMessageOrigin
@@ -61,10 +61,10 @@ fun onboardingMessages(): List<Message> {
 }
 
 @Composable
-fun getOnboardingMessageState(
+fun OnboardingMessageUi(
     message: Message,
     isExpanded: Boolean
-): MessageItemState {
+) {
 
     // parse message
     val text = message.message
@@ -73,14 +73,16 @@ fun getOnboardingMessageState(
     val origin = resolveMessageOrigin(message)
     val style = resolveMessageStyle(origin)
 
-    return MessageItemState(
-        text = text,
-        timestamp = timestamp,
+    MessageItemUi(
+        displayText = text,
         beautifulTimestamp = beautifulTimestamp,
-        origin = origin,
-        style = style,
-        isExpanded = isExpanded,
-        backgroundColor = MaterialTheme.colorScheme.surfaceContainer, // todo only hardcode parity with real UI
+        timestamp = timestamp,
+        backgroundColor = MaterialTheme.colorScheme.surfaceContainer,
         onClick = { },
-        onLongClick = { })
+        onLongPress = { },
+        style = style,
+        origin = origin,
+        isExpanded = isExpanded,
+        isShowDivider = false
+    )
 }

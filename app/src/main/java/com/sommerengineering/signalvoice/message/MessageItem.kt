@@ -66,35 +66,29 @@ fun MessageItem(
         isLongPress = false
     }
 
-    // ui state
-    val state = MessageItemState(
-        text = text,
-        timestamp = timestamp,
-        beautifulTimestamp = beautifulTimestamp,
-        origin = origin,
-        style = style,
-        isExpanded = isExpanded,
-        backgroundColor = backgroundColor,
-        onClick = { isExpanded = !isExpanded },
-        onLongClick = {
-            isExpanded = true
-            isLongPress = true
-            viewModel.speakMessage(message)
-        })
+    val onClick = { isExpanded = !isExpanded }
+    val onLongPress = {
+        isExpanded = true
+        isLongPress = true
+        viewModel.speakMessage(message)
+    }
 
     // prepend asset display name for streams in linear mode
+    val isLinearStream = feedMode == FeedMode.Linear && origin is MessageOrigin.BroadcastStream
     val displayText =
-        if (feedMode == FeedMode.Linear &&
-            state.origin is MessageOrigin.BroadcastStream
-        ) {
-            "${state.origin.displayName} • ${state.text}"
-        } else {
-            state.text
-        }
+        if (isLinearStream) "${origin.displayName} • $text"
+        else text
 
     MessageItemUi(
-        state = state,
-        displayText = displayText, // todo temp
+        displayText = displayText,
+        beautifulTimestamp = beautifulTimestamp,
+        timestamp = timestamp,
+        backgroundColor = backgroundColor,
+        onClick = { onClick() },
+        onLongPress = { onLongPress() },
+        style = style,
+        origin = origin,
+        isExpanded = isExpanded,
         isShowDivider = isShowDivider
     )
 }

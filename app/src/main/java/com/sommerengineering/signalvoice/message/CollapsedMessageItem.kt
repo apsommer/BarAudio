@@ -13,8 +13,9 @@ import com.sommerengineering.signalvoice.uitls.rowHorizontalPadding
 
 @Composable
 fun CollapsedMessageItem(
-    state: MessageItemState,
     displayText: String,
+    beautifulTimestamp: String,
+    isShowAsset: Boolean,
     modifier: Modifier = Modifier
 ) {
 
@@ -27,7 +28,7 @@ fun CollapsedMessageItem(
         Text(
             text = buildStyledMessage(
                 displayText = displayText,
-                state = state
+                isShowAsset = isShowAsset
             ),
             style = MaterialTheme.typography.bodyMedium,
             maxLines = 1,
@@ -37,7 +38,7 @@ fun CollapsedMessageItem(
 
         // compact timestamp
         Text(
-            text = state.beautifulTimestamp,
+            text = beautifulTimestamp,
             style = timestampTextStyle,
             color = MaterialTheme.colorScheme.onSurface.copy(0.6f),
             modifier = Modifier.padding(start = rowHorizontalPadding)

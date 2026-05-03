@@ -13,8 +13,10 @@ import com.sommerengineering.signalvoice.uitls.TimestampFormatter
 
 @Composable
 fun ExpandedMessageItem(
-    state: MessageItemState,
     displayText: String,
+    beautifulTimestamp: String,
+    timestamp: String,
+    isShowAsset: Boolean,
     modifier: Modifier = Modifier
 ) {
 
@@ -24,7 +26,7 @@ fun ExpandedMessageItem(
         Text(
             text = buildStyledMessage(
                 displayText = displayText,
-                state = state
+                isShowAsset = isShowAsset
             ),
             style = MaterialTheme.typography.bodyMedium
         )
@@ -32,7 +34,7 @@ fun ExpandedMessageItem(
 
         // compact timestamp
         Text(
-            text = state.beautifulTimestamp,
+            text = beautifulTimestamp,
             style = timestampTextStyle,
             color = MaterialTheme.colorScheme.onSurface.copy(0.6f)
         )
@@ -40,7 +42,7 @@ fun ExpandedMessageItem(
 
         // full timestamp
         Text(
-            text = TimestampFormatter.beautifyFull(state.timestamp),
+            text = TimestampFormatter.beautifyFull(timestamp),
             style = timestampTextStyle,
             color = MaterialTheme.colorScheme.onSurface.copy(0.45f)
         )

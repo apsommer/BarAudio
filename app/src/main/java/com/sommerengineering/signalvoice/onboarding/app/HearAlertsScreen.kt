@@ -9,7 +9,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.sommerengineering.signalvoice.message.MessageItemUi
 import com.sommerengineering.signalvoice.onboarding.OnboardingScreen
 import com.sommerengineering.signalvoice.uitls.nextText
 import com.sommerengineering.signalvoice.uitls.onboardingHearAlertsSubTitle
@@ -21,10 +20,6 @@ fun HearAlertsScreen(
 ) {
 
     val message = onboardingMessage()
-    val state = getOnboardingMessageState(
-        message = message,
-        isExpanded = false
-    )
 
     // fade in subtly
     var isVisible by remember { mutableStateOf(false) }
@@ -42,10 +37,9 @@ fun HearAlertsScreen(
             visible = isVisible,
             enter = fadeIn(tween(1000))
         ) {
-            MessageItemUi(
-                state = state,
-                displayText = state.text, // todo temp
-                isShowDivider = false
+            OnboardingMessageUi(
+                message = message,
+                isExpanded = true
             )
         }
     }

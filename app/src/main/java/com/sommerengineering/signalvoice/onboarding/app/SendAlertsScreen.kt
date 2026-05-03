@@ -7,7 +7,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.signalvoice.R
-import com.sommerengineering.signalvoice.message.MessageItemUi
 import com.sommerengineering.signalvoice.onboarding.NodeCard
 import com.sommerengineering.signalvoice.onboarding.NodeConnector
 import com.sommerengineering.signalvoice.onboarding.OnboardingScreen
@@ -20,12 +19,7 @@ fun SendAlertsScreen(
     onNextClick: () -> Unit
 ) {
 
-    // define message and state (same as first onboarding screen for consistency)
     val message = onboardingMessage()
-    val state = getOnboardingMessageState(
-        message = message,
-        isExpanded = false
-    )
 
     val connectorLength = 80.dp
     val connectorWidth = 2.dp
@@ -57,10 +51,9 @@ fun SendAlertsScreen(
 
             NodeConnector(connectorLength, connectorWidth)
 
-            MessageItemUi(
-                state = state,
-                displayText = state.text, // todo temp
-                isShowDivider = false
+            OnboardingMessageUi(
+                message = message,
+                isExpanded = false
             )
         }
     }

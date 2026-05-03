@@ -32,17 +32,13 @@ fun resolveMessageStyle(
 @Composable
 fun buildStyledMessage(
     displayText: String,
-    state: MessageItemState
+    isShowAsset: Boolean,
 ): AnnotatedString {
 
-    // message format
-    // (Asset) • Event • Variable message that may include numbers
+    // (Asset) • Event • Variable message that may include numbers • Variable message that may include numbers
 
     // split message into parts
     val parts = displayText.split(" • ")
-
-    // determine if asset is displayed
-    val isShowAsset = parts.first() == state.origin.displayName
 
     return buildAnnotatedString {
 

@@ -17,6 +17,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import com.sommerengineering.signalvoice.source.MessageOrigin
 import com.sommerengineering.signalvoice.source.OriginIcon
 import com.sommerengineering.signalvoice.uitls.dividerThickness
 import com.sommerengineering.signalvoice.uitls.messageItemExpansionTimeMillis
@@ -26,8 +28,15 @@ import com.sommerengineering.signalvoice.uitls.rowVerticalPadding
 
 @Composable
 fun MessageItemUi(
-    state: MessageItemState,
     displayText: String,
+    beautifulTimestamp: String,
+    timestamp: String,
+    backgroundColor: Color,
+    onClick: () -> Unit,
+    onLongPress: () -> Unit,
+    style: MessageItemStyle,
+    origin: MessageOrigin,
+    isExpanded: Boolean,
     isShowDivider: Boolean
 ) {
 
@@ -37,28 +46,29 @@ fun MessageItemUi(
                 .fillMaxWidth()
                 .height(IntrinsicSize.Min) // required for collapse/expand animation
                 .combinedClickable(
-                    onClick = state.onClick,
-                    onLongClick = state.onLongClick
+                    onClick = onClick,
+                    onLongClick = onLongPress
                 )
                 .animateContentSize(tween(messageItemExpansionTimeMillis))
-                .background(state.backgroundColor)
+                .background(backgroundColor)
                 .padding(horizontal = rowHorizontalPadding),
             verticalAlignment = Alignment.CenterVertically
         ) {
 
             // accent rail
-            RailAccent(state.style.primary)
+            RailAccent(style.primary)
 
             val modifier = Modifier
                 .weight(1f)
                 .padding(vertical = rowVerticalPadding)
 
             // collapsed
-            if (!state.isExpanded) {
+            if (!isExpanded) {
 
                 CollapsedMessageItem(
-                    state = state,
                     displayText = displayText,
+                    beautifulTimestamp = beautifulTimestamp,
+                    isShowAsset = true,
                     modifier = modifier
                 )
             }
@@ -67,14 +77,16 @@ fun MessageItemUi(
             else {
 
                 ExpandedMessageItem(
-                    state = state,
                     displayText = displayText,
+                    beautifulTimestamp = beautifulTimestamp,
+                    timestamp = timestamp,
+                    isShowAsset = true,
                     modifier = modifier
                 )
 
                 // origin image
                 Spacer(Modifier.width(rowIconPadding))
-                OriginIcon(state.origin)
+                OriginIcon(origin)
             }
         }
 
