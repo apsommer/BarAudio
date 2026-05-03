@@ -11,6 +11,7 @@ import androidx.compose.runtime.setValue
 import com.sommerengineering.signalvoice.MainViewModel
 import com.sommerengineering.signalvoice.messages.FeedMode
 import com.sommerengineering.signalvoice.source.Message
+import com.sommerengineering.signalvoice.source.MessageOrigin
 import com.sommerengineering.signalvoice.source.resolveMessageOrigin
 import com.sommerengineering.signalvoice.uitls.TimestampFormatter
 import kotlinx.coroutines.delay
@@ -29,6 +30,9 @@ fun MessageItem(
     // style from origin
     val origin = resolveMessageOrigin(message)
     val style = resolveMessageStyle(origin)
+
+    // feed mode
+    val feedMode = viewModel.feedMode
 
     // detect tap (expand) and long press (speak)
     var isExpanded by remember { mutableStateOf(false) }
@@ -78,17 +82,19 @@ fun MessageItem(
             viewModel.speakMessage(message)
         })
 
-    // feed mode
-    val feedMode = viewModel.feedMode
-    if (feedMode == FeedMode.Linear) {
-        LinearMessageItem(
-            state = state,
-            isShowDivider = isShowDivider
-        )
-        return
-    }
-    GroupedMessageItem(
+    // prepend asset display name for streams in linear mode
+    val displayText =
+        if (feedMode == FeedMode.Linear &&
+            state.origin is MessageOrigin.BroadcastStream
+        ) {
+            "${state.origin.displayName} • ${state.text}"
+        } else {
+            state.text
+        }
+
+    MessageItemUi(
         state = state,
+        displayText = displayText, // todo temp
         isShowDivider = isShowDivider
     )
 }

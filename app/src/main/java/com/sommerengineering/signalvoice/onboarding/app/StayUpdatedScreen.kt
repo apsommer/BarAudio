@@ -15,7 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import com.sommerengineering.signalvoice.MainViewModel
-import com.sommerengineering.signalvoice.message.LinearMessageItem
+import com.sommerengineering.signalvoice.message.MessageItemUi
 import com.sommerengineering.signalvoice.onboarding.OnboardingScreen
 import com.sommerengineering.signalvoice.uitls.onboardingStayUpdatedSubtitle
 import com.sommerengineering.signalvoice.uitls.onboardingStayUpdatedTitle
@@ -54,8 +54,9 @@ fun StayUpdatedScreen(
                         message = it,
                         isExpanded = true
                     )
-                    LinearMessageItem(
+                    MessageItemUi(
                         state = state,
+                        displayText = state.text, // todo temp
                         isShowDivider = true
                     )
                 }

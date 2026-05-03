@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -18,38 +17,25 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.sommerengineering.signalvoice.source.MessageOrigin
 import com.sommerengineering.signalvoice.source.OriginIcon
 import com.sommerengineering.signalvoice.uitls.dividerThickness
 import com.sommerengineering.signalvoice.uitls.messageItemExpansionTimeMillis
 import com.sommerengineering.signalvoice.uitls.rowHorizontalPadding
 import com.sommerengineering.signalvoice.uitls.rowIconPadding
 import com.sommerengineering.signalvoice.uitls.rowVerticalPadding
-import com.sommerengineering.signalvoice.uitls.rowHeight
 
 @Composable
-fun LinearMessageItem(
+fun MessageItemUi(
     state: MessageItemState,
+    displayText: String,
     isShowDivider: Boolean
 ) {
 
-    // prepend asset display name for streams
-    val displayText =
-        if (state.origin is MessageOrigin.BroadcastStream) {
-            "${state.origin.displayName} • ${state.text}"
-        } else {
-            state.text
-        }
-
     Column {
-
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .then(
-                    if (state.isExpanded) Modifier.height(IntrinsicSize.Min) // dynamic expanded
-                    else Modifier.height(rowHeight)
-                ) // fixed collapsed
+                .height(IntrinsicSize.Min) // required for collapse/expand animation
                 .combinedClickable(
                     onClick = state.onClick,
                     onLongClick = state.onLongClick
@@ -61,33 +47,35 @@ fun LinearMessageItem(
         ) {
 
             // accent rail
-            LinearRail(state.style.primary)
+            RailAccent(state.style.primary)
 
             val modifier = Modifier
                 .weight(1f)
-                .fillMaxHeight()
                 .padding(vertical = rowVerticalPadding)
 
             // collapsed
             if (!state.isExpanded) {
-                LinearCollapsedMessageItem(
-                    state = state,
-                    displayText = displayText,
-                    modifier = modifier
-                )
 
-                // expanded, parity with expanded GroupedMessageItem
-            } else {
-                ExpandedMessageItem(
+                CollapsedMessageItem(
                     state = state,
                     displayText = displayText,
                     modifier = modifier
                 )
             }
 
-            // origin image
-            Spacer(Modifier.width(rowIconPadding))
-            OriginIcon(state.origin)
+            // expanded, parity with expanded LinearMessageItem
+            else {
+
+                ExpandedMessageItem(
+                    state = state,
+                    displayText = displayText,
+                    modifier = modifier
+                )
+
+                // origin image
+                Spacer(Modifier.width(rowIconPadding))
+                OriginIcon(state.origin)
+            }
         }
 
         // divider between rows
