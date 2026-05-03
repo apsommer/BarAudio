@@ -17,17 +17,11 @@ class RoomImpl @Inject constructor(
     suspend fun addMessage(message: Message) =
         dao.insert(message.toEntity())
 
-    suspend fun addMessages(messages: List<Message>) =
-        dao.insertAll(messages.map { it.toEntity() })
+    suspend fun replaceStreamMessages(stream: String, messages: List<Message>) =
+        dao.replaceStreamMessages(stream, messages.map { it.toEntity() })
 
-    suspend fun replaceMessages(messages: List<Message>) =
-        dao.replaceAll(messages.map { it.toEntity() })
-
-    suspend fun replaceStream(stream: String, messages: List<Message>) =
-        dao.replaceStream(stream, messages.map { it.toEntity() })
-
-    suspend fun removeStream(stream: String) =
-        dao.deleteStream(stream)
+    suspend fun removeStreamMessages(stream: String) =
+        dao.deleteStreamMessages(stream)
 
     suspend fun replaceUserMessages(messages: List<Message>) =
         dao.replaceUserMessages(messages.map { it.toEntity() })

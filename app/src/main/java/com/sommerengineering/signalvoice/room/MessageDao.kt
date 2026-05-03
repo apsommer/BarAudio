@@ -19,23 +19,14 @@ interface MessageDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(entities: List<MessageEntity>)
 
-    @Query("DELETE FROM messages")
-    suspend fun deleteAll()
-
     @Transaction // atomic, prevents ui from receiving empty list
-    suspend fun replaceAll(entities: List<MessageEntity>) {
-        deleteAll()
-        insertAll(entities)
-    }
-
-    @Transaction // atomic, prevents ui from receiving empty list
-    suspend fun replaceStream(stream: String, entities: List<MessageEntity>) {
-        deleteStream(stream)
+    suspend fun replaceStreamMessages(stream: String, entities: List<MessageEntity>) {
+        deleteStreamMessages(stream)
         insertAll(entities)
     }
 
     @Query("DELETE FROM messages WHERE stream = :stream")
-    suspend fun deleteStream(stream: String)
+    suspend fun deleteStreamMessages(stream: String)
 
     @Transaction
     suspend fun replaceUserMessages(entities: List<MessageEntity>) {

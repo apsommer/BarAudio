@@ -47,18 +47,30 @@ class MainRepository @Inject constructor(
     // firebase database
     suspend fun hydrateStreamMessages() {
 
-        val messages = mutableListOf<Message>()
-
-        // streams
-        if (loadZN()) messages.addAll(firebaseDb.fetchStreamMessages(znStream))
-        if (loadNQ()) messages.addAll(firebaseDb.fetchStreamMessages(nqStream))
-        if (loadBTC()) messages.addAll(firebaseDb.fetchStreamMessages(btcStream))
-        if (loadES()) messages.addAll(firebaseDb.fetchStreamMessages(esStream))
-        if (loadGC()) messages.addAll(firebaseDb.fetchStreamMessages(gcStream))
-        if (loadSI()) messages.addAll(firebaseDb.fetchStreamMessages(siStream))
-
-        // sync local database: delete all, then add all
-        roomDb.replaceMessages(messages)
+        if (loadZN()) roomDb.replaceStreamMessages(
+            znStream,
+            firebaseDb.fetchStreamMessages(znStream)
+        )
+        if (loadNQ()) roomDb.replaceStreamMessages(
+            nqStream,
+            firebaseDb.fetchStreamMessages(nqStream)
+        )
+        if (loadBTC()) roomDb.replaceStreamMessages(
+            btcStream,
+            firebaseDb.fetchStreamMessages(btcStream)
+        )
+        if (loadES()) roomDb.replaceStreamMessages(
+            esStream,
+            firebaseDb.fetchStreamMessages(esStream)
+        )
+        if (loadGC()) roomDb.replaceStreamMessages(
+            gcStream,
+            firebaseDb.fetchStreamMessages(gcStream)
+        )
+        if (loadSI()) roomDb.replaceStreamMessages(
+            siStream,
+            firebaseDb.fetchStreamMessages(siStream)
+        )
     }
 
     suspend fun hydrateUserMessages() {
@@ -214,13 +226,13 @@ class MainRepository @Inject constructor(
         if (enabled) {
             FirebaseMessaging.getInstance().subscribeToTopic(stream)
             val streamMessages = firebaseDb.fetchStreamMessages(stream)
-            roomDb.replaceStream(stream, streamMessages)
+            roomDb.replaceStreamMessages(stream, streamMessages)
             return@launch
         }
 
         // unsubscribe and remove from local database
         FirebaseMessaging.getInstance().unsubscribeFromTopic(stream)
-        roomDb.removeStream(stream)
+        roomDb.removeStreamMessages(stream)
     }
 
     // feed mode
