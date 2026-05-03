@@ -4,6 +4,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -37,6 +38,7 @@ fun MessageItemUi(
     style: MessageItemStyle,
     origin: MessageOrigin,
     isExpanded: Boolean,
+    onLockedClick: (() -> Unit)? = null,
     isShowDivider: Boolean
 ) {
 
@@ -52,47 +54,63 @@ fun MessageItemUi(
         }
 
     Column {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(IntrinsicSize.Min) // required for collapse/expand animation
-                .then(clickableModifier)
-                .animateContentSize(tween(messageItemExpansionTimeMillis))
-                .background(backgroundColor)
-                .padding(horizontal = rowHorizontalPadding),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        Box {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(IntrinsicSize.Min) // required for collapse/expand animation
+                    .then(clickableModifier)
+                    .animateContentSize(tween(messageItemExpansionTimeMillis))
+                    .background(backgroundColor)
+                    .padding(horizontal = rowHorizontalPadding),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
 
-            // accent rail
-            RailAccent(style.primary)
+                // accent rail
+                RailAccent(style.primary)
 
-            val modifier = Modifier
-                .weight(1f)
-                .padding(vertical = rowVerticalPadding)
+                val modifier = Modifier
+                    .weight(1f)
+                    .padding(vertical = rowVerticalPadding)
 
-            // collapsed
-            if (!isExpanded) {
+                // collapsed
+                if (!isExpanded) {
 
-                CollapsedMessageItem(
-                    displayText = displayText,
-                    beautifulTimestamp = beautifulTimestamp,
-                    modifier = modifier
-                )
+                    CollapsedMessageItem(
+                        displayText = displayText,
+                        beautifulTimestamp = beautifulTimestamp,
+                        modifier = modifier
+                    )
+                }
+
+                // expanded, parity with expanded LinearMessageItem
+                else {
+
+                    ExpandedMessageItem(
+                        displayText = displayText,
+                        beautifulTimestamp = beautifulTimestamp,
+                        timestamp = timestamp,
+                        modifier = modifier
+                    )
+
+                    // origin image
+                    Spacer(Modifier.width(rowIconPadding))
+                    OriginIcon(
+                        origin = origin,
+                        onLockedClick = onLockedClick
+                    )
+                }
             }
 
-            // expanded, parity with expanded LinearMessageItem
-            else {
-
-                ExpandedMessageItem(
-                    displayText = displayText,
-                    beautifulTimestamp = beautifulTimestamp,
-                    timestamp = timestamp,
-                    modifier = modifier
+            // scrim over premium content
+            if (onLockedClick != null) {
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .background(
+                            style.primary.copy(alpha = 0.05f)
+                        )
                 )
-
-                // origin image
-                Spacer(Modifier.width(rowIconPadding))
-                OriginIcon(origin)
             }
         }
 

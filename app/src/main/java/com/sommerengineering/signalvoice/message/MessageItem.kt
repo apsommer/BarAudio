@@ -15,6 +15,7 @@ import com.sommerengineering.signalvoice.source.MessageOrigin
 import com.sommerengineering.signalvoice.source.resolveMessageOrigin
 import com.sommerengineering.signalvoice.uitls.TimestampFormatter
 import kotlinx.coroutines.delay
+import kotlin.random.Random
 
 @Composable
 fun MessageItem(
@@ -78,6 +79,15 @@ fun MessageItem(
         if (isLinearStream) "${origin.displayName} • $text"
         else text
 
+
+    val isLocked = remember { Random.nextBoolean() }
+    val onLockedClick: (() -> Unit)? =
+        if (isLocked) {
+            { /* handle locked click */ }
+        } else {
+            null
+        }
+
     MessageItemUi(
         displayText = displayText,
         beautifulTimestamp = beautifulTimestamp,
@@ -88,6 +98,7 @@ fun MessageItem(
         style = style,
         origin = origin,
         isExpanded = isExpanded,
+        onLockedClick = onLockedClick,
         isShowDivider = isShowDivider
     )
 }

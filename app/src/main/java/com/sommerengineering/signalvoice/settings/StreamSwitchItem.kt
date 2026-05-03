@@ -19,7 +19,7 @@ fun StreamSwitchItem(
     SwitchItem(
         icon = {
             OriginIcon(
-                messageOrigin = messageOrigin,
+                origin = messageOrigin,
                 isSettings = true
             )
         },
