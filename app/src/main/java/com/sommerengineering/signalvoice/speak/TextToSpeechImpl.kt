@@ -5,14 +5,12 @@ import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.speech.tts.Voice
 import androidx.core.os.bundleOf
-import com.ibm.icu.text.RuleBasedNumberFormat
 import com.sommerengineering.signalvoice.uitls.RomanNumerals
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.suspendCancellableCoroutine
-import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.resume
@@ -137,13 +135,46 @@ class TextToSpeechImpl @Inject constructor(
             }
 
         // numbers to words, prevent "oh" instead of "zero"
-        spokenText = Regex("""-?\d[\d,]*(\.\d+)?""")
-            .replace(spokenText) {
-                val number = it.value.toDouble()
-                RuleBasedNumberFormat(Locale.US, RuleBasedNumberFormat.SPELLOUT)
-                    .format(number)
+        spokenText = Regex("""[+-]?\d+(\.\d+)?%?""")
+            .replace(spokenText) { match ->
+
+                val raw = match.value
+
+                val isPercent = raw.endsWith("%")
+                val clean = raw.removeSuffix("%")
+
+                val sign = when {
+                    clean.startsWith("+") -> "plus "
+                    clean.startsWith("-") -> "minus "
+                    else -> ""
+                }
+
+                val number = clean.trimStart('+', '-')
+
+                val spokenNumber =
+                    if (number.contains(".")) {
+                        val (intPart, decPart) = number.split(".")
+                        val decimals = decPart.map { digit ->
+                            units[digit.digitToInt()]
+                        }.joinToString(" ")
+                        "${intPart.toInt()} point $decimals"
+                    } else {
+                        number.toInt().toString()
+                    }
+
+                buildString {
+                    append(sign)
+                    append(spokenNumber)
+                    if (isPercent) append(" percent")
+                }
             }
 
         return spokenText
     }
+
+    private val units = listOf(
+        "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+        "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen",
+        "sixteen", "seventeen", "eighteen", "nineteen"
+    )
 }
