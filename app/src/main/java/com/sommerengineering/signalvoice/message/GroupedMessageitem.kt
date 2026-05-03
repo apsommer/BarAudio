@@ -14,13 +14,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextOverflow
 import com.sommerengineering.signalvoice.source.OriginIcon
-import com.sommerengineering.signalvoice.theme.timestampTextStyle
 import com.sommerengineering.signalvoice.uitls.dividerThickness
 import com.sommerengineering.signalvoice.uitls.messageItemExpansionTimeMillis
 import com.sommerengineering.signalvoice.uitls.rowHorizontalPadding
@@ -54,36 +51,18 @@ fun GroupedMessageItem(
             // accent rail
             GroupedRail(state.style.primary)
 
-            val modifier = Modifier.weight(1f).padding(vertical = rowVerticalPadding)
+            val modifier = Modifier
+                .weight(1f)
+                .padding(vertical = rowVerticalPadding)
 
             // collapsed
             if (!state.isExpanded) {
 
-                Row(
-                    modifier = modifier,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-
-                    // message
-                    Text(
-                        text = buildStyledMessage(
-                            displayText = displayText,
-                            state = state
-                        ),
-                        style = MaterialTheme.typography.bodyMedium,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f)
-                    )
-
-                    // compact timestamp
-                    Text(
-                        text = state.beautifulTimestamp,
-                        style = timestampTextStyle,
-                        color = MaterialTheme.colorScheme.onSurface.copy(0.6f),
-                        modifier = Modifier.padding(start = rowHorizontalPadding)
-                    )
-                }
+                CollapsedMessageItem(
+                    state = state,
+                    displayText = displayText,
+                    modifier = modifier
+                )
             }
 
             // expanded, parity with expanded LinearMessageItem
