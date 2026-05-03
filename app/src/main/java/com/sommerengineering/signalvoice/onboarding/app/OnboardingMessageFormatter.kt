@@ -78,11 +78,14 @@ fun OnboardingMessageUi(
         beautifulTimestamp = beautifulTimestamp,
         timestamp = timestamp,
         backgroundColor = MaterialTheme.colorScheme.surfaceContainer,
-        onClick = null,
-        onLongPress = null,
+        onClick = { },
+        onLongPress = { },
         style = style,
         origin = origin,
         isExpanded = isExpanded,
-        isShowDivider = false
+        isShowDivider = false,
+        isLocked = false,
+        onLockedClick = { },
+        isInteractive = false
     )
 }

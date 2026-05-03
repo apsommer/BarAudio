@@ -31,7 +31,8 @@ import com.sommerengineering.signalvoice.uitls.settingsIconSize
 fun OriginIcon(
     origin: MessageOrigin,
     isSettings: Boolean = false,
-    onLockedClick: (() -> Unit)? = null
+    isLocked: Boolean,
+    onLockedClick: () -> Unit
 ) {
 
     val style = origin.style
@@ -48,7 +49,6 @@ fun OriginIcon(
         else style.accent.copy(alpha = 0.4f)
 
     // locked status: show lock badge and make icon clickable
-    val isLocked = onLockedClick != null
     val clickableModifier =
         if (isLocked) Modifier.clickable { onLockedClick() }
         else Modifier

@@ -11,7 +11,7 @@ import com.sommerengineering.signalvoice.BuildConfig
 import com.sommerengineering.signalvoice.R
 
 // logs
-const val TAG = "~~"
+const val TAG = "~~~"
 fun logMessage(msg: String?) = Log.v(TAG, "$msg")
 fun logException(e: Exception) {
     Log.e(TAG, "handleException: ${e.message}", e)

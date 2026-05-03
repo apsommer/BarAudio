@@ -33,21 +33,23 @@ fun MessageItemUi(
     beautifulTimestamp: String,
     timestamp: String,
     backgroundColor: Color,
-    onClick: (() -> Unit)?,
-    onLongPress: (() -> Unit)?,
+    onClick: () -> Unit,
+    onLongPress: () -> Unit,
     style: MessageItemStyle,
     origin: MessageOrigin,
     isExpanded: Boolean,
-    onLockedClick: (() -> Unit)? = null,
+    isLocked: Boolean,
+    onLockedClick: () -> Unit,
+    isInteractive: Boolean = true, // false for onboarding only
     isShowDivider: Boolean
 ) {
 
     // supress ripple in onboarding presentation
     val clickableModifier =
-        if (onClick != null || onLongPress != null) {
+        if (isInteractive) {
             Modifier.combinedClickable(
-                onClick = onClick ?: {},
-                onLongClick = onLongPress ?: {}
+                onClick = onClick,
+                onLongClick = onLongPress
             )
         } else {
             Modifier
@@ -97,13 +99,14 @@ fun MessageItemUi(
                     Spacer(Modifier.width(rowIconPadding))
                     OriginIcon(
                         origin = origin,
+                        isLocked = isLocked,
                         onLockedClick = onLockedClick
                     )
                 }
             }
 
             // scrim over premium content
-            if (onLockedClick != null) {
+            if (isLocked) {
                 Box(
                     modifier = Modifier
                         .matchParentSize()

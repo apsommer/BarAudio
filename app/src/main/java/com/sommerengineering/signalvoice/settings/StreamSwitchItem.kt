@@ -9,22 +9,26 @@ import com.sommerengineering.signalvoice.uitls.streamDescriptionAlpha
 
 @Composable
 fun StreamSwitchItem(
-    messageOrigin: MessageOrigin,
+    origin: MessageOrigin,
     isStream: Boolean,
-    updateStream: (Boolean) -> Unit
+    updateStream: (Boolean) -> Unit,
+    isLocked: Boolean,
+    onLockedClick: () -> Unit,
 ) {
 
-    val style = messageOrigin.style
+    val style = origin.style
 
     SwitchItem(
         icon = {
             OriginIcon(
-                origin = messageOrigin,
-                isSettings = true
+                origin = origin,
+                isSettings = true,
+                isLocked = isLocked,
+                onLockedClick = onLockedClick
             )
         },
-        title = messageOrigin.displayName,
-        description = messageOrigin.signalDescription,
+        title = origin.displayName,
+        description = origin.signalDescription,
         titleColor = if (isStream) style.primary else null,
         descriptionColor = if (isStream) style.primary.copy(streamDescriptionAlpha) else null
     ) {

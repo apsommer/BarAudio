@@ -21,8 +21,12 @@ import com.sommerengineering.signalvoice.messages.FeedMode
 import com.sommerengineering.signalvoice.onboarding.webhook.VerificationState.RECEIVED
 import com.sommerengineering.signalvoice.onboarding.webhook.VerificationState.WAITING
 import com.sommerengineering.signalvoice.onboarding.webhook.VerificationUiState
+import com.sommerengineering.signalvoice.source.Asset
 import com.sommerengineering.signalvoice.source.Message
+import com.sommerengineering.signalvoice.source.MessageOrigin
+import com.sommerengineering.signalvoice.source.resolveMessageOrigin
 import com.sommerengineering.signalvoice.uitls.RomanNumerals
+import com.sommerengineering.signalvoice.uitls.logMessage
 import com.sommerengineering.signalvoice.uitls.screenFullDescription
 import com.sommerengineering.signalvoice.uitls.screenWindowedDescription
 import com.sommerengineering.signalvoice.uitls.webhookBaseUrl
@@ -50,6 +54,24 @@ class MainViewModel @Inject constructor(
     // session
     var session by mutableStateOf<Session>(Session.Guest)
         private set
+
+    // premium (locked)
+    fun isLocked(message: Message): Boolean {
+        val origin = resolveMessageOrigin(message)
+        if (origin !is MessageOrigin.BroadcastStream) return false
+        return isLocked(origin.asset)
+    }
+    
+    fun isLocked(asset: Asset): Boolean {
+        val isPremiumAsset = asset.isPremium
+        val isPremiumUser = (session as? Session.Authenticated)?.isPremium == true
+        return isPremiumAsset && !isPremiumUser
+    }
+
+    fun launchPaywall() {
+        logMessage("launch paywall")
+    }
+
     val webhookUrl
         get() = webhookBaseUrl + (session as Session.Authenticated).uid
 

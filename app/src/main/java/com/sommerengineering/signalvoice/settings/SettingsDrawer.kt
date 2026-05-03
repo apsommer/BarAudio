@@ -189,25 +189,34 @@ fun SettingsDrawer(
             // stream ZN
             item {
                 StreamSwitchItem(
-                    messageOrigin = MessageOrigin.BroadcastStream(znAsset),
+                    origin = MessageOrigin.BroadcastStream(znAsset),
                     isStream = isZN,
-                    updateStream = { viewModel.updateZN(it) })
+                    updateStream = { viewModel.updateZN(it) },
+                    isLocked = viewModel.isLocked(znAsset),
+                    onLockedClick = { viewModel.launchPaywall() }
+                )
             }
 
             // stream NQ
             item {
                 StreamSwitchItem(
-                    messageOrigin = MessageOrigin.BroadcastStream(nqAsset),
+                    origin = MessageOrigin.BroadcastStream(nqAsset),
                     isStream = isNQ,
-                    updateStream = { viewModel.updateNQ(it) })
+                    updateStream = { viewModel.updateNQ(it) },
+                    isLocked = viewModel.isLocked(nqAsset),
+                    onLockedClick = { viewModel.launchPaywall() }
+                )
             }
 
             // stream BTC
             item {
                 StreamSwitchItem(
-                    messageOrigin = MessageOrigin.BroadcastStream(btcAsset),
+                    origin = MessageOrigin.BroadcastStream(btcAsset),
                     isStream = isBTC,
-                    updateStream = { viewModel.updateBTC(it) })
+                    updateStream = { viewModel.updateBTC(it) },
+                    isLocked = viewModel.isLocked(btcAsset),
+                    onLockedClick = { viewModel.launchPaywall() }
+                )
             }
 
             // divider
@@ -218,25 +227,34 @@ fun SettingsDrawer(
             // stream ES
             item {
                 StreamSwitchItem(
-                    messageOrigin = MessageOrigin.BroadcastStream(esAsset),
+                    origin = MessageOrigin.BroadcastStream(esAsset),
                     isStream = isES,
-                    updateStream = { viewModel.updateES(it) })
+                    updateStream = { viewModel.updateES(it) },
+                    isLocked = viewModel.isLocked(esAsset),
+                    onLockedClick = { viewModel.launchPaywall() }
+                )
             }
 
             // stream GC
             item {
                 StreamSwitchItem(
-                    messageOrigin = MessageOrigin.BroadcastStream(gcAsset),
+                    origin = MessageOrigin.BroadcastStream(gcAsset),
                     isStream = isGC,
-                    updateStream = { viewModel.updateGC(it) })
+                    updateStream = { viewModel.updateGC(it) },
+                    isLocked = viewModel.isLocked(gcAsset),
+                    onLockedClick = { viewModel.launchPaywall() }
+                )
             }
 
             // stream SI
             item {
                 StreamSwitchItem(
-                    messageOrigin = MessageOrigin.BroadcastStream(siAsset),
+                    origin = MessageOrigin.BroadcastStream(siAsset),
                     isStream = isSI,
-                    updateStream = { viewModel.updateSI(it) })
+                    updateStream = { viewModel.updateSI(it) },
+                    isLocked = viewModel.isLocked(siAsset),
+                    onLockedClick = { viewModel.launchPaywall() }
+                )
             }
 
             // divider

@@ -50,14 +50,7 @@ fun MessagesScreen(
     onCustomSignalClick: () -> Unit,
 ) {
 
-    // start/stop speech service
     val context = LocalContext.current
-    LaunchedEffect(Unit) {
-        viewModel.isListening.collect { enabled ->
-            if (enabled) ForegroundSpeechService.start(context)
-            else ForegroundSpeechService.stop(context)
-        }
-    }
 
     // lazy column of messages
     val messages by viewModel.messages.collectAsState()
@@ -75,6 +68,17 @@ fun MessagesScreen(
     val feedMode = viewModel.feedMode
     val groups = remember(messages) { groupMessages(messages) }
     val expandedGroups = remember(feedMode) { mutableStateMapOf<MessageOrigin, Boolean>() }
+
+    // session
+    val session = viewModel.session
+
+    // start/stop speech service
+    LaunchedEffect(Unit) {
+        viewModel.isListening.collect { enabled ->
+            if (enabled) ForegroundSpeechService.start(context)
+            else ForegroundSpeechService.stop(context)
+        }
+    }
 
     // scroll to latest: user at top of list or inline card appears
     LaunchedEffect(messages.size, areNotificationsEnabled, isEmptyState) {
@@ -95,9 +99,6 @@ fun MessagesScreen(
             listState.animateScrollToItem(0)
         }
     }
-
-    // session
-    val session = viewModel.session
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -165,6 +166,7 @@ fun MessagesScreen(
                             itemsIndexed(
                                 items = messages,
                                 key = { _, it -> it.timestamp }) { index, message ->
+
                                 MessageItem(
                                     viewModel = viewModel,
                                     message = message,

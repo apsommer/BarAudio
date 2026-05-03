@@ -15,7 +15,6 @@ import com.sommerengineering.signalvoice.source.MessageOrigin
 import com.sommerengineering.signalvoice.source.resolveMessageOrigin
 import com.sommerengineering.signalvoice.uitls.TimestampFormatter
 import kotlinx.coroutines.delay
-import kotlin.random.Random
 
 @Composable
 fun MessageItem(
@@ -32,10 +31,18 @@ fun MessageItem(
     val origin = resolveMessageOrigin(message)
     val style = resolveMessageStyle(origin)
 
-    // feed mode
-    val feedMode = viewModel.feedMode
+    // premium locked state
+    val isLocked = viewModel.isLocked(message)
+
+    // prepend asset display name for streams in linear mode
+    val isLinearStream = viewModel.feedMode == FeedMode.Linear
+            && origin is MessageOrigin.BroadcastStream
+    val displayText =
+        if (isLinearStream) "${origin.displayName} • $text"
+        else text
 
     // detect tap (expand) and long press (speak)
+    var beautifulTimestamp by remember { mutableStateOf("") }
     var isExpanded by remember { mutableStateOf(false) }
     var isLongPress by remember { mutableStateOf(false) }
 
@@ -49,7 +56,6 @@ fun MessageItem(
     )
 
     // update timestamp once per minute
-    var beautifulTimestamp by remember { mutableStateOf("") }
     LaunchedEffect(Unit) {
         while (true) {
             beautifulTimestamp = TimestampFormatter.beautifyCompact(timestamp)
@@ -66,38 +72,27 @@ fun MessageItem(
         isLongPress = false
     }
 
+    // click handlers
+    val onLockedClick = { viewModel.launchPaywall() }
     val onClick = { isExpanded = !isExpanded }
-    val onLongPress = {
+    val onLongPress: () -> Unit = {
         isExpanded = true
         isLongPress = true
-        viewModel.speakMessage(message)
+        if (isLocked) onLockedClick()
+        else viewModel.speakMessage(message)
     }
-
-    // prepend asset display name for streams in linear mode
-    val isLinearStream = feedMode == FeedMode.Linear && origin is MessageOrigin.BroadcastStream
-    val displayText =
-        if (isLinearStream) "${origin.displayName} • $text"
-        else text
-
-
-    val isLocked = remember { Random.nextBoolean() }
-    val onLockedClick: (() -> Unit)? =
-        if (isLocked) {
-            { /* handle locked click */ }
-        } else {
-            null
-        }
 
     MessageItemUi(
         displayText = displayText,
         beautifulTimestamp = beautifulTimestamp,
         timestamp = timestamp,
         backgroundColor = backgroundColor,
-        onClick = { onClick() },
-        onLongPress = { onLongPress() },
+        onClick = onClick,
+        onLongPress = onLongPress,
         style = style,
         origin = origin,
         isExpanded = isExpanded,
+        isLocked = isLocked,
         onLockedClick = onLockedClick,
         isShowDivider = isShowDivider
     )
