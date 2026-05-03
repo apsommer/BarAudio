@@ -34,9 +34,9 @@ object TimestampFormatter {
             minute > diff -> "just now"
             isToday -> {
                 when {
-                    hours > 0 && minutes > 0 -> "${hours}h ${minutes}m"
-                    hours > 0 -> "${hours}h"
-                    else -> "${minutes}m"
+                    hours == 0L -> "${minutes}m"
+                    hours < 6 && minutes > 0 -> "${hours}h ${minutes}m"
+                    else -> "${hours}h"
                 }
             }
 
