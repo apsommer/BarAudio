@@ -1,12 +1,12 @@
 <resources>
 
     <!-- main theme -->
-    <style name="Theme.BarAudio" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.SignalVoice" parent="android:Theme.Material.Light.NoActionBar" />
 
     <!-- splash screen -->
-    <style name="Theme.BarAudio.Splash" parent="Theme.SplashScreen">
+    <style name="Theme.SignalVoice.Splash" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/app_background</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/app</item>
-        <item name="postSplashScreenTheme">@style/Theme.BarAudio</item>
+        <item name="postSplashScreenTheme">@style/Theme.SignalVoice</item>
     </style>
 </resources>
