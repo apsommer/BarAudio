@@ -2,10 +2,7 @@
 /app/build
 /app/google-services.json
 
-/fastlane/metadata
-/fastlane/service_account.json
-/fastlane/README.md
-/fastlane/report.xml
+/publisher
 
 /functions/__pycache__
 /functions/venv

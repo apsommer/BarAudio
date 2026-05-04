@@ -12,6 +12,7 @@ plugins {
     alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.hilt)
     id("kotlin-parcelize")
+    id("com.github.triplet.play")
 }
 
 // import release upload signing keystore
@@ -23,6 +24,12 @@ keystoreProperties.load(
         )
     )
 )
+
+// set play publisher credentials
+play {
+    serviceAccountCredentials.set(file("${rootProject.projectDir}/publisher/publisher-key.json"))
+    track.set("internal")
+}
 
 java {
     toolchain {
@@ -55,8 +62,8 @@ configure<ApplicationExtension> {
         applicationId = "com.sommerengineering.signalvoice"
         minSdk = 28
         targetSdk = 36
-        versionCode = 1 // increment for each release
-        versionName = "1.0" // major.minor.date.letter
+        versionCode = 3 // increment for each release
+        versionName = "1.2" // major.minor.date.letter
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
