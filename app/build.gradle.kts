@@ -25,12 +25,6 @@ keystoreProperties.load(
     )
 )
 
-// set play publisher credentials
-play {
-    serviceAccountCredentials.set(file("${rootProject.projectDir}/publisher/publisher-key.json"))
-    track.set("internal")
-}
-
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(17))
@@ -152,4 +146,10 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+}
+
+// set play publisher credentials
+play {
+    serviceAccountCredentials.set(file("${rootProject.projectDir}/publisher/publisher-key.json"))
+    track.set("alpha")
 }
