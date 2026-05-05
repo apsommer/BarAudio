@@ -1,1 +1,1 @@
-Placeholder text for release notes. Please replace this with actual release notes before publishing the app.
+Continue validate release pipeline
