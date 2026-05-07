@@ -1,5 +1,6 @@
 package com.sommerengineering.signalvoice.messages
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,10 +20,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import com.sommerengineering.signalvoice.MainViewModel
 import com.sommerengineering.signalvoice.R
@@ -98,6 +103,10 @@ fun MessagesScreen(
         }
     }
 
+    // measure appbar height for settings drawer
+    var appbarHeightPx by remember { mutableStateOf(0) }
+    val appbarHeight = with(LocalDensity.current) { appbarHeightPx.toDp() }
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -107,7 +116,8 @@ fun MessagesScreen(
                 SettingsDrawer(
                     viewModel = viewModel,
                     onSignOut = onSignOut,
-                    onCustomSignalClick = onCustomSignalClick
+                    onCustomSignalClick = onCustomSignalClick,
+                    appBarHeight = appbarHeight
                 )
             }
         },
@@ -117,10 +127,14 @@ fun MessagesScreen(
 
         Scaffold(
             topBar = {
-                MessagesTopBar(
-                    viewModel = viewModel,
-                    onToggleFeedMode = { viewModel.toggleFeedMode() },
-                    onToggleListening = { viewModel.toggleListening(context) })
+                Box(
+                    modifier = Modifier.onSizeChanged { appbarHeightPx = it.height }
+                ) {
+                    MessagesTopBar(
+                        viewModel = viewModel,
+                        onToggleFeedMode = { viewModel.toggleFeedMode() },
+                        onToggleListening = { viewModel.toggleListening(context) })
+                }
             }
         ) { padding ->
 

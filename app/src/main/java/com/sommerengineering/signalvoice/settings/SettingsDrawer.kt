@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -13,6 +14,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,6 +26,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.sommerengineering.signalvoice.BuildConfig
 import com.sommerengineering.signalvoice.MainViewModel
@@ -65,7 +68,8 @@ import com.sommerengineering.signalvoice.uitls.voiceTitle
 fun SettingsDrawer(
     viewModel: MainViewModel,
     onSignOut: () -> Unit,
-    onCustomSignalClick: () -> Unit
+    onCustomSignalClick: () -> Unit,
+    appBarHeight: Dp
 ) {
 
     val context = LocalContext.current
@@ -92,20 +96,15 @@ fun SettingsDrawer(
 
     Box {
 
-        // prevent scroll into notch area when fullscreen
-        if (isFullScreen) {
-            Box(
-                modifier = Modifier
-                    .height(48.dp)
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
-            )
-        }
-
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
-                .padding(top = if (isFullScreen) 48.dp else 0.dp)
+                .padding(
+                    top =
+                        if (isFullScreen) appBarHeight + edgePadding / 2
+                        else 0.dp + edgePadding / 2
+                )
         ) {
 
             // divider
@@ -352,6 +351,16 @@ fun SettingsDrawer(
                     style = MaterialTheme.typography.bodySmall
                 )
             }
+        }
+
+        // prevent scroll into notch area when fullscreen
+        if (isFullScreen) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(appBarHeight)
+                    .background(MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp)),
+            )
         }
     }
 }
