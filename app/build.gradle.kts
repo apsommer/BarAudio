@@ -20,7 +20,7 @@ val keystoreProperties = Properties()
 keystoreProperties.load(
     FileInputStream(
         rootProject.file(
-            rootProject.projectDir.absolutePath + "/upload/keystore.properties"
+            rootProject.projectDir.absolutePath + "/publisher/keystore.properties"
         )
     )
 )
