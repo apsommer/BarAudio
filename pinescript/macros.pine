@@ -3,11 +3,14 @@ strategy(
     "ZN • 6E • GC",
     overlay = true,
     max_bars_back = 2000,
+    calc_on_every_tick = false,
+
     process_orders_on_close = true,
-    calc_on_every_tick = true,
-    initial_capital = 50000,
+    initial_capital = 50000, // qty 1 -> needs to be greater than close of first bar * 10
     default_qty_type = strategy.fixed,
-    default_qty_value = 1
+    default_qty_value = 1,
+    commission_type = strategy.commission.cash_per_contract,
+    commission_value = 1.35
 )
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -21,12 +24,16 @@ ZN_SYMBOL = "CBOT:ZN1!"
 E6_SYMBOL = "CME:6E1!"
 GC_SYMBOL = "COMEX_MINI:MGC1!"
 
-isZN = syminfo.root == "ZN"
-isE6 = syminfo.root == "6E"
-isGC = syminfo.root == "MGC"
+ticker = ticker.standard(syminfo.tickerid)
+isZN = str.contains(ticker, "ZN1!")
+isE6 = str.contains(ticker, "6E1!")
+isGC = str.contains(ticker, "MGC1!")
 
-znOpen = request.security(ZN_SYMBOL, timeframe.period, open)
-e6Open = request.security(E6_SYMBOL, timeframe.period, open)
+ZN_LOOKBACK = 85
+E6_LOOKBACK = 55
+GC_LOOKBACK = 30
+GC_EARLY_ALIGNMENT_MIN_BARS  = 1 // wait for stability
+GC_EARLY_ALIGNMENT_MAX_BARS = 10 // ensure move is early
 
 // SESSION CONTROL
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -37,66 +44,100 @@ e6Open = request.security(E6_SYMBOL, timeframe.period, open)
 // us: 0930-1600
 
 // session windows (entry allowed)
-inSessionTimes = "1805-0459" // "1810-0459,0910-1658"
+inSessionTimes = "1815-0859" // "0915-1559"
 isInSession = not na(time(timeframe.period, inSessionTimes, "America/New_York"))
 
 // session closing (exit)
-marketClosingTime = "1659-1700"
-isSessionClosing = not na(time(timeframe.period, marketClosingTime, "America/New_York"))
+sessionClosingTime = "1659-1700"
+isSessionClosing = not na(time(timeframe.period, sessionClosingTime, "America/New_York"))
 
 // ZN
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ZN_LOOKBACK = 90
+var bool isZNsupportive = false
+var bool isZNhostile = false
 
-isZNsupportive = request.security(ZN_SYMBOL, timeframe.period, open > ta.sma(ta.ema(open, ZN_LOOKBACK), 5))
-isZNhostile = not isZNsupportive
+znOpen = request.security(ZN_SYMBOL, timeframe.period, open)
+znVwap = request.security(ZN_SYMBOL, timeframe.period, ta.vwap(hlc3))
+
+znHigherHigh = request.security(ZN_SYMBOL, timeframe.period, high > ta.highest(high[1], ZN_LOOKBACK))
+znLowerLow = request.security(ZN_SYMBOL, timeframe.period, ta.lowest(low[1], ZN_LOOKBACK) > low)
+
+znAbove = znOpen > znVwap
+znBelow = znVwap > znOpen
+
+isZNsupportive :=
+     znHigherHigh and znAbove ? true :
+     znLowerLow and znBelow ? false :
+     znLowerLow and znAbove ? false :
+     znHigherHigh and znBelow ? false :
+     isZNsupportive[1]
+
+isZNhostile :=
+     znLowerLow  and znBelow ? true :
+     znHigherHigh and znAbove ? false :
+     znHigherHigh and znBelow ? false :
+     znLowerLow  and znAbove ? false :
+     isZNhostile[1]
+
+isZNneutral = not isZNsupportive and not isZNhostile
 
 // 6E
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-E6_LOOKBACK = 30
+var bool isE6supportive = false
+var bool isE6hostile = false
 
-isE6supportive = request.security(E6_SYMBOL, timeframe.period, open > ta.sma(ta.ema(open, E6_LOOKBACK), 5))
-isE6hostile = not isE6supportive
+e6Open = request.security(E6_SYMBOL, timeframe.period, open)
+e6Vwap = request.security(E6_SYMBOL, timeframe.period, ta.vwap(hlc3))
+
+e6HigherHigh = request.security(E6_SYMBOL, timeframe.period, high > ta.highest(high[1], E6_LOOKBACK))
+e6LowerLow = request.security(E6_SYMBOL, timeframe.period, ta.lowest(low[1], E6_LOOKBACK) > low)
+
+e6Above = e6Open > e6Vwap
+e6Below = e6Vwap > e6Open
+
+isE6supportive :=
+     e6HigherHigh and e6Above ? true :
+     e6LowerLow  and e6Below ? false :
+     e6LowerLow  and e6Above ? false :
+     e6HigherHigh and e6Below ? false :
+     isE6supportive[1]
+
+isE6hostile :=
+     e6LowerLow  and e6Below ? true :
+     e6HigherHigh and e6Above ? false :
+     e6HigherHigh and e6Below ? false :
+     e6LowerLow  and e6Above ? false :
+     isE6hostile[1]
 
 // MACRO REGIME
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-MACRO_CHOP_LOOKBACK_LONG = 10
-MACRO_CHOP_LOOKBACK_SHORT = 5
-
-// alignment
-isMacroSupportive = isZNsupportive and isE6supportive
-isMacroHostile = isZNhostile and isE6hostile
-
-znFlip = isZNsupportive != isZNsupportive[1]
-e6Flip = isE6supportive != isE6supportive[1]
-
-macroFlip = znFlip or e6Flip
-macroFlipCountLong = math.sum(macroFlip ? 1 : 0, MACRO_CHOP_LOOKBACK_LONG)
-macroFlipCountShort = math.sum(macroFlip ? 1 : 0, MACRO_CHOP_LOOKBACK_SHORT)
-
 // stability
-isMacroCleanLong = macroFlipCountLong < 2
-isMacroCleanShort = macroFlipCountShort < 2
+macroSupportCount = math.sum(isZNsupportive and isE6supportive ? 1 : 0, 3)
+macroHostileCount = math.sum(isZNhostile and isE6hostile ? 1 : 0, 3)
+
+isMacroSupportive = macroSupportCount > 1
+isMacroHostile = macroHostileCount > 1
+isMacroNeutral = not isMacroSupportive and not isMacroHostile
+
+isLongMacroBroken = not isZNsupportive or not isE6supportive
+isShortMacroBroken = not isZNhostile or not isE6hostile
 
 // GC LOGIC
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-GC_LOOKBACK = 10
-GC_EARLY_ALIGNMENT_MIN_BARS  = 2 // wait for stability
-GC_EARLY_ALIGNMENT_MAX_BARS = 5 // ensure move is early
-
 var int gcSupportiveBars = 0
 var int gcHostileBars = 0
 
-gcAvg = ta.sma(ta.ema(open, GC_LOOKBACK), 5)
+gcAvg = ta.sma(open, GC_LOOKBACK)
+gcVwap = ta.vwap(hlc3)
 gcSlope = gcAvg - gcAvg[1]
 
 // trend
-isGCsupportive = open > gcAvg // and gcSlope > 0
-isGChostile = not isGCsupportive // and 0 > gcSlope
+isGCsupportive = open > gcAvg
+isGChostile = not isGCsupportive
 
 // count trend bars
 gcSupportiveBars := isGCsupportive ? gcSupportiveBars[1] + 1 : 0
@@ -125,9 +166,15 @@ var float profit = na
 // calc_on_every_tick has ridiculous problem of pulling previous bar values into this bar just for the very first tick
 // creates ghost signals that are not accurate, bar is stable on second tick and later
 // additional related problem: first tick arrives at different time when assets pulled from security()
-znTime = request.security(ZN_SYMBOL, timeframe.period, time)
-e6Time = request.security(E6_SYMBOL, timeframe.period, time)
-isBarStable := barstate.isrealtime ? not barstate.isnew and time == znTime and time == e6Time : true
+// znTime = request.security(ZN_SYMBOL, timeframe.period, time)
+// e6Time = request.security(E6_SYMBOL, timeframe.period, time)
+isBarStable := true
+     // not barstate.isrealtime
+     // or (
+     //      not barstate.isnew
+     //      and time == znTime
+     //      and time == e6Time
+     // )
 
 // entry
 isLongEntry =
@@ -135,54 +182,54 @@ isLongEntry =
      and isInSession
      and not isLongTradeActive
      and not isShortTradeActive
-     and isMacroSupportive and isMacroSupportive[1]
+     and open > gcVwap
+     and isMacroSupportive
      and isGCsupportiveEarly
-     and isMacroCleanLong
 
-isShortEntry = false
-     // isBarStable
-     // and isInSession
-     // and not isLongTradeActive
-     // and not isShortTradeActive
-     // and isMacroHostile and isMacroHostile[1]
-     // and isGChostileEarly
-     // and isMacroCleanShort
+isShortEntry =
+     isBarStable
+     and isInSession
+     and not isLongTradeActive
+     and not isShortTradeActive
+     and gcVwap > open
+     and isMacroHostile
+     and isGChostileEarly
 
 if isLongEntry
     isLongTradeActive := true
     isShortTradeActive := false
-    entryPrice := open
+    entryPrice := close
 
 if isShortEntry
     isLongTradeActive := false
     isShortTradeActive := true
-    entryPrice := open
+    entryPrice := close
 
 // exit
 isLongExit =
      isBarStable
      and isLongTradeActive
      and (
-        (not isMacroSupportive and not isMacroSupportive[1])
-        or isSessionClosing
+        isLongMacroBroken
+        or not isInSession
      )
 
 isShortExit =
      isBarStable
      and isShortTradeActive
      and (
-        (not isMacroHostile and not isMacroHostile[1])
-        or isSessionClosing
+        isShortMacroBroken
+        or not isInSession
      )
 
 if isLongExit
     isLongTradeActive := false
-    exitPrice := open
+    exitPrice := close
     profit := exitPrice - entryPrice
 
 if isShortExit
     isShortTradeActive := false
-    exitPrice := open
+    exitPrice := close
     profit := entryPrice - exitPrice
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -205,8 +252,8 @@ if isGC and isShortExit
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // colors
-ZN_color = color.blue
-E6_color = color.purple
+ZN_color = color.purple
+E6_color = color.teal
 GC_color = color.yellow
 long_color = color.blue
 short_color = color.red
@@ -216,9 +263,13 @@ session_color = color.gray
 line_color = color.white
 
 // transparency
-bar_transparency = 30
+bar_transparency = 50
 signal_tranparency = 0
 line_transparency = 80
+bg_macro_transparency = 90
+bg_session_transparency = 50
+
+line_width = 2
 
 // bar color
 barColor =
@@ -233,42 +284,45 @@ barColor =
      isGC and isGChostile ? color.new(short_color, bar_transparency) :
      isGC ? color.new(GC_color, bar_transparency) : na
 barcolor(barColor)
+
+// background
+usaOpeningTime = "0900-0901"
+isUsaMarketOpening = not na(time(timeframe.period, usaOpeningTime, "America/New_York"))
 bgcolor(
-     isSessionClosing ? color.new(session_color, bar_transparency) :
-     isGC and isMacroSupportive and isMacroSupportive[1] ? color.new(long_color, line_transparency) :
-     isGC and isMacroHostile and isMacroHostile[1] ? color.new(short_color, line_transparency) : na
+     isSessionClosing or isUsaMarketOpening ? color.new(session_color, bg_session_transparency) :
+     isGC and isMacroSupportive ? color.new(long_color, bg_macro_transparency) :
+     isGC and isMacroHostile ? color.new(short_color, bg_macro_transparency) : na
 )
 
 // entry
 plot(
-     isGC and isLongEntry ? open : na,
+     isGC and isLongEntry ? entryPrice : na,
      style = plot.style_circles,
      color = color.new(long_color, signal_tranparency),
-     linewidth = 6)
+     linewidth = 5)
 plot(
-     isGC and isShortEntry ? open : na,
+     isGC and isShortEntry ? entryPrice : na,
      style = plot.style_circles,
      color = color.new(short_color, signal_tranparency),
-     linewidth = 6)
+     linewidth = 5)
 
 // exit
 exit_color =
      profit >= 0 ? color.new(win_color, signal_tranparency) :
      color.new(loss_color, signal_tranparency)
 plotshape(
-     isGC and (isLongExit or isShortExit) ? open : na,
+     isGC and (isLongExit or isShortExit) ? exitPrice : na,
      title = "Long Exit",
      style = shape.xcross,
      location = location.absolute,
      color = exit_color,
      size = size.tiny)
 
-// averages
-znAvg = request.security(ZN_SYMBOL, timeframe.period, ta.sma(ta.ema(open, ZN_LOOKBACK), 5))
-e6Avg = request.security(E6_SYMBOL, timeframe.period, ta.sma(ta.ema(open, E6_LOOKBACK), 5))
-plot(isZN ? znAvg : na, color = color.new(line_color, line_transparency))
-plot(isE6 ? e6Avg : na, color = color.new(line_color, line_transparency))
-plot(isGC ? gcAvg : na, color = color.new(line_color, line_transparency))
+// lines
+plot(isZN ? znVwap : na, color = color.new(session_color, line_transparency), linewidth = line_width)
+plot(isE6 ? e6Vwap : na , color = color.new(session_color, line_transparency), linewidth = line_width)
+plot(isGC ? gcVwap : na, color = color.new(session_color, line_transparency), linewidth = line_width)
+plot(isGC ? gcAvg : na , color = color.new(GC_color, line_transparency), linewidth = line_width)
 
 // ALERT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -340,8 +394,8 @@ if isGC and isShortEntry
 // exit long
 if isGC and isLongExit
     if na(alertMessage)
-        isYieldRising = not isZNsupportive
-        isDollarStronger = not isE6supportive
+        isYieldRising = isZNhostile
+        isDollarStronger = isE6hostile
         exitReason =
              isYieldRising and not isDollarStronger ? "Yields rising" :
              isDollarStronger and not isYieldRising ? "Dollar rising" : "Macro alignment lost"
@@ -353,8 +407,8 @@ if isGC and isLongExit
 // exit short
 if isGC and isShortExit
     if na(alertMessage)
-        isTreasuriesStronger = not isZNhostile
-        isDollarWeaker = not isE6hostile
+        isTreasuriesStronger = isZNsupportive
+        isDollarWeaker = isE6supportive
         exitReason =
              isTreasuriesStronger and not isDollarWeaker ? "Treasuries rising" :
              isDollarWeaker and not isTreasuriesStronger ? "Dollar falling" : "Macro alignment lost"
