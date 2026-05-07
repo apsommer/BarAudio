@@ -19,7 +19,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -41,7 +40,6 @@ import com.sommerengineering.signalvoice.uitls.guestEmptyStateSubtitle
 import com.sommerengineering.signalvoice.uitls.notificationsDisabledSubtitle
 import com.sommerengineering.signalvoice.uitls.notificationsDisabledTitle
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 
 @Composable
 fun MessagesScreen(
@@ -58,7 +56,6 @@ fun MessagesScreen(
 
     // setting drawer
     val drawerState = rememberDrawerState(DrawerValue.Closed)
-    val coroutineScope = rememberCoroutineScope()
 
     // special cards: notifications disabled, user signal empty state
     val areNotificationsEnabled = viewModel.areNotificationsEnabled
@@ -119,7 +116,6 @@ fun MessagesScreen(
             topBar = {
                 MessagesTopBar(
                     viewModel = viewModel,
-                    onSettingsClick = { coroutineScope.launch { drawerState.open() } },
                     onToggleFeedMode = { viewModel.toggleFeedMode() },
                     onToggleListening = { viewModel.toggleListening(context) })
             }

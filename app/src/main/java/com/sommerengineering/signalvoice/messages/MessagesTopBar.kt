@@ -25,7 +25,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -41,7 +40,6 @@ import com.sommerengineering.signalvoice.uitls.rowHorizontalPadding
 @Composable
 fun MessagesTopBar(
     viewModel: MainViewModel,
-    onSettingsClick: () -> Unit,
     onToggleFeedMode: () -> Unit,
     onToggleListening: () -> Unit
 ) {
@@ -67,20 +65,12 @@ fun MessagesTopBar(
         verticalAlignment = Alignment.CenterVertically
     ) {
 
-        // settings drawer
-        AppBarIcon(
-            iconRes = R.drawable.drawer,
-            onClick = onSettingsClick,
-            modifier = Modifier
-                .padding(end = 2.dp)
-                .rotate(180f)
-        )
-
         // logo, with scrim overlay
         Box(Modifier.weight(1f)) {
             Image(
                 modifier = Modifier
                     .align(Alignment.CenterStart)
+                    .padding(4.dp)
                     .height(22.dp),
                 painter = painterResource(logoIcon),
                 contentDescription = null
