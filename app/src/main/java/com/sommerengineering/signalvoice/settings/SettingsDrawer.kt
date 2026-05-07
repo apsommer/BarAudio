@@ -1,15 +1,16 @@
 package com.sommerengineering.signalvoice.settings
 
 import android.content.Intent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -89,11 +90,22 @@ fun SettingsDrawer(
 
     var isShowVoiceDialog by remember { mutableStateOf(false) }
 
-    Scaffold { padding ->
+    Box {
+
+        // prevent scroll into notch area when fullscreen
+        if (isFullScreen) {
+            Box(
+                modifier = Modifier
+                    .height(48.dp)
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
+            )
+        }
 
         LazyColumn(
             modifier = Modifier
-                .padding(start = 0.dp, end = 0.dp, top = edgePadding / 2, bottom = 0.dp)
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(top = if (isFullScreen) 48.dp else 0.dp)
         ) {
 
             // divider

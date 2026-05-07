@@ -1,6 +1,7 @@
 package com.sommerengineering.signalvoice.messages
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -100,7 +101,9 @@ fun MessagesScreen(
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            ModalDrawerSheet {
+            ModalDrawerSheet(
+                windowInsets = WindowInsets(0)
+            ) {
                 SettingsDrawer(
                     viewModel = viewModel,
                     onSignOut = onSignOut,
